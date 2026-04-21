@@ -1,0 +1,38 @@
+<!-- ═══ BOX_01 — NEWS ═══════════════════════════════════════ -->
+<!-- DATA: box_news = {par_region: {GLOBAL:[{titre,lien,resume,ts_pub,source_id}], USA:[...], EU:[...], ASIE:[...]}} -->
+<section class="card" id="box1">
+  <div class="card-h">
+    <span class="card-t">Live News Feed</span>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="box-ts">Updated {{ ts_news }}</span>
+      <span class="badge badge-red">&#9679; LIVE</span>
+    </div>
+  </div>
+  <div id="news-scroll"></div>
+</section>
+<script>
+(function(){
+  function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  const DATA  = {{ box_news.par_region | tojson }};
+  const ZONES = { GLOBAL:{cls:"zone-global",lbl:"GLOBAL"}, USA:{cls:"zone-usa",lbl:"USA"}, EU:{cls:"zone-eu",lbl:"EU"}, ASIE:{cls:"zone-as",lbl:"ASIE"} };
+  const ORDER = ["GLOBAL","USA","EU","ASIE"];
+  const el    = document.getElementById("news-scroll");
+  let h = "";
+  ORDER.forEach(zone => {
+    (DATA[zone] || []).forEach(n => {
+      const z  = ZONES[zone] || ZONES.GLOBAL;
+      const ts = (n.ts_pub || "").slice(0,16).replace("T"," ");
+      h += `<div class="news-item">
+        <div class="news-anchor">${esc(n.source_id || zone)}</div>
+        <div class="news-meta">
+          <span class="news-time">${esc(ts)}</span>
+          <span class="news-zone ${z.cls}">${z.lbl}</span>
+        </div>
+        <div class="news-hl">${esc(n.titre)}</div>
+        ${n.resume ? `<div class="news-body">${esc(n.resume)}</div>` : ""}
+      </div>`;
+    });
+  });
+  el.innerHTML = h || `<div style="padding:20px;color:var(--muted);text-align:center">No articles yet</div>`;
+})();
+</script>

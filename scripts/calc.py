@@ -404,6 +404,10 @@ def main():
 
     for ticker in tickers:
         df = load_prices(con, ticker)
+        # NOTE : pas de cutoff temporel ici — fetch_prices.py a déjà filtré
+        # l'intraday partiel via l'heuristique volume. Un cutoff "< today UTC"
+        # casserait les tickers EU/Asia dont l'EOD finalisé est légitimement
+        # daté aujourd'hui UTC (marché fermé avant le fetch matin).
         if len(df) < 22:   # minimum 1M de données
             log.debug("%s — données insuffisantes (%d jours)", ticker, len(df))
             skipped += 1

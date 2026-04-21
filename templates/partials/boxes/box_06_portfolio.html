@@ -1,0 +1,99 @@
+<!-- ═══ BOX_06 — PORTFOLIO SCANNER ══════════════════════════ -->
+<!-- DATA: box_portfolio = {currency, tickers:[{ticker,nom,secteur,close,chg_pct,ret_1m,ret_3m,ret_6m,ret_1y,score,above_dma200,rvol,sentiment_label,signal,sparkline}], total:int} -->
+<section class="card" id="box6">
+  <div class="card-h">
+    <span class="card-t">Portfolio Signal Table</span>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="box-ts">Updated {{ ts_portfolio }}</span>
+      <span class="badge badge-green">{{ box_portfolio.total }} tickers &middot; {{ box_portfolio.currency }}</span>
+    </div>
+  </div>
+  <div style="overflow-x:auto"><table><thead><tr>
+    <th>Category</th>
+    <th>Ticker (Sector)</th>
+    <th></th>
+    <th>Price</th>
+    <th>Today</th>
+    <th>1M</th>
+    <th>3M</th>
+    <th>1Y</th>
+    <th>Score</th>
+    <th>Signal</th>
+    <th>Evidence</th>
+  </tr></thead><tbody id="ptb"></tbody></table></div>
+</section>
+<script>
+(function(){
+  const PORT = {{ box_portfolio.tickers | tojson }};
+  PORT.sort(function(a,b){ return (a.secteur||"").localeCompare(b.secteur||""); });
+  const tb   = document.getElementById("ptb");
+  function mk(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!=null)el.textContent=txt;return el;}
+  function pct(n){return n!=null?(n>=0?"+":"")+n.toFixed(2)+"%":"—";}
+  function fmt(n){return n!=null?n.toLocaleString("en",{minimumFractionDigits:2,maximumFractionDigits:2}):"—";}
+  const sparkCharts = {};
+
+  PORT.forEach((p, i) => {
+    const tr = tb.appendChild(mk("tr"));
+
+    // Category (secteur)
+    tr.appendChild(mk("td",null,p.secteur||"—")).style.color = "var(--muted)";
+
+    // Ticker (Sector) = ticker bold + nom small
+    const td1 = tr.appendChild(mk("td"));
+    td1.appendChild(mk("strong",null,p.ticker)).style.color = "var(--h)";
+    const sub = td1.appendChild(mk("span",null," "+(p.nom||"")));
+    sub.style.cssText = "font-size:10px;color:var(--muted)";
+
+    // Sparkline
+    const td2 = tr.appendChild(mk("td"));
+    const cv  = td2.appendChild(document.createElement("canvas"));
+    cv.id = "psp"+i; cv.width=56; cv.height=22; cv.className="idx-spark";
+
+    // Price
+    tr.appendChild(mk("td",null,fmt(p.close))).style.fontVariantNumeric = "tabular-nums";
+
+    // Today %
+    const chgTd = tr.appendChild(mk("td",null,pct(p.chg_pct)));
+    chgTd.style.fontWeight = "600";
+    chgTd.className = (p.chg_pct||0)>=0 ? "p-up" : "p-dn";
+
+    // 1M / 3M / 1Y
+    [p.ret_1m, p.ret_3m, p.ret_1y].forEach(v => {
+      const td = tr.appendChild(mk("td",null,pct(v)));
+      td.className = v==null?"":v>=0?"p-up":"p-dn";
+    });
+
+    // Score
+    const sc = p.score;
+    const scTd = tr.appendChild(mk("td",null,sc!=null?(sc>=0?"+":"")+sc.toFixed(2):"—"));
+    scTd.style.color = sc==null?"var(--muted)":sc>=0.1?"var(--green)":sc<=-0.1?"var(--red)":"var(--muted)";
+    scTd.style.fontWeight = "600";
+
+    // Signal
+    const sigTd = tr.appendChild(mk("td"));
+    const sigCls = p.signal==="BUY"?"sig-buy":p.signal==="AVOID"?"sig-avoid":p.signal==="WATCH"?"sig-watch":"sig-na";
+    sigTd.appendChild(mk("span","sig "+sigCls, p.signal||"N/A"));
+
+    // Evidence
+    tr.appendChild(mk("td","evidence", p.evidence||"—"));
+  });
+
+  // Sparklines after DOM is built
+  PORT.forEach((p, i) => {
+    const cv  = document.getElementById("psp"+i);
+    if (!cv) return;
+    const raw = p.sparkline ? JSON.parse(p.sparkline) : [];
+    if (!raw.length) return;
+    const col = (p.chg_pct||0)>=0 ? "rgb(44,122,62)" : "rgb(160,48,32)";
+    const c = miniChart(cv, raw, col, false);
+    if (c) sparkCharts["psp"+i] = c;
+  });
+
+  if (!PORT.length){
+    const tr = tb.appendChild(mk("tr"));
+    const td = tr.appendChild(mk("td","null","No watchlist data"));
+    td.colSpan = 10;
+    td.style.cssText = "padding:20px;color:var(--muted);text-align:center";
+  }
+})();
+</script>
