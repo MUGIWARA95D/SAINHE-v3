@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" data-theme="light">
+{% include "partials/_head.html" %}
+<body>
+
+{% include "partials/_intro.html" %}
+
+<!-- ═══ WATERMARK ══════════════════════════════════ -->
+<svg id="wm" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <line x1="26" y1="149" x2="114" y2="149" stroke="currentColor" stroke-width="1.5"/>
+  <line x1="26" y1="153" x2="114" y2="153" stroke="currentColor" stroke-width="1" opacity=".55"/>
+  <line x1="27" y1="157" x2="113" y2="157" stroke="currentColor" stroke-width=".8" opacity=".35"/>
+  <line x1="28" y1="160" x2="112" y2="160" stroke="currentColor" stroke-width=".6" opacity=".2"/>
+  <line x1="9"  y1="8"   x2="9"   y2="149" stroke="currentColor" stroke-width="3"/>
+  <line x1="16" y1="10"  x2="16"  y2="147" stroke="currentColor" stroke-width=".8" opacity=".28"/>
+  <line x1="25" y1="8"   x2="25"  y2="149" stroke="currentColor" stroke-width="2"/>
+  <rect x="9" y="6" width="106" height="143" rx="3" stroke="currentColor" stroke-width="2"/>
+  <rect x="19" y="16" width="86" height="123" rx="1.5" stroke="currentColor" stroke-width="1"/>
+  <path d="M19 30 C17 23 21 17 27 19" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M19 30 C13 26 14 18 21 16" stroke="currentColor" stroke-width=".9" stroke-linecap="round" opacity=".7"/>
+  <path d="M19 30 C12 27 12 19 17 15" stroke="currentColor" stroke-width=".7" stroke-linecap="round" opacity=".45"/>
+  <circle cx="19" cy="30" r="1.8" fill="currentColor" opacity=".55"/>
+  <path d="M105 30 C107 23 103 17 97 19" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M105 30 C111 26 110 18 103 16" stroke="currentColor" stroke-width=".9" stroke-linecap="round" opacity=".7"/>
+  <path d="M105 30 C112 27 112 19 107 15" stroke="currentColor" stroke-width=".7" stroke-linecap="round" opacity=".45"/>
+  <circle cx="105" cy="30" r="1.8" fill="currentColor" opacity=".55"/>
+  <path d="M19 125 C17 132 21 138 27 136" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M19 125 C13 129 14 137 21 139" stroke="currentColor" stroke-width=".9" stroke-linecap="round" opacity=".7"/>
+  <path d="M19 125 C12 128 12 136 17 140" stroke="currentColor" stroke-width=".7" stroke-linecap="round" opacity=".45"/>
+  <circle cx="19" cy="125" r="1.8" fill="currentColor" opacity=".55"/>
+  <path d="M105 125 C107 132 103 138 97 136" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M105 125 C111 129 110 137 103 139" stroke="currentColor" stroke-width=".9" stroke-linecap="round" opacity=".7"/>
+  <path d="M105 125 C112 128 112 136 107 140" stroke="currentColor" stroke-width=".7" stroke-linecap="round" opacity=".45"/>
+  <circle cx="105" cy="125" r="1.8" fill="currentColor" opacity=".55"/>
+</svg>
+
+{% include "partials/_header.html" %}
+{% include "partials/_ticker.html" %}
+
+<main id="main">
+
+  <!-- ═══ HERO STATEMENT ══════════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <div class="hero-eyebrow">
+        <span class="hero-dot"></span>
+        <span>Daily Intelligence · {{ ts_render }}</span>
+      </div>
+      <h1 class="hero-title">
+        Market clarity,<br>
+        <em>one page at a time.</em>
+      </h1>
+      <p class="hero-lede">
+        Six disciplined boxes. Indices, news, sectors, sentiment, macro &amp; portfolio —
+        curated on a cream &amp; coffee canvas for calm, unhurried reading.
+      </p>
+      <div class="hero-chips">
+        <a class="hero-chip" href="#nav-indices"><span>01</span>Indices</a>
+        <a class="hero-chip" href="#nav-news"><span>02</span>News</a>
+        <a class="hero-chip" href="#nav-sectors"><span>03</span>Sectors</a>
+        <a class="hero-chip" href="#nav-sentiment"><span>04</span>Sentiment</a>
+        <a class="hero-chip" href="#nav-macro"><span>05</span>Macro</a>
+        <a class="hero-chip" href="#nav-portfolio"><span>06</span>Portfolio</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ STATEMENT BAR ═══════════════════════════════════════ -->
+  <div class="statement-bar">
+    <span class="sb-label">Read today ·</span>
+    <span class="sb-body">Smart money bias, rotation tape, law-weighted sentiment, and the macro health of the engine room.</span>
+  </div>
+
+  <div class="section-lbl" id="nav-indices">
+    <span class="section-num">01</span>
+    <h2>Indices</h2><em>Global Market Pulse</em>
+  </div>
+  {% include "partials/boxes/box_02_indices.html" %}
+
+  <div class="section-lbl" id="nav-news">
+    <span class="section-num">02</span>
+    <h2>News</h2><em>Live Market Intelligence</em>
+  </div>
+  {% include "partials/boxes/box_01_news.html" %}
+
+  <div class="section-lbl" id="nav-sectors">
+    <span class="section-num">03</span>
+    <h2>Sectors</h2><em>Industry Rotation View</em>
+  </div>
+  {% include "partials/boxes/box_03_sectors.html" %}
+
+  <div class="section-lbl" id="nav-sentiment">
+    <span class="section-num">04</span>
+    <h2>Sentiment</h2><em>Bias Reality Laws</em>
+  </div>
+  {% include "partials/boxes/box_04_sentiment.html" %}
+
+  <div class="section-lbl" id="nav-macro">
+    <span class="section-num">05</span>
+    <h2>Macro</h2><em>Economic Health Signals</em>
+  </div>
+  {% include "partials/boxes/box_05_macro.html" %}
+
+  <div class="section-lbl" id="nav-portfolio">
+    <span class="section-num">06</span>
+    <h2>Portfolio</h2><em>Holdings Score Tracker</em>
+  </div>
+  {% include "partials/boxes/box_06_portfolio.html" %}
+
+  <!-- ═══ PIPELINE STRIP ══════════════════════════════════════ -->
+  <div class="pipeline">
+    <span>SAINHE pipeline</span>
+    <span class="pl-dot"></span>
+    <span>Fetch</span><span class="pl-arr">→</span>
+    <span>Compute</span><span class="pl-arr">→</span>
+    <span>Render</span><span class="pl-arr">→</span>
+    <span>Read</span>
+  </div>
+
+</main>
+
+{% include "partials/_footer.html" %}
+
+<!-- ═══ SHARED JS HELPERS ══════════════════════════════════ -->
+<script>
+function miniChart(cv, data, color, fill){
+  if(!cv || !data || !data.length) return null;
+  const bg = fill ? color.replace("rgb(","rgba(").replace(")",",0.12)") : "transparent";
+  return new Chart(cv, {
+    type:"line",
+    data:{labels:data.map((_,i)=>i), datasets:[{data, borderColor:color, borderWidth:1.5,
+      fill:!!fill, backgroundColor:bg, tension:.4, pointRadius:0}]},
+    options:{responsive:false, animation:{duration:0},
+      plugins:{legend:{display:false}, tooltip:{enabled:false}},
+      scales:{x:{display:false}, y:{display:false}}}
+  });
+}
+
+/* ── Theme (pill) ────────────────────────────────── */
+const _H=document.documentElement, _TB=document.getElementById("thm");
+const _SUN=_TB?_TB.querySelector(".tp-sun"):null;
+const _MOON=_TB?_TB.querySelector(".tp-moon"):null;
+function setTheme(t){
+  _H.dataset.theme=t;
+  if(_SUN)  _SUN.style.opacity  = t==="dark"?"0.3":"1";
+  if(_MOON) _MOON.style.opacity = t==="dark"?"1":"0.3";
+  try{localStorage.setItem("sainhe_theme",t);}catch(e){}
+}
+try{setTheme(localStorage.getItem("sainhe_theme")||"light");}catch(e){setTheme("light");}
+if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dark"?"light":"dark");});
+
+
+/* ── Scroll progress ─────────────────────────────── */
+(function(){
+  const prog=document.getElementById("scroll-prog");
+  if(!prog) return;
+  window.addEventListener("scroll",function(){
+    const h=document.documentElement;
+    const pct=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;
+    prog.style.width=Math.min(pct,100)+"%";
+  },{passive:true});
+})();
+
+/* ── Watermark scroll (2 full rotations top→bottom) ─ */
+(function(){
+  const wm=document.getElementById("wm");
+  if(!wm) return;
+  window.addEventListener("scroll",function(){
+    const max=document.documentElement.scrollHeight-window.innerHeight;
+    if(max<=0) return;
+    const p=Math.min(window.scrollY/max,1);
+    wm.style.top=(12+p*60)+"vh";
+    wm.style.transform="rotate("+(p*720)+"deg)";
+  },{passive:true});
+})();
+
+/* ── Dropdowns ───────────────────────────────────── */
+(function(){
+  var closeTimers = {};
+
+  function openDd(dd){
+    clearTimeout(closeTimers[dd.id]);
+    document.querySelectorAll(".hdr-dd.open").forEach(function(o){
+      if(o!==dd){ clearTimeout(closeTimers[o.id]); o.classList.remove("open"); }
+    });
+    dd.classList.add("open");
+  }
+  function closeDd(dd, delay){
+    clearTimeout(closeTimers[dd.id]);
+    closeTimers[dd.id] = setTimeout(function(){ dd.classList.remove("open"); }, delay||0);
+  }
+
+  document.querySelectorAll(".hdr-dd").forEach(function(dd){
+    var btn = dd.querySelector(".hdr-dd-btn");
+    if(!btn) return;
+
+    // Click toggle
+    btn.addEventListener("click",function(e){
+      e.stopPropagation();
+      dd.classList.contains("open") ? closeDd(dd,0) : openDd(dd);
+    });
+
+    // Hover open/close — nav gets 1s grace period
+    var isNav = dd.id === "dd-nav";
+    dd.addEventListener("mouseenter",function(){ openDd(dd); });
+    dd.addEventListener("mouseleave",function(){ closeDd(dd, isNav ? 1000 : 200); });
+
+    // Keep open when hovering the menu itself
+    var menu = dd.querySelector(".hdr-dd-menu");
+    if(menu){
+      menu.addEventListener("mouseenter",function(){ clearTimeout(closeTimers[dd.id]); });
+      menu.addEventListener("mouseleave",function(){ closeDd(dd, isNav ? 1000 : 200); });
+    }
+  });
+
+  document.addEventListener("click",function(){
+    document.querySelectorAll(".hdr-dd.open").forEach(function(o){ o.classList.remove("open"); });
+  });
+})();
+
+/* ── Ticker tape (DOM-safe) ──────────────────────── */
+(function(){
+  const REGIONS = {{ box_indices.par_region | tojson }};
+  const ORDER   = ["USA","EU","ASIE","GLOBAL"];
+  const all     = ORDER.flatMap(r=>REGIONS[r]||[]);
+  const el      = document.getElementById("tksc");
+  if(!el||!all.length) return;
+  const frag = document.createDocumentFragment();
+  for(let r=0;r<2;r++){
+    all.forEach(x=>{
+      const chg=x.chg_pct||0, s=chg>=0?"+":"";
+      const pr=x.close!=null?x.close.toLocaleString("en",{minimumFractionDigits:2,maximumFractionDigits:2}):"—";
+      const item=document.createElement("div"); item.className="tk-item";
+      const name=document.createElement("span"); name.className="tk-name"; name.textContent=x.ticker||"";
+      const price=document.createElement("span"); price.textContent=pr;
+      const change=document.createElement("span"); change.className=chg>=0?"tk-up":"tk-dn";
+      change.textContent=s+Math.abs(chg).toFixed(2)+"%";
+      item.appendChild(name); item.appendChild(price); item.appendChild(change);
+      frag.appendChild(item);
+    });
+  }
+  el.appendChild(frag);
+})();
+
+/* ── Nav highlight (scroll-tracked) ─────────────── */
+(function(){
+  const links = document.querySelectorAll(".hdr-nav a[href^='#']");
+  const setActive = function(id){
+    links.forEach(function(a){
+      a.classList.toggle("active", a.getAttribute("href") === "#" + id);
+    });
+  };
+  const sectionIds = ["nav-indices","nav-news","nav-sectors","nav-sentiment","nav-macro","nav-portfolio"];
+  const sections = sectionIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
+
+  const obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting) setActive(e.target.id);
+    });
+  }, { rootMargin: "-40% 0px -55% 0px", threshold: 0 });
+
+  sections.forEach(function(s){ obs.observe(s); });
+
+  // fallback: click still works
+  links.forEach(function(a){
+    a.addEventListener("click", function(){
+      setActive(this.getAttribute("href").slice(1));
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

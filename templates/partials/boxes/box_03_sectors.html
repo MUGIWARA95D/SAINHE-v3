@@ -1,0 +1,107 @@
+<!-- ═══ BOX_03 — SECTOR ROTATION ════════════════════════════ -->
+<!-- DATA: box_sectors = {secteurs:[{nom, regions:{MONDE:{chg_pct,ret_1m,ret_3m,ret_6m,ret_1y,score,above_dma200,sparkline},...}}]} -->
+<section class="card" id="box3">
+  <div class="card-h">
+    <span class="card-t">Sector Performance</span>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="box-ts">Updated {{ ts_sectors }}</span>
+      <span class="badge badge-gold">R-Perf vs Global &middot; RVOL</span>
+    </div>
+  </div>
+  <div class="tabs" id="ztabs">
+    <button class="tab active" data-z="usa">USA</button>
+    <button class="tab" data-z="europe">Europe</button>
+    <button class="tab" data-z="asia">Asie</button>
+    <button class="tab" data-z="monde">Monde</button>
+  </div>
+  <div id="sec-scroll"><div id="sec-list"></div></div>
+  <div class="ptabs" id="ptabs">
+    <button class="ptab active" data-p="chg_pct">Aujourd'hui</button>
+    <button class="ptab" data-p="ret_1m">1M</button>
+    <button class="ptab" data-p="ret_3m">3M</button>
+    <button class="ptab" data-p="ret_6m">6M</button>
+    <button class="ptab" data-p="ret_1y">1Y</button>
+  </div>
+</section>
+<script>
+(function(){
+  function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  const SECS   = {{ box_sectors.secteurs | tojson }};
+  const Z_MAP  = {usa:"USA", europe:"EU", asia:"ASIE", monde:"MONDE"};
+  let cZ = "USA", cP = "chg_pct";
+  const sparkCharts = {};
+
+  function renderSectors(){
+    const el = document.getElementById("sec-list");
+    Object.values(sparkCharts).forEach(c => c.destroy());
+    Object.keys(sparkCharts).forEach(k => delete sparkCharts[k]);
+
+    const data = SECS.map(s => {
+      const r = s.regions ? s.regions[Z_MAP[cZ] || cZ] : null;
+      return r ? {sector:s.nom, perf:r[cP]||0, score:r.score, above:r.above_dma200, spark:r.sparkline} : null;
+    }).filter(Boolean).sort((a,b) => b.perf - a.perf);
+
+    const frag = document.createDocumentFragment();
+    data.forEach((s, i) => {
+      const row = document.createElement("div");
+      row.className = "sec-row" + (s.above ? " golden-alpha" : "");
+      row.dataset.sec = s.sector;
+
+      const perf  = s.perf > 0.3 ? "p-up" : s.perf < -0.3 ? "p-dn" : "p-flat";
+      const sg    = s.perf >= 0 ? "+" : "";
+      const sc    = s.score != null ? s.score.toFixed(2) : "—";
+      const hot   = s.score != null && s.score > 0.3 ? " rvol-hot" : "";
+
+      row.innerHTML = [
+        `<span class="drag-h">&#8999;</span>`,
+        `<button class="vis-btn">&#128065;</button>`,
+        `<span class="sec-name" title="${esc(s.sector)}">${esc(s.sector)}</span>`,
+        `<div class="sec-spark"><canvas id="ss${i}" width="60" height="24"></canvas></div>`,
+        `<span class="sec-rvol${hot}">${esc(sc)}</span>`,
+        `<span class="sec-perf ${perf}">${sg}${Math.abs(s.perf).toFixed(2)}%</span>`,
+      ].join("");
+
+      row.querySelector(".vis-btn").addEventListener("click", function(e){
+        e.stopPropagation();
+        row.classList.toggle("sec-hidden");
+      });
+      frag.appendChild(row);
+    });
+
+    el.textContent = "";
+    if (data.length) {
+      el.appendChild(frag);
+    } else {
+      const empty = document.createElement("div");
+      empty.style.cssText = "padding:20px;color:var(--muted);text-align:center";
+      empty.textContent = "No data";
+      el.appendChild(empty);
+    }
+
+    data.forEach((s, i) => {
+      const cv = document.getElementById("ss" + i);
+      if (!cv) return;
+      const raw = s.spark ? JSON.parse(s.spark) : [];
+      if (!raw.length) return;
+      const col = s.perf > 0.3 ? "rgb(44,122,62)" : s.perf < -0.3 ? "rgb(160,48,32)" : "rgb(138,126,110)";
+      const c = miniChart(cv, raw, col, true);
+      if (c) sparkCharts["ss"+i] = c;
+    });
+
+    if (typeof Sortable !== "undefined")
+      Sortable.create(el, {animation:150, handle:".drag-h", ghostClass:"sortable-ghost"});
+  }
+
+  document.getElementById("ztabs").addEventListener("click", function(e){
+    const b = e.target.closest(".tab"); if (!b) return;
+    document.querySelectorAll("#ztabs .tab").forEach(t => t.classList.remove("active"));
+    b.classList.add("active"); cZ = b.dataset.z; renderSectors();
+  });
+  document.getElementById("ptabs").addEventListener("click", function(e){
+    const b = e.target.closest(".ptab"); if (!b) return;
+    document.querySelectorAll("#ptabs .ptab").forEach(t => t.classList.remove("active"));
+    b.classList.add("active"); cP = b.dataset.p; renderSectors();
+  });
+  renderSectors();
+})();
+</script>

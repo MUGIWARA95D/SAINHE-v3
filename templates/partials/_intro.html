@@ -1,0 +1,96 @@
+<!-- ═══ INTRO — BOOK OPENING ANIMATION ══════════════════════ -->
+<!-- Runs once per session (sessionStorage). Overlay fades out at 2.8s. -->
+<div id="intro-ov" aria-hidden="true">
+  <div id="bk-wrap">
+    <div id="bk-scene">
+
+      <!-- ── Back: inner pages revealed when cover opens ── -->
+      <div id="bk-back">
+        <div class="bk-rule"></div>
+        <div id="bk-logo">SAINHE</div>
+        <div id="bk-sub">Fundamental Intelligence</div>
+        <div class="bk-rule"></div>
+      </div>
+
+      <!-- ── Front: cover that rotates open ── -->
+      <div id="bk-front">
+
+        <!-- Front face of cover (backface-visibility:hidden — disappears mid-rotation) -->
+        <div id="bk-face">
+          <!-- Book illustration matching the logo SVG style -->
+          <svg viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg"
+               style="width:121px;height:auto;color:var(--gold)">
+            <!-- Page stack at bottom -->
+            <line x1="26" y1="149" x2="114" y2="149" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="26" y1="153" x2="114" y2="153" stroke="currentColor" stroke-width="1" opacity=".55"/>
+            <line x1="27" y1="157" x2="113" y2="157" stroke="currentColor" stroke-width=".8" opacity=".35"/>
+            <line x1="28" y1="160" x2="112" y2="160" stroke="currentColor" stroke-width=".6" opacity=".2"/>
+            <!-- Spine -->
+            <line x1="9"  y1="8"   x2="9"   y2="149" stroke="currentColor" stroke-width="3"/>
+            <line x1="16" y1="10"  x2="16"  y2="147" stroke="currentColor" stroke-width=".8" opacity=".28"/>
+            <line x1="25" y1="8"   x2="25"  y2="149" stroke="currentColor" stroke-width="2"/>
+            <!-- Outer border -->
+            <rect x="9" y="6" width="106" height="143" rx="3" stroke="currentColor" stroke-width="2"/>
+            <!-- Inner border -->
+            <rect x="19" y="16" width="86" height="123" rx="1.5" stroke="currentColor" stroke-width="1"/>
+            <!-- Corner ornament TL -->
+            <path d="M19 30 C17 23 21 17 27 19" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            <path d="M19 30 C13 26 14 18 21 16" stroke="currentColor" stroke-width=".9" stroke-linecap="round" opacity=".7"/>
+            <path d="M19 30 C12 27 12 19 17 15" stroke="currentColor" stroke-width=".7" stroke-linecap="round" opacity=".45"/>
+            <circle cx="19" cy="30" r="1.8" fill="currentColor" opacity=".55"/>
+            <!-- Corner ornament TR -->
+            <path d="M105 30 C107 23 103 17 97 19" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            <path d="M105 30 C111 26 110 18 103 16" stroke="currentColor" stroke-width=".9" stroke-linecap="round" opacity=".7"/>
+            <path d="M105 30 C112 27 112 19 107 15" stroke="currentColor" stroke-width=".7" stroke-linecap="round" opacity=".45"/>
+            <circle cx="105" cy="30" r="1.8" fill="currentColor" opacity=".55"/>
+            <!-- Corner ornament BL -->
+            <path d="M19 125 C17 132 21 138 27 136" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            <path d="M19 125 C13 129 14 137 21 139" stroke="currentColor" stroke-width=".9" stroke-linecap="round" opacity=".7"/>
+            <path d="M19 125 C12 128 12 136 17 140" stroke="currentColor" stroke-width=".7" stroke-linecap="round" opacity=".45"/>
+            <circle cx="19" cy="125" r="1.8" fill="currentColor" opacity=".55"/>
+            <!-- Corner ornament BR -->
+            <path d="M105 125 C107 132 103 138 97 136" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            <path d="M105 125 C111 129 110 137 103 139" stroke="currentColor" stroke-width=".9" stroke-linecap="round" opacity=".7"/>
+            <path d="M105 125 C112 128 112 136 107 140" stroke="currentColor" stroke-width=".7" stroke-linecap="round" opacity=".45"/>
+            <circle cx="105" cy="125" r="1.8" fill="currentColor" opacity=".55"/>
+          </svg>
+        </div>
+
+        <!-- Inner face of cover (shown when cover fully rotates open) -->
+        <div id="bk-face-in"></div>
+
+      </div><!-- /#bk-front -->
+    </div><!-- /#bk-scene -->
+  </div><!-- /#bk-wrap -->
+</div><!-- /#intro-ov -->
+
+<script>
+(function(){
+  var ov    = document.getElementById("intro-ov");
+  var front = document.getElementById("bk-front");
+  if (!ov) return;
+
+  var _timer1, _timer2;
+
+  window._sainheIntro = function() {
+    // scroll to top
+    window.scrollTo({top:0, behavior:"instant"});
+    // reset CSS animation
+    if (front) {
+      front.style.animation = "none";
+      front.offsetHeight; // force reflow
+      front.style.animation = "";
+    }
+    // show overlay
+    ov.style.display = "flex";
+    ov.classList.remove("hide");
+    // fade out
+    clearTimeout(_timer1); clearTimeout(_timer2);
+    _timer1 = setTimeout(function(){ ov.classList.add("hide"); }, 2800);
+    _timer2 = setTimeout(function(){ ov.style.display = "none"; }, 3700);
+  };
+
+  // play on every page load
+  window._sainheIntro();
+})();
+</script>
