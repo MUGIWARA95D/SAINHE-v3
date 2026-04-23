@@ -2,7 +2,7 @@
 #  SAINHE — config.py
 #  Source unique de vérité.
 #  Aucun calcul ici. Aucun secret ici.
-#  BASE_DIR : C:\SAINHE\apres
+#  BASE_DIR : répertoire du projet (résolu depuis ce fichier)
 # ============================================================
 
 from pathlib import Path
@@ -10,7 +10,7 @@ from pathlib import Path
 # ============================================================
 #  1. CHEMINS
 # ============================================================
-BASE_DIR     = Path(r"C:\SAINHE\apres")
+BASE_DIR     = Path(__file__).resolve().parent
 DB_PATH      = BASE_DIR / "db"     / "sainhe.db"
 CACHE_DIR    = BASE_DIR / "cache"
 CACHE_NEWS   = BASE_DIR / "cache"  / "news"
