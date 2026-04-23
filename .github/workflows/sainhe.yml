@@ -26,6 +26,10 @@ env:
   DB_PATH: db/sainhe.db
   PYTHONIOENCODING: utf-8
 
+permissions:
+  contents: read
+  deployments: write
+
 jobs:
 
   # ════════════════════════════════════════════════════════════
