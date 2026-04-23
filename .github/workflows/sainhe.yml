@@ -162,6 +162,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Init DB (idempotent)
+        run: python scripts/db_init.py
+
       - name: Fetch FX
         run: python scripts/fetch_fx.py
 
