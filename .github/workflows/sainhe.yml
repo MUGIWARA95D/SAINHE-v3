@@ -55,8 +55,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}
-          restore-keys: sainhe-db-
+          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: sainhe-db-${{ runner.os }}-
 
       - uses: actions/setup-python@v5
         with:
@@ -87,7 +87,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}
+          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
@@ -115,8 +115,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}
-          restore-keys: sainhe-db-
+          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: sainhe-db-${{ runner.os }}-
 
       - uses: actions/setup-python@v5
         with:
@@ -153,7 +153,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}
+          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
 
       # ── Deploy vers Cloudflare Pages ───────────────────────
       - name: Deploy to Cloudflare Pages
@@ -181,8 +181,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}
-          restore-keys: sainhe-db-
+          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: sainhe-db-${{ runner.os }}-
 
       - uses: actions/setup-python@v5
         with:
@@ -202,7 +202,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}
+          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
 
   # ════════════════════════════════════════════════════════════
   #  JOB 4 — HISTORIQUE HALF-0  (tickers 1-50)
@@ -224,8 +224,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}
-          restore-keys: sainhe-db-
+          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: sainhe-db-${{ runner.os }}-
 
       - uses: actions/setup-python@v5
         with:
@@ -245,7 +245,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}
+          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
 
   # ════════════════════════════════════════════════════════════
   #  JOB 5 — HISTORIQUE HALF-1  (tickers 51-100)
@@ -267,8 +267,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}
-          restore-keys: sainhe-db-
+          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: sainhe-db-${{ runner.os }}-
 
       - uses: actions/setup-python@v5
         with:
@@ -288,4 +288,4 @@ jobs:
         uses: actions/cache@v4
         with:
           path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}
+          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
