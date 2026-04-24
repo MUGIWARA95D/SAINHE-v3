@@ -72,10 +72,6 @@ jobs:
       - name: Fetch News
         run: python scripts/fetch_news.py
 
-      - name: Fetch Indices (light — refresh VIX/yields/DXY)
-        run: python scripts/fetch_indices.py
-        continue-on-error: true
-
       - name: Calculate indicators (refresh snapshot timestamps)
         run: python scripts/calc.py
         continue-on-error: true
