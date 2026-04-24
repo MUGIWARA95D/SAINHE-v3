@@ -250,7 +250,7 @@ DEFAULT_CURRENCY = "USD"
 #  9. DESIGN
 # ============================================================
 SITE_NAME   = "SAINHE"
-SITE_SLOGAN = "Smart Alpha Intelligence"
+SITE_SLOGAN = "Fundamental Intelligence"
 
 COLORS = {
     "bg_light"  : "#FAF7F2",

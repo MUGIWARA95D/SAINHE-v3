@@ -111,35 +111,7 @@ h1,h2,h3,h4{font-family:var(--serif);color:var(--h);font-weight:400}
   display:flex;align-items:center;gap:4px;transition:all .15s;white-space:nowrap}
 .hdr-dd-btn:hover,.hdr-dd.open .hdr-dd-btn{border-color:var(--gold);color:var(--gold)}
 .hdr-dd-btn::after{content:"▾";font-size:9px;opacity:.55;transition:transform .15s;font-family:var(--sans)}
-.books-btn{background:none;border:none;padding:2px 4px}
-.books-btn::after{display:none}
-.books-btn:hover{border:none;color:var(--gold)}
-.books-icon{width:38px;height:28px;color:var(--muted);transition:color .15s;overflow:visible;
-  position:relative;z-index:600}
-.books-btn:hover .books-icon,#dd-nav.open .books-icon{color:var(--gold)}
 
-/* Books standing leaning right: II\ */
-.bk1{transform:translate(3px,3px) rotate(-4deg);transform-origin:center center;transition:transform .4s cubic-bezier(.4,0,.2,1)}
-.bk2{transform:translate(12px,2px) rotate(-2deg);transform-origin:center center;transition:transform .4s cubic-bezier(.4,0,.2,1) .06s}
-.bk3{transform:translate(21px,1px) rotate(8deg);transform-origin:center center;transition:transform .4s cubic-bezier(.4,0,.2,1) .12s}
-
-/* Open → hide header books, show menu books */
-#dd-nav.open .bk-g{opacity:0;transition:opacity .25s}
-
-/* Static stacked books decoration inside menu */
-.menu-books{padding:0 0 12px;color:var(--gold);opacity:.5}
-
-/* ══ MEGA NAV PANEL ══════════════════════════════ */
-#dd-nav .hdr-dd-menu{position:fixed;top:48px;left:1cm;right:1cm;
-  background:var(--card);border:1px solid var(--border-lt);border-top:none;
-  border-radius:0 0 10px 10px;
-  box-shadow:var(--shadow-md);padding:48px 40px 48px 20px;z-index:500;
-  flex-direction:column;min-width:unset;overflow:visible}
-#dd-nav .hdr-dd-item{font-family:var(--serif);font-size:26px;font-weight:400;
-  color:var(--h);padding:10px 0;border:none;border-left:none;letter-spacing:.2px;
-  background:none;transition:color .15s;white-space:nowrap;border-radius:0}
-#dd-nav .hdr-dd-item:hover{color:var(--gold);background:none}
-#dd-nav .hdr-dd-item.active{color:var(--gold);border:none;padding-left:0}
 .hdr-dd.open .hdr-dd-btn::after{transform:rotate(180deg)}
 .hdr-dd-menu{position:absolute;top:calc(100% + 4px);right:0;min-width:72px;
   background:var(--card);border:1px solid var(--border);border-radius:6px;
@@ -165,22 +137,23 @@ h1,h2,h3,h4{font-family:var(--serif);color:var(--h);font-weight:400}
 .tk-up{color:#7CC98A}.tk-dn{color:#E08080}
 
 /* ═══════════════════ MAIN ═══════════════════ */
-#main{padding:32px 40px;max-width:1600px;margin:0 auto;position:relative;z-index:1}
-@media(max-width:800px){#main{padding:20px 16px}}
+#main{padding:40px 60px;max-width:1600px;margin:0 auto;position:relative;z-index:1}
+@media(max-width:1100px){#main{padding:32px 40px}}
+@media(max-width:800px){#main{padding:20px 20px}}
 
 /* ═══════════════════ SECTION LABEL ═══════════════════ */
-.section-lbl{padding:40px 0 14px;display:flex;align-items:baseline;gap:14px;scroll-margin-top:56px}
+.section-lbl{padding:52px 0 20px;display:flex;align-items:baseline;gap:14px;scroll-margin-top:60px}
 .section-lbl:first-child{padding-top:0}
 .section-lbl h2{font-family:var(--serif);font-size:24px;color:var(--h);font-weight:400;letter-spacing:.1px}
 .section-lbl em{font-style:normal;font-size:12px;color:var(--muted);letter-spacing:.5px;
   text-transform:uppercase;font-family:var(--sans)}
 
 /* ═══════════════════ CARD ═══════════════════ */
-.card{background:var(--card);border:1px solid var(--border-lt);border-radius:var(--r);
+.card{background:var(--card);border:1px solid var(--border-lt);border-radius:20px;
   box-shadow:var(--shadow);transition:background .3s,border .3s;margin-bottom:0}
 .card-h{display:flex;align-items:center;justify-content:space-between;
-  padding:14px 20px;border-bottom:1px solid var(--border-lt)}
-.card-t{font-family:var(--serif);font-size:14px;color:var(--h);letter-spacing:.2px}
+  padding:20px 28px;border-bottom:1px solid var(--border-lt)}
+.card-t{font-family:var(--serif);font-size:15px;color:var(--h);letter-spacing:.2px}
 .badge{font-size:9px;padding:2px 7px;border-radius:12px;font-weight:600;letter-spacing:.4px;text-transform:uppercase}
 .badge-gold{background:var(--gold-bg);color:var(--gold)}
 .badge-red{background:var(--red-bg);color:var(--red)}
@@ -377,25 +350,25 @@ h1,h2,h3,h4{font-family:var(--serif);color:var(--h);font-weight:400}
 [data-theme="dark"] .sb-body{color:var(--ivoire)}
 
 /* ══════ SECTION LABELS — numbered ════════════════════════════ */
-.section-lbl{padding:56px 0 20px;display:flex;align-items:baseline;gap:16px;
-  scroll-margin-top:72px;border-top:1px solid transparent;position:relative}
-.section-lbl::before{content:"";position:absolute;top:28px;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,var(--border) 0%,transparent 60%)}
-.section-lbl:first-of-type{padding-top:36px}
+.section-lbl{padding:64px 0 28px;display:flex;align-items:center;gap:18px;
+  scroll-margin-top:72px;position:relative}
+.section-lbl::before{content:"";position:absolute;top:32px;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,var(--border) 0%,transparent 55%)}
+.section-lbl:first-of-type{padding-top:48px}
 .section-lbl:first-of-type::before{display:none}
 .section-num{font-family:var(--serif);font-size:11px;font-variant-numeric:tabular-nums;
   color:var(--gold-deep);background:var(--gold-bg);
-  padding:4px 10px;border-radius:999px;letter-spacing:1.5px;font-weight:600;
-  border:1px solid var(--gold-border);position:relative;z-index:1}
-.section-lbl h2{font-family:var(--serif);font-size:clamp(22px,2.6vw,32px);
-  color:var(--h);font-weight:400;letter-spacing:-.005em;line-height:1.1}
-.section-lbl em{font-style:italic;font-size:12px;color:var(--muted);
-  letter-spacing:.4px;text-transform:none;font-family:var(--serif)}
+  padding:5px 12px;border-radius:999px;letter-spacing:1.5px;font-weight:600;
+  border:1px solid var(--gold-border);position:relative;z-index:1;flex-shrink:0}
+.section-lbl h2{font-family:var(--serif);font-size:clamp(26px,3vw,38px);
+  color:var(--h);font-weight:400;letter-spacing:-.01em;line-height:1}
+.section-lbl em{font-style:italic;font-size:13px;color:var(--muted);
+  letter-spacing:.3px;text-transform:none;font-family:var(--serif)}
 
 /* ══════ CARD polish ══════════════════════════════════════════ */
-.card{border-radius:12px;transition:box-shadow .2s ease,transform .2s ease}
+.card{border-radius:20px;transition:box-shadow .25s ease}
 .card:hover{box-shadow:var(--shadow-md)}
-.card-h{padding:18px 24px}
+.card-h{padding:22px 28px}
 .card-t{font-size:15px;letter-spacing:.1px}
 
 /* ══════ PIPELINE STRIP ═══════════════════════════════════════ */
@@ -408,14 +381,79 @@ h1,h2,h3,h4{font-family:var(--serif);color:var(--h);font-weight:400}
 .pl-dot{width:4px;height:4px;border-radius:50%;background:var(--gold-warm)}
 .pl-arr{color:var(--faint);font-family:var(--sans);font-size:10px}
 
+/* ══════ SHELL PLACEHOLDER (empty-page sections) ══════════════ */
+.shell-placeholder{
+  padding:48px 32px;border-radius:14px;
+  background:var(--card);border:1px dashed var(--border-lt);
+  text-align:center;color:var(--muted);font-style:italic;
+  font-family:var(--serif);font-size:14px;line-height:1.7;
+  margin:0 0 8px}
+.sec-choc .shell-placeholder{
+  background:rgba(255,255,255,.06);border-color:rgba(196,149,90,.25);
+  color:rgba(245,232,208,.55)}
+
+/* ══════ STALENESS INDICATOR ══════════════════════════════════ */
+.ts-wrap{display:inline-flex;align-items:center;gap:4px;margin-top:2px}
+.ts-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;display:inline-block}
+.ts-age{font-size:9px;font-variant-numeric:tabular-nums;letter-spacing:.2px}
+/* fresh  < 6h  */ .ts-fresh .ts-dot{background:#2C7A3E} .ts-fresh .ts-age{color:#2C7A3E}
+/* ok     6-30h */ .ts-ok    .ts-dot{background:#B06A18} .ts-ok    .ts-age{color:#B06A18}
+/* stale  30-72h*/ .ts-stale .ts-dot{background:#A03020} .ts-stale .ts-age{color:#A03020}
+/* old    >72h  */ .ts-old   .ts-dot{background:#7A0A18;box-shadow:0 0 4px rgba(160,30,20,.5)} .ts-old .ts-age{color:#A03020;font-weight:700}
+/* unknwn        */ .ts-unk  .ts-dot{background:var(--faint)} .ts-unk .ts-age{color:var(--faint)}
+
 /* ══════ FLOATING NAV PILL (refined) ══════════════════════════ */
 #hdr{border-bottom:1px solid rgba(221,213,196,.5)}
 [data-theme="dark"] #hdr{border-bottom:1px solid rgba(58,53,40,.6)}
 .hdr-nav a.active{background:var(--gold-bg);border-bottom:none;padding:4px 10px;border-radius:4px}
+.hdr-nav-menu{font-weight:600;color:var(--gold)!important;letter-spacing:.5px}
+.hdr-nav-menu::after{content:" ↑";font-size:9px;opacity:.6}
+.hero-chip-active{background:rgba(196,149,90,.28)!important;border-color:var(--gold-warm)!important;
+  color:var(--ivoire)!important}
 
 /* ══════ FOOTER upgrade ═══════════════════════════════════════ */
 #foot{padding:22px 20px 32px;font-size:11px;letter-spacing:.5px;
   font-family:var(--serif);color:var(--muted);border-top:none}
+
+/* ══════════════════════════════════════════════════════════════ */
+/* ═══  ALTERNATING BANDS — chocolat au lait / crème          ═══ */
+/* ══════════════════════════════════════════════════════════════ */
+
+/* Band base */
+.sec-band{ margin:0; padding:0; }
+
+/* ── CHOCOLAT AU LAIT — rectangle flottant, cards claires à l'intérieur ── */
+.sec-choc{
+  background:#3E200C;
+  border-radius:20px;
+  padding:0 44px 52px;
+  box-shadow:0 20px 60px -20px rgba(40,20,8,.45);
+  overflow:hidden;
+  margin-bottom:52px;
+}
+[data-theme="dark"] .sec-choc{ background:#1E0E05; }
+
+/* Seul le section-label (sur fond sombre) prend des couleurs claires */
+.sec-choc .section-lbl h2   { color:#F5E8D0 }
+.sec-choc .section-lbl em   { color:#A87850 }
+.sec-choc .section-num      { background:rgba(196,149,90,.18);border-color:rgba(196,149,90,.38);color:#C4955A }
+.sec-choc .section-lbl::before{ background:linear-gradient(90deg,rgba(196,149,90,.25) 0%,transparent 55%) }
+
+/* ── CRÈME — rectangle café clair ────────────────────────── */
+.sec-creme{
+  background:#EDD9BB;
+  border-radius:20px;
+  padding:0 44px 52px;
+  box-shadow:0 8px 32px -12px rgba(120,70,20,.18);
+  margin-bottom:52px;
+}
+[data-theme="dark"] .sec-creme{ background:#2A1E10; }
+
+/* Statement bar — contenu, coins arrondis */
+.statement-bar{ border-radius:14px; padding:22px 28px; margin:0 0 40px }
+
+/* Pipeline — simple */
+.pipeline{ padding:20px 0; margin:16px 0 0 }
 
 /* ══════ Box 05 Macro — premium card treatment ═══════════════ */
 #box5 .mc{padding:20px;border-radius:10px;position:relative;overflow:hidden}

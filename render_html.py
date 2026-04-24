@@ -1,7 +1,13 @@
 """
-render_html.py — Assemble les 6 boxes et génère output/index.html via Jinja2.
+render_html.py — Assemble les 6 boxes et génère les 4 pages HTML via Jinja2.
 Auto-découverte des boxes depuis BOX_REGISTRY (config.py).
 Zéro calcul ici — tout vient des snapshots pré-calculés en DB.
+
+Pages générées :
+    output/index.html          → Dashboard
+    output/stock-analysis.html → Stock Analysis (shell)
+    output/learn.html          → Learn (shell)
+    output/contact.html        → Contact (shell)
 
 Lancement :
     python render_html.py
@@ -114,6 +120,35 @@ def _box_timestamps(con: sqlite3.Connection) -> dict:
     }
 
 
+# ============================================================
+#  PAGE NAVIGATION — per-page anchor links shown in header
+# ============================================================
+
+PAGE_NAVS = {
+    "dashboard": [
+        {"href": "#nav-indices",   "label": "Indices"},
+        {"href": "#nav-news",      "label": "News"},
+        {"href": "#nav-sectors",   "label": "Sectors"},
+        {"href": "#nav-sentiment", "label": "Sentiment"},
+        {"href": "#nav-macro",     "label": "Macro"},
+        {"href": "#nav-portfolio", "label": "Portfolio"},
+    ],
+    "stock-analysis": [
+        {"href": "#oracle",        "label": "L'Oracle"},
+        {"href": "#forge",         "label": "La Forge"},
+        {"href": "#discernement",  "label": "Le Discernement"},
+        {"href": "#equilibre",     "label": "L'Équilibre"},
+        {"href": "#marees",        "label": "Les Marées"},
+        {"href": "#comparaison",   "label": "Comparaison"},
+    ],
+    "learn": [
+        {"href": "#learn-dashboard",     "label": "Dashboard"},
+        {"href": "#learn-stockanalysis", "label": "Stock Analysis"},
+    ],
+    "contact": [],
+}
+
+
 def render(lang: str = DEFAULT_LANGUAGE, currency: str = DEFAULT_CURRENCY):
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     TEMPLATE_DIR.mkdir(parents=True, exist_ok=True)
@@ -128,8 +163,10 @@ def render(lang: str = DEFAULT_LANGUAGE, currency: str = DEFAULT_CURRENCY):
     def _data(box_id):  return boxes_by_id.get(box_id, {}).get("data", {})
     def _meta(box_id):  return boxes_by_id.get(box_id, {}).get("meta", {})
 
-    # Contexte Jinja2
-    ctx = {
+    ts_render = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+    # Contexte commun à toutes les pages
+    base_ctx = {
         "site_name"   : SITE_NAME,
         "site_slogan" : SITE_SLOGAN,
         "colors"      : COLORS,
@@ -137,8 +174,17 @@ def render(lang: str = DEFAULT_LANGUAGE, currency: str = DEFAULT_CURRENCY):
         "currency"    : currency,
         "languages"   : LANGUAGES,
         "currencies"  : CURRENCIES,
-        "boxes"       : boxes,
-        "ts_render"   : datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "ts_render"   : ts_render,
+    }
+
+    env = Environment(loader=FileSystemLoader(str(TEMPLATE_DIR)), autoescape=True)
+
+    # ── 1. Dashboard (index.html) ────────────────────────────
+    dashboard_ctx = {
+        **base_ctx,
+        "current_page" : "dashboard",
+        "page_nav"     : PAGE_NAVS["dashboard"],
+        "boxes"        : boxes,
         # ── Données par box (accès direct dans les partials) ──
         "box_news"            : _data("box_01_news"),
         "box_news_meta"       : _meta("box_01_news"),
@@ -160,12 +206,34 @@ def render(lang: str = DEFAULT_LANGUAGE, currency: str = DEFAULT_CURRENCY):
         "ts_macro"     : ts_map["box_05_macro"],
         "ts_portfolio" : ts_map["box_06_portfolio"],
     }
+    _render_page(env, "dashboard.html",      OUTPUT_DIR / "index.html",          dashboard_ctx)
 
-    env      = Environment(loader=FileSystemLoader(str(TEMPLATE_DIR)), autoescape=True)
-    template = env.get_template("dashboard.html")
+    # ── 2. Stock Analysis ────────────────────────────────────
+    _render_page(env, "stock-analysis.html", OUTPUT_DIR / "stock-analysis.html", {
+        **base_ctx,
+        "current_page" : "stock-analysis",
+        "page_nav"     : PAGE_NAVS["stock-analysis"],
+    })
+
+    # ── 3. Learn ─────────────────────────────────────────────
+    _render_page(env, "learn.html",          OUTPUT_DIR / "learn.html", {
+        **base_ctx,
+        "current_page" : "learn",
+        "page_nav"     : PAGE_NAVS["learn"],
+    })
+
+    # ── 4. Contact ───────────────────────────────────────────
+    _render_page(env, "contact.html",        OUTPUT_DIR / "contact.html", {
+        **base_ctx,
+        "current_page" : "contact",
+        "page_nav"     : PAGE_NAVS["contact"],
+    })
+
+
+def _render_page(env, template_name: str, out_path: Path, ctx: dict):
+    """Render a single Jinja2 template and write to out_path."""
+    template = env.get_template(template_name)
     html     = template.render(**ctx)
-
-    out_path = OUTPUT_DIR / "index.html"
     out_path.write_text(html, encoding="utf-8")
     log.info("HTML généré : %s (%d octets)", out_path, len(html))
 

@@ -22,6 +22,15 @@
 (function(){
   function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
   function fmt(n){ return n!=null ? n.toLocaleString("en",{minimumFractionDigits:2,maximumFractionDigits:2}) : "—"; }
+  function staleInfo(ts){
+    if(!ts) return {cls:"ts-unk", label:"?"};
+    const ageH = (Date.now() - new Date(ts)) / 3600000;
+    const lbl  = ageH < 1 ? "<1h" : ageH < 24 ? Math.round(ageH)+"h" : Math.round(ageH/24)+"d";
+    if(ageH <  6) return {cls:"ts-fresh", label:lbl};
+    if(ageH < 30) return {cls:"ts-ok",    label:lbl};
+    if(ageH < 72) return {cls:"ts-stale", label:lbl};
+                  return {cls:"ts-old",   label:lbl};
+  }
 
   const REGIONS = {{ box_indices.par_region | tojson }};
   const ORDER   = ["USA","EU","ASIE","GLOBAL"];
@@ -55,9 +64,13 @@
       } else if (x.chg_pct != null) {
         sm = chg > 0 ? "RISING" : chg < 0 ? "FALLING" : "FLAT"; sc = "smb-neut";
       }
+      const st = staleInfo(x.ts_update);
       h += `<tr>
-        <td><strong style="color:var(--h)">${esc(x.nom)}</strong><br>
-            <span style="font-size:10px;color:var(--muted)">${esc(x.ticker)}</span></td>
+        <td>
+          <strong style="color:var(--h)">${esc(x.nom)}</strong><br>
+          <span style="font-size:10px;color:var(--muted)">${esc(x.ticker)}</span><br>
+          <span class="ts-wrap ${st.cls}"><span class="ts-dot"></span><span class="ts-age">${st.label}</span></span>
+        </td>
         <td><canvas class="idx-spark" id="isp_${esc(uid)}" width="56" height="22"></canvas></td>
         <td style="font-variant-numeric:tabular-nums">${fmt(x.close)}</td>
         <td class="${c}" style="font-weight:600">${s}${Math.abs(chg).toFixed(2)}%</td>

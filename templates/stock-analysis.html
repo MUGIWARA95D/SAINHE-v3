@@ -43,62 +43,74 @@
 
   <!-- ═══ STATEMENT BAR ═══════════════════════════════════════ -->
   <div class="statement-bar">
-    <span class="sb-label">Read today ·</span>
-    <span class="sb-body">Smart money bias, rotation tape, law-weighted sentiment, and the macro health of the engine room.</span>
+    <span class="sb-label">Coming soon ·</span>
+    <span class="sb-body">Deep-dive analysis tools: smart money signals, forensic accounting, valuation frameworks, and comparative metrics.</span>
   </div>
 
-  <!-- ─── 01 · INDICES — chocolat ───────────────────────────── -->
+  <!-- ─── 01 · L'ORACLE — chocolat ─────────────────────────── -->
   <div class="sec-band sec-choc">
-    <div class="section-lbl" id="nav-indices">
+    <div class="section-lbl" id="oracle">
       <span class="section-num">01</span>
-      <h2>Indices</h2><em>Global Market Pulse</em>
+      <h2>L'Oracle</h2><em>Smart Money Signals</em>
     </div>
-    {% include "partials/boxes/box_02_indices.html" %}
+    <div class="shell-placeholder">
+      <p>Deep insider flow, institutional positioning, and dark pool activity — coming soon.</p>
+    </div>
   </div>
 
-  <!-- ─── 02 · NEWS — crème ────────────────────────────────── -->
+  <!-- ─── 02 · LA FORGE — crème ────────────────────────────── -->
   <div class="sec-band sec-creme">
-    <div class="section-lbl" id="nav-news">
+    <div class="section-lbl" id="forge">
       <span class="section-num">02</span>
-      <h2>News</h2><em>Live Market Intelligence</em>
+      <h2>La Forge</h2><em>Forensic Accounting</em>
     </div>
-    {% include "partials/boxes/box_01_news.html" %}
+    <div class="shell-placeholder">
+      <p>SEC filing decoder, earnings quality score, and red-flag detection — coming soon.</p>
+    </div>
   </div>
 
-  <!-- ─── 03 · SECTORS — chocolat ─────────────────────────── -->
+  <!-- ─── 03 · LE DISCERNEMENT — chocolat ──────────────────── -->
   <div class="sec-band sec-choc">
-    <div class="section-lbl" id="nav-sectors">
+    <div class="section-lbl" id="discernement">
       <span class="section-num">03</span>
-      <h2>Sectors</h2><em>Industry Rotation View</em>
+      <h2>Le Discernement</h2><em>Valuation Intelligence</em>
     </div>
-    {% include "partials/boxes/box_03_sectors.html" %}
+    <div class="shell-placeholder">
+      <p>Intrinsic value models, margin of safety calculator, and peer-relative pricing — coming soon.</p>
+    </div>
   </div>
 
-  <!-- ─── 04 · SENTIMENT — crème ──────────────────────────── -->
+  <!-- ─── 04 · L'ÉQUILIBRE — crème ─────────────────────────── -->
   <div class="sec-band sec-creme">
-    <div class="section-lbl" id="nav-sentiment">
+    <div class="section-lbl" id="equilibre">
       <span class="section-num">04</span>
-      <h2>Sentiment</h2><em>Bias Reality Laws</em>
+      <h2>L'Équilibre</h2><em>Risk &amp; Portfolio Fit</em>
     </div>
-    {% include "partials/boxes/box_04_sentiment.html" %}
+    <div class="shell-placeholder">
+      <p>Volatility profile, correlation matrix, and position-sizing guidance — coming soon.</p>
+    </div>
   </div>
 
-  <!-- ─── 05 · MACRO — chocolat ───────────────────────────── -->
+  <!-- ─── 05 · LES MARÉES — chocolat ──────────────────────── -->
   <div class="sec-band sec-choc">
-    <div class="section-lbl" id="nav-macro">
+    <div class="section-lbl" id="marees">
       <span class="section-num">05</span>
-      <h2>Macro</h2><em>Economic Health Signals</em>
+      <h2>Les Marées</h2><em>Macro &amp; Sector Tide</em>
     </div>
-    {% include "partials/boxes/box_05_macro.html" %}
+    <div class="shell-placeholder">
+      <p>Macro tailwinds, sector rotation context, and cycle positioning for a single stock — coming soon.</p>
+    </div>
   </div>
 
-  <!-- ─── 06 · PORTFOLIO — crème ──────────────────────────── -->
+  <!-- ─── 06 · COMPARAISON — crème ─────────────────────────── -->
   <div class="sec-band sec-creme">
-    <div class="section-lbl" id="nav-portfolio">
+    <div class="section-lbl" id="comparaison">
       <span class="section-num">06</span>
-      <h2>Portfolio</h2><em>Holdings Score Tracker</em>
+      <h2>Comparaison</h2><em>Side-by-Side Analysis</em>
     </div>
-    {% include "partials/boxes/box_06_portfolio.html" %}
+    <div class="shell-placeholder">
+      <p>Compare up to four tickers across all dimensions simultaneously — coming soon.</p>
+    </div>
   </div>
 
   <!-- ═══ PIPELINE STRIP ══════════════════════════════════════ -->
@@ -117,19 +129,6 @@
 
 <!-- ═══ SHARED JS HELPERS ══════════════════════════════════ -->
 <script>
-function miniChart(cv, data, color, fill){
-  if(!cv || !data || !data.length) return null;
-  const bg = fill ? color.replace("rgb(","rgba(").replace(")",",0.12)") : "transparent";
-  return new Chart(cv, {
-    type:"line",
-    data:{labels:data.map((_,i)=>i), datasets:[{data, borderColor:color, borderWidth:1.5,
-      fill:!!fill, backgroundColor:bg, tension:.4, pointRadius:0}]},
-    options:{responsive:false, animation:{duration:0},
-      plugins:{legend:{display:false}, tooltip:{enabled:false}},
-      scales:{x:{display:false}, y:{display:false}}}
-  });
-}
-
 /* ── Theme (pill) ────────────────────────────────── */
 const _H=document.documentElement, _TB=document.getElementById("thm");
 const _SUN=_TB?_TB.querySelector(".tp-sun"):null;
@@ -143,7 +142,6 @@ function setTheme(t){
 try{setTheme(localStorage.getItem("sainhe_theme")||"light");}catch(e){setTheme("light");}
 if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dark"?"light":"dark");});
 
-
 /* ── Scroll progress ─────────────────────────────── */
 (function(){
   const prog=document.getElementById("scroll-prog");
@@ -155,7 +153,7 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
   },{passive:true});
 })();
 
-/* ── Watermark scroll (2 full rotations top→bottom) ─ */
+/* ── Watermark scroll ────────────────────────────── */
 (function(){
   const wm=document.getElementById("wm");
   if(!wm) return;
@@ -171,7 +169,6 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
 /* ── Dropdowns ───────────────────────────────────── */
 (function(){
   var closeTimers = {};
-
   function openDd(dd){
     clearTimeout(closeTimers[dd.id]);
     document.querySelectorAll(".hdr-dd.open").forEach(function(o){
@@ -183,56 +180,24 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
     clearTimeout(closeTimers[dd.id]);
     closeTimers[dd.id] = setTimeout(function(){ dd.classList.remove("open"); }, delay||0);
   }
-
   document.querySelectorAll(".hdr-dd").forEach(function(dd){
     var btn = dd.querySelector(".hdr-dd-btn");
     if(!btn) return;
-
-    // Click toggle
     btn.addEventListener("click",function(e){
       e.stopPropagation();
       dd.classList.contains("open") ? closeDd(dd,0) : openDd(dd);
     });
-
-    // Hover open/close
     dd.addEventListener("mouseenter",function(){ openDd(dd); });
     dd.addEventListener("mouseleave",function(){ closeDd(dd, 200); });
-
-    // Keep open when hovering the menu itself
     var menu = dd.querySelector(".hdr-dd-menu");
     if(menu){
       menu.addEventListener("mouseenter",function(){ clearTimeout(closeTimers[dd.id]); });
       menu.addEventListener("mouseleave",function(){ closeDd(dd, 200); });
     }
   });
-
   document.addEventListener("click",function(){
     document.querySelectorAll(".hdr-dd.open").forEach(function(o){ o.classList.remove("open"); });
   });
-})();
-
-/* ── Ticker tape (DOM-safe) ──────────────────────── */
-(function(){
-  const REGIONS = {{ box_indices.par_region | tojson }};
-  const ORDER   = ["USA","EU","ASIE","GLOBAL"];
-  const all     = ORDER.flatMap(r=>REGIONS[r]||[]);
-  const el      = document.getElementById("tksc");
-  if(!el||!all.length) return;
-  const frag = document.createDocumentFragment();
-  for(let r=0;r<2;r++){
-    all.forEach(x=>{
-      const chg=x.chg_pct||0, s=chg>=0?"+":"";
-      const pr=x.close!=null?x.close.toLocaleString("en",{minimumFractionDigits:2,maximumFractionDigits:2}):"—";
-      const item=document.createElement("div"); item.className="tk-item";
-      const name=document.createElement("span"); name.className="tk-name"; name.textContent=x.ticker||"";
-      const price=document.createElement("span"); price.textContent=pr;
-      const change=document.createElement("span"); change.className=chg>=0?"tk-up":"tk-dn";
-      change.textContent=s+Math.abs(chg).toFixed(2)+"%";
-      item.appendChild(name); item.appendChild(price); item.appendChild(change);
-      frag.appendChild(item);
-    });
-  }
-  el.appendChild(frag);
 })();
 
 /* ── Nav highlight (scroll-tracked) ─────────────── */
@@ -243,7 +208,7 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
       a.classList.toggle("active", a.getAttribute("href") === "#" + id);
     });
   };
-  const sectionIds = ["nav-indices","nav-news","nav-sectors","nav-sentiment","nav-macro","nav-portfolio"];
+  const sectionIds = ["oracle","forge","discernement","equilibre","marees","comparaison"];
   const sections = sectionIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
 
   const obs = new IntersectionObserver(function(entries){
@@ -254,7 +219,6 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
 
   sections.forEach(function(s){ obs.observe(s); });
 
-  // fallback: click still works
   links.forEach(function(a){
     a.addEventListener("click", function(){
       setActive(this.getAttribute("href").slice(1));

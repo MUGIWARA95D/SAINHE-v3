@@ -153,6 +153,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
             "sentiment_score": item["sentiment_score"],
             "sentiment_label": item["sentiment_label"] or "N/A",
             "signal"         : signal,
+            "evidence"       : _build_evidence(item),
             "sparkline"      : item["sparkline_json"],
             "ts_update"      : item["ts_update"],
         })
@@ -165,6 +166,31 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
             "total"   : len(tickers_out),
         },
     }
+
+
+def _build_evidence(item: dict) -> str:
+    """
+    Texte lisible résumant les signaux clés du ticker.
+    Modifie ici pour changer les champs affichés dans la colonne Evidence.
+    """
+    parts = []
+    sc = item.get("score")
+    if sc is not None:
+        parts.append(f"Score: {sc:+.2f}")
+    if item.get("above_dma200") is not None:
+        parts.append("DMA200: " + ("↑" if item["above_dma200"] else "↓"))
+    obv = item.get("obv_dir")
+    if obv is not None:
+        if obv == 1 or obv == "up":      parts.append("OBV: acc")
+        elif obv == -1 or obv == "down": parts.append("OBV: dist")
+        elif obv:                        parts.append("OBV: " + str(obv))
+    mfi = item.get("mfi")
+    if mfi is not None:
+        parts.append(f"MFI: {mfi:.0f}")
+    rv = item.get("rvol")
+    if rv is not None:
+        parts.append(f"RVOL: {rv:.2f}")
+    return " · ".join(parts) if parts else "—"
 
 
 def _compute_signal(item: dict) -> str:

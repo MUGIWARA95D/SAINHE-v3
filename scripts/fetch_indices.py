@@ -14,6 +14,7 @@ import logging
 from datetime import datetime, timezone
 from pathlib import Path
 
+import pandas as pd
 import yfinance as yf
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -28,8 +29,9 @@ from config import (
 #  CONFIG
 # ============================================================
 
-SLEEP_RETRY  = 60.0
-MAX_RETRIES  = 3
+SLEEP_BETWEEN = 4.0   # secondes entre chaque ticker (GitHub Actions)
+SLEEP_RETRY   = 45.0  # secondes d'attente sur 429
+MAX_RETRIES   = 2
 
 logging.basicConfig(
     level=logging.INFO,
@@ -43,56 +45,61 @@ log = logging.getLogger(__name__)
 #  FETCH OHLCV INDICES
 # ============================================================
 
-def fetch_indices_ohlcv(period: str = "5d") -> dict:
+def fetch_one(ticker: str, period: str) -> tuple[str, object] | None:
     """
-    Télécharge OHLCV pour tous les indices en un seul appel yfinance.
-    Retourne {ticker: DataFrame}.
+    Télécharge un seul indice. Retourne (ticker, df) ou None sur échec.
+    Un ticker à la fois = moins de pression sur le rate-limit Yahoo.
     """
-    ticker_str = " ".join(ALL_INDEX_TICKERS)
-
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             raw = yf.download(
-                tickers=ticker_str,
+                tickers=ticker,
                 period=period,
                 interval="1d",
-                group_by="ticker",
                 auto_adjust=True,
                 progress=False,
-                threads=True,
+                threads=False,
             )
             if raw.empty:
-                log.warning("Réponse yfinance vide (tentative %d)", attempt)
+                log.warning("%s — vide (tentative %d)", ticker, attempt)
                 time.sleep(SLEEP_RETRY)
                 continue
 
-            result = {}
-            if len(ALL_INDEX_TICKERS) == 1:
-                df = raw.copy()
-                df.columns = [c.lower() for c in df.columns]
-                result[ALL_INDEX_TICKERS[0]] = df.dropna(subset=["close"])
-            else:
-                for t in ALL_INDEX_TICKERS:
-                    if t not in raw.columns.get_level_values(0):
-                        continue
-                    df = raw[t].copy()
-                    df.columns = [c.lower() for c in df.columns]
-                    df = df.dropna(subset=["close"])
-                    if not df.empty:
-                        result[t] = df
-
-            log.info("%d indices fetchés", len(result))
-            return result
+            df = raw.copy()
+            if isinstance(df.columns, pd.MultiIndex):
+                df.columns = df.columns.droplevel(1)
+            df.columns = [c.lower() for c in df.columns]
+            df = df.dropna(subset=["close"])
+            if not df.empty:
+                return ticker, df
 
         except Exception as exc:
             msg = str(exc).lower()
             wait = SLEEP_RETRY if ("429" in msg or "rate" in msg) else 5.0
-            log.warning("Erreur (tentative %d/%d) : %s", attempt, MAX_RETRIES, exc)
+            log.warning("%s — erreur tentative %d/%d : %s", ticker, attempt, MAX_RETRIES, exc)
             if attempt < MAX_RETRIES:
                 time.sleep(wait)
 
-    log.error("Abandon après %d tentatives.", MAX_RETRIES)
-    return {}
+    log.error("%s — abandon.", ticker)
+    return None
+
+
+def fetch_indices_ohlcv(period: str = "5d") -> dict:
+    """
+    Télécharge OHLCV ticker par ticker avec pause entre chaque.
+    Plus lent mais résistant au rate-limit GitHub Actions.
+    """
+    result = {}
+    for i, ticker in enumerate(ALL_INDEX_TICKERS):
+        if i > 0:
+            time.sleep(SLEEP_BETWEEN)
+        out = fetch_one(ticker, period)
+        if out:
+            result[out[0]] = out[1]
+            log.info("%s OK (close=%.2f)", out[0], out[1]["close"].iloc[-1])
+
+    log.info("%d/%d indices fetchés", len(result), len(ALL_INDEX_TICKERS))
+    return result
 
 
 # ============================================================

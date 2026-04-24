@@ -1,0 +1,29 @@
+<!-- ═══ HERO — shared across all pages ═══════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">
+      <span class="hero-dot"></span>
+      <span>Financial Intelligence Platform &middot; {{ ts_render }}</span>
+    </div>
+    <h1 class="hero-title">
+      Financial intelligence,<br>
+      <em>made legible.</em>
+    </h1>
+    <p class="hero-lede">
+      SAINHE is an independent financial intelligence platform. It aggregates
+      macro signals, decodes SEC filings, prices assets, and explains market
+      structure &mdash; so you think for yourself and act with conviction.
+    </p>
+    <div class="hero-chips">
+      <a class="hero-chip{% if current_page == 'dashboard' %} hero-chip-active{% endif %}"
+         href="index.html"><span>01</span>Dashboard</a>
+      <a class="hero-chip{% if current_page == 'stock-analysis' %} hero-chip-active{% endif %}"
+         href="stock-analysis.html"><span>02</span>Stock Analysis</a>
+      <a class="hero-chip{% if current_page == 'learn' %} hero-chip-active{% endif %}"
+         href="learn.html"><span>03</span>Learn</a>
+      <a class="hero-chip{% if current_page == 'contact' %} hero-chip-active{% endif %}"
+         href="contact.html"><span>04</span>Contact</a>
+    </div>
+  </div>
+</section>

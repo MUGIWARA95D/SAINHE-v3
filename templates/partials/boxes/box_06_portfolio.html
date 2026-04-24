@@ -30,6 +30,15 @@
   function mk(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!=null)el.textContent=txt;return el;}
   function pct(n){return n!=null?(n>=0?"+":"")+n.toFixed(2)+"%":"—";}
   function fmt(n){return n!=null?n.toLocaleString("en",{minimumFractionDigits:2,maximumFractionDigits:2}):"—";}
+  function staleInfo(ts){
+    if(!ts) return {cls:"ts-unk", label:"?"};
+    const ageH = (Date.now() - new Date(ts)) / 3600000;
+    const lbl  = ageH < 1 ? "<1h" : ageH < 24 ? Math.round(ageH)+"h" : Math.round(ageH/24)+"d";
+    if(ageH <  6) return {cls:"ts-fresh", label:lbl};
+    if(ageH < 30) return {cls:"ts-ok",    label:lbl};
+    if(ageH < 72) return {cls:"ts-stale", label:lbl};
+                  return {cls:"ts-old",   label:lbl};
+  }
   const sparkCharts = {};
 
   PORT.forEach((p, i) => {
@@ -38,11 +47,16 @@
     // Category (secteur)
     tr.appendChild(mk("td",null,p.secteur||"—")).style.color = "var(--muted)";
 
-    // Ticker (Sector) = ticker bold + nom small
+    // Ticker + nom + staleness
     const td1 = tr.appendChild(mk("td"));
     td1.appendChild(mk("strong",null,p.ticker)).style.color = "var(--h)";
     const sub = td1.appendChild(mk("span",null," "+(p.nom||"")));
     sub.style.cssText = "font-size:10px;color:var(--muted)";
+    const st = staleInfo(p.ts_update);
+    const tsWrap = td1.appendChild(mk("span","ts-wrap "+st.cls));
+    const dot = tsWrap.appendChild(mk("span","ts-dot"));
+    tsWrap.appendChild(mk("span","ts-age",st.label));
+    tsWrap.style.display = "inline-flex";
 
     // Sparkline
     const td2 = tr.appendChild(mk("td"));

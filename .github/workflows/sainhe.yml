@@ -3,12 +3,18 @@ name: SAINHE — Data Pipeline
 on:
   # ── Crons ──────────────────────────────────────────────────
   schedule:
-    # News : toutes les heures (Reuters/Bloomberg tournent 24h)
+    # News : toutes les heures
     - cron: "0 * * * *"
-    # Prix + calcul : tous les jours à 22h UTC (marchés US fermés)
-    - cron: "0 22 * * *"
+    # Pipeline fin de journée : 22h UTC lun-ven
+    - cron: "0 22 * * 1-5"
     # FX : toutes les 6h
     - cron: "0 */6 * * *"
+    # Historique half-0 (tickers 1-50)  : 2h30 et 3h30 UTC
+    - cron: "30 2 * * *"
+    - cron: "30 3 * * *"
+    # Historique half-1 (tickers 51-100): 3h00 et 4h00 UTC
+    - cron: "0 3 * * *"
+    - cron: "0 4 * * *"
 
   # ── Déclenchement manuel depuis GitHub UI ──────────────────
   workflow_dispatch:
@@ -66,11 +72,31 @@ jobs:
       - name: Fetch News
         run: python scripts/fetch_news.py
 
+      - name: Fetch Indices (light — refresh VIX/yields/DXY)
+        run: python scripts/fetch_indices.py
+        continue-on-error: true
+
+      - name: Calculate indicators (refresh snapshot timestamps)
+        run: python scripts/calc.py
+        continue-on-error: true
+
+      - name: Render HTML
+        run: python render_html.py
+
       - name: Save DB cache
         uses: actions/cache@v4
         with:
           path: db/sainhe.db
           key: sainhe-db-${{ runner.os }}
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          projectName: sainhe
+          directory: output
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   # ════════════════════════════════════════════════════════════
   #  JOB 2 — FULL PIPELINE (tous les jours à 22h UTC)
@@ -171,6 +197,92 @@ jobs:
 
       - name: Fetch FX
         run: python scripts/fetch_fx.py
+
+      - name: Save DB cache
+        uses: actions/cache@v4
+        with:
+          path: db/sainhe.db
+          key: sainhe-db-${{ runner.os }}
+
+  # ════════════════════════════════════════════════════════════
+  #  JOB 4 — HISTORIQUE HALF-0  (tickers 1-50)
+  #  Tourne à 2h30 et 3h30 UTC
+  # ════════════════════════════════════════════════════════════
+  historical_a:
+    name: Historical Half-0 (tickers 1-50)
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'schedule' && (
+        contains(github.event.schedule, '30 2 * * *') ||
+        contains(github.event.schedule, '30 3 * * *')
+      )
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore DB cache
+        uses: actions/cache@v4
+        with:
+          path: db/sainhe.db
+          key: sainhe-db-${{ runner.os }}
+          restore-keys: sainhe-db-
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Init DB (idempotent)
+        run: python scripts/db_init.py
+
+      - name: Fetch prices — half 0
+        run: python scripts/fetch_prices.py --mode full --half 0
+
+      - name: Save DB cache
+        uses: actions/cache@v4
+        with:
+          path: db/sainhe.db
+          key: sainhe-db-${{ runner.os }}
+
+  # ════════════════════════════════════════════════════════════
+  #  JOB 5 — HISTORIQUE HALF-1  (tickers 51-100)
+  #  Tourne à 3h00 et 4h00 UTC
+  # ════════════════════════════════════════════════════════════
+  historical_b:
+    name: Historical Half-1 (tickers 51-100)
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'schedule' && (
+        contains(github.event.schedule, '0 3 * * *') ||
+        contains(github.event.schedule, '0 4 * * *')
+      )
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore DB cache
+        uses: actions/cache@v4
+        with:
+          path: db/sainhe.db
+          key: sainhe-db-${{ runner.os }}
+          restore-keys: sainhe-db-
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Init DB (idempotent)
+        run: python scripts/db_init.py
+
+      - name: Fetch prices — half 1
+        run: python scripts/fetch_prices.py --mode full --half 1
 
       - name: Save DB cache
         uses: actions/cache@v4

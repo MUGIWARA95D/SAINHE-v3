@@ -55,6 +55,7 @@ def _fetch_indices(con: sqlite3.Connection) -> list[dict]:
             s.ret_1y,
             s.dma_200,
             s.above_dma200,
+            s.rvol,
             s.sparkline_json,
             s.ts_update
         FROM snapshot s
@@ -68,7 +69,7 @@ def _fetch_indices(con: sqlite3.Connection) -> list[dict]:
     cols = [
         "ticker", "nom", "region", "devise", "volume_flag",
         "close", "chg_pct", "ret_1m", "ret_1y",
-        "dma_200", "above_dma200", "sparkline_json", "ts_update",
+        "dma_200", "above_dma200", "rvol", "sparkline_json", "ts_update",
     ]
     return [dict(zip(cols, r)) for r in rows]
 
@@ -122,6 +123,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
             "ret_1y"      : idx["ret_1y"],
             "dma_200"     : idx["dma_200"],
             "above_dma200": idx["above_dma200"],
+            "rvol"        : idx["rvol"],
             "sparkline"   : idx["sparkline_json"],
             "heures_cet"  : INDICES.get(idx["ticker"], {}).get("heures_cet"),
             "ts_update"   : idx["ts_update"],
