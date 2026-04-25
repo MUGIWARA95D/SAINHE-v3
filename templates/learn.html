@@ -58,6 +58,9 @@
       <!-- ── Sidebar chips — ordered to match dashboard ── -->
       <nav class="lrn-toc" aria-label="Dashboard sections">
         <div class="lrn-toc-label">Dashboard</div>
+        <button class="lrn-toc-link lrn-toc-overview" data-tab="overview">
+          <span class="lrn-toc-num">↳</span>Vue d'ensemble
+        </button>
         <button class="lrn-toc-link" data-tab="indices">
           <span class="lrn-toc-num">02</span>Indices
         </button>
@@ -80,6 +83,53 @@
 
       <!-- ── Main content ────────────────────────────── -->
       <div class="lrn-body">
+
+        <!-- ══ TAB: OVERVIEW ════════════════════════════ -->
+        <div class="lrn-tab-panel" id="lrn-overview">
+          <div class="lrn-panel-hdr">
+            <span class="lrn-panel-num">Dashboard</span>
+            <div class="lrn-panel-title">C'est quoi exactement ?</div>
+          </div>
+          <div class="lrn-panel-rows">
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">En une phrase</div>
+              <div class="lrn-panel-row-val">Le Dashboard est une <strong>salle de contrôle des marchés financiers mondiaux</strong>, mise à jour automatiquement chaque jour. Au lieu de consulter dix sites différents, tout ce dont tu as besoin pour comprendre ce qui se passe dans le monde économique est ici, dans un seul écran.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Le principe de base</div>
+              <div class="lrn-panel-row-val">Les marchés financiers, c'est comme la météo : on ne peut pas prédire exactement ce qui va se passer, mais on peut <strong>lire les signaux</strong> pour savoir s'il fait beau, s'il va pleuvoir, ou si un orage se prépare. Le Dashboard te donne ces signaux, organisés et calculés automatiquement à partir de vraies données de marché.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Ce que tu vois</div>
+              <div class="lrn-panel-row-val">Six sections, chacune avec un rôle précis :<br><br>
+                <strong>Indices</strong> — les grands thermomètres du marché mondial (S&amp;P 500, CAC 40, Nikkei…). Si ces indices montent, les investisseurs sont confiants. S'ils baissent, ils ont peur ou vendent.<br><br>
+                <strong>News</strong> — les titres d'actualité qui impactent les marchés, filtrés par région. Une guerre, une décision de banque centrale, une faillite — tout ce qui peut bouger les prix.<br><br>
+                <strong>Secteurs</strong> — les marchés sont découpés en industries (Tech, Énergie, Santé…). Certains secteurs montent quand d'autres baissent. Savoir <em>lequel</em> monte en ce moment, c'est savoir où l'argent se déplace.<br><br>
+                <strong>Sentiment</strong> — est-ce que les gros investisseurs (fonds, institutions) sont en train d'acheter discrètement ou de vendre ? Ce signal essaie de détecter leurs mouvements avant que ça se voie dans les prix.<br><br>
+                <strong>Macro</strong> — la toile de fond économique : taux d'intérêt, valeur du dollar, peur globale du marché. Ces éléments conditionnent tout le reste.<br><br>
+                <strong>Portfolio</strong> — une liste de valeurs surveillées, avec un signal clair : Acheter / Observer / Éviter, calculé à partir de tous les indicateurs ci-dessus.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Comment lire</div>
+              <div class="lrn-panel-row-val">Lis dans l'ordre, du haut vers le bas. Commence par <strong>Macro</strong> pour connaître l'ambiance générale. Regarde ensuite les <strong>Indices</strong> pour voir si les marchés confirment cette ambiance. Passe aux <strong>Secteurs</strong> pour trouver où l'argent se déplace. Enfin, le <strong>Sentiment</strong> et le <strong>Portfolio</strong> te donnent des pistes concrètes. Pense-y comme un entonnoir : du global vers le spécifique.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Ce que ça ne fait pas</div>
+              <div class="lrn-panel-row-val">Le Dashboard <strong>ne te dit pas quoi faire</strong>. Il te donne de l'information organisée et des signaux calculés, mais aucun signal financier n'est infaillible. Les marchés peuvent être irrationnels pendant longtemps. Ces données sont un outil de lecture, pas un oracle — utilise-les pour mieux comprendre, pas pour parier aveuglément.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Mise à jour</div>
+              <div class="lrn-panel-row-val">Les données sont récupérées et recalculées <strong>automatiquement chaque nuit</strong> via un pipeline informatique (Fetch → Compute → Render). Les news se rafraîchissent toutes les heures. Le timestamp affiché sous chaque section indique la fraîcheur des données — une donnée "stale" de plus de 30h mérite d'être vérifiée à la source.</div>
+            </div>
+
+          </div>
+        </div>
 
         <!-- ══ TAB: INDICES ══════════════════════════════ -->
         <div class="lrn-tab-panel" id="lrn-indices">
