@@ -580,6 +580,120 @@ a.news-hl:hover{color:var(--gold)}
   .sec-choc,.sec-creme{padding:0 10px 20px}
   #main{padding:8px 8px}
 }
+
+/* ══════════════════════════════════════════════════════════════ */
+/* ═══  LEARN PAGE — educational layout                       ═══ */
+/* ══════════════════════════════════════════════════════════════ */
+
+/* 2-column layout: sticky TOC + scrollable body */
+.lrn-wrap{display:flex;gap:44px;align-items:flex-start}
+.lrn-toc{width:172px;flex-shrink:0;position:sticky;top:72px;padding:24px 0;
+  display:flex;flex-direction:column;gap:0}
+.lrn-toc-label{font-size:9px;text-transform:uppercase;letter-spacing:1.8px;
+  color:rgba(196,149,90,.5);margin-bottom:16px;font-weight:600;padding-left:2px}
+.lrn-toc-link{display:flex;align-items:center;gap:9px;
+  padding:10px 13px;border-radius:10px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(196,149,90,.18);
+  color:rgba(245,232,208,.5);font-size:11.5px;letter-spacing:.2px;
+  text-decoration:none;transition:all .2s ease;margin-bottom:9px}
+.lrn-toc-link:last-child{margin-bottom:0}
+.lrn-toc-link:hover{background:rgba(196,149,90,.14);border-color:rgba(196,149,90,.45);
+  color:rgba(245,232,208,.9);transform:translateY(-1px);
+  box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.lrn-toc-link.active{background:rgba(196,149,90,.2);border-color:rgba(196,149,90,.6);
+  color:#C4955A;font-weight:600}
+.lrn-toc-num{font-family:var(--serif);font-size:9.5px;font-variant-numeric:tabular-nums;
+  color:#C4955A;opacity:.8;flex-shrink:0;letter-spacing:.5px}
+.lrn-body{flex:1;min-width:0;padding:0}
+
+/* Section blocks inside learn */
+.lrn-block{margin-bottom:48px}
+.lrn-block:last-child{margin-bottom:0}
+.lrn-block-hdr{display:flex;align-items:baseline;gap:12px;margin-bottom:20px;padding-bottom:10px;
+  border-bottom:1px solid rgba(196,149,90,.18)}
+.lrn-block-hdr h3{font-family:var(--serif);font-size:18px;font-weight:400;
+  color:#F5E8D0;letter-spacing:.05em}
+.lrn-block-hdr em{font-style:normal;font-size:10.5px;color:rgba(196,149,90,.65);
+  text-transform:uppercase;letter-spacing:1px}
+
+/* 3×2 grid of dashboard box cards */
+.lrn-grid6{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:0}
+@media(max-width:900px){.lrn-grid6{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.lrn-grid6{grid-template-columns:1fr}}
+.lrn-card{background:rgba(255,255,255,.06);border:1px solid rgba(196,149,90,.2);
+  border-radius:12px;padding:18px 16px;transition:all .2s ease;
+  display:flex;flex-direction:column;gap:8px}
+.lrn-card:hover{background:rgba(255,255,255,.10);border-color:rgba(196,149,90,.45);
+  transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.28)}
+.lrn-card-num{font-family:var(--serif);font-size:10px;font-variant-numeric:tabular-nums;
+  color:#C4955A;background:rgba(196,149,90,.15);padding:2px 8px;border-radius:999px;
+  letter-spacing:1.5px;font-weight:600;align-self:flex-start;
+  border:1px solid rgba(196,149,90,.3)}
+.lrn-card-title{font-family:var(--serif);font-size:14px;color:#F5E8D0;
+  font-weight:400;line-height:1.2}
+.lrn-card-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;
+  font-weight:600;letter-spacing:.5px;text-transform:uppercase;
+  padding:2px 6px;border-radius:3px;align-self:flex-start}
+.lrn-card-badge-live{background:rgba(160,48,32,.25);color:#E08080}
+.lrn-card-badge-gold{background:rgba(196,149,90,.18);color:#C4955A}
+.lrn-card-badge-green{background:rgba(44,122,62,.2);color:#7CC98A}
+.lrn-card-desc{font-size:11.5px;color:rgba(245,232,208,.5);line-height:1.55;
+  font-family:var(--sans)}
+
+/* Metrics explained */
+.lrn-metric{display:grid;grid-template-columns:120px 1fr;gap:0;
+  border:1px solid rgba(196,149,90,.18);border-radius:10px;overflow:hidden;
+  margin-bottom:12px}
+.lrn-metric:last-child{margin-bottom:0}
+.lrn-metric-label{padding:16px 14px;background:rgba(196,149,90,.09);
+  border-right:1px solid rgba(196,149,90,.18);display:flex;flex-direction:column;
+  gap:6px;justify-content:center}
+.lrn-metric-name{font-family:var(--serif);font-size:14px;color:#F5E8D0;font-weight:400}
+.lrn-metric-tag{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;
+  color:#C4955A}
+.lrn-metric-body{padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.lrn-metric-formula{font-family:'SF Mono',Consolas,monospace;font-size:10.5px;
+  color:#C4955A;background:rgba(196,149,90,.1);padding:4px 10px;border-radius:4px;
+  display:inline-block;align-self:flex-start;letter-spacing:.3px}
+.lrn-metric-desc{font-size:11.5px;color:rgba(245,232,208,.55);line-height:1.6}
+.lrn-metric-desc strong{color:rgba(245,232,208,.82);font-weight:600}
+
+/* Tab panels — shown/hidden by JS */
+.lrn-tab-panel{display:none}
+.lrn-tab-panel.active{display:flex;flex-direction:column;gap:20px}
+/* Box explanation header inside panel */
+.lrn-panel-hdr{display:flex;align-items:center;gap:12px;padding-bottom:14px;
+  border-bottom:1px solid rgba(196,149,90,.18);margin-bottom:4px}
+.lrn-panel-num{font-family:var(--serif);font-size:10px;color:#C4955A;
+  background:rgba(196,149,90,.15);padding:3px 10px;border-radius:999px;
+  letter-spacing:1.5px;font-weight:600;border:1px solid rgba(196,149,90,.3);flex-shrink:0}
+.lrn-panel-title{font-family:var(--serif);font-size:19px;color:#F5E8D0;font-weight:400}
+/* Row of "what/how/look-for" blocks */
+.lrn-panel-rows{display:flex;flex-direction:column;gap:14px}
+.lrn-panel-row{display:grid;grid-template-columns:110px 1fr;gap:0;
+  border:1px solid rgba(196,149,90,.15);border-radius:8px;overflow:hidden}
+.lrn-panel-row-lbl{padding:13px 12px;background:rgba(196,149,90,.08);
+  border-right:1px solid rgba(196,149,90,.15);font-size:9px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;color:rgba(196,149,90,.7);
+  display:flex;align-items:flex-start;padding-top:15px}
+.lrn-panel-row-val{padding:13px 16px;font-size:12px;color:rgba(245,232,208,.6);
+  line-height:1.65}
+.lrn-panel-row-val strong{color:rgba(245,232,208,.88);font-weight:600}
+.lrn-panel-row-val code{font-family:'SF Mono',Consolas,monospace;font-size:10.5px;
+  color:#C4955A;background:rgba(196,149,90,.12);padding:1px 6px;border-radius:3px}
+/* TOC link as button */
+.lrn-toc-link{background:none;font-family:inherit;cursor:pointer}
+
+@media(max-width:680px){
+  .lrn-wrap{flex-direction:column;gap:20px}
+  .lrn-toc{width:100%;position:static;padding:8px 0;
+    flex-direction:row;flex-wrap:wrap;gap:8px}
+  .lrn-toc-label{width:100%;margin-bottom:0}
+  .lrn-toc-link{flex:0 0 calc(50% - 4px);margin-bottom:0;padding:9px 12px;
+    justify-content:center}
+  .lrn-metric{grid-template-columns:1fr}
+  .lrn-metric-label{border-right:none;border-bottom:1px solid rgba(196,149,90,.18)}
+}
 {% endraw %}  </style>
   <!-- miniChart — shared sparkline helper (used by box_02, box_03, box_06) -->
   <script>

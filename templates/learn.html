@@ -53,9 +53,238 @@
       <span class="section-num">01</span>
       <h2>Dashboard</h2><em>How to Read the Engine Room</em>
     </div>
-    <div class="shell-placeholder">
-      <p>A guided tour of the six dashboard sections — what each signal measures, why it matters, and how to combine them into a coherent market view. Coming soon.</p>
-    </div>
+    <div class="lrn-wrap">
+
+      <!-- ── Sidebar chips — ordered to match dashboard ── -->
+      <nav class="lrn-toc" aria-label="Dashboard sections">
+        <div class="lrn-toc-label">Dashboard</div>
+        <button class="lrn-toc-link" data-tab="indices">
+          <span class="lrn-toc-num">02</span>Indices
+        </button>
+        <button class="lrn-toc-link" data-tab="news">
+          <span class="lrn-toc-num">01</span>News Feed
+        </button>
+        <button class="lrn-toc-link" data-tab="sectors">
+          <span class="lrn-toc-num">03</span>Sectors
+        </button>
+        <button class="lrn-toc-link" data-tab="sentiment">
+          <span class="lrn-toc-num">04</span>Sentiment
+        </button>
+        <button class="lrn-toc-link" data-tab="macro">
+          <span class="lrn-toc-num">05</span>Macro
+        </button>
+        <button class="lrn-toc-link" data-tab="portfolio">
+          <span class="lrn-toc-num">06</span>Portfolio
+        </button>
+      </nav>
+
+      <!-- ── Main content ────────────────────────────── -->
+      <div class="lrn-body">
+
+        <!-- ══ TAB: INDICES ══════════════════════════════ -->
+        <div class="lrn-tab-panel" id="lrn-indices">
+          <div class="lrn-panel-hdr">
+            <span class="lrn-panel-num">02</span>
+            <div class="lrn-panel-title">Market Indices</div>
+          </div>
+          <div class="lrn-panel-rows">
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">What</div>
+              <div class="lrn-panel-row-val">12+ global benchmarks — S&amp;P 500, Nasdaq, FTSE 100, DAX, Nikkei, Hang Seng and more. Prices are <strong>adjusted close</strong> (dividends + splits factored in) from the last completed trading day.</div>
+            </div>
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Columns</div>
+              <div class="lrn-panel-row-val"><strong>7-day sparkline</strong> — recent price trajectory · <strong>% Day</strong> — change vs previous close · <strong>RVOL</strong> — today's volume vs 20-day average, signed by direction · <strong>Smart Money</strong> — composite institutional signal (Accumulation / Neutral / Distribution)</div>
+            </div>
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Look for</div>
+              <div class="lrn-panel-row-val">Rows with a <strong>gold left border</strong> are above their 200-day moving average — structurally bullish. A green row with <strong>RVOL &gt; 1.5</strong> and an Accumulation signal is the strongest conviction setup. Regional divergences (USA up, EU down) often precede broader rotations.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ TAB: NEWS ═════════════════════════════════ -->
+        <div class="lrn-tab-panel" id="lrn-news">
+          <div class="lrn-panel-hdr">
+            <span class="lrn-panel-num">01</span>
+            <div class="lrn-panel-title">Live News Feed</div>
+          </div>
+          <div class="lrn-panel-rows">
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">What</div>
+              <div class="lrn-panel-row-val">Curated macro and market headlines updated every hour, filtered into four zones: <strong>Global</strong>, <strong>USA</strong>, <strong>EU</strong>, <strong>Asia</strong>. Each article shows source, timestamp, and a two-line summary.</div>
+            </div>
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">How to use</div>
+              <div class="lrn-panel-row-val">Hover any item to expand the full summary. Click the headline or <strong>Read full article ↗</strong> to open the source. Articles scroll newest-first within each region.</div>
+            </div>
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Look for</div>
+              <div class="lrn-panel-row-val">A cluster of negative headlines in one region <em>without</em> a corresponding price drop in the Indices box can signal a <strong>lagged market reaction</strong> — the move may still be coming. Conversely, bad news already priced in = less downside risk.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ TAB: SECTORS ══════════════════════════════ -->
+        <div class="lrn-tab-panel" id="lrn-sectors">
+          <div class="lrn-panel-hdr">
+            <span class="lrn-panel-num">03</span>
+            <div class="lrn-panel-title">Sector Rotation</div>
+          </div>
+          <div class="lrn-panel-rows">
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">What</div>
+              <div class="lrn-panel-row-val">16 sector ETFs across 4 regions (USA / EU / Asia / World). Each row shows a sparkline, a <strong>Score</strong> (momentum composite), and performance for the selected period. A <code>—</code> means no ETF is tracked for that sector in that region.</div>
+            </div>
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Tabs</div>
+              <div class="lrn-panel-row-val"><strong>Zone tabs</strong> (top) switch the region. <strong>Period tabs</strong> (bottom) switch both the performance column and the sparkline: Today · 1M · 3M · 6M · 1Y. The chart always matches the selected period.</div>
+            </div>
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Look for</div>
+              <div class="lrn-panel-row-val">Rows with a <strong>gold left border</strong> are above their 200-day MA — the sector has structural momentum. Rotation strategy: favour sectors entering gold-border status, reduce exposure when they lose it. Compare the same sector across zones to spot regional leadership.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ TAB: SENTIMENT ════════════════════════════ -->
+        <div class="lrn-tab-panel" id="lrn-sentiment">
+          <div class="lrn-panel-hdr">
+            <span class="lrn-panel-num">04</span>
+            <div class="lrn-panel-title">Smart Money Sentiment</div>
+          </div>
+          <div class="lrn-panel-rows">
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">What</div>
+              <div class="lrn-panel-row-val">A composite institutional sentiment score per sector, ranging from <strong>−1.0</strong> (Extreme Fear) to <strong>+1.0</strong> (Euphoric). Built from three signals that institutional traders watch most: money flow, volume trend, and price structure.</div>
+            </div>
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Formula</div>
+              <div class="lrn-panel-row-val"><code>MFI×40% + OBV direction×30% + Above DMA-200×30%</code><br><br><strong>MFI (14d)</strong> — are buyers or sellers moving more money? · <strong>OBV direction (20d)</strong> — is cumulative volume trending up or down? · <strong>DMA-200</strong> — is price above long-term average? Hover the <strong>ⓘ</strong> icon on any card for a breakdown.</div>
+            </div>
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Look for</div>
+              <div class="lrn-panel-row-val">Cross-reference with Sector Rotation. <strong>High score + positive momentum</strong> = strong conviction. <strong>High score + still-negative price</strong> = potential early accumulation before the move. <strong>Euphoric score + extended price</strong> = caution, mean reversion risk.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ TAB: MACRO ════════════════════════════════ -->
+        <div class="lrn-tab-panel" id="lrn-macro">
+          <div class="lrn-panel-hdr">
+            <span class="lrn-panel-num">05</span>
+            <div class="lrn-panel-title">Macro Signals</div>
+          </div>
+          <div class="lrn-panel-rows">
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">What</div>
+              <div class="lrn-panel-row-val">Four macro environment indicators: <strong>Yield Curve</strong> (10Y−2Y spread), <strong>VIX</strong> (market fear), <strong>DXY</strong> (US dollar strength), and key rate spreads. Each has a signal label and a contextual note.</div>
+            </div>
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Yield curve</div>
+              <div class="lrn-panel-row-val">Four regimes — <strong>Steep</strong> (≥+1%) expansionary · <strong>Flat</strong> (0–1%) ambiguous · <strong>Partial Inversion</strong> (−0.5 to 0) caution, with historical false positives in 1998 &amp; 2019 · <strong>Full Inversion</strong> (&lt;−0.5%) recession probable, lead time 6–24 months. The signal deliberately avoids a binary alarm.</div>
+            </div>
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Look for</div>
+              <div class="lrn-panel-row-val"><strong>Full Inversion + VIX &gt; 25 + widening spreads</strong> = defensive posture warranted. <strong>Steep + VIX &lt; 15</strong> = risk-on environment. A <strong>rising DXY</strong> tends to pressure EM equities and commodities inversely — watch Sectors / Indices for the echo.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ TAB: PORTFOLIO ════════════════════════════ -->
+        <div class="lrn-tab-panel" id="lrn-portfolio">
+          <div class="lrn-panel-hdr">
+            <span class="lrn-panel-num">06</span>
+            <div class="lrn-panel-title">Portfolio Signals</div>
+          </div>
+          <div class="lrn-panel-rows">
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">What</div>
+              <div class="lrn-panel-row-val">A custom watchlist with automated momentum signals. Each position shows a <strong>7-day sparkline</strong>, a composite <strong>Score</strong>, and a signal: <code>BUY</code> · <code>WATCH</code> · <code>AVOID</code>.</div>
+            </div>
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Signal logic</div>
+              <div class="lrn-panel-row-val"><strong>BUY</strong> — strong positive Score + above DMA-200 · <strong>AVOID</strong> — negative Score + below DMA-200 · <strong>WATCH</strong> — mixed or borderline signals. The <strong>evidence string</strong> on each row shows exactly which factors fired (e.g. <code>↑DMA200 ↑Score ↑RVOL</code>).</div>
+            </div>
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Look for</div>
+              <div class="lrn-panel-row-val"><strong>BUY + high RVOL + Accumulation</strong> sentiment = highest conviction setup across all three layers. <strong>AVOID + RVOL spike on a down day</strong> = potential exit or short opportunity. Signals update at each pipeline run — check the timestamp.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Key metrics (always visible) ─────────────── -->
+        <div class="lrn-block" id="lrn-key-metrics" style="margin-top:32px">
+          <div class="lrn-block-hdr">
+            <h3>Key metrics explained</h3>
+            <em>Formulas &amp; plain language</em>
+          </div>
+
+          <div class="lrn-metric">
+            <div class="lrn-metric-label">
+              <div class="lrn-metric-name">RVOL</div>
+              <div class="lrn-metric-tag">Volume</div>
+            </div>
+            <div class="lrn-metric-body">
+              <span class="lrn-metric-formula">Vol(today) ÷ Avg Vol(20d prior)</span>
+              <p class="lrn-metric-desc">How unusual is today's activity? <strong>RVOL &gt; 1.5</strong> = heightened institutional interest. The sign follows price direction — positive on up days, negative on down days.</p>
+            </div>
+          </div>
+
+          <div class="lrn-metric">
+            <div class="lrn-metric-label">
+              <div class="lrn-metric-name">Score</div>
+              <div class="lrn-metric-tag">Momentum</div>
+            </div>
+            <div class="lrn-metric-body">
+              <span class="lrn-metric-formula">1M×30% + 3M×30% + 6M×20% + 1Y×20%</span>
+              <p class="lrn-metric-desc">Weighted composite of price momentum across four lookback windows. <strong>Positive</strong> = sustained uptrend. <strong>Negative</strong> = persistent weakness. Typical range: −0.15 to +0.15.</p>
+            </div>
+          </div>
+
+          <div class="lrn-metric">
+            <div class="lrn-metric-label">
+              <div class="lrn-metric-name">Smart Money</div>
+              <div class="lrn-metric-tag">Sentiment</div>
+            </div>
+            <div class="lrn-metric-body">
+              <span class="lrn-metric-formula">MFI×40% + OBV dir×30% + DMA200×30%</span>
+              <p class="lrn-metric-desc"><strong>MFI</strong> (14d money flow) + <strong>OBV direction</strong> (20d volume trend) + <strong>DMA-200 position</strong>. Ranges from −1.0 to +1.0. Measures institutional positioning, not price.</p>
+            </div>
+          </div>
+
+          <div class="lrn-metric">
+            <div class="lrn-metric-label">
+              <div class="lrn-metric-name">Yield Curve</div>
+              <div class="lrn-metric-tag">Macro</div>
+            </div>
+            <div class="lrn-metric-body">
+              <span class="lrn-metric-formula">Spread = 10Y − 2Y Treasury yield</span>
+              <p class="lrn-metric-desc">Four regimes: <strong>Steep</strong> (≥+1%) · <strong>Flat</strong> (0–1%) · <strong>Partial Inversion</strong> (−0.5 to 0) · <strong>Full Inversion</strong> (&lt;−0.5%). Full inversion has a recession lead time of 6–24 months — not immediate.</p>
+            </div>
+          </div>
+
+        </div><!-- /key-metrics -->
+
+      </div><!-- /lrn-body -->
+    </div><!-- /lrn-wrap -->
+
+    <script>
+    (function(){
+      var chips  = document.querySelectorAll(".lrn-toc-link[data-tab]");
+      var panels = document.querySelectorAll(".lrn-tab-panel");
+      chips.forEach(function(btn){
+        btn.addEventListener("click", function(){
+          chips.forEach(function(b){ b.classList.remove("active"); });
+          panels.forEach(function(p){ p.classList.remove("active"); });
+          btn.classList.add("active");
+          var panel = document.getElementById("lrn-" + btn.dataset.tab);
+          if(panel) panel.classList.add("active");
+        });
+      });
+      if(chips.length) chips[0].click(); // default: first chip open
+    })();
+    </script>
   </div>
 
   <!-- ─── 02 · STOCK ANALYSIS — crème ──────────────────────── -->
