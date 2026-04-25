@@ -52,7 +52,12 @@ def load_prices(con: sqlite3.Connection, ticker: str) -> pd.DataFrame:
     """
     df = pd.read_sql_query(
         """
-        SELECT date, open, high, low, close, volume
+        SELECT date,
+               open,
+               high,
+               low,
+               COALESCE(adj_close, close) AS close,   -- adjusted si dispo, sinon raw
+               volume
         FROM prices
         WHERE ticker = ?
         ORDER BY date ASC
