@@ -20,16 +20,23 @@
   let h = "";
   ORDER.forEach(zone => {
     (DATA[zone] || []).forEach(n => {
-      const z  = ZONES[zone] || ZONES.GLOBAL;
-      const ts = (n.ts_pub || "").slice(0,16).replace("T"," ");
+      const z    = ZONES[zone] || ZONES.GLOBAL;
+      const ts   = (n.ts_pub || "").slice(0,16).replace("T"," ");
+      const lien = esc(n.lien || "");
+      const hl   = lien
+        ? `<a class="news-hl" href="${lien}" target="_blank" rel="noopener noreferrer">${esc(n.titre)}</a>`
+        : `<div class="news-hl">${esc(n.titre)}</div>`;
+      const body = n.resume
+        ? `<div class="news-body">${esc(n.resume)}</div>`
+          + (lien ? `<a class="news-readmore" href="${lien}" target="_blank" rel="noopener noreferrer">Read full article ↗</a>` : "")
+        : "";
       h += `<div class="news-item">
         <div class="news-anchor">${esc(n.source_id || zone)}</div>
         <div class="news-meta">
           <span class="news-time">${esc(ts)}</span>
           <span class="news-zone ${z.cls}">${z.lbl}</span>
         </div>
-        <div class="news-hl">${esc(n.titre)}</div>
-        ${n.resume ? `<div class="news-body">${esc(n.resume)}</div>` : ""}
+        ${hl}${body}
       </div>`;
     });
   });

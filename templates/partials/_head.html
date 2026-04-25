@@ -163,7 +163,7 @@ h1,h2,h3,h4{font-family:var(--serif);color:var(--h);font-weight:400}
 #box1{display:flex;flex-direction:column;height:500px}
 #box1 .card-h{flex-shrink:0}
 #news-scroll{flex:1;overflow-y:auto;overscroll-behavior:contain}
-.news-item{padding:10px 14px;border-bottom:1px solid var(--border-lt);transition:background .12s;cursor:default}
+.news-item{padding:10px 14px;border-bottom:1px solid var(--border-lt);transition:background .12s}
 .news-item:hover{background:var(--hover)}
 .news-anchor{font-family:'SF Mono',Consolas,monospace;font-size:10.5px;color:var(--gold);
   background:var(--gold-bg);padding:2px 6px;border-radius:3px;display:inline-block;
@@ -180,7 +180,14 @@ h1,h2,h3,h4{font-family:var(--serif);color:var(--h);font-weight:400}
 [data-theme="dark"] .zone-eu{background:#182834;color:#82B0C8}
 [data-theme="dark"] .zone-as{background:#362818;color:#C8A880}
 .news-hl{font-size:12.5px;color:var(--h);line-height:1.4}
-.news-body{font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:2px}
+a.news-hl{text-decoration:none;display:block}
+a.news-hl:hover{color:var(--gold)}
+.news-body{font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:4px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.news-item:hover .news-body{-webkit-line-clamp:unset;overflow:visible}
+.news-readmore{font-size:10px;color:var(--gold);margin-top:3px;display:none;text-decoration:none}
+.news-readmore:hover{text-decoration:underline}
+.news-item:hover .news-readmore{display:inline}
 
 /* ═══════════════════ BOX_02 — INDICES ═══════════════════ */
 #box2 table{width:100%;border-collapse:collapse;font-size:12px}
