@@ -35,8 +35,23 @@
     // Header
     const hdr = card.appendChild(mk("div","sc-hdr"));
     hdr.appendChild(mk("span","sc-name",a.secteur));
-    const sc_el = hdr.appendChild(mk("span","sc-score",(sc>=0?"+":"")+sc.toFixed(2)));
+
+    // Score + methodology tooltip
+    const infoWrap = hdr.appendChild(mk("span","sc-info"));
+    const sc_el = infoWrap.appendChild(mk("span","sc-score",(sc>=0?"+":"")+sc.toFixed(2)));
     sc_el.style.color = col;
+    infoWrap.appendChild(mk("span","sc-info-btn","ⓘ"));
+    const tip = infoWrap.appendChild(mk("span","sc-tip"));
+    tip.appendChild(mk("div","sc-tip-title","Methodology"));
+    [["OBV direction","20d window"],["MFI","14d window"],["DMA","200-day"],["RVOL baseline","20d avg"]].forEach(function(pair){
+      const row = tip.appendChild(mk("div","sc-tip-row"));
+      row.appendChild(mk("span",null,pair[0]));
+      row.appendChild(mk("span",null,pair[1]));
+    });
+    tip.appendChild(mk("div","sc-tip-div"));
+    const formula = tip.appendChild(mk("div","sc-tip-formula"));
+    const fb = formula.appendChild(mk("b",null,"Score"));
+    formula.appendChild(document.createTextNode(" = MFI×40% + OBV×30% + DMA200×30%"));
 
     // Gauge
     const gauge = card.appendChild(mk("div","gauge"));
