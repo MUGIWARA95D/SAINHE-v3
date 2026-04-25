@@ -568,4 +568,19 @@ h1,h2,h3,h4{font-family:var(--serif);color:var(--h);font-weight:400}
   #main{padding:8px 8px}
 }
 {% endraw %}  </style>
+  <!-- miniChart — shared sparkline helper (used by box_02, box_03, box_06) -->
+  <script>
+  function miniChart(cv, data, color, fill){
+    if(!cv || !data || !data.length) return null;
+    const bg = fill ? color.replace("rgb(","rgba(").replace(")",",0.12)") : "transparent";
+    return new Chart(cv, {
+      type:"line",
+      data:{labels:data.map((_,i)=>i), datasets:[{data, borderColor:color, borderWidth:1.5,
+        fill:!!fill, backgroundColor:bg, tension:.4, pointRadius:0}]},
+      options:{responsive:false, animation:{duration:0},
+        plugins:{legend:{display:false}, tooltip:{enabled:false}},
+        scales:{x:{display:false}, y:{display:false}}}
+    });
+  }
+  </script>
 </head>

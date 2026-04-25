@@ -117,19 +117,6 @@
 
 <!-- ═══ SHARED JS HELPERS ══════════════════════════════════ -->
 <script>
-function miniChart(cv, data, color, fill){
-  if(!cv || !data || !data.length) return null;
-  const bg = fill ? color.replace("rgb(","rgba(").replace(")",",0.12)") : "transparent";
-  return new Chart(cv, {
-    type:"line",
-    data:{labels:data.map((_,i)=>i), datasets:[{data, borderColor:color, borderWidth:1.5,
-      fill:!!fill, backgroundColor:bg, tension:.4, pointRadius:0}]},
-    options:{responsive:false, animation:{duration:0},
-      plugins:{legend:{display:false}, tooltip:{enabled:false}},
-      scales:{x:{display:false}, y:{display:false}}}
-  });
-}
-
 /* ── Theme (pill) ────────────────────────────────── */
 const _H=document.documentElement, _TB=document.getElementById("thm");
 const _SUN=_TB?_TB.querySelector(".tp-sun"):null;
