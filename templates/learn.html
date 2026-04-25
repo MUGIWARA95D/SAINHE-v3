@@ -138,18 +138,66 @@
             <div class="lrn-panel-title">Market Indices</div>
           </div>
           <div class="lrn-panel-rows">
+
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">What</div>
-              <div class="lrn-panel-row-val">12+ global benchmarks — S&amp;P 500, Nasdaq, FTSE 100, DAX, Nikkei, Hang Seng and more. Prices are <strong>adjusted close</strong> (dividends + splits factored in) from the last completed trading day.</div>
+              <div class="lrn-panel-row-lbl">What it is</div>
+              <div class="lrn-panel-row-val">An index is a <strong>basket of stocks that together represent a market</strong>. The S&amp;P 500, for example, holds the 500 largest US companies — when it moves, it tells you in a single number how American big business is doing that day. SAINHE tracks 15 such baskets simultaneously, across four regions: the United States, Europe, Asia, and global benchmarks. Instead of checking 15 different websites, you read the whole world from a single table.</div>
             </div>
+
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Columns</div>
-              <div class="lrn-panel-row-val"><strong>7-day sparkline</strong> — recent price trajectory · <strong>% Day</strong> — change vs previous close · <strong>RVOL</strong> — today's volume vs 20-day average, signed by direction · <strong>Smart Money</strong> — composite institutional signal (Accumulation / Neutral / Distribution)</div>
+              <div class="lrn-panel-row-lbl">Why it matters</div>
+              <div class="lrn-panel-row-val">Before looking at any individual company, you need to know <strong>the temperature of the room</strong>. Markets do not behave in isolation. When major indices fall sharply on high volume, nearly everything falls with them — good companies and bad ones alike. Rising indices with healthy activity create a tailwind that makes even mediocre investments look better for a while. Professionals call this "macro context." It is the first filter any serious investor applies. Without it, you risk making a decision about a stock while ignoring the tide the whole market is swimming against — or with.</div>
             </div>
+
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Look for</div>
-              <div class="lrn-panel-row-val">Rows with a <strong>gold left border</strong> are above their 200-day moving average — structurally bullish. A green row with <strong>RVOL &gt; 1.5</strong> and an Accumulation signal is the strongest conviction setup. Regional divergences (USA up, EU down) often precede broader rotations.</div>
+              <div class="lrn-panel-row-lbl">7d sparkline</div>
+              <div class="lrn-panel-row-val">The tiny line chart drawn from the last seven daily closing prices. It gives you an <strong>immediate visual sense of recent direction</strong> — no finance knowledge required. A line going up means the index gained over the week. A line going down means it lost ground. A flat line means it barely moved. You absorb this in one glance before reading a single number.</div>
             </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Price &amp; % Day</div>
+              <div class="lrn-panel-row-val"><strong>Price</strong> is the most recent adjusted closing value of the index or the ETF that tracks it, displayed in your selected currency. <strong>% Day</strong> is the percentage it moved on the most recent trading day — <span style="color:var(--green)">green + plus</span> means it rose, <span style="color:var(--red)">red + minus</span> means it fell. A day of −3% or more is considered a significant drop worthy of investigation.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">RVOL</div>
+              <div class="lrn-panel-row-val"><strong>Relative Volume</strong> — how much trading happened yesterday compared to a typical day over the last 20 sessions (roughly one month).<br><br>
+                <code>1.00</code> = exactly average — unremarkable.<br>
+                <code>1.50</code> = 50% more shares changed hands than usual — something attracted attention.<br>
+                <code>0.60</code> = only 60% of typical volume — a quiet, low-conviction session.<br><br>
+                Volume is the <strong>heartbeat of a market</strong>. Price changes without volume are whispers — they can easily reverse. Price changes on high volume are shouts — real money is making a decisive statement. A big drop on low volume is very different from a big drop on high volume. The first might be a blip; the second is serious selling pressure. When RVOL exceeds 1.20, SAINHE highlights it in gold — that is the threshold where something is worth examining.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Smart Money</div>
+              <div class="lrn-panel-row-val">Combines price direction with RVOL to produce a single label. Five possible readings:<br><br>
+                <strong>Accumulation</strong> — rose on above-normal volume. Institutional investors were actively buying. The best signal.<br>
+                <strong>Distribution</strong> — fell on above-normal volume. Large players were actively selling. A warning sign.<br>
+                <strong>Weak Rally</strong> — rose, but volume was below normal. Price went up without real conviction — often a temporary bounce that may not hold.<br>
+                <strong>Thin Slide</strong> — fell on below-normal volume. Less alarming than Distribution, but still negative.<br>
+                <strong>Neutral</strong> — no decisive signal in either direction.<br><br>
+                For instruments with no volume data (e.g. the 10-Year Treasury yield), the column simply shows up or down.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Example</div>
+              <div class="lrn-panel-row-val"><strong>Positive read:</strong> S&amp;P 500 — sparkline sloping up — +0.35% — RVOL 1.45 — Accumulation. Translation: the largest US companies rose by a third of a percent, with 45% more activity than usual. Professional investors were confidently buying. Good context for evaluating a US stock.<br><br>
+                <strong>Negative read:</strong> S&amp;P 500 — −1.80% — RVOL 1.60 — Distribution. The market fell nearly 2% while significantly more people than usual were selling. Not a day to rush into new positions.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">The 4 regions</div>
+              <div class="lrn-panel-row-val"><strong>USA</strong> — S&amp;P 500, Nasdaq, Dow Jones. Together they capture the full US market: the broad economy, technology specifically, and the 30 most iconic industrial companies.<br><br>
+                <strong>Europe</strong> — DAX (Germany), CAC 40 (France), Euro Stoxx 50 (50 biggest eurozone companies). Lets you see whether Europe is moving with the US or diverging.<br><br>
+                <strong>Asia</strong> — Nikkei (Japan), Hang Seng (Hong Kong), CSI 300 (mainland China). Asia trades while the West sleeps and often sets the tone for European and American opens.<br><br>
+                <strong>Global</strong> — MSCI World and key macro instruments: the US 10-Year and 3-Month Treasury yields, and the <strong>VIX</strong> (the "Fear Index"). VIX below 15 = calm. 15–20 = normal. Above 20 = rising anxiety. Above 30 = outright panic. The VIX gives you the emotional temperature of the market at a glance.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Summary row</div>
+              <div class="lrn-panel-row-val">Below the table, a compact line shows how many of the 15 indices are <strong>rising vs falling</strong>, and how many are <strong>above vs below their 200-day moving average</strong> — the average price over the past 200 trading days (roughly 10 months). An index above this line has been generally rising long-term and is in a healthy uptrend. "12 out of 15 above their 200-day average" vs "3 out of 15" tells you instantly whether world markets are broadly healthy or broadly stressed.</div>
+            </div>
+
           </div>
         </div>
 
