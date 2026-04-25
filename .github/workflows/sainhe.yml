@@ -20,7 +20,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "Mode fetch prix"
+        description: "Fetch mode"
         required: false
         default: "update"
         type: choice
