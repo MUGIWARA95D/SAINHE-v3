@@ -214,36 +214,40 @@ a.news-hl:hover{color:var(--gold)}
 /* ═══════════════════ BOX_03 — SECTORS ═══════════════════ */
 #box3{display:flex;flex-direction:column;height:500px}
 #box3 .card-h{flex-shrink:0}
-.tabs{display:flex;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border-lt);flex-shrink:0}
-.tab{flex:1;text-align:center;padding:10px 6px;font-size:11.5px;font-weight:500;color:var(--muted);
-  background:var(--card-alt);border:1px solid var(--border);border-radius:8px;cursor:pointer;
-  background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tabs{display:flex;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border-lt);flex-shrink:0}
+.tab{flex:1;text-align:center;padding:11px 6px;font-size:11.5px;font-weight:500;color:var(--muted);
+  background:var(--card-alt);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .2s ease}
 .tab:hover{background:var(--hover);border-color:var(--gold-border);color:var(--h);transform:translateY(-1px)}
 .tab.active{background:var(--gold-bg);border-color:var(--gold-border);color:var(--gold);font-weight:600}
-.ptabs{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border-lt);flex-shrink:0}
-.ptab{flex:1;text-align:center;padding:8px 4px;font-size:10.5px;font-weight:500;color:var(--muted);
+.ptabs{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border-lt);flex-shrink:0}
+.ptab{flex:1;text-align:center;padding:9px 4px;font-size:10.5px;font-weight:500;color:var(--muted);
   background:var(--card-alt);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .2s ease}
 .ptab:hover{background:var(--hover);border-color:var(--gold-border);color:var(--h);transform:translateY(-1px)}
 .ptab.active{background:var(--gold-bg);border-color:var(--gold-border);color:var(--gold);font-weight:600}
 #sec-scroll{flex:1;overflow-y:auto;overscroll-behavior:contain}
-.sec-hdr{display:flex;align-items:center;gap:8px;padding:5px 12px;
+.sec-hdr{display:flex;align-items:center;gap:14px;padding:6px 16px;
   background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
-.sec-hdr-name{flex:1;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
-.sec-hdr-spark{width:60px;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);flex-shrink:0;text-align:center}
-.sec-hdr-score{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);flex-shrink:0;min-width:42px;text-align:center}
-.sec-hdr-perf{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);flex-shrink:0;min-width:56px;text-align:right}
-.sec-row{display:flex;align-items:center;gap:8px;padding:8px 12px;
+.sec-hdr-name{flex:1;font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+.sec-hdr-spark{width:92px;font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--faint);
+  flex-shrink:0;text-align:center}
+.sec-hdr-score{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);
+  flex-shrink:0;min-width:62px;text-align:center}
+.sec-hdr-perf{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);
+  flex-shrink:0;min-width:72px;text-align:right}
+.sec-row{display:flex;align-items:center;gap:14px;padding:11px 16px;
   border-bottom:1px solid var(--border-lt);transition:background .12s}
 .sec-row:hover{background:var(--hover)}
-.sec-row.sec-missing{opacity:.45}
+.sec-row.sec-missing{opacity:.35}
 .sec-row.golden-alpha{border-left:3px solid var(--gold-border);
-  background:linear-gradient(90deg,var(--gold-bg) 0%,var(--card) 60%)}
-.sec-name{flex:1;font-size:11.5px;color:var(--h);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sec-spark{width:60px;height:24px;flex-shrink:0}
-.sec-rvol{font-size:10px;color:var(--muted);flex-shrink:0;min-width:42px;text-align:center;
-  padding:1px 4px;border-radius:3px}
-.sec-rvol.rvol-hot{background:var(--gold-bg);color:var(--gold);font-weight:600}
-.sec-perf{font-size:12px;font-weight:700;flex-shrink:0;min-width:56px;text-align:right}
+  background:linear-gradient(90deg,var(--gold-bg) 0%,var(--card) 70%)}
+.sec-name{flex:1;font-size:12px;color:var(--h);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sec-spark{width:92px;height:28px;flex-shrink:0}
+.sec-score{font-size:10px;font-weight:600;flex-shrink:0;min-width:62px;text-align:center;
+  padding:2px 8px;border-radius:4px}
+.sec-score-pos{background:var(--green-bg);color:var(--green)}
+.sec-score-neg{background:var(--red-bg);color:var(--red)}
+.sec-score-neu{background:var(--border-lt);color:var(--muted)}
+.sec-perf{font-size:13px;font-weight:700;flex-shrink:0;min-width:72px;text-align:right}
 .p-up{color:var(--green)}.p-dn{color:var(--red)}.p-flat{color:var(--muted)}
 
 /* ═══════════════════ BOX_04 — SENTIMENT CARDS ═══════════════════ */

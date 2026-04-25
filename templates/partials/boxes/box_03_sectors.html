@@ -18,9 +18,9 @@
   </div>
 
   <!-- Column headers -->
-  <div class="sec-hdr" id="sec-hdr">
+  <div class="sec-hdr">
     <span class="sec-hdr-name">Sector</span>
-    <span class="sec-hdr-spark" id="hdr-spark">7d</span>
+    <span class="sec-hdr-spark">Chart</span>
     <span class="sec-hdr-score">Score</span>
     <span class="sec-hdr-perf" id="hdr-perf">Today</span>
   </div>
@@ -29,11 +29,11 @@
 
   <!-- Period tabs — full width -->
   <div class="ptabs" id="ptabs">
-    <button class="ptab active" data-p="chg_pct" data-sp="spark_today" data-lbl="Today" data-days="7d">Aujourd'hui</button>
-    <button class="ptab" data-p="ret_1m" data-sp="spark_1m" data-lbl="1M" data-days="1M">1M</button>
-    <button class="ptab" data-p="ret_3m" data-sp="spark_3m" data-lbl="3M" data-days="3M">3M</button>
-    <button class="ptab" data-p="ret_6m" data-sp="spark_6m" data-lbl="6M" data-days="6M">6M</button>
-    <button class="ptab" data-p="ret_1y" data-sp="spark_1y" data-lbl="1Y" data-days="1Y">1Y</button>
+    <button class="ptab active" data-p="chg_pct" data-sp="spark_today" data-lbl="Today">Aujourd'hui</button>
+    <button class="ptab" data-p="ret_1m"  data-sp="spark_1m"    data-lbl="1M">1M</button>
+    <button class="ptab" data-p="ret_3m"  data-sp="spark_3m"    data-lbl="3M">3M</button>
+    <button class="ptab" data-p="ret_6m"  data-sp="spark_6m"    data-lbl="6M">6M</button>
+    <button class="ptab" data-p="ret_1y"  data-sp="spark_1y"    data-lbl="1Y">1Y</button>
   </div>
 </section>
 <script>
@@ -69,7 +69,7 @@
         const dash1 = document.createElement("span");
         dash1.className = "sec-spark"; dash1.style.cssText = "color:var(--faint);text-align:center;font-size:11px;display:flex;align-items:center;justify-content:center"; dash1.textContent = "—";
         const dash2 = document.createElement("span");
-        dash2.className = "sec-rvol"; dash2.textContent = "—";
+        dash2.className = "sec-score sec-score-neu"; dash2.textContent = "—";
         const dash3 = document.createElement("span");
         dash3.className = "sec-perf p-flat"; dash3.textContent = "—";
         row.appendChild(nm); row.appendChild(dash1); row.appendChild(dash2); row.appendChild(dash3);
@@ -86,11 +86,16 @@
         const spTd = document.createElement("div");
         spTd.className = "sec-spark";
         const cv = document.createElement("canvas");
-        cv.id = "ss" + i; cv.width = 60; cv.height = 24; cv.className = "idx-spark";
+        cv.id = "ss" + i; cv.width = 92; cv.height = 28; cv.className = "idx-spark";
         spTd.appendChild(cv);
 
         const scEl = document.createElement("span");
-        scEl.className = "sec-rvol" + hot; scEl.textContent = sc;
+        const scColorCls = r.score == null ? "sec-score-neu"
+                         : r.score >  0.1  ? "sec-score-pos"
+                         : r.score < -0.1  ? "sec-score-neg"
+                         :                   "sec-score-neu";
+        scEl.className = "sec-score " + scColorCls;
+        scEl.textContent = r.score != null ? (r.score >= 0 ? "+" : "") + r.score.toFixed(2) : "—";
 
         const pEl = document.createElement("span");
         pEl.className = "sec-perf " + cls;
@@ -131,9 +136,7 @@
     b.classList.add("active");
     cP  = b.dataset.p;
     cSP = b.dataset.sp;
-    // Update column headers
-    document.getElementById("hdr-perf").textContent  = b.dataset.lbl;
-    document.getElementById("hdr-spark").textContent = b.dataset.days;
+    document.getElementById("hdr-perf").textContent = b.dataset.lbl;
     renderSectors();
   });
 
