@@ -1,6 +1,14 @@
 <div id="scroll-prog"></div>
 <header id="hdr">
-  <span class="logo" onclick="if(window._sainheIntro)window._sainheIntro()" style="cursor:pointer">{{ site_name }}</span>
+  <span class="logo" onclick="(function(){
+    var onDash = !!document.getElementById('box1');
+    if(onDash){
+      window._sainheIntro && window._sainheIntro(false);
+    } else {
+      sessionStorage.setItem('sainhe_logo_nav','1');
+      location.href='index.html';
+    }
+  })()" style="cursor:pointer">{{ site_name }}</span>
   <span class="logo-sub">{{ site_slogan }}</span>
   <nav class="hdr-nav">
     <a href="#hero" class="hdr-nav-menu">Menu</a>

@@ -72,25 +72,36 @@
 
   var _timer1, _timer2;
 
-  window._sainheIntro = function() {
-    // scroll to top
+  // fast=true  → 60% shorter (page navigations)
+  // fast=false → full speed  (logo "go home" click)
+  window._sainheIntro = function(fast) {
     window.scrollTo({top:0, behavior:"instant"});
-    // reset CSS animation
+
+    var delay  = fast ? 0.48 : 1.2;
+    var dur    = fast ? 0.48 : 1.2;
+    var fadeMs = fast ? 1120 : 2800;
+    var hideMs = fast ? 1500 : 3700;
+
     if (front) {
       front.style.animation = "none";
       front.offsetHeight; // force reflow
-      front.style.animation = "";
+      front.style.animation = "bk-open "+dur+"s cubic-bezier(.4,0,.2,1) "+delay+"s both";
     }
-    // show overlay
+
     ov.style.display = "flex";
     ov.classList.remove("hide");
-    // fade out
     clearTimeout(_timer1); clearTimeout(_timer2);
-    _timer1 = setTimeout(function(){ ov.classList.add("hide"); }, 2800);
-    _timer2 = setTimeout(function(){ ov.style.display = "none"; }, 3700);
+    _timer1 = setTimeout(function(){ ov.classList.add("hide"); }, fadeMs);
+    _timer2 = setTimeout(function(){ ov.style.display = "none"; }, hideMs);
   };
 
-  // play on every page load
-  window._sainheIntro();
+  // On page load: full speed if logo triggered, fast otherwise
+  var playFull = sessionStorage.getItem("sainhe_logo_nav");
+  if (playFull) {
+    sessionStorage.removeItem("sainhe_logo_nav");
+    window._sainheIntro(false);
+  } else {
+    window._sainheIntro(true);
+  }
 })();
 </script>
