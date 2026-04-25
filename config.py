@@ -216,7 +216,7 @@ RSS_ROTATION = {
     20: [2, 4], 21: [3, 6], 22: [2, 5], 23: [3, 4],
 }
 
-NEWS_RETENTION_DAYS  = 7     # purge auto après N jours
+NEWS_RETENTION_DAYS  = 3     # purge auto — keep last 3 days
 LOG_RETENTION_DAYS   = 90    # logs fetch conservés N jours
 
 # Sources calendrier macro (scraping 08h00)
