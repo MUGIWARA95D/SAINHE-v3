@@ -213,18 +213,53 @@
             <div class="lrn-panel-title">Live News Feed</div>
           </div>
           <div class="lrn-panel-rows">
+
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">What</div>
-              <div class="lrn-panel-row-val">Curated macro and market headlines updated every hour, filtered into four zones: <strong>Global</strong>, <strong>USA</strong>, <strong>EU</strong>, <strong>Asia</strong>. Each article shows source, timestamp, and a two-line summary.</div>
+              <div class="lrn-panel-row-lbl">What it is</div>
+              <div class="lrn-panel-row-val">A continuously updated stream of macro and market-moving headlines, organized by geographic region. Markets are driven by two forces: data (prices, volumes, indicators) and events (news). The Indices section gives you the data. The News Feed gives you the events. Together they tell you not just <em>what</em> is happening, but <em>why</em>.<br><br>Every headline here was published by a financial news source and was deemed relevant enough to surface. You are not reading a general news site — every article in this feed has a potential connection to market prices.</div>
             </div>
+
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">How to use</div>
-              <div class="lrn-panel-row-val">Hover any item to expand the full summary. Click the headline or <strong>Read full article ↗</strong> to open the source. Articles scroll newest-first within each region.</div>
+              <div class="lrn-panel-row-lbl">Why it matters</div>
+              <div class="lrn-panel-row-val">Markets are forward-looking machines. They do not react to what already happened — they react to what people expect to happen next. News is the raw material that shapes those expectations. A central bank raising interest rates unexpectedly, a trade war escalating, a major company missing its earnings — each of these events can move entire sectors or regions within minutes of publication.<br><br>Reading the news feed before studying signals and scores gives you <strong>narrative context</strong>: the story behind the numbers. A sector falling 2% looks very different if you know there was a surprise regulatory announcement that morning versus if there was no obvious catalyst. The first is explainable and possibly temporary. The second is a signal worth investigating further.</div>
             </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">How each item is structured</div>
+              <div class="lrn-panel-row-val">Every article card shows four pieces of information:<br><br>
+                <strong>Source tag</strong> — the name of the publication or data provider (e.g. Reuters, Bloomberg, FT). This tells you how authoritative the information is. A central bank statement republished by Reuters carries more weight than an opinion piece.<br><br>
+                <strong>Timestamp</strong> — the exact date and time the article was published, in UTC. Markets move fast. An article from 3 hours ago is current context. An article from 3 days ago is background noise unless you are researching a developing story.<br><br>
+                <strong>Region tag</strong> — colour-coded: grey for Global, purple for USA, blue for EU, orange for Asia. This tells you at a glance which part of the world the news affects most directly.<br><br>
+                <strong>Headline</strong> — the title of the article, always clickable. Click it to open the full piece at the source. If a two-line summary is available, hover the card to expand it and read <em>Read full article ↗</em> to go deeper.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">The four regions</div>
+              <div class="lrn-panel-row-val"><strong>Global</strong> — stories that affect multiple regions simultaneously: IMF reports, WTO decisions, global commodity price moves, pandemics, or geopolitical events that span borders. When the Global feed is active and negative, no region is safe.<br><br>
+                <strong>USA</strong> — the United States is the world's largest economy and hosts the most liquid financial markets. Federal Reserve decisions, US inflation data, employment reports, major US corporate earnings — all of these are published here. When US news is positive, it tends to lift markets worldwide. When it is negative, the entire world tends to follow.<br><br>
+                <strong>EU (Europe)</strong> — European Central Bank policy, eurozone economic data, individual country political events (elections, budget crises), and major European corporate news. Europe often moves in correlation with the US but can diverge strongly around local political events — watch for that divergence in the Indices table.<br><br>
+                <strong>Asia</strong> — China's economic releases, Bank of Japan decisions, South Korean and Taiwanese tech sector news (Taiwan is critical for semiconductors), and broader emerging market events. Because Asian markets trade 8–14 hours ahead of the US, the Asia feed often gives you a preview of the mood before Western markets open.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">How to read it</div>
+              <div class="lrn-panel-row-val">Articles are ordered <strong>newest first</strong> within each region. You do not need to read everything — scan the headlines. Your eye will stop on keywords that matter: "rate hike," "GDP miss," "earnings beat," "tariff," "default," "record high." Those are your entry points.<br><br>
+                Once a headline catches your attention, hover to read the summary. If the summary raises a question — "which sectors does this affect?" — open the full article. Then cross-reference with the Indices table: is the relevant region or sector already moving? If yes, the market may have already priced in the news. If not, the reaction may still be coming.</div>
+            </div>
+
             <div class="lrn-panel-row">
               <div class="lrn-panel-row-lbl">Look for</div>
-              <div class="lrn-panel-row-val">A cluster of negative headlines in one region <em>without</em> a corresponding price drop in the Indices box can signal a <strong>lagged market reaction</strong> — the move may still be coming. Conversely, bad news already priced in = less downside risk.</div>
+              <div class="lrn-panel-row-val"><strong>News without a price reaction</strong> — a cluster of negative headlines in one region, but no corresponding drop in that region's indices. This is called a "lag." The market has not reacted yet. It may be about to. This is one of the most actionable signals on the dashboard.<br><br>
+                <strong>Price moves without news</strong> — an index dropping significantly but the news feed for that region is quiet. This can mean the catalyst is not yet public (institutional trading ahead of an announcement) or that the move is technically driven and may reverse. Either way, it deserves attention.<br><br>
+                <strong>Converging bad news</strong> — negative headlines across multiple regions simultaneously, accompanied by falling indices and Distribution signals in the Smart Money column. That combination — bad news, falling prices, and high selling volume across the board — is the clearest signal to reduce risk exposure.<br><br>
+                <strong>Bad news already priced in</strong> — a negative article published days ago that caused a sharp drop, but the index has since stabilized or recovered. This suggests the market absorbed the shock. Less downside risk from that specific event going forward.</div>
             </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Updates</div>
+              <div class="lrn-panel-row-val">The news feed refreshes <strong>every hour, 24 hours a day, 7 days a week</strong>. Each hourly run fetches the latest articles, stores them, and immediately re-renders and deploys the full dashboard to the web. You are never more than ~60 minutes behind on headlines. The timestamp on each article tells you exactly when it was published — always check it before acting on a story.</div>
+            </div>
+
           </div>
         </div>
 
