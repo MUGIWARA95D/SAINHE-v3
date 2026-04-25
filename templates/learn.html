@@ -368,18 +368,86 @@
             <div class="lrn-panel-title">Smart Money Sentiment</div>
           </div>
           <div class="lrn-panel-rows">
+
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">What</div>
-              <div class="lrn-panel-row-val">A composite institutional sentiment score per sector, ranging from <strong>−1.0</strong> (Extreme Fear) to <strong>+1.0</strong> (Euphoric). Built from three signals that institutional traders watch most: money flow, volume trend, and price structure.</div>
+              <div class="lrn-panel-row-lbl">What it is</div>
+              <div class="lrn-panel-row-val">This section attempts to answer a question that standard price data cannot: <strong>are large, sophisticated investors buying or selling right now?</strong> It does this not by accessing their private transaction data — that is impossible — but by reading the footprints they leave in public price and volume data.<br><br>Each of the 16 sectors gets a single composite score between <strong>−1.0</strong> and <strong>+1.0</strong>, calculated from three technical indicators that together try to capture institutional behavior. The score is then translated into one of six plain-language labels, from Extreme Fear to Euphoric.<br><br>The section is called "Smart Money" because institutional investors — large hedge funds, pension funds, asset managers — are assumed to be better informed and more deliberate than retail investors. When their footprints appear in the data, it is worth paying attention. But as you will read below, the label carries significant caveats.</div>
             </div>
+
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Formula</div>
-              <div class="lrn-panel-row-val"><code>MFI×40% + OBV direction×30% + Above DMA-200×30%</code><br><br><strong>MFI (14d)</strong> — are buyers or sellers moving more money? · <strong>OBV direction (20d)</strong> — is cumulative volume trending up or down? · <strong>DMA-200</strong> — is price above long-term average? Hover the <strong>ⓘ</strong> icon on any card for a breakdown.</div>
+              <div class="lrn-panel-row-lbl">Component 1 — MFI</div>
+              <div class="lrn-panel-row-val"><strong>Money Flow Index (MFI) — 40% of the score</strong><br><br>
+                The MFI measures whether money is flowing <em>into</em> a sector (buying pressure) or <em>out of</em> it (selling pressure) over the last 14 trading days. It works by combining price direction with volume: every day, if the average of that day's high, low, and close is higher than the previous day's, that day's volume counts as "positive money flow." If it is lower, it counts as "negative." The ratio of positive to negative flows produces a number between 0 and 100.<br><br>
+                An MFI above 50 means more money has been flowing in than out over 14 days. An MFI below 50 means the opposite. SAINHE normalizes this to the −1/+1 scale using <code>(MFI − 50) / 50</code>.<br><br>
+                Classic interpretation: MFI above 80 is considered overbought (too much buying, potential reversal coming). MFI below 20 is oversold (excessive selling, potential bounce). SAINHE does not enforce these thresholds rigidly — it uses MFI as one of three inputs, not a standalone signal.</div>
             </div>
+
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Look for</div>
-              <div class="lrn-panel-row-val">Cross-reference with Sector Rotation. <strong>High score + positive momentum</strong> = strong conviction. <strong>High score + still-negative price</strong> = potential early accumulation before the move. <strong>Euphoric score + extended price</strong> = caution, mean reversion risk.</div>
+              <div class="lrn-panel-row-lbl">Component 2 — OBV</div>
+              <div class="lrn-panel-row-val"><strong>On-Balance Volume direction (OBV) — 30% of the score</strong><br><br>
+                OBV is one of the oldest and most respected volume indicators in technical analysis, developed by Joe Granville in the 1960s. The idea is simple: on days when price closes up, all of that day's volume is added to a running total. On days when price closes down, all of that day's volume is subtracted. The result is a single cumulative line that rises when buying pressure dominates and falls when selling pressure dominates.<br><br>
+                SAINHE does not use the absolute OBV value (which is meaningless in isolation) — it uses the <strong>direction</strong> over the last 20 trading days. If OBV is higher than it was 20 days ago, it is trending up: +1. If it is lower: −1. If flat: 0.<br><br>
+                Why does this matter? OBV can sometimes lead price. If a sector's price is flat but its OBV is rising sharply, it means volume is quietly accumulating on up days — institutions may be building positions before the price reacts. This is one of the few indicators that can hint at what is coming rather than just confirming what already happened.</div>
             </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Component 3 — DMA200</div>
+              <div class="lrn-panel-row-val"><strong>200-day Moving Average position — 30% of the score</strong><br><br>
+                This is the simplest component: is the sector ETF's current price above or below its 200-day moving average? If above: +1 contribution. If below: −1 contribution.<br><br>
+                This binary input acts as a <strong>structural regime filter</strong>. A sector trading above its 200-day average is in a long-term uptrend. One trading below it is in a long-term downtrend. By including this as 30% of the sentiment score, SAINHE ensures that a sector can only reach very high sentiment scores if it also has sound long-term price structure — not just short-term flow spikes.<br><br>
+                A sector with strong MFI and rising OBV but below its 200-day MA will be capped at a moderate score. The 200-day component is essentially asking: "even if money is flowing in right now, is the broader trend healthy enough to trust this signal?"</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">The formula</div>
+              <div class="lrn-panel-row-val"><code>Score = MFI_normalized × 40% + OBV_direction × 30% + DMA200_position × 30%</code><br><br>
+                All three components are scaled to the same −1 to +1 range before being weighted and summed. This produces a final score between −1.0 and +1.0.<br><br>
+                The six labels and their exact thresholds:<br><br>
+                <strong>Euphoric</strong> — score ≥ +0.60. All three indicators are strongly aligned bullishly. Rare.<br>
+                <strong>Accumulation</strong> — score ≥ +0.10. Positive bias across most indicators. The most actionable positive signal.<br>
+                <strong>Neutral</strong> — score between 0.00 and +0.10. No strong signal in either direction.<br>
+                <strong>Caution</strong> — score between −0.10 and 0.00. Slight negative bias beginning to appear.<br>
+                <strong>Bearish</strong> — score between −0.60 and −0.10. Broad negative alignment.<br>
+                <strong>Extreme Fear</strong> — score below −0.60. All indicators strongly negative. Also rare, and sometimes a contrarian buy signal.<br><br>
+                Hover the <strong>ⓘ</strong> icon on any card on the dashboard to see a live breakdown of each component.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">How to read a card</div>
+              <div class="lrn-panel-row-val">Each sector gets its own card showing the score, the label, a gauge bar, and three law-line indicators. The gauge bar is a horizontal bar from −1 to +1 with a dot showing the current score position — the further right, the more bullish.<br><br>
+                The three indicator lines below show the individual status of MFI, OBV, and DMA200 in plain language, so you can see at a glance which components are driving the score and which are dragging it. A sector with a high score driven entirely by DMA200 and a flat OBV is less convincing than one where all three are aligned.<br><br>
+                Cross-reference with the Sectors section: <strong>Accumulation + positive momentum score + gold border</strong> is the strongest three-layer confluence. All three layers agreeing is rare and meaningful.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Biases &amp; herding risks</div>
+              <div class="lrn-panel-row-val">This is the section of the dashboard that requires the most critical reading. Here are the specific risks you must be aware of:<br><br>
+
+                <strong>All three indicators are backward-looking.</strong> MFI looks at the last 14 days. OBV at the last 20. DMA200 at the last 200. Not one of them predicts the future — they summarize the past. A score of Euphoric today was earned by what happened in recent weeks. It says nothing about what will happen tomorrow. Markets can turn on a single announcement.<br><br>
+
+                <strong>The "Smart Money" label is misleading.</strong> SAINHE does not have access to institutional order flow, dark pool data, or any proprietary transaction records. "Smart Money" is a colloquial term borrowed from technical analysis. What the score actually measures is <em>price and volume patterns that historically correlate with institutional activity</em> — not institutional activity itself. The two can diverge. Do not treat this as a direct window into what hedge funds are doing.<br><br>
+
+                <strong>Herding: when everyone reads the same signal, the signal breaks.</strong> If a large number of investors all use the same indicators and all see Accumulation at the same time, they all buy simultaneously. This buying itself pushes the price up and reinforces the signal — briefly. But it also means the real institutional money may have already entered at lower prices and will now sell into that retail buying pressure. The signal can be correct in the past but wrong as a forward indicator precisely because it has been widely acted upon. This is called a <strong>self-fulfilling loop that reverses at the top</strong>.<br><br>
+
+                <strong>Euphoric is a warning, not a green light.</strong> A score above +0.60 means every indicator is maxed out positively. But markets cannot keep accelerating indefinitely — Euphoric often marks the <em>end</em> of a move, not the middle. When sentiment reaches extremes, mean reversion risk is at its highest. Extreme Fear is the mirror: it often marks a bottom, not a continuation. The most dangerous thing you can do is buy into Euphoria because it has been working. That is how retail investors consistently buy the top.<br><br>
+
+                <strong>OBV is particularly noisy.</strong> Volume data for ETFs can be distorted by options expiration, index rebalancing, ETF creation/redemption flows, and end-of-quarter repositioning by institutions. These mechanical volume events can send OBV in a direction that has nothing to do with directional conviction. A spike in OBV during a quarterly rebalance is meaningless — but the indicator cannot distinguish it from genuine accumulation.<br><br>
+
+                <strong>MFI false signals in thin markets.</strong> The MFI works best in liquid, heavily traded instruments. For smaller sector ETFs with lower average daily volumes — Space, Digital Assets, Agriculture — a single large trade can dominate the MFI reading for days. The signal is less reliable in these sectors than in Tech or Financials.<br><br>
+
+                <strong>The DMA200 is a consensus indicator — which makes it dangerous.</strong> Because virtually every professional market participant watches the 200-day moving average, a break above it tends to attract buying (making it a stronger breakout) and a break below tends to trigger selling (making it a deeper breakdown). This self-reinforcing behavior can make the indicator appear predictive when it is actually just describing a crowded behavior. In trending markets it works well. In choppy, range-bound markets it generates repeated false signals — "whipsaws" — where price crosses above and below the line repeatedly, triggering entry and exit costs each time.<br><br>
+
+                <strong>The score compounds three lagging indicators.</strong> Each component already lags reality by 14 to 200 days. Combining three of them into a single score does not reduce the lag — it potentially compounds it. A sector can deteriorate fundamentally for weeks before the sentiment score reflects it, because each component is still averaging over a historical window that includes better days.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">How to use it well</div>
+              <div class="lrn-panel-row-val">Use this section as a <strong>filter and a flag, not a directive</strong>.<br><br>
+                As a filter: when you identify a sector worth investigating (from the Sectors tab), check its sentiment score. If momentum is strong but sentiment is Bearish or Caution, the score is warning you that the underlying flow picture may not support the price action — be more careful. If both momentum and sentiment align positively, the thesis has more depth.<br><br>
+                As a flag: Extreme Fear in a sector that has been falling for months is sometimes a contrarian signal. Historically, Extreme Fear readings have preceded recoveries more often than they have preceded continued collapses — because by the time everyone is fearful, most of the selling has already happened. This is not a reliable rule, but it is a reason to pay attention rather than dismiss the sector entirely.<br><br>
+                The most useful combination on the dashboard: <strong>Accumulation sentiment + gold border in Sectors + low RVOL in Indices (quiet market backdrop)</strong>. That combination — institutional footprints in a specific sector while the broader market is calm — is the closest this tool gets to identifying early positioning.</div>
+            </div>
+
           </div>
         </div>
 
