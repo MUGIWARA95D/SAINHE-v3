@@ -31,6 +31,38 @@ ERP_EXPENSIVE   = 0.01    # ERP < 1% → actions chères
 
 
 # ══════════════════════════════════════════════════════════════
+# ── 1b. YIELD CURVE — classifieur 4 régimes
+#
+#  Spread (10Y − 3M) en points de pourcentage
+#  ─────────────────────────────────────────────────────────────
+#  ≥  1.00  → "steep"             : pente saine, signal d'expansion
+#     0.00  → "flat"              : aplatissement — aucun signal clair
+#    -0.50  → "partial_inversion" : prudence — faux positifs fréquents
+#   < -0.50 → "full_inversion"    : récession probable (≠ certaine)
+#
+#  Références historiques :
+#    • 1998, 2019 : inversion partielle sans récession (faux positif)
+#    • Lead time moyen avant récession : 6–24 mois (variable)
+#    • ~70 % des inversions complètes précèdent une récession (1970–2023)
+# ══════════════════════════════════════════════════════════════
+
+def _yc_regime(spread: float | None) -> str | None:
+    """
+    Classifie le spread 10Y−3M en 4 régimes.
+    Modifie les seuils ci-dessous pour changer la sensibilité.
+    """
+    if spread is None:
+        return None
+    if spread >= 1.00:
+        return "steep"
+    if spread >= 0.00:
+        return "flat"
+    if spread >= -0.50:
+        return "partial_inversion"
+    return "full_inversion"
+
+
+# ══════════════════════════════════════════════════════════════
 # ── 2. QUERY
 # ══════════════════════════════════════════════════════════════
 
@@ -128,8 +160,9 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
     else:
         erp_regime = None
 
-    yc_val    = macro.get("yield_curve")
-    inverted  = (yc_val < 0) if yc_val is not None else None
+    yc_val   = macro.get("yield_curve")
+    inverted = (yc_val < 0) if yc_val is not None else None
+    yc_regime = _yc_regime(yc_val)
 
     return {
         "meta": {**META, "titre": META["titre"].get(lang, META["titre"]["EN"])},
@@ -142,6 +175,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
             "yield_curve": {
                 "valeur"  : yc_val,
                 "inverted": inverted,
+                "regime"  : yc_regime,   # "steep"|"flat"|"partial_inversion"|"full_inversion"
                 "us10y"   : macro.get("us10y"),
                 "us3m"    : macro.get("us3m"),
             },

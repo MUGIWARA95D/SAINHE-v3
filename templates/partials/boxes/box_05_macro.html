@@ -48,18 +48,27 @@
   );
 
   // ── Yield Curve ─────────────────────────────────────────
-  const yc   = M.yield_curve || {};
-  const ycV  = yc.valeur;
-  const ycC  = ycV==null?"var(--muted)":ycV>=0.5?"var(--green)":ycV>=0?"var(--orange)":"var(--red)";
-  const ycS  = ycV==null?"N/A":ycV>=0.5?"Expansion":ycV>=0?"Flattening":"Recession Alert";
-  const ycSC = ycV==null?"":ycV>=0.5?"law-g":ycV>=0?"law-y":"law-r";
+  // 4-regime probabilistic signal — not a binary recession trigger
+  const yc  = M.yield_curve || {};
+  const ycV = yc.valeur;
+  const YC  = {
+    steep            : { label:"Steep (Normal)",           cls:"law-g", color:"var(--green)",
+                         note:"Positive slope — expansionary environment" },
+    flat             : { label:"Flat — No Signal",         cls:"law-y", color:"var(--yellow)",
+                         note:"Ambiguous signal — monitor, no action warranted" },
+    partial_inversion: { label:"Partial Inversion",        cls:"law-y", color:"var(--orange)",
+                         note:"Caution · Historical false positives exist (1998, 2019)" },
+    full_inversion   : { label:"Full Inversion",           cls:"law-r", color:"var(--red)",
+                         note:"Recession probable, not certain · Lead time 6–24m" },
+  };
+  const ycCfg = YC[yc.regime] || { label:"N/A", cls:"", color:"var(--muted)", note:"" };
   addCard(
     "Yield Curve (10Y − 3M)",
     ycV!=null ? (ycV>=0?"+":"")+ycV.toFixed(2)+"%" : "—",
-    ycC,
-    "US 10Y: "+fmt(yc.us10y)+"% − US 3M: "+fmt(yc.us3m)+"%",
-    "Positive = expansion · Negative = recession alert 12–18m",
-    ycSC, ycS
+    ycCfg.color,
+    "US 10Y: "+fmt(yc.us10y)+"% · US 3M: "+fmt(yc.us3m)+"%",
+    ycCfg.note,
+    ycCfg.cls, ycCfg.label
   );
 
   // ── VIX ──────────────────────────────────────────────────
