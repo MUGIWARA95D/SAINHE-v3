@@ -2,7 +2,9 @@
 box_03_sectors.py — Rotation sectorielle (16 secteurs × 4 régions).
 """
 
+import json
 import sqlite3
+from collections import defaultdict
 from boxes._base import get_fx_rates
 
 # ══════════════════════════════════════════════════════════════
@@ -40,6 +42,41 @@ REGIONS_ORDRE = ["MONDE", "USA", "EU", "ASIE"]
 # ══════════════════════════════════════════════════════════════
 # ── 2. QUERY
 # ══════════════════════════════════════════════════════════════
+
+def _fetch_multi_sparklines(con: sqlite3.Connection, tickers: list[str]) -> dict[str, dict]:
+    """
+    Pour chaque ticker, retourne 5 sparklines JSON correspondant aux périodes :
+      spark_today (7d) · spark_1m (21d) · spark_3m (63d) · spark_6m (126d) · spark_1y (252d)
+    Utilisé pour que le mini-graphe se mette à jour avec le sélecteur de période.
+    """
+    if not tickers:
+        return {}
+    ph   = ",".join("?" * len(tickers))
+    rows = con.execute(
+        f"SELECT ticker, close FROM prices WHERE ticker IN ({ph}) ORDER BY ticker, date DESC",
+        tickers,
+    ).fetchall()
+
+    by_t: dict[str, list] = defaultdict(list)
+    for t, c in rows:
+        if c is not None:
+            by_t[t].append(c)          # ordre DESC
+
+    result = {}
+    for t, cls_desc in by_t.items():
+        cls = list(reversed(cls_desc))  # remettre en ASC
+        def _sp(n: int) -> str:
+            sl = cls[-n:] if len(cls) >= n else cls
+            return json.dumps([round(x, 4) for x in sl])
+        result[t] = {
+            "spark_today": _sp(7),
+            "spark_1m"   : _sp(21),
+            "spark_3m"   : _sp(63),
+            "spark_6m"   : _sp(126),
+            "spark_1y"   : _sp(252),
+        }
+    return result
+
 
 def _fetch_etf_snapshots(con: sqlite3.Connection) -> dict[tuple, dict]:
     """
@@ -140,6 +177,10 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
     snaps  = _fetch_etf_snapshots(con)
     rperfs = _fetch_rperf(con)
 
+    # Collecte tous les tickers pour générer les sparklines multi-périodes
+    all_tickers = list({d["ticker"] for d in snaps.values() if d.get("ticker")})
+    multi_sparks = _fetch_multi_sparklines(con, all_tickers)
+
     secteurs_out = []
     for secteur in SECTEURS_ORDRE:
         regions_out = {}
@@ -148,11 +189,14 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
             rperf = rperfs.get((secteur, region), {})
 
             if not snap:
-                regions_out[region] = None
+                regions_out[region] = None   # affiché comme " — " dans le template
                 continue
 
+            ticker = snap.get("ticker")
+            sparks = multi_sparks.get(ticker, {})
+
             regions_out[region] = {
-                "ticker"      : snap.get("ticker"),
+                "ticker"      : ticker,
                 "close"       : snap.get("close"),
                 "chg_pct"     : snap.get("chg_pct"),
                 "ret_1m"      : snap.get("ret_1m"),
@@ -161,7 +205,12 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
                 "ret_1y"      : snap.get("ret_1y"),
                 "score"       : snap.get("score"),
                 "above_dma200": snap.get("above_dma200"),
-                "sparkline"   : snap.get("sparkline_json"),
+                # Sparklines par période (remplace sparkline unique)
+                "spark_today" : sparks.get("spark_today", snap.get("sparkline_json")),
+                "spark_1m"    : sparks.get("spark_1m"),
+                "spark_3m"    : sparks.get("spark_3m"),
+                "spark_6m"    : sparks.get("spark_6m"),
+                "spark_1y"    : sparks.get("spark_1y"),
                 # R-Perf vs MONDE (absent pour MONDE lui-même)
                 "rperf_1m"    : rperf.get("rperf_1m"),
                 "rperf_3m"    : rperf.get("rperf_3m"),
