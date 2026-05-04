@@ -270,10 +270,10 @@ COLORS = {
 #  actif=False → box ignorée au rendu
 # ============================================================
 BOX_REGISTRY = [
-    {"id": "box_01_news",      "ordre": 1, "largeur": "full",  "actif": True},
+    {"id": "box_01_macro",     "ordre": 1, "largeur": "full",  "actif": True},
     {"id": "box_02_indices",   "ordre": 2, "largeur": "full",  "actif": True},
-    {"id": "box_03_sectors",   "ordre": 3, "largeur": "full",  "actif": True},
-    {"id": "box_04_sentiment", "ordre": 4, "largeur": "full",  "actif": True},
-    {"id": "box_05_macro",     "ordre": 5, "largeur": "full",  "actif": True},
+    {"id": "box_03_news",      "ordre": 3, "largeur": "full",  "actif": True},
+    {"id": "box_04_sectors",   "ordre": 4, "largeur": "full",  "actif": True},
+    {"id": "box_05_sentiment", "ordre": 5, "largeur": "full",  "actif": True},
     {"id": "box_06_portfolio", "ordre": 6, "largeur": "full",  "actif": True},
 ]
