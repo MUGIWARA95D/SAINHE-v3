@@ -126,27 +126,29 @@ def _box_timestamps(con: sqlite3.Connection) -> dict:
 
 PAGE_NAVS = {
     "dashboard": [
+        {"href": "#nav-macro",     "label": "Macro"},
         {"href": "#nav-indices",   "label": "Indices"},
         {"href": "#nav-news",      "label": "News"},
         {"href": "#nav-sectors",   "label": "Sectors"},
         {"href": "#nav-sentiment", "label": "Sentiment"},
-        {"href": "#nav-macro",     "label": "Macro"},
         {"href": "#nav-portfolio", "label": "Portfolio"},
     ],
     "stock-analysis": [
-        {"href": "#oracle",        "label": "L'Oracle"},
-        {"href": "#forge",         "label": "La Forge"},
-        {"href": "#discernement",  "label": "Le Discernement"},
-        {"href": "#equilibre",     "label": "L'Équilibre"},
-        {"href": "#marees",        "label": "Les Marées"},
-        {"href": "#comparaison",   "label": "Comparaison"},
+        {"href": "#oracle",        "label": "The Oracle"},
+        {"href": "#forge",         "label": "The Forge"},
+        {"href": "#discernement",  "label": "Discernment"},
+        {"href": "#equilibre",     "label": "The Balance"},
+        {"href": "#marees",        "label": "The Tides"},
+        {"href": "#comparaison",   "label": "Comparison"},
     ],
     "learn": [
         {"href": "#learn-whyfinance",    "label": "Why Finance"},
         {"href": "#learn-dashboard",     "label": "Dashboard"},
         {"href": "#learn-stockanalysis", "label": "Stock Analysis"},
     ],
-    "contact": [],
+    "contact": [
+        {"href": "#contact-form", "label": "Get in Touch"},
+    ],
 }
 
 

@@ -50,7 +50,7 @@
   <!-- ─── 01 · MACRO — chocolat ──────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="nav-macro">
-      <span class="section-num">01</span>
+      
       <h2>Macro</h2><em>Economic Health Signals</em>
     </div>
     {% include "partials/boxes/box_01_macro.html" %}
@@ -59,7 +59,7 @@
   <!-- ─── 02 · INDICES — crème ────────────────────────────── -->
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="nav-indices">
-      <span class="section-num">02</span>
+      
       <h2>Indices</h2><em>Global Market Pulse</em>
     </div>
     {% include "partials/boxes/box_02_indices.html" %}
@@ -68,7 +68,7 @@
   <!-- ─── 03 · NEWS — chocolat ─────────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="nav-news">
-      <span class="section-num">03</span>
+      
       <h2>News</h2><em>Live Market Intelligence</em>
     </div>
     {% include "partials/boxes/box_03_news.html" %}
@@ -77,7 +77,7 @@
   <!-- ─── 04 · SECTORS — crème ────────────────────────────── -->
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="nav-sectors">
-      <span class="section-num">04</span>
+      
       <h2>Sectors</h2><em>Industry Rotation View</em>
     </div>
     {% include "partials/boxes/box_04_sectors.html" %}
@@ -86,7 +86,7 @@
   <!-- ─── 05 · SENTIMENT — chocolat ───────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="nav-sentiment">
-      <span class="section-num">05</span>
+      
       <h2>Sentiment</h2><em>Bias Reality Laws</em>
     </div>
     {% include "partials/boxes/box_05_sentiment.html" %}
@@ -95,7 +95,7 @@
   <!-- ─── 06 · PORTFOLIO — crème ──────────────────────────── -->
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="nav-portfolio">
-      <span class="section-num">06</span>
+      
       <h2>Portfolio</h2><em>Holdings Score Tracker</em>
     </div>
     {% include "partials/boxes/box_06_portfolio.html" %}
@@ -230,7 +230,7 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
       a.classList.toggle("active", a.getAttribute("href") === "#" + id);
     });
   };
-  const sectionIds = ["nav-indices","nav-news","nav-sectors","nav-sentiment","nav-macro","nav-portfolio"];
+  const sectionIds = ["nav-macro","nav-indices","nav-news","nav-sectors","nav-sentiment","nav-portfolio"];
   const sections = sectionIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
 
   const obs = new IntersectionObserver(function(entries){
