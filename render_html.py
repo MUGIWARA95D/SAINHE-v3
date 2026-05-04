@@ -111,11 +111,11 @@ def _box_timestamps(con: sqlite3.Connection) -> dict:
     ts_macro = q("SELECT MAX(ts)        FROM macro_bandeau")
 
     return {
-        "box_01_news"      : ts_news,
+        "box_01_macro"     : ts_macro,
         "box_02_indices"   : ts_snap,
-        "box_03_sectors"   : ts_snap,
-        "box_04_sentiment" : ts_snap,
-        "box_05_macro"     : ts_macro,
+        "box_03_news"      : ts_news,
+        "box_04_sectors"   : ts_snap,
+        "box_05_sentiment" : ts_snap,
         "box_06_portfolio" : ts_snap,
     }
 
@@ -186,24 +186,24 @@ def render(lang: str = DEFAULT_LANGUAGE, currency: str = DEFAULT_CURRENCY):
         "page_nav"     : PAGE_NAVS["dashboard"],
         "boxes"        : boxes,
         # ── Données par box (accès direct dans les partials) ──
-        "box_news"            : _data("box_01_news"),
-        "box_news_meta"       : _meta("box_01_news"),
+        "box_macro"           : _data("box_01_macro"),
+        "box_macro_meta"      : _meta("box_01_macro"),
         "box_indices"         : _data("box_02_indices"),
         "box_indices_meta"    : _meta("box_02_indices"),
-        "box_sectors"         : _data("box_03_sectors"),
-        "box_sectors_meta"    : _meta("box_03_sectors"),
-        "box_sentiment"       : _data("box_04_sentiment"),
-        "box_sentiment_meta"  : _meta("box_04_sentiment"),
-        "box_macro"           : _data("box_05_macro"),
-        "box_macro_meta"      : _meta("box_05_macro"),
+        "box_news"            : _data("box_03_news"),
+        "box_news_meta"       : _meta("box_03_news"),
+        "box_sectors"         : _data("box_04_sectors"),
+        "box_sectors_meta"    : _meta("box_04_sectors"),
+        "box_sentiment"       : _data("box_05_sentiment"),
+        "box_sentiment_meta"  : _meta("box_05_sentiment"),
         "box_portfolio"       : _data("box_06_portfolio"),
         "box_portfolio_meta"  : _meta("box_06_portfolio"),
         # ── Timestamps de dernière mise à jour par box ──
-        "ts_news"      : ts_map["box_01_news"],
+        "ts_macro"     : ts_map["box_01_macro"],
         "ts_indices"   : ts_map["box_02_indices"],
-        "ts_sectors"   : ts_map["box_03_sectors"],
-        "ts_sentiment" : ts_map["box_04_sentiment"],
-        "ts_macro"     : ts_map["box_05_macro"],
+        "ts_news"      : ts_map["box_03_news"],
+        "ts_sectors"   : ts_map["box_04_sectors"],
+        "ts_sentiment" : ts_map["box_05_sentiment"],
         "ts_portfolio" : ts_map["box_06_portfolio"],
     }
     _render_page(env, "dashboard.html",      OUTPUT_DIR / "index.html",          dashboard_ctx)
