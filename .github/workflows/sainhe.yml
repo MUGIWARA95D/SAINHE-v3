@@ -1,22 +1,13 @@
 name: SAINHE — Data Pipeline
 
 on:
-  # ── Crons ──────────────────────────────────────────────────
   schedule:
-    # News : toutes les heures
-    - cron: "0 * * * *"
-    # Pipeline fin de journée : 22h UTC lun-ven
+    # News : toutes les 4h (6×/jour au lieu de 24)
+    - cron: "0 */4 * * *"
+    # Pipeline fin de journée : 22h UTC lun-ven (FX inclus)
     - cron: "0 22 * * 1-5"
-    # FX : toutes les 6h
-    - cron: "0 */6 * * *"
-    # Historique half-0 (tickers 1-50)  : 2h30 et 3h30 UTC
-    - cron: "30 2 * * *"
-    - cron: "30 3 * * *"
-    # Historique half-1 (tickers 51-100): 3h00 et 4h00 UTC
-    - cron: "0 3 * * *"
-    - cron: "0 4 * * *"
 
-  # ── Déclenchement manuel depuis GitHub UI ──────────────────
+  # Déclenchement manuel
   workflow_dispatch:
     inputs:
       mode:
@@ -26,7 +17,7 @@ on:
         type: choice
         options:
           - update   # 5 derniers jours (rapide)
-          - full     # 2 ans complets (initial / reset)
+          - full     # 2 ans complets (reset historique)
 
 env:
   DB_PATH: db/sainhe.db
@@ -39,14 +30,14 @@ permissions:
 jobs:
 
   # ════════════════════════════════════════════════════════════
-  #  JOB 1 — NEWS (toutes les heures)
+  #  JOB 1 — NEWS (toutes les 4h)
   # ════════════════════════════════════════════════════════════
   news:
     name: Fetch News
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'schedule' && contains(github.event.schedule, '0 * * * *'))
+      (github.event_name == 'schedule' && contains(github.event.schedule, '0 */4 * * *'))
 
     steps:
       - uses: actions/checkout@v4
@@ -72,7 +63,7 @@ jobs:
       - name: Fetch News
         run: python scripts/fetch_news.py
 
-      - name: Calculate indicators (refresh snapshot timestamps)
+      - name: Calculate indicators
         run: python scripts/calc.py
         continue-on-error: true
 
@@ -95,14 +86,15 @@ jobs:
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   # ════════════════════════════════════════════════════════════
-  #  JOB 2 — FULL PIPELINE (tous les jours à 22h UTC)
+  #  JOB 2 — FULL PIPELINE lun-ven 22h UTC
+  #  Inclut FX + prix + indices + news + calc + deploy
   # ════════════════════════════════════════════════════════════
   pipeline:
     name: Full Data Pipeline
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'schedule' && contains(github.event.schedule, '0 22 * * *'))
+      (github.event_name == 'schedule' && contains(github.event.schedule, '0 22 * * 1-5'))
 
     steps:
       - uses: actions/checkout@v4
@@ -151,7 +143,6 @@ jobs:
           path: db/sainhe.db
           key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
 
-      # ── Deploy vers Cloudflare Pages ───────────────────────
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
@@ -160,128 +151,3 @@ jobs:
           projectName: sainhe
           directory: output
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-
-  # ════════════════════════════════════════════════════════════
-  #  JOB 3 — FX ONLY (toutes les 6h)
-  # ════════════════════════════════════════════════════════════
-  fx:
-    name: Fetch FX Rates
-    runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'schedule' && contains(github.event.schedule, '0 */6 * * *')
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Restore DB cache
-        uses: actions/cache@v4
-        with:
-          path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: sainhe-db-${{ runner.os }}-
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: pip
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Init DB (idempotent)
-        run: python scripts/db_init.py
-
-      - name: Fetch FX
-        run: python scripts/fetch_fx.py
-
-      - name: Save DB cache
-        uses: actions/cache@v4
-        with:
-          path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
-
-  # ════════════════════════════════════════════════════════════
-  #  JOB 4 — HISTORIQUE HALF-0  (tickers 1-50)
-  #  Tourne à 2h30 et 3h30 UTC
-  # ════════════════════════════════════════════════════════════
-  historical_a:
-    name: Historical Half-0 (tickers 1-50)
-    runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'schedule' && (
-        contains(github.event.schedule, '30 2 * * *') ||
-        contains(github.event.schedule, '30 3 * * *')
-      )
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Restore DB cache
-        uses: actions/cache@v4
-        with:
-          path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: sainhe-db-${{ runner.os }}-
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: pip
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Init DB (idempotent)
-        run: python scripts/db_init.py
-
-      - name: Fetch prices — half 0
-        run: python scripts/fetch_prices.py --mode full --half 0
-
-      - name: Save DB cache
-        uses: actions/cache@v4
-        with:
-          path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
-
-  # ════════════════════════════════════════════════════════════
-  #  JOB 5 — HISTORIQUE HALF-1  (tickers 51-100)
-  #  Tourne à 3h00 et 4h00 UTC
-  # ════════════════════════════════════════════════════════════
-  historical_b:
-    name: Historical Half-1 (tickers 51-100)
-    runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'schedule' && (
-        contains(github.event.schedule, '0 3 * * *') ||
-        contains(github.event.schedule, '0 4 * * *')
-      )
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Restore DB cache
-        uses: actions/cache@v4
-        with:
-          path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: sainhe-db-${{ runner.os }}-
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: pip
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Init DB (idempotent)
-        run: python scripts/db_init.py
-
-      - name: Fetch prices — half 1
-        run: python scripts/fetch_prices.py --mode full --half 1
-
-      - name: Save DB cache
-        uses: actions/cache@v4
-        with:
-          path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
