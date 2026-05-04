@@ -47,6 +47,211 @@
     <span class="sb-body">Understand what every signal means, how to read each section, and how to act with conviction.</span>
   </div>
 
+  <!-- ─── 00 · WHY FINANCE ────────────────────────────────── -->
+  <div class="sec-band sec-choc" id="learn-whyfinance">
+    <div class="section-lbl">
+      <span class="section-num">00</span>
+      <h2>Why Finance</h2><em>Before anything else</em>
+    </div>
+    <div class="lrn-wrap">
+      <div class="lrn-body" style="max-width:860px;margin:0 auto">
+
+        <div class="lrn-panel-rows">
+
+          <div class="lrn-panel-row">
+            <div class="lrn-panel-row-lbl">The honest answer</div>
+            <div class="lrn-panel-row-val">Most people never learn how money actually works. They earn it, spend it, and hope there's enough left at the end. Finance isn't about getting rich quick — it's about understanding the rules of the game so you can make <strong>deliberate decisions</strong> instead of default ones.</div>
+          </div>
+
+          <div class="lrn-panel-row">
+            <div class="lrn-panel-row-lbl">The personal angle</div>
+            <div class="lrn-panel-row-val">Every major life decision has a financial dimension: your first job, buying a flat, starting a company, retiring early. The people who navigate these well aren't necessarily smarter — they've just internalized a few core ideas early enough to let them <strong>compound</strong>.</div>
+          </div>
+
+          <div class="lrn-panel-row">
+            <div class="lrn-panel-row-lbl">Where most people start</div>
+            <div class="lrn-panel-row-val">Usually with the stock market. And that's fine — but markets are just one piece. The real foundation is understanding <strong>time, risk, and return</strong>. Once those click, everything else — indices, sectors, macroeconomics — becomes a natural extension.</div>
+          </div>
+
+        </div>
+
+        <!-- ── Compound interest visualization ───────────── -->
+        <div style="margin:2.4rem 0 2rem">
+
+          <div style="margin-bottom:1.4rem">
+            <div style="font-family:var(--serif);font-size:1.45rem;color:#F5E8D0;line-height:1.25;margin-bottom:.4rem">Compound interest, <em style="color:#C4955A">made legible.</em></div>
+            <div style="color:rgba(245,232,208,.5);font-size:.85rem;letter-spacing:.01em">Your money earns interest — then that interest earns more.</div>
+          </div>
+
+          <div style="background:#1A0C05;border:1px solid rgba(196,149,90,.18);border-radius:16px;padding:1.6rem 1.8rem 1.2rem;box-shadow:0 24px 64px rgba(0,0,0,.45)">
+
+            <!-- Legend -->
+            <div style="display:flex;gap:1.6rem;margin-bottom:1.2rem;flex-wrap:wrap">
+              <div style="display:flex;align-items:center;gap:.45rem">
+                <div style="width:10px;height:10px;border-radius:2px;background:rgba(196,149,90,.72);flex-shrink:0"></div>
+                <span style="color:rgba(245,232,208,.55);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase">Initial Investment</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:.45rem">
+                <div style="width:10px;height:10px;border-radius:2px;background:rgba(196,149,90,.36);flex-shrink:0"></div>
+                <span style="color:rgba(245,232,208,.55);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase">Interest Earned</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:.45rem">
+                <div style="width:10px;height:10px;border-radius:2px;background:rgba(245,215,140,.28);flex-shrink:0"></div>
+                <span style="color:rgba(245,232,208,.55);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase">Interest on Interest</span>
+              </div>
+            </div>
+
+            <svg viewBox="0 0 700 285" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block" aria-label="Compound interest stacked area chart — $10,000 at 8% over 30 years">
+
+              <!-- Grid (horizontal) -->
+              <line x1="70" y1="250" x2="650" y2="250" stroke="rgba(245,232,208,.14)" stroke-width="1"/>
+              <line x1="70" y1="200" x2="650" y2="200" stroke="rgba(245,232,208,.05)" stroke-width="1" stroke-dasharray="3,6"/>
+              <line x1="70" y1="155" x2="650" y2="155" stroke="rgba(245,232,208,.05)" stroke-width="1" stroke-dasharray="3,6"/>
+              <line x1="70" y1="110" x2="650" y2="110" stroke="rgba(245,232,208,.05)" stroke-width="1" stroke-dasharray="3,6"/>
+              <line x1="70" y1="65"  x2="650" y2="65"  stroke="rgba(245,232,208,.05)" stroke-width="1" stroke-dasharray="3,6"/>
+
+              <!-- Y labels -->
+              <text x="62" y="253" fill="rgba(245,232,208,.28)" font-size="9" text-anchor="end" font-family="monospace">$0</text>
+              <text x="62" y="203" fill="rgba(245,232,208,.28)" font-size="9" text-anchor="end" font-family="monospace">$25k</text>
+              <text x="62" y="158" fill="rgba(245,232,208,.28)" font-size="9" text-anchor="end" font-family="monospace">$50k</text>
+              <text x="62" y="113" fill="rgba(245,232,208,.28)" font-size="9" text-anchor="end" font-family="monospace">$75k</text>
+              <text x="62" y="68"  fill="rgba(245,232,208,.28)" font-size="9" text-anchor="end" font-family="monospace">$100k</text>
+
+              <!-- Area 1 — Initial Investment ($10k, constant) -->
+              <!-- y = 250 − (10000/105000)×235 ≈ 227 -->
+              <path d="M70,227 L650,227 L650,250 L70,250 Z" fill="rgba(196,149,90,.60)"/>
+
+              <!-- Area 2 — Interest Earned (simple: $800×t) -->
+              <!-- tops: yr0=227 yr5=219 yr10=210 yr15=201 yr20=192 yr25=183 yr30=174 -->
+              <path d="M70,227 L167,219 263,210 360,201 457,192 553,183 650,174 L650,227 L70,227 Z" fill="rgba(196,149,90,.32)"/>
+
+              <!-- Area 3 — Interest on Interest (compound − initial − simple) -->
+              <!-- top = compound curve; bottom = top of area 2 -->
+              <path d="M70,227 C100,226 140,221 167,217 C200,214 235,207 263,202 C300,196 330,186 360,179 C395,171 425,156 457,146 C493,131 520,111 553,97 C585,80 620,48 650,25 L650,174 553,183 457,192 360,201 263,210 167,219 70,227 Z" fill="rgba(245,210,140,.19)"/>
+
+              <!-- Compound curve — glow layer -->
+              <path d="M70,227 C100,226 140,221 167,217 C200,214 235,207 263,202 C300,196 330,186 360,179 C395,171 425,156 457,146 C493,131 520,111 553,97 C585,80 620,48 650,25" fill="none" stroke="rgba(196,149,90,.18)" stroke-width="7" stroke-linecap="round"/>
+              <!-- Compound curve — crisp line -->
+              <path d="M70,227 C100,226 140,221 167,217 C200,214 235,207 263,202 C300,196 330,186 360,179 C395,171 425,156 457,146 C493,131 520,111 553,97 C585,80 620,48 650,25" fill="none" stroke="#C4955A" stroke-width="1.8" stroke-linecap="round"/>
+
+              <!-- Stacked blocks at milestones (each block ≈ $10k) -->
+              <!-- Year 10 (x=263, curve=202) → $21.6k ≈ 2 blocks -->
+              <rect x="255" y="198" width="9" height="4" rx="1" fill="rgba(245,215,140,.45)"/>
+              <rect x="255" y="203" width="9" height="4" rx="1" fill="rgba(196,149,90,.82)"/>
+
+              <!-- Year 20 (x=457, curve=146) → $46.6k ≈ 5 blocks -->
+              <rect x="449" y="142" width="9" height="4" rx="1" fill="rgba(245,215,140,.48)"/>
+              <rect x="449" y="147" width="9" height="4" rx="1" fill="rgba(245,215,140,.55)"/>
+              <rect x="449" y="152" width="9" height="4" rx="1" fill="rgba(196,149,90,.68)"/>
+              <rect x="449" y="157" width="9" height="4" rx="1" fill="rgba(196,149,90,.80)"/>
+              <rect x="449" y="162" width="9" height="4" rx="1" fill="rgba(196,149,90,.92)"/>
+
+              <!-- Year 30 (x=650, curve=25) → $100.6k ≈ 10 blocks -->
+              <rect x="642" y="19"  width="9" height="3.5" rx="1" fill="rgba(245,215,140,.42)"/>
+              <rect x="642" y="23"  width="9" height="3.5" rx="1" fill="rgba(245,215,140,.48)"/>
+              <rect x="642" y="27"  width="9" height="3.5" rx="1" fill="rgba(245,215,140,.54)"/>
+              <rect x="642" y="31"  width="9" height="3.5" rx="1" fill="rgba(245,215,140,.60)"/>
+              <rect x="642" y="35"  width="9" height="3.5" rx="1" fill="rgba(196,149,90,.64)"/>
+              <rect x="642" y="39"  width="9" height="3.5" rx="1" fill="rgba(196,149,90,.70)"/>
+              <rect x="642" y="43"  width="9" height="3.5" rx="1" fill="rgba(196,149,90,.76)"/>
+              <rect x="642" y="47"  width="9" height="3.5" rx="1" fill="rgba(196,149,90,.82)"/>
+              <rect x="642" y="51"  width="9" height="3.5" rx="1" fill="rgba(196,149,90,.88)"/>
+              <rect x="642" y="55"  width="9" height="3.5" rx="1" fill="rgba(196,149,90,.96)"/>
+
+              <!-- Milestone vertical guides -->
+              <line x1="263" y1="202" x2="263" y2="250" stroke="rgba(245,232,208,.07)" stroke-width="1" stroke-dasharray="2,5"/>
+              <line x1="457" y1="146" x2="457" y2="250" stroke="rgba(245,232,208,.07)" stroke-width="1" stroke-dasharray="2,5"/>
+
+              <!-- Data point dots -->
+              <circle cx="70"  cy="227" r="3"   fill="#C4955A" opacity=".65"/>
+              <circle cx="263" cy="202" r="3.5" fill="#C4955A" opacity=".8"/>
+              <circle cx="457" cy="146" r="4"   fill="#C4955A" opacity=".9"/>
+              <circle cx="650" cy="25"  r="4.5" fill="#C4955A"/>
+
+              <!-- Value callouts -->
+              <rect x="222" y="185" width="40" height="13" rx="3" fill="rgba(26,12,5,.92)" stroke="rgba(196,149,90,.28)" stroke-width=".7"/>
+              <text x="242" y="195" fill="rgba(245,232,208,.7)" font-size="8.5" text-anchor="middle" font-family="monospace">$21.6k</text>
+
+              <rect x="415" y="129" width="40" height="13" rx="3" fill="rgba(26,12,5,.92)" stroke="rgba(196,149,90,.28)" stroke-width=".7"/>
+              <text x="435" y="139" fill="rgba(245,232,208,.7)" font-size="8.5" text-anchor="middle" font-family="monospace">$46.6k</text>
+
+              <rect x="571" y="9"  width="47" height="13" rx="3" fill="rgba(196,149,90,.22)" stroke="rgba(196,149,90,.48)" stroke-width=".8"/>
+              <text x="594" y="19" fill="#C4955A" font-size="8.5" text-anchor="middle" font-family="monospace" font-weight="600">$100.6k</text>
+
+              <!-- Acceleration annotation -->
+              <text x="485" y="96"  fill="rgba(245,215,140,.5)" font-size="8.5" font-style="italic" text-anchor="middle">growth</text>
+              <text x="485" y="107" fill="rgba(245,215,140,.5)" font-size="8.5" font-style="italic" text-anchor="middle">accelerates ↗</text>
+
+              <!-- Timeline baseline -->
+              <line x1="65"  y1="262" x2="652" y2="262" stroke="rgba(245,232,208,.09)" stroke-width="1"/>
+              <polygon points="649,259 657,262 649,265" fill="rgba(245,232,208,.22)"/>
+
+              <!-- Tick marks -->
+              <line x1="70"  y1="259" x2="70"  y2="265" stroke="rgba(245,232,208,.35)" stroke-width="1.2"/>
+              <line x1="263" y1="259" x2="263" y2="265" stroke="rgba(245,232,208,.35)" stroke-width="1.2"/>
+              <line x1="457" y1="259" x2="457" y2="265" stroke="rgba(245,232,208,.35)" stroke-width="1.2"/>
+              <line x1="650" y1="259" x2="650" y2="265" stroke="rgba(245,232,208,.35)" stroke-width="1.2"/>
+
+              <!-- Timeline labels -->
+              <text x="70"  y="277" fill="rgba(245,232,208,.38)" font-size="9.5" text-anchor="middle">Year 1</text>
+              <text x="263" y="277" fill="rgba(245,232,208,.38)" font-size="9.5" text-anchor="middle">Year 10</text>
+              <text x="457" y="277" fill="rgba(245,232,208,.38)" font-size="9.5" text-anchor="middle">Year 20</text>
+              <text x="650" y="277" fill="rgba(245,232,208,.38)" font-size="9.5" text-anchor="middle">Year 30</text>
+
+              <!-- Dashed connectors between timeline marks -->
+              <line x1="92"  y1="262" x2="244" y2="262" stroke="rgba(245,232,208,.11)" stroke-width="1" stroke-dasharray="2,4"/>
+              <line x1="284" y1="262" x2="438" y2="262" stroke="rgba(245,232,208,.11)" stroke-width="1" stroke-dasharray="2,4"/>
+              <line x1="478" y1="262" x2="641" y2="262" stroke="rgba(245,232,208,.11)" stroke-width="1" stroke-dasharray="2,4"/>
+
+            </svg>
+
+            <!-- Footer strip -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.9rem;padding-top:.8rem;border-top:1px solid rgba(196,149,90,.1);flex-wrap:wrap;gap:.5rem">
+              <span style="color:rgba(245,232,208,.32);font-size:.72rem;font-style:italic">$10,000 invested once at 8% per year</span>
+              <span style="color:#C4955A;font-size:.76rem;font-weight:600;font-family:monospace">$100,627 after 30 years &rarr; ×10</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ── Three insight cards ────────────────────────── -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1rem;margin-bottom:1.8rem">
+
+          <div style="background:rgba(196,149,90,.08);border:1px solid rgba(196,149,90,.2);border-radius:10px;padding:1.1rem 1.2rem">
+            <div style="color:#C4955A;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem">Time</div>
+            <div style="color:rgba(245,232,208,.9);font-size:.88rem;line-height:1.55">Starting at 25 rather than 35 often means <strong style="color:#C4955A">doubling</strong> your final capital — at the exact same return rate.</div>
+          </div>
+
+          <div style="background:rgba(196,149,90,.08);border:1px solid rgba(196,149,90,.2);border-radius:10px;padding:1.1rem 1.2rem">
+            <div style="color:#C4955A;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem">Consistency</div>
+            <div style="color:rgba(245,232,208,.9);font-size:.88rem;line-height:1.55">Investing $200/month regularly often outperforms a single lump sum — even a considerably larger one.</div>
+          </div>
+
+          <div style="background:rgba(196,149,90,.08);border:1px solid rgba(196,149,90,.2);border-radius:10px;padding:1.1rem 1.2rem">
+            <div style="color:#C4955A;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem">Fees</div>
+            <div style="color:rgba(245,232,208,.9);font-size:.88rem;line-height:1.55">A 1% annual fee looks negligible — over 30 years, it can silently consume <strong style="color:#C4955A">25%</strong> of your total wealth.</div>
+          </div>
+
+        </div>
+
+        <div class="lrn-panel-rows">
+
+          <div class="lrn-panel-row">
+            <div class="lrn-panel-row-lbl">The rule of 72</div>
+            <div class="lrn-panel-row-val">Divide 72 by your annual return rate to get the number of years it takes to double your money. At 6%/year → 12 years. At 10%/year → 7.2 years. It's a mental shortcut that makes abstract percentages feel <strong>real and tangible</strong>.</div>
+          </div>
+
+          <div class="lrn-panel-row">
+            <div class="lrn-panel-row-lbl">So why SAINHE?</div>
+            <div class="lrn-panel-row-val">SAINHE doesn't tell you what to buy. It gives you the context to make your own decisions: what's moving in the market, why sectors rotate, how macro conditions affect valuations. You bring the conviction — SAINHE brings the <strong>signal</strong>.</div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- ─── 01 · DASHBOARD — chocolat ────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="learn-dashboard">
@@ -731,9 +936,9 @@
 
 
         <!-- ══ EMPTY STATE (no tab selected) ══════════ -->
-        <div class="lrn-empty" id="lrn-empty">
-          <div class="lrn-empty-icon">←</div>
-          <p class="lrn-empty-txt">Select a topic on the left to explore the dashboard — each section has its own detailed breakdown.</p>
+        <div class="lrn-empty" id="lrn-empty" style="text-align:center;padding:3rem 1rem">
+          <div class="lrn-empty-icon" style="color:rgba(196,149,90,.45);font-size:1.4rem;margin-bottom:.8rem">←</div>
+          <p class="lrn-empty-txt" style="color:rgba(245,232,208,.45);font-size:.9rem;line-height:1.6;max-width:340px;margin:0 auto">Select a topic on the left to explore the dashboard — each section has its own detailed breakdown.</p>
         </div>
 
       </div><!-- /lrn-body -->

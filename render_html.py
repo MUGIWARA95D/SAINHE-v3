@@ -142,6 +142,7 @@ PAGE_NAVS = {
         {"href": "#comparaison",   "label": "Comparaison"},
     ],
     "learn": [
+        {"href": "#learn-whyfinance",    "label": "Why Finance"},
         {"href": "#learn-dashboard",     "label": "Dashboard"},
         {"href": "#learn-stockanalysis", "label": "Stock Analysis"},
     ],
