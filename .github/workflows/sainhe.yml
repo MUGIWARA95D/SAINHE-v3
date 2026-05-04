@@ -1,6 +1,10 @@
 name: SAINHE — Data Pipeline
 
 on:
+  push:
+    branches:
+      - dev
+
   schedule:
     # News : toutes les 4h (6×/jour au lieu de 24)
     - cron: "0 */4 * * *"
@@ -28,6 +32,49 @@ permissions:
   deployments: write
 
 jobs:
+
+  # ════════════════════════════════════════════════════════════
+  #  JOB 0 — PREVIEW DEV (push sur dev uniquement)
+  #  Render HTML + deploy preview — zéro fetch, ~1 min
+  # ════════════════════════════════════════════════════════════
+  preview:
+    name: Preview Dev
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore DB cache
+        uses: actions/cache@v4
+        with:
+          path: db/sainhe.db
+          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: sainhe-db-${{ runner.os }}-
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Init DB (idempotent)
+        run: python scripts/db_init.py
+
+      - name: Render HTML
+        run: python render_html.py
+
+      - name: Deploy preview to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          projectName: sainhe
+          directory: output
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: dev
 
   # ════════════════════════════════════════════════════════════
   #  JOB 1 — NEWS (toutes les 4h)
