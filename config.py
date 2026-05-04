@@ -5,13 +5,14 @@
 #  BASE_DIR : répertoire du projet (résolu depuis ce fichier)
 # ============================================================
 
+import os
 from pathlib import Path
 
 # ============================================================
 #  1. CHEMINS
 # ============================================================
 BASE_DIR     = Path(__file__).resolve().parent
-DB_PATH      = Path(r"G:\Mon Drive\PROJET SAINHE\SAINHE\SAINHE v2\db\sainhe.db")
+DB_PATH      = Path(os.environ.get("DB_PATH", r"G:\Mon Drive\PROJET SAINHE\SAINHE\SAINHE v2\db\sainhe.db"))
 CACHE_DIR    = BASE_DIR / "cache"
 CACHE_NEWS   = BASE_DIR / "cache"  / "news"
 OUTPUT_DIR   = BASE_DIR / "output"
