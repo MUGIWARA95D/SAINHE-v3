@@ -11,7 +11,7 @@ from pathlib import Path
 #  1. CHEMINS
 # ============================================================
 BASE_DIR     = Path(__file__).resolve().parent
-DB_PATH      = Path(r"G:\Mon Drive\PROJET SAINHE\SAINHE\workspace\db\sainhe.db")
+DB_PATH      = Path(r"G:\Mon Drive\PROJET SAINHE\SAINHE\SAINHE v2\db\sainhe.db")
 CACHE_DIR    = BASE_DIR / "cache"
 CACHE_NEWS   = BASE_DIR / "cache"  / "news"
 OUTPUT_DIR   = BASE_DIR / "output"
