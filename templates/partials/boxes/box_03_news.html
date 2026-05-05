@@ -24,7 +24,7 @@
   function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
   const DATA = {{ box_news.par_region | tojson }};
 
-  var SRC = {1:"Bloomberg",2:"AP News",3:"MarketWatch",4:"SCMP",6:"FT"};
+  var SRC = {1:"Bloomberg",2:"AP News",3:"MarketWatch",4:"SCMP",5:"Nikkei Asia",6:"FT"};
 
   function mkEl(tag, cls, text){
     var el = document.createElement(tag);

@@ -113,7 +113,8 @@
       if (!r) return;
       const cv  = document.getElementById("ss" + i);
       if (!cv) return;
-      const raw = r[cSP] ? JSON.parse(r[cSP]) : [];
+      let raw = [];
+      try { if(r[cSP]) raw = JSON.parse(r[cSP]); } catch(e) {}
       if (!raw.length) return;
       const perf = r[cP];
       const col  = perf == null ? "rgb(138,126,110)" : perf > 0.3 ? "rgb(44,122,62)" : perf < -0.3 ? "rgb(160,48,32)" : "rgb(138,126,110)";

@@ -96,7 +96,8 @@
   PORT.forEach((p, i) => {
     const cv  = document.getElementById("psp"+i);
     if (!cv) return;
-    const raw = p.sparkline ? JSON.parse(p.sparkline) : [];
+    let raw = [];
+    try { if(p.sparkline) raw = JSON.parse(p.sparkline); } catch(e) {}
     if (!raw.length) return;
     const col = (p.chg_pct||0)>=0 ? "rgb(44,122,62)" : "rgb(160,48,32)";
     const c = miniChart(cv, raw, col, false);
@@ -105,8 +106,8 @@
 
   if (!PORT.length){
     const tr = tb.appendChild(mk("tr"));
-    const td = tr.appendChild(mk("td","null","No watchlist data"));
-    td.colSpan = 10;
+    const td = tr.appendChild(mk("td",null,"No watchlist data"));
+    td.colSpan = 11;
     td.style.cssText = "padding:20px;color:var(--muted);text-align:center";
   }
 })();

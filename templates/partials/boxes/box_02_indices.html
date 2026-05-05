@@ -85,7 +85,8 @@
   all.forEach(({uid, x}) => {
     const cv  = document.getElementById("isp_" + uid);
     if (!cv) return;
-    const raw = x.sparkline ? JSON.parse(x.sparkline) : [];
+    let raw = [];
+    try { if(x.sparkline) raw = JSON.parse(x.sparkline); } catch(e) {}
     if (!raw.length) return;
     miniChart(cv, raw, (x.chg_pct||0)>=0 ? "rgb(44,122,62)" : "rgb(160,48,32)", false);
   });

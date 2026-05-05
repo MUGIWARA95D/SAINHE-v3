@@ -44,8 +44,9 @@ h1,h2,h3,h4{font-family:var(--serif);color:var(--h);font-weight:400}
 /* ═══════════════════ HEADER ═══════════════════ */
 #hdr{position:sticky;top:0;z-index:100;
   background:rgba(253,250,244,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  height:48px;display:flex;align-items:center;padding:0 20px;gap:12px;transition:background .3s}
-[data-theme="dark"] #hdr{background:rgba(22,18,14,.92)}
+  height:48px;display:flex;align-items:center;padding:0 20px;gap:12px;transition:background .3s;
+  border-bottom:1px solid rgba(221,213,196,.5)}
+[data-theme="dark"] #hdr{background:rgba(22,18,14,.92);border-bottom:1px solid rgba(66,56,40,.5)}
 .logo{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--gold);letter-spacing:4px}
 .logo-sub{font-size:9.5px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
 .hdr-nav{display:flex;gap:4px;position:absolute;left:50%;transform:translateX(-50%)}
@@ -140,19 +141,13 @@ h1,h2,h3,h4{font-family:var(--serif);color:var(--h);font-weight:400}
 @media(max-width:1100px){#main{padding:32px 40px}}
 @media(max-width:800px){#main{padding:20px 20px}}
 
-/* ═══════════════════ SECTION LABEL ═══════════════════ */
-.section-lbl{padding:52px 0 20px;display:flex;align-items:baseline;gap:14px;scroll-margin-top:60px}
-.section-lbl:first-child{padding-top:0}
-.section-lbl h2{font-family:var(--serif);font-size:24px;color:var(--h);font-weight:400;letter-spacing:.1px}
-.section-lbl em{font-style:normal;font-size:12px;color:var(--muted);letter-spacing:.5px;
-  text-transform:uppercase;font-family:var(--sans)}
-
 /* ═══════════════════ CARD ═══════════════════ */
 .card{background:var(--card);border:1px solid var(--border-lt);border-radius:20px;
-  box-shadow:var(--shadow);transition:background .3s,border .3s;margin-bottom:0}
+  box-shadow:var(--shadow);transition:background .3s,border .3s,box-shadow .25s ease;margin-bottom:0}
+.card:hover{box-shadow:var(--shadow-md)}
 .card-h{display:flex;align-items:center;justify-content:space-between;
-  padding:20px 28px;border-bottom:1px solid var(--border-lt)}
-.card-t{font-family:var(--serif);font-size:15px;color:var(--h);letter-spacing:.2px}
+  padding:22px 28px;border-bottom:1px solid var(--border-lt)}
+.card-t{font-family:var(--serif);font-size:15px;color:var(--h);letter-spacing:.1px}
 .badge{font-size:9px;padding:2px 7px;border-radius:12px;font-weight:600;letter-spacing:.4px;text-transform:uppercase}
 .badge-gold{background:var(--gold-bg);color:var(--gold)}
 .badge-red{background:var(--red-bg);color:var(--red)}
@@ -313,10 +308,6 @@ a.news-hl:hover{color:var(--gold)}
 .sig-na{background:var(--card-alt);color:var(--muted)}
 .evidence{font-family:'SF Mono',Consolas,monospace;font-size:10.5px;color:var(--muted)}
 
-/* ═══════════════════ FOOTER ═══════════════════ */
-#foot{text-align:center;padding:14px 20px;font-size:10px;color:var(--faint);
-  border-top:1px solid var(--border-lt);margin-top:4px}
-
 /* ══════════════════════════════════════════════════════════════ */
 /* ═══  TERMINAL-INSPIRED LAYER — cream & coffee cinematic    ═══ */
 /* ══════════════════════════════════════════════════════════════ */
@@ -401,12 +392,6 @@ a.news-hl:hover{color:var(--gold)}
 .section-lbl em{font-style:italic;font-size:13px;color:var(--muted);
   letter-spacing:.3px;text-transform:none;font-family:var(--serif)}
 
-/* ══════ CARD polish ══════════════════════════════════════════ */
-.card{border-radius:20px;transition:box-shadow .25s ease}
-.card:hover{box-shadow:var(--shadow-md)}
-.card-h{padding:22px 28px}
-.card-t{font-size:15px;letter-spacing:.1px}
-
 /* ══════ PIPELINE STRIP ═══════════════════════════════════════ */
 .pipeline{display:flex;align-items:center;justify-content:center;gap:12px;
   margin:48px 0 10px;padding:16px 20px;flex-wrap:wrap;
@@ -439,8 +424,6 @@ a.news-hl:hover{color:var(--gold)}
 /* unknwn        */ .ts-unk  .ts-dot{background:var(--faint)} .ts-unk .ts-age{color:var(--faint)}
 
 /* ══════ FLOATING NAV PILL (refined) ══════════════════════════ */
-#hdr{border-bottom:1px solid rgba(221,213,196,.5)}
-[data-theme="dark"] #hdr{border-bottom:1px solid rgba(66,56,40,.5)}
 .hdr-nav a.active{background:var(--gold-bg);border-bottom:none;padding:4px 10px;border-radius:4px}
 .hdr-nav-menu{font-weight:600;color:var(--gold)!important;letter-spacing:.5px}
 .hdr-nav-menu::after{content:" ↑";font-size:9px;opacity:.6}
@@ -490,13 +473,6 @@ a.news-hl:hover{color:var(--gold)}
 
 /* Pipeline — simple */
 .pipeline{ padding:20px 0; margin:16px 0 0 }
-
-/* ══════ Box Sentiment — premium card treatment ══════════════ */
-#box-sentiment .mc{padding:20px;border-radius:10px;position:relative;overflow:hidden}
-#box-sentiment .mc::before{content:"";position:absolute;top:0;left:0;width:3px;height:100%;
-  background:linear-gradient(180deg,var(--gold-warm),transparent)}
-#box-sentiment .mc-val{font-size:32px;letter-spacing:-.01em}
-#box-sentiment .mc-label{font-size:10.5px;letter-spacing:1px}
 
 /* (SortableJS removed — sector order is fixed) */
 
@@ -744,7 +720,7 @@ a.news-hl:hover{color:var(--gold)}
   background:rgba(122,92,26,.08);border:1px solid rgba(122,92,26,.25);
   transition:all .15s}
 .mm-tip-wiki:hover{background:rgba(122,92,26,.16);border-color:rgba(122,92,26,.5)}
-{% endraw %}  </style>
+{% endraw %}</style>
   <!-- miniChart — shared sparkline helper (used by box_02, box_03, box_06) -->
   <script>
   function miniChart(cv, data, color, fill){

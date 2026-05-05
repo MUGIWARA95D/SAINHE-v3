@@ -25,8 +25,8 @@
     const chg  = a.chg_pct != null ? (a.chg_pct>=0?"+":"") + a.chg_pct.toFixed(2) + "%" : "—";
     const obvC = a.obv_dir==="up" ? "law-g" : a.obv_dir==="down" ? "law-r" : "law-y";
     const obvL = a.obv_dir==="up" ? "ACCUMULATION" : a.obv_dir==="down" ? "DISTRIBUTION" : "NEUTRAL";
-    const mfiC = a.mfi!=null ? (a.mfi>60?"law-g":a.mfi<40?"law-r":"law-y") : "law-y";
-    const mfiL = a.mfi!=null ? (a.mfi>60?"OVERBOUGHT":a.mfi<40?"OVERSOLD":"NEUTRAL") : "N/A";
+    const mfiC = a.mfi!=null ? (a.mfi>70?"law-g":a.mfi<30?"law-r":"law-y") : "law-y";
+    const mfiL = a.mfi!=null ? (a.mfi>70?"OVERBOUGHT":a.mfi<30?"OVERSOLD":"NEUTRAL") : "N/A";
     const dmaC = a.above_dma200 ? "law-g" : "law-r";
     const dmaL = a.above_dma200 ? "ABOVE DMA200" : "BELOW DMA200";
 
