@@ -1,0 +1,105 @@
+<!-- ═══ BOX_05 — MACRO HEALTH ═══════════════════════════════ -->
+<!-- DATA: box_macro = {ts, vix:{valeur,regime}, yield_curve:{valeur,inverted,us10y,us3m}, erp:{valeur,regime,sp500_pe}, dxy:{valeur,chg_pct}, sp500:{close,chg_pct,ret_1y}} -->
+<section class="card" id="box5">
+  <div class="card-h">
+    <span class="card-t">Macro-Health</span>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="box-ts">Updated {{ ts_macro }}</span>
+      <span class="badge badge-gold">ERP &middot; Yield Curve</span>
+    </div>
+  </div>
+  <div class="macro-grid" id="mgrid"></div>
+</section>
+<script>
+(function(){
+  const M    = {{ box_macro | tojson }};
+  const grid = document.getElementById("mgrid");
+  function mk(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!=null)el.textContent=txt;return el;}
+  function fmt(n,d){return n!=null?n.toLocaleString("en",{minimumFractionDigits:d||2,maximumFractionDigits:d||2}):"—";}
+
+  function addCard(label, value, valueColor, sub1, sub2, sigClass, sigText){
+    const mc = grid.appendChild(mk("div","mc"));
+    mc.appendChild(mk("div","mc-label",label));
+    const val = mc.appendChild(mk("div","mc-val",value));
+    if(valueColor) val.style.color = valueColor;
+    if(sub1) mc.appendChild(mk("div","mc-sub",sub1));
+    if(sub2) mc.appendChild(mk("div","mc-sub",sub2));
+    if(sigText){
+      const sig = mc.appendChild(mk("span","mc-sig",sigText));
+      sig.className = "mc-sig " + sigClass;
+    }
+  }
+
+  // ── ERP ─────────────────────────────────────────────────
+  const erp  = M.erp || {};
+  const erpV = erp.valeur;
+  const erpC = erpV==null?"var(--muted)":erpV>=0.02?"var(--green)":erpV>=0.01?"var(--orange)":"var(--red)";
+  const erpS = erpV==null?"N/A":erpV>=0.02?"Attractive":erpV>=0.01?"Neutral":"Expensive";
+  const erpSC= erpV==null?"":erpV>=0.02?"law-g":erpV>=0.01?"law-y":"law-r";
+  const ey   = erp.sp500_pe ? (100/erp.sp500_pe).toFixed(2)+"%" : "—";
+  const y10v = (M.yield_curve||{}).us10y;
+  addCard(
+    "Equity Risk Premium (ERP)",
+    erpV!=null ? (erpV*100).toFixed(2)+"%" : "—",
+    erpC,
+    "Earnings Yield: "+ey+" (P/E "+(erp.sp500_pe!=null?erp.sp500_pe.toFixed(1):"—")+") − 10Y: "+fmt(y10v)+"%",
+    "ERP > 2% = attractive · < 0% = bonds beat equities",
+    erpSC, erpS
+  );
+
+  // ── Yield Curve ─────────────────────────────────────────
+  // 4-regime probabilistic signal — not a binary recession trigger
+  const yc  = M.yield_curve || {};
+  const ycV = yc.valeur;
+  const YC  = {
+    steep            : { label:"Steep (Normal)",           cls:"law-g", color:"var(--green)",
+                         note:"Positive slope — expansionary environment" },
+    flat             : { label:"Flat — No Signal",         cls:"law-y", color:"var(--yellow)",
+                         note:"Ambiguous signal — monitor, no action warranted" },
+    partial_inversion: { label:"Partial Inversion",        cls:"law-y", color:"var(--orange)",
+                         note:"Caution · Historical false positives exist (1998, 2019)" },
+    full_inversion   : { label:"Full Inversion",           cls:"law-r", color:"var(--red)",
+                         note:"Recession probable, not certain · Lead time 6–24m" },
+  };
+  const ycCfg = YC[yc.regime] || { label:"N/A", cls:"", color:"var(--muted)", note:"" };
+  addCard(
+    "Yield Curve (10Y − 3M)",
+    ycV!=null ? (ycV>=0?"+":"")+ycV.toFixed(2)+"%" : "—",
+    ycCfg.color,
+    "US 10Y: "+fmt(yc.us10y)+"% · US 3M: "+fmt(yc.us3m)+"%",
+    ycCfg.note,
+    ycCfg.cls, ycCfg.label
+  );
+
+  // ── VIX ──────────────────────────────────────────────────
+  const vix  = M.vix || {};
+  const vixV = vix.valeur;
+  const vixC = vix.regime==="complacency"?"var(--orange)":vix.regime==="panic"?"var(--red)":vix.regime==="fear"?"var(--orange)":"var(--green)";
+  const vixL = {complacency:"Complacency",normal:"Normal",fear:"Elevated Fear",panic:"Panic"}[vix.regime]||"N/A";
+  const vixSC= vix.regime==="panic"?"law-r":vix.regime==="fear"?"law-y":vix.regime==="complacency"?"law-y":"law-g";
+  addCard(
+    "VIX — Fear Index",
+    vixV!=null ? fmt(vixV) : "—",
+    vixC,
+    "< 15 = Complacency · 15–20 = Normal · 20–30 = Fear · > 30 = Panic",
+    null,
+    vixSC, vixL
+  );
+
+  // ── DXY ──────────────────────────────────────────────────
+  const dxy  = M.dxy || {};
+  const dxyV = dxy.valeur;
+  const dxyC = (dxy.chg_pct||0)>0 ? "var(--red)" : "var(--green)";
+  const dxyS = (dxy.chg_pct||0)>0 ? "Bearish for equities" : "Supportive for equities";
+  const dxySC= (dxy.chg_pct||0)>0 ? "law-r" : "law-g";
+  const dxyCh= dxy.chg_pct!=null ? ((dxy.chg_pct>=0?"+":"")+dxy.chg_pct.toFixed(2)+"%") : "—";
+  addCard(
+    "DXY — US Dollar Index",
+    dxyV!=null ? fmt(dxyV) : "—",
+    dxyC,
+    "Today: "+dxyCh+" · 1M: "+(dxy.ret_1m!=null?(dxy.ret_1m>=0?"+":"")+dxy.ret_1m.toFixed(2)+"%":"—"),
+    "Strong USD = pressure on commodities & EM equities",
+    dxySC, dxyS
+  );
+})();
+</script>
