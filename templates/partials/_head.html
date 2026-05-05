@@ -159,9 +159,10 @@ h1,h2,h3,h4{font-family:var(--serif);color:var(--h);font-weight:400}
 .badge-green{background:var(--green-bg);color:var(--green)}
 
 /* ═══════════════════ BOX_01 — NEWS ═══════════════════ */
-#box1{display:flex;flex-direction:column;height:500px}
-#box1 .card-h{flex-shrink:0}
-#news-scroll{flex:1;overflow-y:auto;overscroll-behavior:contain}
+#box-news{display:flex;flex-direction:column;height:520px}
+#box-news .card-h{flex-shrink:0}
+#box-news .tabs{flex-shrink:0}
+#news-scroll{flex:1;overflow-y:auto;overscroll-behavior:contain;min-height:0}
 .news-item{padding:10px 14px;border-bottom:1px solid var(--border-lt);transition:background .12s}
 .news-item:last-child{border-bottom:none}
 .news-item:hover{background:var(--hover)}
@@ -461,7 +462,7 @@ a.news-hl:hover{color:var(--gold)}
 /* ══════════════════════════════════════════════════════════════ */
 
 /* Band base */
-.sec-band{ margin:0; padding:0; }
+.sec-band{ margin:0; padding:0; scroll-margin-top:72px; }
 
 /* ── CHOCOLAT AU LAIT — rectangle flottant, cards claires à l'intérieur ── */
 .sec-choc{
