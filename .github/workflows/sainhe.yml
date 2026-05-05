@@ -63,6 +63,7 @@ jobs:
           projectName: sainhe
           directory: output
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
 
   # ════════════════════════════════════════════════════════════
   #  JOB 1 — NEWS (toutes les 4h)
@@ -119,6 +120,7 @@ jobs:
           projectName: sainhe
           directory: output
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
 
   # ════════════════════════════════════════════════════════════
   #  JOB 2 — FULL PIPELINE lun-ven 22h UTC
@@ -182,3 +184,4 @@ jobs:
           projectName: sainhe
           directory: output
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
