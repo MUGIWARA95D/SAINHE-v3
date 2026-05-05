@@ -35,7 +35,7 @@ DB_PATH  = Path(os.environ.get("DB_PATH", "db/sainhe.db"))
 
 
 def _service():
-    sa_info = json.loads(os.environ["GDRIVE_SA_KEY"])
+    sa_info = json.loads(os.environ["GDRIVE_SA_KEY"].lstrip("﻿"))
     creds   = service_account.Credentials.from_service_account_info(sa_info, scopes=SCOPES)
     return build("drive", "v3", credentials=creds)
 
