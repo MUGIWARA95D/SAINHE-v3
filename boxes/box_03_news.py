@@ -97,10 +97,11 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
         if region not in par_region:
             par_region[region] = []
         par_region[region].append({
-            "titre" : a["titre"],
-            "lien"  : a["lien"],
-            "resume": a["resume"],
-            "ts_pub": a["ts_pub"],
+            "source_id": a["source_id"],
+            "titre"    : a["titre"],
+            "lien"     : a["lien"],
+            "resume"   : a["resume"],
+            "ts_pub"   : a["ts_pub"],
         })
 
     return {

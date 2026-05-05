@@ -204,9 +204,7 @@ RSS_SOURCES = {
     2: {"url": "https://apnews.com/hub/financial-markets?format=rss",    "region": "USA",    "lang": "EN"},
     3: {"url": "https://feeds.marketwatch.com/marketwatch/topstories",   "region": "USA",    "lang": "EN"},
     4: {"url": "https://www.scmp.com/rss/91/feed",                       "region": "ASIE",   "lang": "EN"},
-    5: {"url": "https://asia.nikkei.com/rss/feed/news",                  "region": "ASIE",   "lang": "EN"},
     6: {"url": "https://www.ft.com/rss/home/international",              "region": "EU",     "lang": "EN"},
-    7: {"url": "https://www.lesechos.fr/rss/rss_marches.xml",            "region": "EU",     "lang": "FR"},
 }
 
 # Rotation horaire (Reuters #1 toujours inclus)

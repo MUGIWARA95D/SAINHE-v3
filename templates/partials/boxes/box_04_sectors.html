@@ -11,10 +11,10 @@
 
   <!-- Zone tabs — full width -->
   <div class="tabs" id="ztabs">
-    <button class="tab active" data-z="usa">USA</button>
+    <button class="tab active" data-z="monde">World</button>
+    <button class="tab" data-z="usa">USA</button>
     <button class="tab" data-z="europe">Europe</button>
     <button class="tab" data-z="asia">Asia</button>
-    <button class="tab" data-z="monde">World</button>
   </div>
 
   <!-- Column headers -->
@@ -40,7 +40,7 @@
 (function(){
   const SECS  = {{ box_sectors.secteurs | tojson }};
   const Z_MAP = {usa:"USA", europe:"EU", asia:"ASIE", monde:"MONDE"};
-  let cZ = "usa", cP = "chg_pct", cSP = "spark_today";
+  let cZ = "monde", cP = "chg_pct", cSP = "spark_today";
   const sparkCharts = {};
 
   function destroySparks(){

@@ -58,16 +58,11 @@ log = logging.getLogger(__name__)
 
 def active_sources(hour: int | None = None) -> list[int]:
     """
-    Retourne les IDs sources actifs pour l'heure donnée.
-    Reuters (#1) est toujours inclus.
+    Retourne tous les IDs sources — toutes les régions à chaque run.
+    La rotation horaire est désactivée : on a besoin de USA/EU/ASIE à tout moment
+    pour que les tabs de la dashboard news soient toujours peuplés.
     """
-    if hour is None:
-        hour = datetime.now(timezone.utc).hour
-
-    rotation = RSS_ROTATION.get(hour, [])
-    ids = list({1} | set(rotation))   # set → pas de doublon si Reuters dans rotation
-    ids.sort()
-    return ids
+    return sorted(RSS_SOURCES.keys())
 
 
 # ============================================================

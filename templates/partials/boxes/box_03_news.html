@@ -1,5 +1,5 @@
 <!-- ═══ BOX_03 — NEWS ═══════════════════════════════════════ -->
-<!-- DATA: box_news = {par_region: {GLOBAL:[{titre,lien,resume,ts_pub,source_id}], USA:[...], EU:[...], ASIE:[...]}} -->
+<!-- DATA: box_news = {par_region: {GLOBAL:[{source_id,titre,lien,resume,ts_pub}], USA:[...], EU:[...], ASIE:[...]}} -->
 <section class="card" id="box-news">
   <div class="card-h">
     <span class="card-t">Live News Feed</span>
@@ -8,38 +8,91 @@
       <span class="badge badge-red">&#9679; LIVE</span>
     </div>
   </div>
+
+  <!-- Region tabs -->
+  <div class="tabs" id="news-tabs">
+    <button class="tab active" data-r="GLOBAL">World</button>
+    <button class="tab" data-r="USA">USA</button>
+    <button class="tab" data-r="EU">Europe</button>
+    <button class="tab" data-r="ASIE">Asia</button>
+  </div>
+
   <div id="news-scroll"></div>
 </section>
 <script>
 (function(){
   function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-  const DATA  = {{ box_news.par_region | tojson }};
-  const ZONES = { GLOBAL:{cls:"zone-global",lbl:"GLOBAL"}, USA:{cls:"zone-usa",lbl:"USA"}, EU:{cls:"zone-eu",lbl:"EU"}, ASIE:{cls:"zone-as",lbl:"ASIE"} };
-  const ORDER = ["GLOBAL","USA","EU","ASIE"];
-  const el    = document.getElementById("news-scroll");
-  let h = "";
-  ORDER.forEach(zone => {
-    (DATA[zone] || []).forEach(n => {
-      const z    = ZONES[zone] || ZONES.GLOBAL;
-      const ts   = (n.ts_pub || "").slice(0,16).replace("T"," ");
-      const lien = esc(n.lien || "");
-      const hl   = lien
-        ? `<a class="news-hl" href="${lien}" target="_blank" rel="noopener noreferrer">${esc(n.titre)}</a>`
-        : `<div class="news-hl">${esc(n.titre)}</div>`;
-      const body = n.resume
-        ? `<div class="news-body">${esc(n.resume)}</div>`
-          + (lien ? `<a class="news-readmore" href="${lien}" target="_blank" rel="noopener noreferrer">Read full article ↗</a>` : "")
-        : "";
-      h += `<div class="news-item">
-        <div class="news-anchor">${esc(n.source_id || zone)}</div>
-        <div class="news-meta">
-          <span class="news-time">${esc(ts)}</span>
-          <span class="news-zone ${z.cls}">${z.lbl}</span>
-        </div>
-        ${hl}${body}
-      </div>`;
+  const DATA = {{ box_news.par_region | tojson }};
+
+  var SRC = {1:"Bloomberg",2:"AP News",3:"MarketWatch",4:"SCMP",6:"FT"};
+
+  function mkEl(tag, cls, text){
+    var el = document.createElement(tag);
+    if(cls) el.className = cls;
+    if(text != null) el.textContent = text;
+    return el;
+  }
+
+  function render(zone){
+    var articles = DATA[zone] || [];
+    var wrap = document.getElementById("news-scroll");
+    wrap.textContent = "";
+    if(!articles.length){
+      var empty = mkEl("div", null, "No articles for this region");
+      empty.style.cssText = "padding:20px;color:var(--muted);text-align:center";
+      wrap.appendChild(empty);
+      return;
+    }
+    articles.forEach(function(n){
+      var ts   = (n.ts_pub||"").slice(0,16).replace("T"," ");
+      var item = mkEl("div","news-item");
+
+      var anchor = mkEl("div","news-anchor", SRC[n.source_id]||zone);
+      var meta   = mkEl("div","news-meta");
+      var time   = mkEl("span","news-time", ts);
+      meta.appendChild(time);
+
+      var hl;
+      if(n.lien){
+        hl = document.createElement("a");
+        hl.className = "news-hl";
+        hl.href = n.lien;
+        hl.target = "_blank";
+        hl.rel = "noopener noreferrer";
+        hl.textContent = n.titre||"";
+      } else {
+        hl = mkEl("div","news-hl", n.titre||"");
+      }
+
+      item.appendChild(anchor);
+      item.appendChild(meta);
+      item.appendChild(hl);
+
+      if(n.resume){
+        var body = mkEl("div","news-body", n.resume);
+        item.appendChild(body);
+        if(n.lien){
+          var more = document.createElement("a");
+          more.className = "news-readmore";
+          more.href = n.lien;
+          more.target = "_blank";
+          more.rel = "noopener noreferrer";
+          more.textContent = "Read full article ↗";
+          item.appendChild(more);
+        }
+      }
+      wrap.appendChild(item);
+    });
+  }
+
+  document.querySelectorAll("#news-tabs .tab").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      document.querySelectorAll("#news-tabs .tab").forEach(function(b){ b.classList.remove("active"); });
+      this.classList.add("active");
+      render(this.dataset.r);
     });
   });
-  el.innerHTML = h || `<div style="padding:20px;color:var(--muted);text-align:center">No articles yet</div>`;
+
+  render("GLOBAL");
 })();
 </script>
