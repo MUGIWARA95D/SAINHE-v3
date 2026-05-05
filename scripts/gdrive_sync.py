@@ -30,7 +30,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 SCOPES   = ["https://www.googleapis.com/auth/drive"]
-FILE_ID  = os.environ["GDRIVE_FILE_ID"]
+FILE_ID  = os.environ["GDRIVE_FILE_ID"].strip().lstrip("﻿")
 DB_PATH  = Path(os.environ.get("DB_PATH", "db/sainhe.db"))
 
 
