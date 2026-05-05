@@ -252,6 +252,229 @@
     </div>
   </div>
 
+  <!-- ─── FINANCE MINDMAP — crème ────────────────────────── -->
+  <div class="sec-band sec-creme" id="learn-mindmap">
+    <div class="section-lbl">
+      <h2>Finance Mindmap</h2><em>The full landscape, structured</em>
+    </div>
+    <div class="lrn-wrap">
+      <div class="lrn-body" style="max-width:960px;margin:0 auto">
+
+        <div class="lrn-panel-rows" style="margin-bottom:2rem">
+          <div class="lrn-panel-row">
+            <div class="lrn-panel-row-lbl">What does it do?</div>
+            <div class="lrn-panel-row-val">This map organizes the entire field of finance into four interconnected branches — Capital Markets, Asset Management, Corporate Finance, and Quantitative Finance. Each branch contains the key concepts, formulas, and mental models practitioners use every day.</div>
+          </div>
+          <div class="lrn-panel-row">
+            <div class="lrn-panel-row-lbl">Why is it relevant?</div>
+            <div class="lrn-panel-row-val">Finance has no single entry point. Most people learn fragments — a bit of investing here, some accounting there — without seeing how the pieces connect. This map reveals the architecture of the discipline so you can navigate it deliberately, not by accident.</div>
+          </div>
+          <div class="lrn-panel-row">
+            <div class="lrn-panel-row-lbl">How to use it?</div>
+            <div class="lrn-panel-row-val">Select a branch to explore its nodes. <strong>Concepts</strong> are the building blocks, <strong>Formulas</strong> are the quantitative tools, and <strong>Notions</strong> are the mental models. Start with the branch most relevant to your goals — then trace the connections. Every branch borrows from the others.</div>
+          </div>
+        </div>
+
+        <!-- Hub SVG -->
+        <svg viewBox="0 0 620 108" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto 1.6rem" aria-hidden="true">
+          <line x1="310" y1="30" x2="77"  y2="68" stroke="#8B5E3C" stroke-width="1.5" opacity=".3"/>
+          <line x1="310" y1="30" x2="234" y2="68" stroke="#8B5E3C" stroke-width="1.5" opacity=".3"/>
+          <line x1="310" y1="30" x2="386" y2="68" stroke="#8B5E3C" stroke-width="1.5" opacity=".3"/>
+          <line x1="310" y1="30" x2="543" y2="68" stroke="#8B5E3C" stroke-width="1.5" opacity=".3"/>
+          <rect x="254" y="10" width="112" height="28" rx="14" fill="#3E200C"/>
+          <text x="310" y="28" fill="#F5E8D0" font-size="11.5" text-anchor="middle" font-family="Georgia,serif" letter-spacing=".6">Finance</text>
+          <circle cx="77"  cy="68" r="3.5" fill="#8B5E3C" opacity=".38"/>
+          <circle cx="234" cy="68" r="3.5" fill="#8B5E3C" opacity=".38"/>
+          <circle cx="386" cy="68" r="3.5" fill="#8B5E3C" opacity=".38"/>
+          <circle cx="543" cy="68" r="3.5" fill="#8B5E3C" opacity=".38"/>
+          <text x="77"  y="88" fill="#5A3A24" font-size="8.5" text-anchor="middle" font-family="Georgia,serif" opacity=".6">Capital Markets</text>
+          <text x="234" y="88" fill="#5A3A24" font-size="8.5" text-anchor="middle" font-family="Georgia,serif" opacity=".6">Asset Management</text>
+          <text x="386" y="88" fill="#5A3A24" font-size="8.5" text-anchor="middle" font-family="Georgia,serif" opacity=".6">Corporate Finance</text>
+          <text x="543" y="88" fill="#5A3A24" font-size="8.5" text-anchor="middle" font-family="Georgia,serif" opacity=".6">Quantitative Finance</text>
+        </svg>
+
+        <!-- Category tabs -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.65rem;margin-bottom:1.6rem">
+          <button class="mm-tab mm-active" onclick="mmSwitch(0,this)">Capital Markets<span class="mm-count">19 nodes</span></button>
+          <button class="mm-tab" onclick="mmSwitch(1,this)">Asset Management<span class="mm-count">16 nodes</span></button>
+          <button class="mm-tab" onclick="mmSwitch(2,this)">Corporate Finance<span class="mm-count">15 nodes</span></button>
+          <button class="mm-tab" onclick="mmSwitch(3,this)">Quantitative Finance<span class="mm-count">16 nodes</span></button>
+        </div>
+
+        <p id="mm-desc" style="font-size:.84rem;color:#5A3A24;font-style:italic;margin-bottom:1.8rem;min-height:1.4em;line-height:1.55"></p>
+
+        <!-- Panel 0 — Capital Markets -->
+        <div id="mm-p0" class="mm-panel mm-show">
+          <div class="mm-type-section">
+            <div class="mm-type-hdr">Concepts <span>11</span></div>
+            <div class="mm-type-nodes">
+              <span class="mm-node mm-C">Equity Market</span>
+              <span class="mm-node mm-C">Fixed Income</span>
+              <span class="mm-node mm-C">Derivatives</span>
+              <span class="mm-node mm-C">Forex (FX)</span>
+              <span class="mm-node mm-C">Commodities</span>
+              <span class="mm-node mm-C">Stock Indices</span>
+              <span class="mm-node mm-C">Liquidity</span>
+              <span class="mm-node mm-C">Market Microstructure</span>
+              <span class="mm-node mm-C">High-Frequency Trading</span>
+              <span class="mm-node mm-C">Market Efficiency</span>
+              <span class="mm-node mm-C">Dividend Policy</span>
+            </div>
+          </div>
+          <div class="mm-type-section">
+            <div class="mm-type-hdr">Formulas <span>6</span></div>
+            <div class="mm-type-nodes">
+              <span class="mm-node mm-F">Sharpe Ratio</span>
+              <span class="mm-node mm-F">Beta (β)</span>
+              <span class="mm-node mm-F">CAPM</span>
+              <span class="mm-node mm-F">Bond Pricing</span>
+              <span class="mm-node mm-F">Duration (Macaulay)</span>
+              <span class="mm-node mm-F">Convexity</span>
+            </div>
+          </div>
+          <div class="mm-type-section">
+            <div class="mm-type-hdr">Notions <span>2</span></div>
+            <div class="mm-type-nodes">
+              <span class="mm-node mm-N">Bid-Ask Spread</span>
+              <span class="mm-node mm-N">Market Impact</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 1 — Asset Management -->
+        <div id="mm-p1" class="mm-panel">
+          <div class="mm-type-section">
+            <div class="mm-type-hdr">Concepts <span>11</span></div>
+            <div class="mm-type-nodes">
+              <span class="mm-node mm-C">Portfolio Theory</span>
+              <span class="mm-node mm-C">ESG &amp; Sustainable Finance</span>
+              <span class="mm-node mm-C">Pension Funds</span>
+              <span class="mm-node mm-C">Passive Management (ETFs)</span>
+              <span class="mm-node mm-C">Wealth Management</span>
+              <span class="mm-node mm-C">Alpha &amp; Beta</span>
+              <span class="mm-node mm-C">REITs</span>
+              <span class="mm-node mm-C">Hedge Funds</span>
+              <span class="mm-node mm-C">Private Equity</span>
+              <span class="mm-node mm-C">Asset Allocation</span>
+              <span class="mm-node mm-C">Corporate Governance</span>
+            </div>
+          </div>
+          <div class="mm-type-section">
+            <div class="mm-type-hdr">Formulas <span>3</span></div>
+            <div class="mm-type-nodes">
+              <span class="mm-node mm-F">Jensen's Alpha</span>
+              <span class="mm-node mm-F">Tracking Error</span>
+              <span class="mm-node mm-F">Information Ratio</span>
+            </div>
+          </div>
+          <div class="mm-type-section">
+            <div class="mm-type-hdr">Notions <span>2</span></div>
+            <div class="mm-type-nodes">
+              <span class="mm-node mm-N">Stewardship Theory</span>
+              <span class="mm-node mm-N">Agency Costs</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2 — Corporate Finance -->
+        <div id="mm-p2" class="mm-panel">
+          <div class="mm-type-section">
+            <div class="mm-type-hdr">Concepts <span>8</span></div>
+            <div class="mm-type-nodes">
+              <span class="mm-node mm-C">Capital Budgeting</span>
+              <span class="mm-node mm-C">Capital Structure</span>
+              <span class="mm-node mm-C">M&amp;A</span>
+              <span class="mm-node mm-C">Working Capital Management</span>
+              <span class="mm-node mm-C">Project Finance</span>
+              <span class="mm-node mm-C">Debt Restructuring</span>
+              <span class="mm-node mm-C">IPO</span>
+              <span class="mm-node mm-C">Business Valuation</span>
+            </div>
+          </div>
+          <div class="mm-type-section">
+            <div class="mm-type-hdr">Formulas <span>5</span></div>
+            <div class="mm-type-nodes">
+              <span class="mm-node mm-F">NPV</span>
+              <span class="mm-node mm-F">IRR</span>
+              <span class="mm-node mm-F">Interest Coverage (EBIT / Interest)</span>
+              <span class="mm-node mm-F">D/E Ratio</span>
+              <span class="mm-node mm-F">Modigliani-Miller Theorem</span>
+            </div>
+          </div>
+          <div class="mm-type-section">
+            <div class="mm-type-hdr">Notions <span>2</span></div>
+            <div class="mm-type-nodes">
+              <span class="mm-node mm-N">Terminal Value</span>
+              <span class="mm-node mm-N">Synergy Premium</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3 — Quantitative Finance -->
+        <div id="mm-p3" class="mm-panel">
+          <div class="mm-type-section">
+            <div class="mm-type-hdr">Concepts <span>10</span></div>
+            <div class="mm-type-nodes">
+              <span class="mm-node mm-C">Stochastic Calculus</span>
+              <span class="mm-node mm-C">Brownian Motion</span>
+              <span class="mm-node mm-C">Arbitrage</span>
+              <span class="mm-node mm-C">Risk Management (VaR)</span>
+              <span class="mm-node mm-C">Correlation Analysis</span>
+              <span class="mm-node mm-C">Monte Carlo Simulation</span>
+              <span class="mm-node mm-C">Financial Econometrics</span>
+              <span class="mm-node mm-C">Yield Curve Modeling</span>
+              <span class="mm-node mm-C">Machine Learning</span>
+              <span class="mm-node mm-C">Programming (Python / C++)</span>
+            </div>
+          </div>
+          <div class="mm-type-section">
+            <div class="mm-type-hdr">Formulas <span>4</span></div>
+            <div class="mm-type-nodes">
+              <span class="mm-node mm-F">Black-Scholes</span>
+              <span class="mm-node mm-F">DCF Formula</span>
+              <span class="mm-node mm-F">GARCH</span>
+              <span class="mm-node mm-F">Cointegration</span>
+            </div>
+          </div>
+          <div class="mm-type-section">
+            <div class="mm-type-hdr">Notions <span>2</span></div>
+            <div class="mm-type-nodes">
+              <span class="mm-node mm-N">Expected Shortfall</span>
+              <span class="mm-node mm-N">Statistical Arbitrage</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="mm-legend">
+          <span class="mm-node mm-C">Concept</span><span>Building block of the field</span>
+          <span class="mm-node mm-F">Formula</span><span>Quantitative tool</span>
+          <span class="mm-node mm-N">Notion</span><span>Mental model or framework</span>
+        </div>
+
+        <script>
+        (function(){
+          var descs=[
+            "Primary and secondary markets for stocks, bonds, currencies, and derivatives — the daily engine of global capital.",
+            "Professional stewardship of capital across asset classes — over $100 trillion managed globally.",
+            "How firms raise, allocate, and return capital to create long-term value.",
+            "Mathematics, statistics, and code applied to pricing, risk modeling, and strategy."
+          ];
+          window.mmSwitch=function(idx,btn){
+            document.querySelectorAll('.mm-tab').forEach(function(t){t.classList.remove('mm-active');});
+            document.querySelectorAll('.mm-panel').forEach(function(p){p.classList.remove('mm-show');});
+            btn.classList.add('mm-active');
+            document.getElementById('mm-p'+idx).classList.add('mm-show');
+            document.getElementById('mm-desc').textContent=descs[idx];
+          };
+          document.getElementById('mm-desc').textContent=descs[0];
+        })();
+        </script>
+
+      </div>
+    </div>
+  </div>
+
   <!-- ─── 01 · DASHBOARD — chocolat ────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="learn-dashboard">

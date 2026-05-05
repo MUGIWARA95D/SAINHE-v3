@@ -697,6 +697,36 @@ a.news-hl:hover{color:var(--gold)}
   .lrn-metric{grid-template-columns:1fr}
   .lrn-metric-label{border-right:none;border-bottom:1px solid rgba(196,149,90,.18)}
 }
+/* ── sec-creme overrides for lrn-panel classes ─────────── */
+.sec-creme .lrn-panel-row{border-color:rgba(62,32,12,.12)}
+.sec-creme .lrn-panel-row-lbl{background:rgba(62,32,12,.06);border-right-color:rgba(62,32,12,.1);color:rgba(62,32,12,.55)}
+.sec-creme .lrn-panel-row-val{color:rgba(44,26,14,.72)}
+.sec-creme .lrn-panel-row-val strong{color:#2C1A0E}
+/* ── Finance Mindmap ────────────────────────────────────── */
+.mm-tab{background:rgba(62,32,12,.07);border:1px solid rgba(62,32,12,.18);border-radius:12px;
+  padding:.75rem .9rem;font-size:.82rem;color:#3E200C;cursor:pointer;
+  transition:all .18s;font-family:var(--serif);
+  display:flex;flex-direction:column;align-items:center;gap:.3rem;
+  line-height:1.35;text-align:center}
+.mm-tab:hover{background:rgba(62,32,12,.13);border-color:rgba(62,32,12,.35);transform:translateY(-1px)}
+.mm-tab.mm-active{background:#3E200C;color:#F5E8D0;border-color:#3E200C;box-shadow:0 3px 12px rgba(62,32,12,.22)}
+.mm-count{font-size:.66rem;opacity:.5;font-family:monospace;letter-spacing:.02em}
+.mm-panel{display:none;flex-direction:column;gap:1.8rem}
+.mm-panel.mm-show{display:flex}
+.mm-type-hdr{display:flex;align-items:center;gap:.8rem;margin-bottom:.85rem;
+  font-size:.67rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(62,32,12,.38)}
+.mm-type-hdr::after{content:'';flex:1;height:1px;background:rgba(62,32,12,.1)}
+.mm-type-hdr span{font-family:monospace;font-size:.62rem;opacity:.7;font-weight:400;letter-spacing:0;
+  background:rgba(62,32,12,.08);border-radius:4px;padding:.05em .45em}
+.mm-type-nodes{display:flex;flex-wrap:wrap;gap:.55rem}
+.mm-node{display:inline-flex;align-items:center;padding:.38rem .95rem;
+  border-radius:999px;font-size:.79rem;cursor:default;white-space:nowrap;line-height:1.4}
+.mm-C{background:rgba(62,32,12,.08);border:1px solid rgba(62,32,12,.16);color:#2C1A0E}
+.mm-F{background:rgba(196,149,90,.16);border:1px solid rgba(196,149,90,.4);color:#6B3D10;font-weight:500}
+.mm-N{background:rgba(140,90,50,.09);border:1px solid rgba(140,90,50,.22);color:#5A3020;font-style:italic}
+.mm-legend{display:flex;align-items:center;flex-wrap:wrap;gap:.6rem 1.4rem;
+  margin-top:2rem;padding-top:1.2rem;border-top:1px solid rgba(62,32,12,.1);font-size:.77rem;color:#5A3020}
 {% endraw %}  </style>
   <!-- miniChart — shared sparkline helper (used by box_02, box_03, box_06) -->
   <script>

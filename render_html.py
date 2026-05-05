@@ -143,6 +143,7 @@ PAGE_NAVS = {
     ],
     "learn": [
         {"href": "#learn-whyfinance",    "label": "Why Finance"},
+        {"href": "#learn-mindmap",       "label": "Mindmap"},
         {"href": "#learn-dashboard",     "label": "Dashboard"},
         {"href": "#learn-stockanalysis", "label": "Stock Analysis"},
     ],

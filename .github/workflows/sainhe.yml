@@ -6,22 +6,12 @@ on:
       - dev
 
   schedule:
-    # News : toutes les 4h (6×/jour au lieu de 24)
+    # News : toutes les 4h (6×/jour)
     - cron: "0 */4 * * *"
-    # Pipeline fin de journée : 22h UTC lun-ven (FX inclus)
+    # Pipeline fin de journée : 22h UTC lun-ven
     - cron: "0 22 * * 1-5"
 
-  # Déclenchement manuel
   workflow_dispatch:
-    inputs:
-      mode:
-        description: "Fetch mode"
-        required: false
-        default: "update"
-        type: choice
-        options:
-          - update   # 5 derniers jours (rapide)
-          - full     # 2 ans complets (reset historique)
 
 env:
   DB_PATH: db/sainhe.db
@@ -35,7 +25,7 @@ jobs:
 
   # ════════════════════════════════════════════════════════════
   #  JOB 0 — PREVIEW DEV (push sur dev uniquement)
-  #  Render HTML + deploy preview — zéro fetch, ~1 min
+  #  Download DB → render → deploy preview
   # ════════════════════════════════════════════════════════════
   preview:
     name: Preview Dev
@@ -44,13 +34,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Restore DB cache
-        uses: actions/cache@v4
-        with:
-          path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: sainhe-db-${{ runner.os }}-
 
       - uses: actions/setup-python@v5
         with:
@@ -62,6 +45,12 @@ jobs:
 
       - name: Init DB (idempotent)
         run: python scripts/db_init.py
+
+      - name: Download DB from Google Drive
+        run: python scripts/gdrive_sync.py download
+        env:
+          GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
+          GDRIVE_FILE_ID: ${{ secrets.GDRIVE_FILE_ID }}
 
       - name: Render HTML
         run: python render_html.py
@@ -78,6 +67,7 @@ jobs:
 
   # ════════════════════════════════════════════════════════════
   #  JOB 1 — NEWS (toutes les 4h)
+  #  Download DB → fetch news → calc → render → upload → deploy
   # ════════════════════════════════════════════════════════════
   news:
     name: Fetch News
@@ -88,13 +78,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Restore DB cache
-        uses: actions/cache@v4
-        with:
-          path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: sainhe-db-${{ runner.os }}-
 
       - uses: actions/setup-python@v5
         with:
@@ -107,6 +90,12 @@ jobs:
       - name: Init DB (idempotent)
         run: python scripts/db_init.py
 
+      - name: Download DB from Google Drive
+        run: python scripts/gdrive_sync.py download
+        env:
+          GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
+          GDRIVE_FILE_ID: ${{ secrets.GDRIVE_FILE_ID }}
+
       - name: Fetch News
         run: python scripts/fetch_news.py
 
@@ -117,11 +106,11 @@ jobs:
       - name: Render HTML
         run: python render_html.py
 
-      - name: Save DB cache
-        uses: actions/cache@v4
-        with:
-          path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
+      - name: Upload DB to Google Drive
+        run: python scripts/gdrive_sync.py upload
+        env:
+          GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
+          GDRIVE_FILE_ID: ${{ secrets.GDRIVE_FILE_ID }}
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
@@ -134,24 +123,16 @@ jobs:
 
   # ════════════════════════════════════════════════════════════
   #  JOB 2 — FULL PIPELINE lun-ven 22h UTC
-  #  Inclut FX + prix + indices + news + calc + deploy
+  #  Download DB → fetch tout → calc → render → upload → deploy
   # ════════════════════════════════════════════════════════════
   pipeline:
     name: Full Data Pipeline
     runs-on: ubuntu-latest
     if: |
-      github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'schedule' && contains(github.event.schedule, '0 22 * * 1-5'))
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Restore DB cache
-        uses: actions/cache@v4
-        with:
-          path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: sainhe-db-${{ runner.os }}-
 
       - uses: actions/setup-python@v5
         with:
@@ -164,13 +145,17 @@ jobs:
       - name: Init DB (idempotent)
         run: python scripts/db_init.py
 
+      - name: Download DB from Google Drive
+        run: python scripts/gdrive_sync.py download
+        env:
+          GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
+          GDRIVE_FILE_ID: ${{ secrets.GDRIVE_FILE_ID }}
+
       - name: Fetch FX rates
         run: python scripts/fetch_fx.py
 
       - name: Fetch Prices
-        run: |
-          MODE=${{ github.event.inputs.mode || 'update' }}
-          python scripts/fetch_prices.py --mode $MODE
+        run: python scripts/fetch_prices.py
 
       - name: Fetch Indices
         run: python scripts/fetch_indices.py
@@ -184,11 +169,11 @@ jobs:
       - name: Render HTML
         run: python render_html.py
 
-      - name: Save DB cache
-        uses: actions/cache@v4
-        with:
-          path: db/sainhe.db
-          key: sainhe-db-${{ runner.os }}-${{ github.run_id }}
+      - name: Upload DB to Google Drive
+        run: python scripts/gdrive_sync.py upload
+        env:
+          GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
+          GDRIVE_FILE_ID: ${{ secrets.GDRIVE_FILE_ID }}
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
