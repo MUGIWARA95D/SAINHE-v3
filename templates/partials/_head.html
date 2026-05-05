@@ -704,31 +704,45 @@ a.news-hl:hover{color:var(--gold)}
 .sec-creme .lrn-panel-row-lbl{background:rgba(62,32,12,.06);border-right-color:rgba(62,32,12,.1);color:rgba(62,32,12,.55)}
 .sec-creme .lrn-panel-row-val{color:rgba(44,26,14,.72)}
 .sec-creme .lrn-panel-row-val strong{color:#2C1A0E}
-/* ── Finance Mindmap ────────────────────────────────────── */
-.mm-tab{background:rgba(62,32,12,.07);border:1px solid rgba(62,32,12,.18);border-radius:12px;
-  padding:.75rem .9rem;font-size:.82rem;color:#3E200C;cursor:pointer;
-  transition:all .18s;font-family:var(--serif);
-  display:flex;flex-direction:column;align-items:center;gap:.3rem;
-  line-height:1.35;text-align:center}
-.mm-tab:hover{background:rgba(62,32,12,.13);border-color:rgba(62,32,12,.35);transform:translateY(-1px)}
-.mm-tab.mm-active{background:#3E200C;color:#F5E8D0;border-color:#3E200C;box-shadow:0 3px 12px rgba(62,32,12,.22)}
-.mm-count{font-size:.66rem;opacity:.5;font-family:monospace;letter-spacing:.02em}
-.mm-panel{display:none;flex-direction:column;gap:1.8rem}
-.mm-panel.mm-show{display:flex}
-.mm-type-hdr{display:flex;align-items:center;gap:.8rem;margin-bottom:.85rem;
-  font-size:.67rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
-  color:rgba(62,32,12,.38)}
-.mm-type-hdr::after{content:'';flex:1;height:1px;background:rgba(62,32,12,.1)}
-.mm-type-hdr span{font-family:monospace;font-size:.62rem;opacity:.7;font-weight:400;letter-spacing:0;
-  background:rgba(62,32,12,.08);border-radius:4px;padding:.05em .45em}
-.mm-type-nodes{display:flex;flex-wrap:wrap;gap:.55rem}
-.mm-node{display:inline-flex;align-items:center;padding:.38rem .95rem;
-  border-radius:999px;font-size:.79rem;cursor:default;white-space:nowrap;line-height:1.4}
-.mm-C{background:rgba(62,32,12,.08);border:1px solid rgba(62,32,12,.16);color:#2C1A0E}
-.mm-F{background:rgba(196,149,90,.16);border:1px solid rgba(196,149,90,.4);color:#6B3D10;font-weight:500}
-.mm-N{background:rgba(140,90,50,.09);border:1px solid rgba(140,90,50,.22);color:#5A3020;font-style:italic}
-.mm-legend{display:flex;align-items:center;flex-wrap:wrap;gap:.6rem 1.4rem;
-  margin-top:2rem;padding-top:1.2rem;border-top:1px solid rgba(62,32,12,.1);font-size:.77rem;color:#5A3020}
+/* ── Finance Mindmap — Force Graph ──────────────────────── */
+#mm-wrap{position:relative;background:#fff;border-radius:12px;
+  border:1px solid rgba(90,60,30,.14);overflow:hidden;
+  box-shadow:0 4px 24px rgba(62,32,12,.08)}
+#mm-bar{display:flex;align-items:center;justify-content:flex-end;
+  padding:8px 12px;border-bottom:1px solid rgba(90,60,30,.09);background:#faf7f3}
+#mm-zoom-btns{display:flex;gap:4px}
+#mm-zoom-btns button{background:#fff;border:1px solid rgba(90,60,30,.2);border-radius:6px;
+  width:28px;height:28px;cursor:pointer;font-size:.95rem;color:#5A3A24;
+  display:flex;align-items:center;justify-content:center;transition:all .15s}
+#mm-zoom-btns button:hover{background:rgba(90,60,30,.08);border-color:rgba(90,60,30,.4)}
+#mm-svg{display:block;width:100%;cursor:grab;user-select:none}
+#mm-legend{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem 1.2rem;
+  padding:10px 14px;border-top:1px solid rgba(90,60,30,.08);
+  background:#faf7f3;font-size:.72rem;color:#5A3020}
+.mm-li{display:flex;align-items:center;gap:5px}
+.mm-dot{display:inline-block;border-radius:50%;width:7px;height:7px;flex-shrink:0}
+.mm-li-line{opacity:.65}
+/* tooltip */
+#mm-tip{display:none;position:absolute;z-index:99;pointer-events:auto;
+  background:#fff;border:1px solid rgba(90,60,30,.18);border-radius:10px;
+  box-shadow:0 8px 28px rgba(62,32,12,.16);padding:12px 14px 11px;max-width:252px;
+  font-family:var(--sans)}
+#mm-tip.mm-tip-pinned{border-color:rgba(122,92,26,.5);
+  box-shadow:0 8px 32px rgba(62,32,12,.22)}
+.mm-tip-close{position:absolute;top:7px;right:9px;
+  background:none;border:none;cursor:pointer;font-size:1rem;
+  color:rgba(90,60,30,.35);line-height:1;padding:2px 4px;border-radius:4px}
+.mm-tip-close:hover{color:#3E200C;background:rgba(90,60,30,.07)}
+.mm-tip-type{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(90,60,30,.42);margin-bottom:3px}
+.mm-tip-label{font-size:.92rem;font-weight:600;color:#1A0800;margin-bottom:7px;
+  font-family:var(--serif);padding-right:18px;line-height:1.3}
+.mm-tip-desc{font-size:.76rem;color:#5A3020;line-height:1.52;margin-bottom:9px}
+.mm-tip-wiki{display:inline-block;font-size:.74rem;color:#7A5C1A;font-weight:600;
+  text-decoration:none;padding:.28rem .7rem;border-radius:5px;
+  background:rgba(122,92,26,.08);border:1px solid rgba(122,92,26,.25);
+  transition:all .15s}
+.mm-tip-wiki:hover{background:rgba(122,92,26,.16);border-color:rgba(122,92,26,.5)}
 {% endraw %}  </style>
   <!-- miniChart — shared sparkline helper (used by box_02, box_03, box_06) -->
   <script>
