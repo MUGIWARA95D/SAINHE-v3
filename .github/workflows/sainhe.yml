@@ -24,11 +24,11 @@ permissions:
 jobs:
 
   # ════════════════════════════════════════════════════════════
-  #  JOB 0 — PREVIEW DEV (push sur dev uniquement)
-  #  Download DB → render → deploy preview
+  #  JOB 0 — DEPLOY (push sur dev)
+  #  Download DB → render → deploy production
   # ════════════════════════════════════════════════════════════
-  preview:
-    name: Preview Dev
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
 
@@ -55,7 +55,7 @@ jobs:
       - name: Render HTML
         run: python render_html.py
 
-      - name: Deploy preview to Cloudflare Pages
+      - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
@@ -63,7 +63,6 @@ jobs:
           projectName: sainhe
           directory: output
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: dev
 
   # ════════════════════════════════════════════════════════════
   #  JOB 1 — NEWS (toutes les 4h)
