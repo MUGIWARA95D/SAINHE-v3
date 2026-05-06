@@ -18,9 +18,10 @@
         <th></th>
         <th>Price</th>
         <th data-sort="chg_pct">Today</th>
-        <th data-sort="ret_1m">1M</th>
-        <th>3M</th>
-        <th data-sort="ret_1y">1Y</th>
+        <th class="pt-ret-toggle" title="Toggle 1M / 3M / 1Y">▾</th>
+        <th class="pt-ret" data-sort="ret_1m">1M</th>
+        <th class="pt-ret">3M</th>
+        <th class="pt-ret" data-sort="ret_1y">1Y</th>
         <th data-sort="score">Score</th>
         <th>Momentum</th>
         <th data-sort="mfi">MFI</th>
@@ -98,7 +99,7 @@
     var panelTr=document.createElement("tr");
     panelTr.className="pt-expand-row";
     var panelTd=panelTr.appendChild(document.createElement("td"));
-    panelTd.colSpan=13; panelTd.className="pt-expand-td";
+    panelTd.colSpan=14; panelTd.className="pt-expand-td";
     var inner=panelTd.appendChild(document.createElement("div"));
     inner.className="pt-expand-inner";
 
@@ -148,13 +149,13 @@
       var pri=Math.abs(p.score||0)*(p.rvol||1);
       var hhmm=tsHHMM(p.ts_update);
       if((p.rvol||0)>1.5)
-        alerts.push({ticker:p.ticker,msg:"Volume anormal · RVOL: "+p.rvol.toFixed(2)+"×",cls:"al-gold",hhmm:hhmm,pri:pri});
+        alerts.push({ticker:p.ticker,msg:"Abnormal volume · RVOL: "+p.rvol.toFixed(2)+"×",cls:"al-gold",hhmm:hhmm,pri:pri});
       if(p.above_dma200===0&&(p.score||0)<-0.1)
-        alerts.push({ticker:p.ticker,msg:"Momentum négatif sous DMA200",cls:"al-red",hhmm:hhmm,pri:pri});
+        alerts.push({ticker:p.ticker,msg:"Negative momentum below DMA200",cls:"al-red",hhmm:hhmm,pri:pri});
       if(p.above_dma200===1&&(p.score||0)>0.4)
-        alerts.push({ticker:p.ticker,msg:"Signal fort au-dessus DMA200",cls:"al-green",hhmm:hhmm,pri:pri});
+        alerts.push({ticker:p.ticker,msg:"Strong signal above DMA200",cls:"al-green",hhmm:hhmm,pri:pri});
       if(p.sentiment_label==="Extreme Fear"&&p.signal==="BUY")
-        alerts.push({ticker:p.ticker,msg:"Divergence : Flux ↑ malgré Extreme Fear",cls:"al-gold",hhmm:hhmm,pri:pri*2});
+        alerts.push({ticker:p.ticker,msg:"Divergence: Flux ↑ despite Extreme Fear",cls:"al-gold",hhmm:hhmm,pri:pri*2});
     });
     clear(el);
     if(!alerts.length) return;
@@ -210,6 +211,24 @@
     var sn=v3.appendChild(mk("span",null,neut+" →")); sn.style.color="var(--gold)";
     v3.appendChild(mk("span",null," · ")).style.color="var(--faint)";
     var sd=v3.appendChild(mk("span",null,dn+" ↓")); sd.style.color="var(--red)";
+
+    /* col 4 — data age distribution */
+    var nFresh=0,nOk=0,nStale=0,nOld=0;
+    PORT.forEach(function(p){
+      var si=staleInfo(p.ts_update);
+      if(si.cls==="ts-fresh")nFresh++;else if(si.cls==="ts-ok")nOk++;
+      else if(si.cls==="ts-stale")nStale++;else nOld++;
+    });
+    var c4=el.appendChild(document.createElement("div")); c4.className="pt-pulse-col";
+    c4.appendChild(mk("div","pt-pulse-lbl","Data Age"));
+    var v4=c4.appendChild(document.createElement("div")); v4.className="pt-pulse-val";
+    var ageParts=[];
+    if(nFresh){var s=mk("span",null,nFresh+" fresh");s.style.color="var(--green)";ageParts.push(s);}
+    if(nOk){var s=mk("span",null,nOk+" ok");s.style.color="var(--gold)";ageParts.push(s);}
+    if(nStale){var s=mk("span",null,nStale+" stale");s.style.color="var(--red)";ageParts.push(s);}
+    if(nOld){var s=mk("span",null,nOld+" old");s.style.cssText="color:var(--red);font-weight:900";ageParts.push(s);}
+    if(!ageParts.length){v4.appendChild(mk("span",null,"—")).style.color="var(--muted)";}
+    else ageParts.forEach(function(s,i){v4.appendChild(s);if(i<ageParts.length-1)v4.appendChild(mk("span",null," · ")).style.color="var(--faint)";});
   }
 
   /* ── main table render ──────────────────────────────────── */
@@ -230,7 +249,7 @@
     if(!sorted.length){
       var etr=tb.appendChild(document.createElement("tr"));
       var etd=etr.appendChild(document.createElement("td"));
-      etd.colSpan=13;
+      etd.colSpan=14;
       etd.style.cssText="padding:20px;color:var(--muted);text-align:center";
       etd.textContent="No watchlist data";
       return;
@@ -243,16 +262,11 @@
       /* col 1 — category */
       tr.appendChild(mk("td",null,p.secteur||"—")).style.color="var(--muted)";
 
-      /* col 2 — ticker + name + staleness */
+      /* col 2 — ticker + name */
       var td1=tr.appendChild(mk("td"));
       td1.appendChild(mk("strong",null,p.ticker)).style.color="var(--h)";
       var sub=td1.appendChild(mk("span",null," "+(p.nom||"")));
       sub.style.cssText="font-size:10px;color:var(--muted)";
-      var st=staleInfo(p.ts_update);
-      var tsW=td1.appendChild(mk("span","ts-wrap "+st.cls));
-      tsW.style.display="inline-flex";
-      tsW.appendChild(mk("span","ts-dot"));
-      tsW.appendChild(mk("span","ts-age",st.label));
 
       /* col 3 — mini sparkline canvas */
       var td2=tr.appendChild(mk("td"));
@@ -268,10 +282,12 @@
       chgTd.style.fontWeight="600";
       chgTd.className=(p.chg_pct||0)>=0?"p-up":"p-dn";
 
-      /* col 6-8 — 1M / 3M / 1Y */
+      /* col 6 — returns toggle placeholder (no td, th-only column) */
+
+      /* col 7-9 — 1M / 3M / 1Y (collapsible) */
       [p.ret_1m,p.ret_3m,p.ret_1y].forEach(function(v){
         var td=tr.appendChild(mk("td",null,pct(v)));
-        td.className=v==null?"":v>=0?"p-up":"p-dn";
+        td.className="pt-ret"+(v==null?"":(v>=0?" p-up":" p-dn"));
       });
 
       /* col 9 — score */
@@ -333,6 +349,18 @@
       renderTable();
     });
   });
+
+  /* ── returns collapse toggle ────────────────────────────── */
+  var retCollapsed=false;
+  var ptTable=document.getElementById("pt-table");
+  var retToggleTh=document.querySelector("#pt-head .pt-ret-toggle");
+  if(retToggleTh){
+    retToggleTh.addEventListener("click",function(){
+      retCollapsed=!retCollapsed;
+      ptTable.classList.toggle("pt-ret-collapsed",retCollapsed);
+      retToggleTh.textContent=retCollapsed?"▸":"▾";
+    });
+  }
 
   /* ── init ───────────────────────────────────────────────── */
   renderAnomalies();
