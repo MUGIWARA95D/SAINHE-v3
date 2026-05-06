@@ -678,8 +678,40 @@ a.news-hl:hover{color:var(--gold)}
 #box-portfolio table{width:100%;border-collapse:collapse;font-size:12px}
 #box-portfolio th{text-align:left;padding:6px 10px;color:var(--muted);font-weight:500;font-size:10px;
   text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
-#box-portfolio td{padding:8px 10px;border-bottom:1px solid var(--border-lt)}
+#box-portfolio th[data-sort]{cursor:pointer;user-select:none;white-space:nowrap}
+#box-portfolio th[data-sort]:hover{color:var(--h)}
+#box-portfolio th.pt-sort-active{color:var(--gold)}
+#box-portfolio td{padding:7px 10px;border-bottom:1px solid var(--border-lt);vertical-align:middle}
 #box-portfolio tr:hover td{background:var(--hover)}
+#box-portfolio tbody tr{cursor:pointer}
+/* ── Pulse bandeau */
+#pt-pulse{display:flex;border-bottom:1px solid var(--border);background:var(--card-alt)}
+.pt-pulse-col{flex:1;padding:10px 14px;border-right:1px solid var(--border-lt)}
+.pt-pulse-col:last-child{border-right:none}
+.pt-pulse-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:3px}
+.pt-pulse-val{font-family:'SF Mono',Consolas,monospace;font-size:13px;font-weight:700}
+/* ── Anomalies feed */
+#pt-anomalies:not(:empty){border-bottom:1px solid var(--border)}
+.pt-anom-hdr{padding:5px 14px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--muted);background:var(--card-alt);border-bottom:1px solid var(--border-lt)}
+.pt-alert{display:flex;align-items:center;gap:8px;padding:5px 14px;font-size:11px;
+  font-family:'SF Mono',Consolas,monospace;border-bottom:1px solid var(--border-lt)}
+.pt-alert:last-child{border-bottom:none}
+.pt-alert-ticker{font-weight:700;flex-shrink:0}
+.pt-alert-msg{color:var(--muted);flex:1}
+.pt-alert-time{font-size:10px;color:var(--faint);flex-shrink:0}
+.al-green{border-left:3px solid var(--green);background:rgba(44,122,62,.05)}
+.al-red{border-left:3px solid var(--red);background:rgba(160,48,32,.05)}
+.al-gold{border-left:3px solid var(--gold);background:rgba(158,122,46,.05)}
+/* ── Expansion panel */
+.pt-expand-td{padding:0!important;border-left:3px solid var(--gold)}
+.pt-expand-inner{padding:14px 18px;display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;
+  background:var(--gold-bg);animation:pt-slide .2s ease}
+@keyframes pt-slide{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+.pt-expand-spark{flex-shrink:0}
+.pt-expand-info{flex:1;min-width:200px;display:flex;flex-direction:column;gap:5px;
+  font-size:11px;font-family:'SF Mono',Consolas,monospace;color:var(--p)}
+.pt-expand-rets{color:var(--muted)}
 
 /* ── Finance Mindmap — Force Graph ──────────────────────── */
 #mm-wrap{position:relative;background:#fff;border-radius:12px;
