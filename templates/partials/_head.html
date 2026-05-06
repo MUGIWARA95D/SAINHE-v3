@@ -681,6 +681,10 @@ a.news-hl:hover{color:var(--gold)}
 #box-portfolio th[data-sort]{cursor:pointer;user-select:none;white-space:nowrap}
 #box-portfolio th[data-sort]:hover{color:var(--h)}
 #box-portfolio th.pt-sort-active{color:var(--gold)}
+/* sort arrows — pure CSS, no JS text pollution */
+#box-portfolio thead th[data-sort]::after{content:" ↕";opacity:.18;font-size:8px;font-weight:400}
+#box-portfolio thead th[data-dir="desc"]::after{content:" ↓";opacity:1;color:var(--gold);font-size:9px}
+#box-portfolio thead th[data-dir="asc"]::after{content:" ↑";opacity:1;color:var(--gold);font-size:9px}
 #box-portfolio td{padding:7px 10px;border-bottom:1px solid var(--border-lt);vertical-align:middle}
 #box-portfolio tr:hover td{background:var(--hover)}
 #box-portfolio tbody tr{cursor:pointer}
@@ -713,12 +717,13 @@ a.news-hl:hover{color:var(--gold)}
   color:var(--gold);padding:0 4px;border-radius:3px;user-select:none;line-height:1;vertical-align:middle}
 .pt-sig-toggle:hover{background:var(--gold-bg)}
 #pt-table.pt-sig-collapsed .pt-sig{display:none}
-/* ── Group parent / child visual connectors */
-.pt-ret-parent,.pt-sig-parent{border-bottom:2px solid var(--gold)!important}
+/* ── Group parent / child visual connectors (box-shadow avoids border-collapse conflicts) */
+.pt-ret-parent,.pt-sig-parent{box-shadow:inset 0 -3px 0 var(--gold)}
 #pt-table.pt-ret-collapsed .pt-ret-parent,
-#pt-table.pt-sig-collapsed .pt-sig-parent{background:rgba(158,122,46,.07)}
+#pt-table.pt-sig-collapsed .pt-sig-parent{background:rgba(158,122,46,.06)}
+/* when expanded, underline spans parent + all children → continuous gold bar */
 #pt-table:not(.pt-ret-collapsed) thead .pt-ret,
-#pt-table:not(.pt-sig-collapsed) thead .pt-sig{border-top:2px solid var(--gold)}
+#pt-table:not(.pt-sig-collapsed) thead .pt-sig{box-shadow:inset 0 -3px 0 var(--gold)}
 /* ── Expansion panel */
 .pt-expand-td{padding:0!important;border-left:3px solid var(--gold)}
 .pt-expand-inner{padding:14px 18px;display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;

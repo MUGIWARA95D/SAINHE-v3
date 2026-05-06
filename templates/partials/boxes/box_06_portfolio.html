@@ -238,16 +238,18 @@
   function renderTable(){
     closeExpand();
 
-    /* update sort indicators in header */
+    /* update sort indicators in header — arrows via CSS data-dir, no text pollution */
     document.querySelectorAll("#pt-head [data-sort]").forEach(function(th){
       var col=th.dataset.sort;
       var base=SORT_LABELS[col]||col;
-      var savedRet=th.querySelector(".pt-ret-toggle"); /* preserve returns toggle btn */
-      var savedSig=th.querySelector(".pt-sig-toggle"); /* preserve momentum toggle btn */
-      th.textContent=base+(col===sortCol?(sortDir===-1?" ▼":" ▲"):"");
+      var savedRet=th.querySelector(".pt-ret-toggle");
+      var savedSig=th.querySelector(".pt-sig-toggle");
+      th.textContent=base; /* clean label only */
       if(savedRet) th.appendChild(savedRet);
       if(savedSig) th.appendChild(savedSig);
       th.classList.toggle("pt-sort-active",col===sortCol);
+      if(col===sortCol) th.setAttribute("data-dir",sortDir===-1?"desc":"asc");
+      else th.removeAttribute("data-dir");
     });
 
     var sorted=sortedPort();
