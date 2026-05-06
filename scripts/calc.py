@@ -380,6 +380,67 @@ def upsert_rperf(con: sqlite3.Connection, rows: list[tuple]):
 
 
 # ============================================================
+#  MACRO BANDEAU
+# ============================================================
+
+def _latest_close(con: sqlite3.Connection, ticker: str) -> float | None:
+    """Dernière valeur close connue pour un ticker."""
+    row = con.execute(
+        "SELECT close FROM prices WHERE ticker = ? ORDER BY date DESC LIMIT 1",
+        (ticker,),
+    ).fetchone()
+    return row[0] if row else None
+
+
+def _sp500_pe(con: sqlite3.Connection) -> float | None:
+    """P/E S&P 500 — lit la dernière valeur connue dans macro_bandeau."""
+    row = con.execute(
+        "SELECT sp500_pe FROM macro_bandeau ORDER BY ts DESC LIMIT 1"
+    ).fetchone()
+    return row[0] if row else None
+
+
+def update_macro_bandeau(con: sqlite3.Connection):
+    """
+    Calcule et insère une ligne dans macro_bandeau.
+    Appelé en fin de main() après que fetch_prices.py a déjà peuplé prices
+    pour ^VIX, ^TNX, ^IRX et DX-Y.NYB.
+    """
+    vix   = _latest_close(con, "^VIX")
+    us10y = _latest_close(con, "^TNX")
+    us3m  = _latest_close(con, "^IRX")
+    dxy   = _latest_close(con, "DX-Y.NYB")
+
+    yield_curve = None
+    if us10y is not None and us3m is not None:
+        yield_curve = round(us10y - us3m, 4)
+
+    sp500_pe     = _sp500_pe(con)
+    erp          = None
+    earnings_yld = None
+    if sp500_pe and us10y:
+        earnings_yld = round(1.0 / sp500_pe, 6)
+        erp          = round(earnings_yld - (us10y / 100), 6)
+
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    con.execute(
+        """
+        INSERT INTO macro_bandeau
+            (ts, vix, us10y, us3m, dxy, erp, yield_curve, sp500_pe, sp500_earnings_yield)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (ts, vix, us10y, us3m, dxy, erp, yield_curve, sp500_pe, earnings_yld),
+    )
+    con.commit()
+    log.info(
+        "macro_bandeau — VIX=%.2f | US10Y=%.2f%% | US3M=%.2f%% | DXY=%.2f | curve=%s",
+        vix or 0, us10y or 0, us3m or 0, dxy or 0,
+        f"{yield_curve:+.4f}" if yield_curve is not None else "N/A",
+    )
+
+
+# ============================================================
 #  HELPERS
 # ============================================================
 
@@ -465,6 +526,10 @@ def main():
         upsert_rperf(con, rperf_rows)
 
     con.commit()
+
+    # ── Macro bandeau (lit les closes déjà en base depuis fetch_prices.py) ──
+    update_macro_bandeau(con)
+
     con.close()
 
     log.info(

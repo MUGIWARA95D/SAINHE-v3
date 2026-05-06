@@ -158,9 +158,6 @@ jobs:
       - name: Fetch Prices
         run: python scripts/fetch_prices.py
 
-      - name: Fetch Indices
-        run: python scripts/fetch_indices.py
-
       - name: Fetch News
         run: python scripts/fetch_news.py
 
