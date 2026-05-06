@@ -277,7 +277,8 @@
       chgTd.style.fontWeight="600";
       chgTd.className=(p.chg_pct||0)>=0?"p-up":"p-dn";
 
-      /* col 6 — returns toggle placeholder (no td, th-only column) */
+      /* col 6 — toggle placeholder (empty td to match th) */
+      tr.appendChild(document.createElement("td"));
 
       /* col 7-9 — 1M / 3M / 1Y (collapsible) */
       [p.ret_1m,p.ret_3m,p.ret_1y].forEach(function(v){
