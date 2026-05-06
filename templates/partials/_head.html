@@ -510,17 +510,22 @@ a.news-hl:hover{color:var(--gold)}
   .section-lbl em{font-size:11px}
   .section-num{font-size:10px;padding:4px 10px}
 
-  /* Cards */
-  .card-h{padding:14px 16px}
+  /* [1] Cards — titre + badge wrappent si trop long */
+  .card-h{padding:14px 16px;flex-wrap:wrap;gap:6px}
   .card-t{font-size:13px}
+  .box-ts{font-size:9px}
 
-  /* Tables — scroll horizontal au lieu de déborder */
+  /* [2] Tables — scroll horizontal; min-width réduit */
   #box-indices,#box-portfolio{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  #box-indices table,#box-portfolio table{min-width:520px;font-size:11px}
+  #box-indices table{min-width:460px;font-size:11px}
+  #box-portfolio table{min-width:520px;font-size:11px}
+  /* quand les deux groupes sont repliés (état par défaut) : 7 cols → 380px suffit */
+  #pt-table.pt-ret-collapsed.pt-sig-collapsed{min-width:380px}
   #box-indices th,#box-indices td,#box-portfolio th,#box-portfolio td{padding:5px 7px}
 
-  /* Box news & sectors — hauteur réduite */
-  #box-macro,#box-news,#box-sectors{height:380px}
+  /* [3] Box news & sectors hauteur réduite — macro laissé auto (4 cards empilées = 520px) */
+  #box-news,#box-sectors{height:380px}
+  #box-macro{height:auto}
 
   /* Sector grid — 1 colonne */
   .sector-grid{grid-template-columns:1fr;padding:8px 10px}
@@ -529,9 +534,19 @@ a.news-hl:hover{color:var(--gold)}
   .macro-grid{padding:8px 10px}
   .mc-val{font-size:24px!important}
 
-  /* Tabs */
-  .tab{padding:7px 2px;font-size:10px}
-  .ptab{padding:6px 2px;font-size:9.5px}
+  /* [4] Tabs — scroll horizontal propre, cibles tactiles 36px */
+  .tabs,.ptabs{overflow-x:auto;-webkit-overflow-scrolling:touch;
+    flex-wrap:nowrap;gap:4px;padding-bottom:4px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar,.ptabs::-webkit-scrollbar{display:none}
+  .tab,.ptab{min-height:36px;white-space:nowrap;flex-shrink:0;
+    display:inline-flex;align-items:center;justify-content:center}
+
+  /* [5] Portfolio Pulse — 4 cols serrées → 2×2 grid */
+  #pt-pulse{flex-wrap:wrap}
+  .pt-pulse-col{flex:0 0 50%;min-width:0;
+    border-right:none;border-bottom:1px solid var(--border-lt)}
+  .pt-pulse-col:nth-child(odd){border-right:1px solid var(--border-lt)}
+  .pt-pulse-col:nth-child(3),.pt-pulse-col:nth-child(4){border-bottom:none}
 
   /* Pipeline */
   .pipeline{font-size:10px;gap:6px;padding:14px 0;letter-spacing:1px}
