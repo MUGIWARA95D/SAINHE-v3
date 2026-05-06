@@ -13,19 +13,19 @@
   <div style="overflow-x:auto">
     <table id="pt-table">
       <thead><tr id="pt-head">
-        <th>Category</th>
+        <th data-sort="secteur">Category</th>
         <th data-sort="ticker">Ticker</th>
         <th></th>
-        <th>Price</th>
+        <th data-sort="close">Price</th>
         <th data-sort="chg_pct" style="white-space:nowrap">Today&thinsp;<span id="pt-ret-btn" class="pt-ret-toggle" title="Toggle 1M · 3M · 1Y">▸</span></th>
         <th class="pt-ret" data-sort="ret_1m">1M</th>
-        <th class="pt-ret">3M</th>
+        <th class="pt-ret" data-sort="ret_3m">3M</th>
         <th class="pt-ret" data-sort="ret_1y">1Y</th>
         <th data-sort="score">Score</th>
         <th style="white-space:nowrap">Momentum&thinsp;<span id="pt-sig-btn" class="pt-sig-toggle" title="Toggle MFI · RVOL · DMA200">▸</span></th>
         <th class="pt-sig" data-sort="mfi">MFI</th>
         <th class="pt-sig" data-sort="rvol">RVOL</th>
-        <th class="pt-sig">DMA200</th>
+        <th class="pt-sig" data-sort="above_dma200">DMA200</th>
       </tr></thead>
       <tbody id="ptb"></tbody>
     </table>
@@ -69,14 +69,23 @@
   }
 
   /* ── sort state ─────────────────────────────────────────── */
-  const SORT_LABELS={ticker:"Ticker",chg_pct:"Today",ret_1m:"1M",ret_1y:"1Y",score:"Score",mfi:"MFI",rvol:"RVOL"};
+  const SORT_LABELS={
+    secteur:"Category", ticker:"Ticker", close:"Price",
+    chg_pct:"Today", ret_1m:"1M", ret_3m:"3M", ret_1y:"1Y",
+    score:"Score", mfi:"MFI", rvol:"RVOL", above_dma200:"DMA200"
+  };
   let sortCol="score", sortDir=-1; /* default: score descending */
 
   function sortedPort(){
     return PORT.slice().sort(function(a,b){
-      var va=sortCol==="ticker"?(a.ticker||""):(a[sortCol]==null?-Infinity:a[sortCol]);
-      var vb=sortCol==="ticker"?(b.ticker||""):(b[sortCol]==null?-Infinity:b[sortCol]);
-      if(typeof va==="string") return sortDir*va.localeCompare(vb);
+      var va=a[sortCol], vb=b[sortCol];
+      /* string columns */
+      if(typeof va==="string"||typeof vb==="string")
+        return sortDir*(va||"").localeCompare(vb||"");
+      /* nulls always to the bottom, regardless of direction */
+      if(va==null&&vb==null) return 0;
+      if(va==null) return 1;
+      if(vb==null) return -1;
       return sortDir*(va<vb?-1:va>vb?1:0);
     });
   }
