@@ -212,23 +212,18 @@
     v3.appendChild(mk("span",null," · ")).style.color="var(--faint)";
     var sd=v3.appendChild(mk("span",null,dn+" ↓")); sd.style.color="var(--red)";
 
-    /* col 4 — data age distribution */
-    var nFresh=0,nOk=0,nStale=0,nOld=0;
+    /* col 4 — last fetch age (most recent ts_update) */
+    var latestTs=null;
     PORT.forEach(function(p){
-      var si=staleInfo(p.ts_update);
-      if(si.cls==="ts-fresh")nFresh++;else if(si.cls==="ts-ok")nOk++;
-      else if(si.cls==="ts-stale")nStale++;else nOld++;
+      if(p.ts_update&&(!latestTs||new Date(p.ts_update)>new Date(latestTs))) latestTs=p.ts_update;
     });
+    var si=staleInfo(latestTs);
+    var ageColor=si.cls==="ts-fresh"?"#2C7A3E":si.cls==="ts-ok"?"#B06A18":si.cls==="ts-stale"?"#A03020":"#7A0A18";
     var c4=el.appendChild(document.createElement("div")); c4.className="pt-pulse-col";
-    c4.appendChild(mk("div","pt-pulse-lbl","Data Age"));
-    var v4=c4.appendChild(document.createElement("div")); v4.className="pt-pulse-val";
-    var ageParts=[];
-    if(nFresh){var s=mk("span",null,nFresh+" fresh");s.style.color="var(--green)";ageParts.push(s);}
-    if(nOk){var s=mk("span",null,nOk+" ok");s.style.color="var(--gold)";ageParts.push(s);}
-    if(nStale){var s=mk("span",null,nStale+" stale");s.style.color="var(--red)";ageParts.push(s);}
-    if(nOld){var s=mk("span",null,nOld+" old");s.style.cssText="color:var(--red);font-weight:900";ageParts.push(s);}
-    if(!ageParts.length){v4.appendChild(mk("span",null,"—")).style.color="var(--muted)";}
-    else ageParts.forEach(function(s,i){v4.appendChild(s);if(i<ageParts.length-1)v4.appendChild(mk("span",null," · ")).style.color="var(--faint)";});
+    c4.appendChild(mk("div","pt-pulse-lbl","Last Fetch"));
+    var v4=c4.appendChild(mk("div","pt-pulse-val",si.label));
+    v4.style.color=ageColor;
+    if(si.cls==="ts-old") v4.style.fontWeight="900";
   }
 
   /* ── main table render ──────────────────────────────────── */
