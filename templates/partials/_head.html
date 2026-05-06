@@ -834,7 +834,9 @@ a.news-hl:hover{color:var(--gold)}
   /* Currency prefix symbol */
   window.fxSymbol = function(){
     var c = window.SAINHE_CUR || 'USD';
-    return c==='EUR' ? '€ ' : c==='HKD' ? 'HK$ ' : '';
+    if(c === 'EUR') return '€ ';
+    if(c === 'HKD') return 'HK$ ';
+    return '$ ';  /* USD — toujours affiché pour distinguer des indicateurs */
   };
 
   /* Called by the header dropdown — updates state and re-renders price boxes */
