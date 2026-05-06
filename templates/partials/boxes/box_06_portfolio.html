@@ -233,7 +233,9 @@
     document.querySelectorAll("#pt-head [data-sort]").forEach(function(th){
       var col=th.dataset.sort;
       var base=SORT_LABELS[col]||col;
+      var saved=th.querySelector(".pt-ret-toggle"); /* preserve toggle btn if present */
       th.textContent=base+(col===sortCol?(sortDir===-1?" ▼":" ▲"):"");
+      if(saved) th.appendChild(saved);
       th.classList.toggle("pt-sort-active",col===sortCol);
     });
 
