@@ -35,75 +35,94 @@
   const REGIONS = {{ box_indices.par_region | tojson }};
   const ORDER   = ["USA","EU","ASIE","GLOBAL"];
   const tb      = document.getElementById("idx-tb");
-  let h = "", all = [];
 
-  ORDER.forEach(region => {
-    const items = REGIONS[region] || [];
-    if (!items.length) return;
-    h += `<tr><td colspan="6" style="padding:4px 10px 2px;font-size:9.5px;color:var(--muted);
-      letter-spacing:.6px;text-transform:uppercase;background:var(--bg2);
-      border-bottom:1px solid var(--border)">${esc(region)}</td></tr>`;
-    items.forEach((x, i) => {
-      const uid = region + "_" + i;
-      all.push({uid, x});
-      const chg = x.chg_pct || 0;
-      const rv  = x.rvol;
-      const c   = chg >= 0 ? "p-up" : "p-dn";
-      const s   = chg >= 0 ? "+" : "";
-      // RVOL display
-      const rvTxt = rv != null ? rv.toFixed(2) : "—";
-      const rvCls = rv != null && rv > 1.2 ? "rvol-hot" : "";
-      // SMB signal: chg_pct × RVOL (original logic)
-      let sm = "—", sc = "";
-      if (x.chg_pct != null && rv != null) {
-        if (chg > 0  && rv > 1.2) { sm="ACCUMULATION"; sc="smb-acc";  }
-        else if (chg > 0  && rv < 0.8) { sm="WEAK RALLY";   sc="smb-weak"; }
-        else if (chg < 0  && rv > 1.2) { sm="DISTRIBUTION"; sc="smb-dist"; }
-        else if (chg < 0  && rv < 0.8) { sm="THIN SLIDE";   sc="smb-thin"; }
-        else                           { sm="NEUTRAL";      sc="smb-neut"; }
-      } else if (x.chg_pct != null) {
-        sm = chg > 0 ? "RISING" : chg < 0 ? "FALLING" : "FLAT"; sc = "smb-neut";
-      }
-      const st = staleInfo(x.ts_update);
-      h += `<tr>
-        <td>
-          <strong style="color:var(--h)">${esc(x.nom)}</strong><br>
-          <span style="font-size:10px;color:var(--muted)">${esc(x.ticker)}</span><br>
-          <span class="ts-wrap ${st.cls}"><span class="ts-dot"></span><span class="ts-age">${st.label}</span></span>
-        </td>
-        <td><canvas class="idx-spark" id="isp_${esc(uid)}" width="56" height="22"></canvas></td>
-        <td style="font-variant-numeric:tabular-nums">${fmt(x.close)}</td>
-        <td class="${c}" style="font-weight:600">${s}${Math.abs(chg).toFixed(2)}%</td>
-        <td style="font-variant-numeric:tabular-nums"><span class="${rvCls}">${esc(rvTxt)}</span></td>
-        <td>${sc ? `<span class="smb ${sc}">${sm}</span>` : esc(sm)}</td>
-      </tr>`;
+  /* sparkline registry — destroyed before each re-render */
+  var idxSparks = {};
+
+  function renderIndices(){
+    Object.values(idxSparks).forEach(function(c){ try{ c.destroy(); }catch(e){} });
+    Object.keys(idxSparks).forEach(function(k){ delete idxSparks[k]; });
+
+    let h = "", all = [];
+
+    ORDER.forEach(region => {
+      const items = REGIONS[region] || [];
+      if (!items.length) return;
+      h += `<tr><td colspan="6" style="padding:4px 10px 2px;font-size:9.5px;color:var(--muted);
+        letter-spacing:.6px;text-transform:uppercase;background:var(--bg2);
+        border-bottom:1px solid var(--border)">${esc(region)}</td></tr>`;
+      items.forEach((x, i) => {
+        const uid = region + "_" + i;
+        all.push({uid, x});
+        const chg = x.chg_pct || 0;
+        const rv  = x.rvol;
+        const c   = chg >= 0 ? "p-up" : "p-dn";
+        const s   = chg >= 0 ? "+" : "";
+        const rvTxt = rv != null ? rv.toFixed(2) : "—";
+        const rvCls = rv != null && rv > 1.2 ? "rvol-hot" : "";
+
+        /* Prix : conversion client-side si convertible (S&P, CAC, DAX…) */
+        const priceTxt = x.convertible
+          ? (window.fxSymbol() + window.fxFmt(x.close, x.native_devise))
+          : fmt(x.close);   /* VIX, DXY, TNX, IRX → afficher tel quel */
+
+        let sm = "—", sc = "";
+        if (x.chg_pct != null && rv != null) {
+          if (chg > 0  && rv > 1.2) { sm="ACCUMULATION"; sc="smb-acc";  }
+          else if (chg > 0  && rv < 0.8) { sm="WEAK RALLY";   sc="smb-weak"; }
+          else if (chg < 0  && rv > 1.2) { sm="DISTRIBUTION"; sc="smb-dist"; }
+          else if (chg < 0  && rv < 0.8) { sm="THIN SLIDE";   sc="smb-thin"; }
+          else                           { sm="NEUTRAL";      sc="smb-neut"; }
+        } else if (x.chg_pct != null) {
+          sm = chg > 0 ? "RISING" : chg < 0 ? "FALLING" : "FLAT"; sc = "smb-neut";
+        }
+        const st = staleInfo(x.ts_update);
+        h += `<tr>
+          <td>
+            <strong style="color:var(--h)">${esc(x.nom)}</strong><br>
+            <span style="font-size:10px;color:var(--muted)">${esc(x.ticker)}</span><br>
+            <span class="ts-wrap ${st.cls}"><span class="ts-dot"></span><span class="ts-age">${st.label}</span></span>
+          </td>
+          <td><canvas class="idx-spark" id="isp_${esc(uid)}" width="56" height="22"></canvas></td>
+          <td style="font-variant-numeric:tabular-nums">${priceTxt}</td>
+          <td class="${c}" style="font-weight:600">${s}${Math.abs(chg).toFixed(2)}%</td>
+          <td style="font-variant-numeric:tabular-nums"><span class="${rvCls}">${esc(rvTxt)}</span></td>
+          <td>${sc ? `<span class="smb ${sc}">${sm}</span>` : esc(sm)}</td>
+        </tr>`;
+      });
     });
-  });
 
-  tb.innerHTML = h || `<tr><td colspan="6" style="padding:20px;color:var(--muted);text-align:center">No data</td></tr>`;
+    tb.innerHTML = h || `<tr><td colspan="6" style="padding:20px;color:var(--muted);text-align:center">No data</td></tr>`;
 
-  all.forEach(({uid, x}) => {
-    const cv  = document.getElementById("isp_" + uid);
-    if (!cv) return;
-    let raw = [];
-    try { if(x.sparkline) raw = JSON.parse(x.sparkline); } catch(e) {}
-    if (!raw.length) return;
-    miniChart(cv, raw, (x.chg_pct||0)>=0 ? "rgb(44,122,62)" : "rgb(160,48,32)", false);
-  });
+    all.forEach(({uid, x}) => {
+      const cv = document.getElementById("isp_" + uid);
+      if (!cv) return;
+      let raw = [];
+      try { if(x.sparkline) raw = JSON.parse(x.sparkline); } catch(e) {}
+      if (!raw.length) return;
+      const ch = miniChart(cv, raw, (x.chg_pct||0)>=0 ? "rgb(44,122,62)" : "rgb(160,48,32)", false);
+      if(ch) idxSparks["isp_" + uid] = ch;
+    });
 
-  const flat = ORDER.flatMap(r => REGIONS[r] || []);
-  const vix  = flat.find(x => x.ticker === "^VIX");
-  const dxy  = flat.find(x => x.ticker === "DX-Y.NYB");
-  let hub = "";
-  if (vix && vix.close != null) {
-    const reg = vix.close < 15 ? "Complacency" : vix.close > 30 ? "Panic" : "Normal";
-    hub += `<span><strong>VIX:</strong> ${fmt(vix.close)} — ${reg}</span>`;
+    /* Hub VIX + DXY — toujours en valeur native (indicateurs dimensionnels) */
+    const flat = ORDER.flatMap(r => REGIONS[r] || []);
+    const vix  = flat.find(x => x.ticker === "^VIX");
+    const dxy  = flat.find(x => x.ticker === "DX-Y.NYB");
+    let hub = "";
+    if (vix && vix.close != null) {
+      const reg = vix.close < 15 ? "Complacency" : vix.close > 30 ? "Panic" : "Normal";
+      hub += `<span><strong>VIX:</strong> ${fmt(vix.close)} — ${reg}</span>`;
+    }
+    if (dxy && dxy.close != null) {
+      const sp = (dxy.chg_pct||0) >= 0 ? "+" : "";
+      const tr = (dxy.chg_pct||0) > 0 ? "Bearish pressure on equities" : "Supportive for equities";
+      hub += `<span><strong>DXY:</strong> ${fmt(dxy.close)} (${sp}${(dxy.chg_pct||0).toFixed(2)}%) — ${tr}</span>`;
+    }
+    document.getElementById("shub").innerHTML = hub;
   }
-  if (dxy && dxy.close != null) {
-    const sp = (dxy.chg_pct||0) >= 0 ? "+" : "";
-    const tr = (dxy.chg_pct||0) > 0 ? "Bearish pressure on equities" : "Supportive for equities";
-    hub += `<span><strong>DXY:</strong> ${fmt(dxy.close)} (${sp}${(dxy.chg_pct||0).toFixed(2)}%) — ${tr}</span>`;
-  }
-  document.getElementById("shub").innerHTML = hub;
+
+  /* expose pour le switcher de devise */
+  window._sainheRenderIndices = renderIndices;
+  renderIndices();
 })();
 </script>

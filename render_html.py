@@ -82,6 +82,22 @@ def load_boxes(con: sqlite3.Connection, lang: str, currency: str) -> list[dict]:
 #  RENDER
 # ============================================================
 
+def _get_fx_rates(con: sqlite3.Connection) -> dict:
+    """Retourne {USD:1.0, EUR:rate, HKD:rate} pour injection JS côté client."""
+    rows = con.execute(
+        "SELECT pair, rate FROM fx_rates ORDER BY ts DESC"
+    ).fetchall()
+    seen: dict[str, float] = {}
+    for pair, rate in rows:
+        if pair not in seen:
+            seen[pair] = rate
+    return {
+        "USD": 1.0,
+        "EUR": round(seen.get("USD_EUR", 0.9200), 6),
+        "HKD": round(seen.get("USD_HKD", 7.8200), 6),
+    }
+
+
 def _box_timestamps(con: sqlite3.Connection) -> dict:
     """Retourne le dernier timestamp de mise à jour pour chaque box."""
     cur = con.cursor()
@@ -160,6 +176,7 @@ def render(lang: str = DEFAULT_LANGUAGE, currency: str = DEFAULT_CURRENCY):
     con   = sqlite3.connect(DB_PATH)
     boxes = load_boxes(con, lang, currency)
     ts_map = _box_timestamps(con)
+    fx_rates_js = _get_fx_rates(con)
     con.close()
 
     # Index par id pour accès direct dans le template
@@ -179,6 +196,7 @@ def render(lang: str = DEFAULT_LANGUAGE, currency: str = DEFAULT_CURRENCY):
         "languages"   : LANGUAGES,
         "currencies"  : CURRENCIES,
         "ts_render"   : ts_render,
+        "fx_rates_js" : fx_rates_js,   # taux FX injectés côté client pour la conversion live
     }
 
     env = Environment(loader=FileSystemLoader(str(TEMPLATE_DIR)), autoescape=True)

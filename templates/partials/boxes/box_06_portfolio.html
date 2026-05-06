@@ -5,7 +5,7 @@
     <span class="card-t">Portfolio Signal Table</span>
     <div style="display:flex;align-items:center;gap:10px">
       <span class="box-ts">Updated {{ ts_portfolio }}</span>
-      <span class="badge badge-green">{{ box_portfolio.total }} tickers &middot; {{ box_portfolio.currency }}</span>
+      <span class="badge badge-green" id="pt-cur-badge">{{ box_portfolio.total }} tickers &middot; <span id="pt-cur-label">{{ box_portfolio.currency }}</span></span>
     </div>
   </div>
   <div id="pt-anomalies"></div>
@@ -35,6 +35,9 @@
 (function(){
   const PORT = {{ box_portfolio.tickers | tojson }};
   const tb   = document.getElementById("ptb");
+
+  /* sparkline registry — destroyed before re-render */
+  var ptSparks = {};
 
   /* ── helpers ────────────────────────────────────────────── */
   function mk(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!=null)el.textContent=txt;return el;}
@@ -236,6 +239,9 @@
 
   /* ── main table render ──────────────────────────────────── */
   function renderTable(){
+    /* destroy old sparkline instances before clearing DOM */
+    Object.values(ptSparks).forEach(function(c){ try{ c.destroy(); }catch(e){} });
+    Object.keys(ptSparks).forEach(function(k){ delete ptSparks[k]; });
     closeExpand();
 
     /* update sort indicators in header — arrows via CSS data-dir, no text pollution */
@@ -283,8 +289,9 @@
       cv.id="psp_"+p.ticker.replace(/\W/g,"_");
       cv.width=56; cv.height=22; cv.className="idx-spark";
 
-      /* col 4 — price */
-      tr.appendChild(mk("td",null,fmt(p.close))).style.fontVariantNumeric="tabular-nums";
+      /* col 4 — price (converted to current display currency) */
+      var priceTd = tr.appendChild(mk("td", null, window.fxSymbol() + window.fxFmt(p.close, p.native_devise||'USD')));
+      priceTd.style.fontVariantNumeric = "tabular-nums";
 
       /* col 5 — today % */
       var chgTd=tr.appendChild(mk("td",null,pct(p.chg_pct)));
@@ -344,7 +351,8 @@
       var raw=[];
       try{if(p.sparkline) raw=JSON.parse(p.sparkline);}catch(e){}
       if(!raw.length) return;
-      miniChart(cv,raw,(p.chg_pct||0)>=0?"rgb(44,122,62)":"rgb(160,48,32)",false);
+      var ch=miniChart(cv,raw,(p.chg_pct||0)>=0?"rgb(44,122,62)":"rgb(160,48,32)",false);
+      if(ch) ptSparks[cv.id]=ch;
     });
   }
 
@@ -381,6 +389,14 @@
       sigBtn.textContent=sigCollapsed?"▸":"▾";
     });
   }
+
+  /* ── expose pour le switcher de devise ─────────────────── */
+  window._sainheRenderPortfolio = function(){
+    renderTable();
+    /* restore collapsed state after re-render */
+    if(retCollapsed) ptTable.classList.add("pt-ret-collapsed");
+    if(sigCollapsed) ptTable.classList.add("pt-sig-collapsed");
+  };
 
   /* ── init ───────────────────────────────────────────────── */
   renderAnomalies();

@@ -3,7 +3,6 @@ box_06_portfolio.py — Scanner watchlist personnelle.
 """
 
 import sqlite3
-from boxes._base import get_fx_rates, convert
 
 # ══════════════════════════════════════════════════════════════
 # ── 1. META
@@ -45,6 +44,7 @@ def _fetch_watchlist(con: sqlite3.Connection) -> list[dict]:
             s.ticker,
             ti.nom,
             ti.secteur,
+            ti.devise,
             s.close,
             s.chg_pct,
             s.ret_1m,
@@ -71,7 +71,7 @@ def _fetch_watchlist(con: sqlite3.Connection) -> list[dict]:
     ).fetchall()
 
     cols = [
-        "ticker", "nom", "secteur",
+        "ticker", "nom", "secteur", "devise",
         "close", "chg_pct",
         "ret_1m", "ret_3m", "ret_6m", "ret_1y",
         "score",
@@ -115,7 +115,6 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
       }
     }
     """
-    fx    = get_fx_rates(con)
     items = _fetch_watchlist(con)
 
     # Tri
@@ -127,18 +126,16 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
 
     tickers_out = []
     for item in items_sorted:
-        close     = convert(item["close"], currency, fx)
-        dma_50    = convert(item["dma_50"], currency, fx)
-        dma_200   = convert(item["dma_200"], currency, fx)
-        signal    = _compute_signal(item)
+        signal = _compute_signal(item)
 
         tickers_out.append({
             "ticker"         : item["ticker"],
             "nom"            : item["nom"],
             "secteur"        : item["secteur"],
-            "close"          : round(close, 2)   if close   is not None else None,
-            "dma_50"         : round(dma_50, 2)  if dma_50  is not None else None,
-            "dma_200"        : round(dma_200, 2) if dma_200 is not None else None,
+            "native_devise"  : item["devise"] or "USD",  # devise native pour fxFmt côté client
+            "close"          : round(item["close"], 2)   if item["close"]   is not None else None,
+            "dma_50"         : round(item["dma_50"], 2)  if item["dma_50"]  is not None else None,
+            "dma_200"        : round(item["dma_200"], 2) if item["dma_200"] is not None else None,
             "chg_pct"        : item["chg_pct"],
             "ret_1m"         : item["ret_1m"],
             "ret_3m"         : item["ret_3m"],

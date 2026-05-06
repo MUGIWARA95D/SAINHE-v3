@@ -7,7 +7,6 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from config import INDICES
-from boxes._base import get_fx_rates, convert
 
 # ══════════════════════════════════════════════════════════════
 # ── 1. META
@@ -85,7 +84,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
       "meta": META,
       "data": {
         "par_region": {
-          "USA":   [ {ticker, nom, close, chg_pct, ret_1m, ret_1y, sparkline_json, ...}, ... ],
+          "USA":   [ {ticker, nom, close, native_devise, convertible, chg_pct, ...}, ... ],
           "EU":    [ ... ],
           "ASIE":  [ ... ],
           "GLOBAL":[ ... ],
@@ -93,13 +92,12 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
         "total": int,
       }
     }
-    Note : close est converti dans la devise d'affichage (currency).
-    Les indices de taux (^TNX, ^IRX) et VIX ne sont PAS convertis.
+    Note : pas de conversion server-side — le JS client utilise fxFmt(close, native_devise).
+    Les tickers de taux/volatilité ont convertible=False (VIX, TNX, IRX, DXY).
     """
-    fx      = get_fx_rates(con)
     indices = _fetch_indices(con)
 
-    # Tickers dont le close ne doit PAS être converti (taux / volatilité)
+    # Ces tickers sont des taux / indices dimensionnels — ne pas convertir côté client
     NO_CONVERT = {"^TNX", "^IRX", "^VIX", "DX-Y.NYB"}
 
     par_region: dict[str, list] = {r: [] for r in REGIONS_ORDRE}
@@ -109,24 +107,21 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
         if region not in par_region:
             par_region[region] = []
 
-        close = idx["close"]
-        if idx["ticker"] not in NO_CONVERT:
-            close = convert(close, currency, fx)
-
         par_region[region].append({
-            "ticker"      : idx["ticker"],
-            "nom"         : idx["nom"],
-            "close"       : round(close, 2) if close is not None else None,
-            "devise"      : currency if idx["ticker"] not in NO_CONVERT else idx["devise"],
-            "chg_pct"     : idx["chg_pct"],
-            "ret_1m"      : idx["ret_1m"],
-            "ret_1y"      : idx["ret_1y"],
-            "dma_200"     : idx["dma_200"],
-            "above_dma200": idx["above_dma200"],
-            "rvol"        : idx["rvol"],
-            "sparkline"   : idx["sparkline_json"],
-            "heures_cet"  : INDICES.get(idx["ticker"], {}).get("heures_cet"),
-            "ts_update"   : idx["ts_update"],
+            "ticker"       : idx["ticker"],
+            "nom"          : idx["nom"],
+            "close"        : round(idx["close"], 2) if idx["close"] is not None else None,
+            "native_devise": idx["devise"],                          # USD, EUR, JPY…
+            "convertible"  : idx["ticker"] not in NO_CONVERT,       # False → afficher tel quel
+            "chg_pct"      : idx["chg_pct"],
+            "ret_1m"       : idx["ret_1m"],
+            "ret_1y"       : idx["ret_1y"],
+            "dma_200"      : idx["dma_200"],
+            "above_dma200" : idx["above_dma200"],
+            "rvol"         : idx["rvol"],
+            "sparkline"    : idx["sparkline_json"],
+            "heures_cet"   : INDICES.get(idx["ticker"], {}).get("heures_cet"),
+            "ts_update"    : idx["ts_update"],
         })
 
     return {

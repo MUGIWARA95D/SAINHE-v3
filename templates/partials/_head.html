@@ -789,6 +789,71 @@ a.news-hl:hover{color:var(--gold)}
   transition:all .15s}
 .mm-tip-wiki:hover{background:rgba(122,92,26,.16);border-color:rgba(122,92,26,.5)}
 {% endraw %}</style>
+  <!-- FX / Currency System — injected at render time, applied client-side -->
+  <script>
+  window.SAINHE_FX  = {{ fx_rates_js | tojson }};
+  window.SAINHE_CUR = localStorage.getItem('sainhe_currency') || 'USD';
+
+  /* Convert amount from native_devise → current display currency.
+     Returns null for unknown devises (GBP, JPY…) — caller falls back to raw. */
+  window.fxConvert = function(amount, native_devise){
+    if(amount == null) return null;
+    var fx = window.SAINHE_FX, cur = window.SAINHE_CUR || 'USD';
+    var usd;
+    if     (native_devise === 'USD') usd = amount;
+    else if(native_devise === 'EUR') usd = amount / fx.EUR;
+    else if(native_devise === 'HKD') usd = amount / fx.HKD;
+    else return null;
+    return usd * (fx[cur] !== undefined ? fx[cur] : 1.0);
+  };
+
+  /* Format a price with conversion; shows raw value if devise unknown */
+  window.fxFmt = function(amount, native_devise){
+    var val = window.fxConvert(amount, native_devise);
+    if(val == null)
+      return amount != null
+        ? amount.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})
+        : '—';
+    return val.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+  };
+
+  /* Currency prefix symbol */
+  window.fxSymbol = function(){
+    var c = window.SAINHE_CUR || 'USD';
+    return c==='EUR' ? '€ ' : c==='HKD' ? 'HK$ ' : '';
+  };
+
+  /* Called by the header dropdown — updates state and re-renders price boxes */
+  window._sainheSetCurrency = function(c){
+    if(['USD','EUR','HKD'].indexOf(c) < 0) return;
+    window.SAINHE_CUR = c;
+    localStorage.setItem('sainhe_currency', c);
+    var btn = document.getElementById('dd-cur-btn');
+    if(btn){ var t = btn.childNodes[0]; if(t && t.nodeType===3) t.nodeValue = c; }
+    document.querySelectorAll('#dd-cur .hdr-dd-item').forEach(function(el){
+      el.classList.toggle('active', el.dataset.cur === c);
+    });
+    var lbl = document.getElementById('pt-cur-label');
+    if(lbl) lbl.textContent = c;
+    if(window._sainheRenderIndices)   window._sainheRenderIndices();
+    if(window._sainheRenderPortfolio) window._sainheRenderPortfolio();
+  };
+
+  /* On load: restore header button label if a non-USD currency was saved */
+  document.addEventListener('DOMContentLoaded', function(){
+    var saved = localStorage.getItem('sainhe_currency');
+    if(saved && saved !== 'USD'){
+      var btn = document.getElementById('dd-cur-btn');
+      if(btn){ var t = btn.childNodes[0]; if(t && t.nodeType===3) t.nodeValue = saved; }
+      document.querySelectorAll('#dd-cur .hdr-dd-item').forEach(function(el){
+        el.classList.toggle('active', el.dataset.cur === saved);
+      });
+      var lbl = document.getElementById('pt-cur-label');
+      if(lbl) lbl.textContent = saved;
+    }
+  });
+  </script>
+
   <!-- miniChart — shared sparkline helper (used by box_02, box_03, box_06) -->
   <script>
   function miniChart(cv, data, color, fill){

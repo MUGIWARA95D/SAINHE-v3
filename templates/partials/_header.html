@@ -34,7 +34,8 @@
     <div class="hdr-dd-menu">
       {% for c in currencies %}
       <div class="hdr-dd-item{% if c == currency %} active{% endif %}"
-           onclick="window.location.href='?lang={{ lang }}&amp;currency={{ c }}'">{{ c }}</div>
+           data-cur="{{ c }}"
+           onclick="window._sainheSetCurrency('{{ c }}')">{{ c }}</div>
       {% endfor %}
     </div>
   </div>
