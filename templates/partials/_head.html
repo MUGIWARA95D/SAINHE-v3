@@ -681,10 +681,10 @@ a.news-hl:hover{color:var(--gold)}
 #box-portfolio th[data-sort]{cursor:pointer;user-select:none;white-space:nowrap}
 #box-portfolio th[data-sort]:hover{color:var(--h)}
 #box-portfolio th.pt-sort-active{color:var(--gold)}
-/* sort arrows — pure CSS, no JS text pollution */
-#box-portfolio thead th[data-sort]::after{content:" ↕";opacity:.18;font-size:8px;font-weight:400}
-#box-portfolio thead th[data-dir="desc"]::after{content:" ↓";opacity:1;color:var(--gold);font-size:9px}
-#box-portfolio thead th[data-dir="asc"]::after{content:" ↑";opacity:1;color:var(--gold);font-size:9px}
+/* sort arrows — pure CSS, left of label */
+#box-portfolio thead th[data-sort]::before{content:"↕ ";opacity:.42;font-size:9px;font-weight:400}
+#box-portfolio thead th[data-dir="desc"]::before{content:"↓ ";opacity:1;color:var(--gold);font-size:9px;font-weight:700}
+#box-portfolio thead th[data-dir="asc"]::before{content:"↑ ";opacity:1;color:var(--gold);font-size:9px;font-weight:700}
 #box-portfolio td{padding:7px 10px;border-bottom:1px solid var(--border-lt);vertical-align:middle}
 #box-portfolio tr:hover td{background:var(--hover)}
 #box-portfolio tbody tr{cursor:pointer}
