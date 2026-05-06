@@ -17,15 +17,15 @@
         <th data-sort="ticker">Ticker</th>
         <th></th>
         <th>Price</th>
-        <th data-sort="chg_pct" style="white-space:nowrap">Today&thinsp;<span id="pt-ret-btn" class="pt-ret-toggle" title="Toggle 1M · 3M · 1Y">▾</span></th>
+        <th data-sort="chg_pct" style="white-space:nowrap">Today&thinsp;<span id="pt-ret-btn" class="pt-ret-toggle" title="Toggle 1M · 3M · 1Y">▸</span></th>
         <th class="pt-ret" data-sort="ret_1m">1M</th>
         <th class="pt-ret">3M</th>
         <th class="pt-ret" data-sort="ret_1y">1Y</th>
         <th data-sort="score">Score</th>
-        <th>Momentum</th>
-        <th data-sort="mfi">MFI</th>
-        <th data-sort="rvol">RVOL</th>
-        <th>DMA200</th>
+        <th style="white-space:nowrap">Momentum&thinsp;<span id="pt-sig-btn" class="pt-sig-toggle" title="Toggle MFI · RVOL · DMA200">▸</span></th>
+        <th class="pt-sig" data-sort="mfi">MFI</th>
+        <th class="pt-sig" data-sort="rvol">RVOL</th>
+        <th class="pt-sig">DMA200</th>
       </tr></thead>
       <tbody id="ptb"></tbody>
     </table>
@@ -98,7 +98,7 @@
     var panelTr=document.createElement("tr");
     panelTr.className="pt-expand-row";
     var panelTd=panelTr.appendChild(document.createElement("td"));
-    panelTd.colSpan=14; panelTd.className="pt-expand-td";
+    panelTd.colSpan=13; panelTd.className="pt-expand-td";
     var inner=panelTd.appendChild(document.createElement("div"));
     inner.className="pt-expand-inner";
 
@@ -233,9 +233,11 @@
     document.querySelectorAll("#pt-head [data-sort]").forEach(function(th){
       var col=th.dataset.sort;
       var base=SORT_LABELS[col]||col;
-      var saved=th.querySelector(".pt-ret-toggle"); /* preserve toggle btn if present */
+      var savedRet=th.querySelector(".pt-ret-toggle"); /* preserve returns toggle btn */
+      var savedSig=th.querySelector(".pt-sig-toggle"); /* preserve momentum toggle btn */
       th.textContent=base+(col===sortCol?(sortDir===-1?" ▼":" ▲"):"");
-      if(saved) th.appendChild(saved);
+      if(savedRet) th.appendChild(savedRet);
+      if(savedSig) th.appendChild(savedSig);
       th.classList.toggle("pt-sort-active",col===sortCol);
     });
 
@@ -245,7 +247,7 @@
     if(!sorted.length){
       var etr=tb.appendChild(document.createElement("tr"));
       var etd=etr.appendChild(document.createElement("td"));
-      etd.colSpan=14;
+      etd.colSpan=13;
       etd.style.cssText="padding:20px;color:var(--muted);text-align:center";
       etd.textContent="No watchlist data";
       return;
@@ -292,24 +294,24 @@
       /* col 10 — momentum (renamed signal) */
       tr.appendChild(mk("td")).appendChild(mk("span","sig "+sigCls(p.signal),sigLabel(p.signal)));
 
-      /* col 11 — MFI */
-      var mfiTd=tr.appendChild(mk("td"));
+      /* col 11 — MFI (collapsible) */
+      var mfiTd=tr.appendChild(mk("td","pt-sig"));
       if(p.mfi!=null){
         var ms=mk("span",null,Math.round(p.mfi).toString());
         ms.style.cssText="font-weight:600;color:"+(p.mfi>60?"var(--green)":p.mfi<40?"var(--red)":"var(--gold)");
         mfiTd.appendChild(ms);
       } else {mfiTd.textContent="—";mfiTd.style.color="var(--muted)";}
 
-      /* col 12 — RVOL */
-      var rvolTd=tr.appendChild(mk("td"));
+      /* col 12 — RVOL (collapsible) */
+      var rvolTd=tr.appendChild(mk("td","pt-sig"));
       if(p.rvol!=null){
         var rs=mk("span",null,p.rvol.toFixed(2));
         rs.style.cssText=p.rvol>1.2?"font-weight:700;color:var(--gold)":"color:var(--muted)";
         rvolTd.appendChild(rs);
       } else {rvolTd.textContent="—";rvolTd.style.color="var(--muted)";}
 
-      /* col 13 — DMA200 arrow + distance */
-      var dmaTd=tr.appendChild(mk("td"));
+      /* col 13 — DMA200 arrow + distance (collapsible) */
+      var dmaTd=tr.appendChild(mk("td","pt-sig"));
       if(p.above_dma200!=null){
         var upDma=p.above_dma200===1;
         var arr=mk("span",null,upDma?"↑":"↓");
@@ -345,7 +347,7 @@
   });
 
   /* ── returns collapse toggle ────────────────────────────── */
-  var retCollapsed=false;
+  var retCollapsed=true; /* start collapsed */
   var ptTable=document.getElementById("pt-table");
   var retBtn=document.getElementById("pt-ret-btn");
   if(retBtn){
@@ -357,9 +359,24 @@
     });
   }
 
+  /* ── momentum/detail collapse toggle ───────────────────── */
+  var sigCollapsed=true; /* start collapsed */
+  var sigBtn=document.getElementById("pt-sig-btn");
+  if(sigBtn){
+    sigBtn.addEventListener("click",function(e){
+      e.stopPropagation(); /* don't trigger sort */
+      sigCollapsed=!sigCollapsed;
+      ptTable.classList.toggle("pt-sig-collapsed",sigCollapsed);
+      sigBtn.textContent=sigCollapsed?"▸":"▾";
+    });
+  }
+
   /* ── init ───────────────────────────────────────────────── */
   renderAnomalies();
   renderPulse();
   renderTable();
+  /* apply collapsed state after table is rendered */
+  ptTable.classList.add("pt-ret-collapsed");
+  ptTable.classList.add("pt-sig-collapsed");
 })();
 </script>
