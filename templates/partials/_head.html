@@ -713,6 +713,12 @@ a.news-hl:hover{color:var(--gold)}
   color:var(--gold);padding:0 4px;border-radius:3px;user-select:none;line-height:1;vertical-align:middle}
 .pt-sig-toggle:hover{background:var(--gold-bg)}
 #pt-table.pt-sig-collapsed .pt-sig{display:none}
+/* ── Group parent / child visual connectors */
+.pt-ret-parent,.pt-sig-parent{border-bottom:2px solid var(--gold)!important}
+#pt-table.pt-ret-collapsed .pt-ret-parent,
+#pt-table.pt-sig-collapsed .pt-sig-parent{background:rgba(158,122,46,.07)}
+#pt-table:not(.pt-ret-collapsed) thead .pt-ret,
+#pt-table:not(.pt-sig-collapsed) thead .pt-sig{border-top:2px solid var(--gold)}
 /* ── Expansion panel */
 .pt-expand-td{padding:0!important;border-left:3px solid var(--gold)}
 .pt-expand-inner{padding:14px 18px;display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;
