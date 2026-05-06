@@ -17,8 +17,7 @@
         <th data-sort="ticker">Ticker</th>
         <th></th>
         <th>Price</th>
-        <th data-sort="chg_pct">Today</th>
-        <th class="pt-ret-toggle" title="Toggle 1M / 3M / 1Y">▾</th>
+        <th data-sort="chg_pct" style="white-space:nowrap">Today&thinsp;<span id="pt-ret-btn" class="pt-ret-toggle" title="Toggle 1M · 3M · 1Y">▾</span></th>
         <th class="pt-ret" data-sort="ret_1m">1M</th>
         <th class="pt-ret">3M</th>
         <th class="pt-ret" data-sort="ret_1y">1Y</th>
@@ -277,10 +276,7 @@
       chgTd.style.fontWeight="600";
       chgTd.className=(p.chg_pct||0)>=0?"p-up":"p-dn";
 
-      /* col 6 — toggle placeholder (empty td to match th) */
-      tr.appendChild(document.createElement("td"));
-
-      /* col 7-9 — 1M / 3M / 1Y (collapsible) */
+      /* col 6-8 — 1M / 3M / 1Y (collapsible) */
       [p.ret_1m,p.ret_3m,p.ret_1y].forEach(function(v){
         var td=tr.appendChild(mk("td",null,pct(v)));
         td.className="pt-ret"+(v==null?"":(v>=0?" p-up":" p-dn"));
@@ -349,12 +345,13 @@
   /* ── returns collapse toggle ────────────────────────────── */
   var retCollapsed=false;
   var ptTable=document.getElementById("pt-table");
-  var retToggleTh=document.querySelector("#pt-head .pt-ret-toggle");
-  if(retToggleTh){
-    retToggleTh.addEventListener("click",function(){
+  var retBtn=document.getElementById("pt-ret-btn");
+  if(retBtn){
+    retBtn.addEventListener("click",function(e){
+      e.stopPropagation(); /* don't trigger Today sort */
       retCollapsed=!retCollapsed;
       ptTable.classList.toggle("pt-ret-collapsed",retCollapsed);
-      retToggleTh.textContent=retCollapsed?"▸":"▾";
+      retBtn.textContent=retCollapsed?"▸":"▾";
     });
   }
 
