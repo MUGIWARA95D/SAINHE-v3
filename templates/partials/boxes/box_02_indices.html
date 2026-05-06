@@ -63,7 +63,7 @@
 
         /* Prix : conversion client-side si convertible (S&P, CAC, DAX…) */
         const priceTxt = x.convertible
-          ? (window.fxSymbol() + window.fxFmt(x.close, x.native_devise))
+          ? window.fxPrice(x.close, x.native_devise)
           : fmt(x.close);   /* VIX, DXY, TNX, IRX → afficher tel quel */
 
         let sm = "—", sc = "";

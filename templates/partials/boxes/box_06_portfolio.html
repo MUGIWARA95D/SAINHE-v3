@@ -290,7 +290,7 @@
       cv.width=56; cv.height=22; cv.className="idx-spark";
 
       /* col 4 — price (converted to current display currency) */
-      var priceTd = tr.appendChild(mk("td", null, window.fxSymbol() + window.fxFmt(p.close, p.native_devise||'USD')));
+      var priceTd = tr.appendChild(mk("td", null, window.fxPrice(p.close, p.native_devise||'USD')));
       priceTd.style.fontVariantNumeric = "tabular-nums";
 
       /* col 5 — today % */

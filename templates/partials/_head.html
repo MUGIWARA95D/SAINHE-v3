@@ -817,6 +817,17 @@ a.news-hl:hover{color:var(--gold)}
     return val.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
   };
 
+  /* Format price WITH currency symbol — symbol only prepended when conversion succeeds.
+     Use this for price cells; fxFmt alone is symbol-free. */
+  window.fxPrice = function(amount, native_devise){
+    var val = window.fxConvert(amount, native_devise);
+    if(val == null)
+      return amount != null
+        ? amount.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})
+        : '—';
+    return window.fxSymbol() + val.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+  };
+
   /* Currency prefix symbol */
   window.fxSymbol = function(){
     var c = window.SAINHE_CUR || 'USD';
