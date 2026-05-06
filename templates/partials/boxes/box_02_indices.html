@@ -61,10 +61,22 @@
         const rvTxt = rv != null ? rv.toFixed(2) : "—";
         const rvCls = rv != null && rv > 1.2 ? "rvol-hot" : "";
 
-        /* Prix : conversion client-side si convertible (S&P, CAC, DAX…) */
-        const priceTxt = x.convertible
-          ? window.fxPrice(x.close, x.native_devise)
-          : fmt(x.close);   /* VIX, DXY, TNX, IRX → afficher tel quel */
+        /* Prix — 3 cas :
+             1. convertible + devise gérée (USD/EUR/HKD) → symbole d'affichage
+             2. convertible + devise inconnue (JPY/AUD/…) → valeur native + badge devise
+             3. non-convertible (VIX, DXY, TNX, IRX)    → brut, sans symbole */
+        let priceTxt;
+        if (!x.convertible) {
+          priceTxt = fmt(x.close);
+        } else {
+          const conv = window.fxConvert(x.close, x.native_devise);
+          if (conv !== null) {
+            priceTxt = window.fxSymbol() + conv.toLocaleString("en",{minimumFractionDigits:2,maximumFractionDigits:2});
+          } else {
+            priceTxt = fmt(x.close)
+              + `<span class="idx-cur-badge">${esc(x.native_devise||"")}</span>`;
+          }
+        }
 
         let sm = "—", sc = "";
         if (x.chg_pct != null && rv != null) {
