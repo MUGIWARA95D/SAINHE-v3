@@ -5,3 +5,6 @@ output/
 .claude/
 *.xlsx
 ~$*
+.remember/
+scripts/*_tmp.json
+cache/

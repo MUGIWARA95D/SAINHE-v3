@@ -1,5 +1,5 @@
 """
-box_03_sectors.py — Rotation sectorielle (16 secteurs × 4 régions).
+box_04_sectors.py — Rotation sectorielle (16 secteurs × 4 régions).
 """
 
 import json

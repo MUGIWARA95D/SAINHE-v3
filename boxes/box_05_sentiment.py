@@ -1,5 +1,5 @@
 """
-box_04_sentiment.py — Sentiment par secteur (MFI + OBV + DMA200).
+box_05_sentiment.py — Sentiment par secteur (MFI + OBV + DMA200).
 """
 
 import sqlite3

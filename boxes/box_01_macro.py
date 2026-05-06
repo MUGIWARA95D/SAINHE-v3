@@ -1,5 +1,5 @@
 """
-box_05_macro.py — Santé macro : VIX, Yield Curve, ERP, DXY.
+box_01_macro.py — Santé macro : VIX, Yield Curve, ERP, DXY.
 """
 
 import sqlite3

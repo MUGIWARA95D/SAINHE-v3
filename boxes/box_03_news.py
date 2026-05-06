@@ -1,5 +1,5 @@
 """
-box_01_news.py — Fil d'actualités financières (RSS).
+box_03_news.py — Fil d'actualités financières (RSS).
 """
 
 import sqlite3
