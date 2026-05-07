@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="{{ lang }}" data-theme="light">
 {% include "partials/_head.html" %}
 <body>
@@ -47,7 +47,8 @@
     <span class="sb-body" data-i18n="learn_sb_body">{{ t.learn_sb_body }}</span>
   </div>
 
-  <!-- ─── LANGUAGE NOTICE (JS shows when non-EN) ────────────── -->
+  <!-- ─── LANGUAGE NOTICE — only shown on EN version (SSG pages are already translated) ── -->
+  {% if lang == 'en' %}
   <div id="learn-lang-notice" style="display:none;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:6px;
               padding:10px 18px;margin:12px 24px;font-size:12px;color:var(--gold);
               align-items:center;gap:8px">
@@ -60,12 +61,13 @@
     if(n)n.style.display='flex';
   }
   </script>
+  {% endif %}
 
   <!-- ─── 00 · WHY FINANCE ────────────────────────────────── -->
   <div class="sec-band sec-choc" id="learn-whyfinance">
     <div class="section-lbl">
       
-      <h2>Why Finance</h2><em>Before anything else</em>
+      <h2>{{ t.learn_wf_section_title }}</h2><em>{{ t.learn_wf_section_sub }}</em>
     </div>
     <div class="lrn-wrap">
       <div class="lrn-body" style="max-width:860px;margin:0 auto">
@@ -73,18 +75,18 @@
         <div class="lrn-panel-rows">
 
           <div class="lrn-panel-row">
-            <div class="lrn-panel-row-lbl">The honest answer</div>
-            <div class="lrn-panel-row-val">Most people never learn how money actually works. They earn it, spend it, and hope there's enough left at the end. Finance isn't about getting rich quick — it's about understanding the rules of the game so you can make <strong>deliberate decisions</strong> instead of default ones.</div>
+            <div class="lrn-panel-row-lbl">{{ t.learn_wf_row1_lbl }}</div>
+            <div class="lrn-panel-row-val">{{ t.learn_wf_row1_val | safe }}</div>
           </div>
 
           <div class="lrn-panel-row">
-            <div class="lrn-panel-row-lbl">The personal angle</div>
-            <div class="lrn-panel-row-val">Every major life decision has a financial dimension: your first job, buying a flat, starting a company, retiring early. The people who navigate these well aren't necessarily smarter — they've just internalized a few core ideas early enough to let them <strong>compound</strong>.</div>
+            <div class="lrn-panel-row-lbl">{{ t.learn_wf_row2_lbl }}</div>
+            <div class="lrn-panel-row-val">{{ t.learn_wf_row2_val | safe }}</div>
           </div>
 
           <div class="lrn-panel-row">
-            <div class="lrn-panel-row-lbl">Where most people start</div>
-            <div class="lrn-panel-row-val">Usually with the stock market. And that's fine — but markets are just one piece. The real foundation is understanding <strong>time, risk, and return</strong>. Once those click, everything else — indices, sectors, macroeconomics — becomes a natural extension.</div>
+            <div class="lrn-panel-row-lbl">{{ t.learn_wf_row3_lbl }}</div>
+            <div class="lrn-panel-row-val">{{ t.learn_wf_row3_val | safe }}</div>
           </div>
 
         </div>
@@ -93,8 +95,8 @@
         <div style="margin:2.4rem 0 2rem">
 
           <div style="margin-bottom:1.4rem">
-            <div style="font-family:var(--serif);font-size:1.45rem;color:#F5E8D0;line-height:1.25;margin-bottom:.4rem">Compound interest, <em style="color:#C4955A">made legible.</em></div>
-            <div style="color:rgba(245,232,208,.5);font-size:.85rem;letter-spacing:.01em">Your money earns interest — then that interest earns more.</div>
+            <div style="font-family:var(--serif);font-size:1.45rem;color:#F5E8D0;line-height:1.25;margin-bottom:.4rem">{{ t.learn_wf_chart_title }} <em style="color:#C4955A">{{ t.learn_wf_chart_title_em }}</em></div>
+            <div style="color:rgba(245,232,208,.5);font-size:.85rem;letter-spacing:.01em">{{ t.learn_wf_chart_sub }}</div>
           </div>
 
           <div style="background:#1A0C05;border:1px solid rgba(196,149,90,.18);border-radius:16px;padding:1.6rem 1.8rem 1.2rem;box-shadow:0 24px 64px rgba(0,0,0,.45)">
@@ -103,15 +105,15 @@
             <div style="display:flex;gap:1.6rem;margin-bottom:1.2rem;flex-wrap:wrap">
               <div style="display:flex;align-items:center;gap:.45rem">
                 <div style="width:10px;height:10px;border-radius:2px;background:rgba(196,149,90,.72);flex-shrink:0"></div>
-                <span style="color:rgba(245,232,208,.55);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase">Initial Investment</span>
+                <span style="color:rgba(245,232,208,.55);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase">{{ t.learn_wf_legend_initial }}</span>
               </div>
               <div style="display:flex;align-items:center;gap:.45rem">
                 <div style="width:10px;height:10px;border-radius:2px;background:rgba(196,149,90,.36);flex-shrink:0"></div>
-                <span style="color:rgba(245,232,208,.55);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase">Interest Earned</span>
+                <span style="color:rgba(245,232,208,.55);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase">{{ t.learn_wf_legend_interest }}</span>
               </div>
               <div style="display:flex;align-items:center;gap:.45rem">
                 <div style="width:10px;height:10px;border-radius:2px;background:rgba(245,215,140,.28);flex-shrink:0"></div>
-                <span style="color:rgba(245,232,208,.55);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase">Interest on Interest</span>
+                <span style="color:rgba(245,232,208,.55);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase">{{ t.learn_wf_legend_on_interest }}</span>
               </div>
             </div>
 
@@ -193,8 +195,8 @@
               <text x="594" y="19" fill="#C4955A" font-size="8.5" text-anchor="middle" font-family="monospace" font-weight="600">$100.6k</text>
 
               <!-- Acceleration annotation -->
-              <text x="485" y="96"  fill="rgba(245,215,140,.5)" font-size="8.5" font-style="italic" text-anchor="middle">growth</text>
-              <text x="485" y="107" fill="rgba(245,215,140,.5)" font-size="8.5" font-style="italic" text-anchor="middle">accelerates ↗</text>
+              <text x="485" y="96"  fill="rgba(245,215,140,.5)" font-size="8.5" font-style="italic" text-anchor="middle">{{ t.learn_wf_svg_annotation_growth }}</text>
+              <text x="485" y="107" fill="rgba(245,215,140,.5)" font-size="8.5" font-style="italic" text-anchor="middle">{{ t.learn_wf_svg_annotation_accel }}</text>
 
               <!-- Timeline baseline -->
               <line x1="65"  y1="262" x2="652" y2="262" stroke="rgba(245,232,208,.09)" stroke-width="1"/>
@@ -221,8 +223,8 @@
 
             <!-- Footer strip -->
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.9rem;padding-top:.8rem;border-top:1px solid rgba(196,149,90,.1);flex-wrap:wrap;gap:.5rem">
-              <span style="color:rgba(245,232,208,.32);font-size:.72rem;font-style:italic">$10,000 invested once at 8% per year</span>
-              <span style="color:#C4955A;font-size:.76rem;font-weight:600;font-family:monospace">$100,627 after 30 years &rarr; ×10</span>
+              <span style="color:rgba(245,232,208,.32);font-size:.72rem;font-style:italic">{{ t.learn_wf_footer_input }}</span>
+              <span style="color:#C4955A;font-size:.76rem;font-weight:600;font-family:monospace">{{ t.learn_wf_footer_result }}</span>
             </div>
           </div>
 
@@ -232,18 +234,18 @@
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1rem;margin-bottom:1.8rem">
 
           <div style="background:rgba(196,149,90,.08);border:1px solid rgba(196,149,90,.2);border-radius:10px;padding:1.1rem 1.2rem">
-            <div style="color:#C4955A;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem">Time</div>
-            <div style="color:rgba(245,232,208,.9);font-size:.88rem;line-height:1.55">Starting at 25 rather than 35 often means <strong style="color:#C4955A">doubling</strong> your final capital — at the exact same return rate.</div>
+            <div style="color:#C4955A;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem">{{ t.learn_wf_card_time_title }}</div>
+            <div style="color:rgba(245,232,208,.9);font-size:.88rem;line-height:1.55">{{ t.learn_wf_card_time_desc | safe }}</div>
           </div>
 
           <div style="background:rgba(196,149,90,.08);border:1px solid rgba(196,149,90,.2);border-radius:10px;padding:1.1rem 1.2rem">
-            <div style="color:#C4955A;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem">Consistency</div>
-            <div style="color:rgba(245,232,208,.9);font-size:.88rem;line-height:1.55">Investing $200/month regularly often outperforms a single lump sum — even a considerably larger one.</div>
+            <div style="color:#C4955A;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem">{{ t.learn_wf_card_consistency_title }}</div>
+            <div style="color:rgba(245,232,208,.9);font-size:.88rem;line-height:1.55">{{ t.learn_wf_card_consistency_desc }}</div>
           </div>
 
           <div style="background:rgba(196,149,90,.08);border:1px solid rgba(196,149,90,.2);border-radius:10px;padding:1.1rem 1.2rem">
-            <div style="color:#C4955A;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem">Fees</div>
-            <div style="color:rgba(245,232,208,.9);font-size:.88rem;line-height:1.55">A 1% annual fee looks negligible — over 30 years, it can silently consume <strong style="color:#C4955A">25%</strong> of your total wealth.</div>
+            <div style="color:#C4955A;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem">{{ t.learn_wf_card_fees_title }}</div>
+            <div style="color:rgba(245,232,208,.9);font-size:.88rem;line-height:1.55">{{ t.learn_wf_card_fees_desc | safe }}</div>
           </div>
 
         </div>
@@ -251,13 +253,13 @@
         <div class="lrn-panel-rows">
 
           <div class="lrn-panel-row">
-            <div class="lrn-panel-row-lbl">The rule of 72</div>
-            <div class="lrn-panel-row-val">Divide 72 by your annual return rate to get the number of years it takes to double your money. At 6%/year → 12 years. At 10%/year → 7.2 years. It's a mental shortcut that makes abstract percentages feel <strong>real and tangible</strong>.</div>
+            <div class="lrn-panel-row-lbl">{{ t.learn_wf_row4_lbl }}</div>
+            <div class="lrn-panel-row-val">{{ t.learn_wf_row4_val | safe }}</div>
           </div>
 
           <div class="lrn-panel-row">
-            <div class="lrn-panel-row-lbl">So why SAINHE?</div>
-            <div class="lrn-panel-row-val">SAINHE doesn't tell you what to buy. It gives you the context to make your own decisions: what's moving in the market, why sectors rotate, how macro conditions affect valuations. You bring the conviction — SAINHE brings the <strong>signal</strong>.</div>
+            <div class="lrn-panel-row-lbl">{{ t.learn_wf_row5_lbl }}</div>
+            <div class="lrn-panel-row-val">{{ t.learn_wf_row5_val | safe }}</div>
           </div>
 
         </div>
@@ -269,23 +271,23 @@
   <!-- ─── FINANCE MINDMAP — crème ────────────────────────── -->
   <div class="sec-band sec-creme" id="learn-mindmap">
     <div class="section-lbl">
-      <h2>Finance Mindmap</h2><em>The full landscape, structured</em>
+      <h2>{{ t.learn_mm_section_title }}</h2><em>{{ t.learn_mm_section_sub }}</em>
     </div>
     <div class="lrn-wrap">
       <div class="lrn-body" style="max-width:960px;margin:0 auto">
 
         <div class="lrn-panel-rows" style="margin-bottom:2rem">
           <div class="lrn-panel-row">
-            <div class="lrn-panel-row-lbl">What does it do?</div>
-            <div class="lrn-panel-row-val">This map organizes the entire field of finance into four interconnected branches — Capital Markets, Asset Management, Corporate Finance, and Quantitative Finance. Each branch contains the key concepts, formulas, and mental models practitioners use every day.</div>
+            <div class="lrn-panel-row-lbl">{{ t.learn_mm_row1_lbl }}</div>
+            <div class="lrn-panel-row-val">{{ t.learn_mm_row1_val }}</div>
           </div>
           <div class="lrn-panel-row">
-            <div class="lrn-panel-row-lbl">Why is it relevant?</div>
-            <div class="lrn-panel-row-val">Finance has no single entry point. Most people learn fragments — a bit of investing here, some accounting there — without seeing how the pieces connect. This map reveals the architecture of the discipline so you can navigate it deliberately, not by accident.</div>
+            <div class="lrn-panel-row-lbl">{{ t.learn_mm_row2_lbl }}</div>
+            <div class="lrn-panel-row-val">{{ t.learn_mm_row2_val }}</div>
           </div>
           <div class="lrn-panel-row">
-            <div class="lrn-panel-row-lbl">How to use it?</div>
-            <div class="lrn-panel-row-val">Select a branch to explore its nodes. <strong>Concepts</strong> are the building blocks, <strong>Formulas</strong> are the quantitative tools, and <strong>Notions</strong> are the mental models. Start with the branch most relevant to your goals — then trace the connections. Every branch borrows from the others.</div>
+            <div class="lrn-panel-row-lbl">{{ t.learn_mm_row3_lbl }}</div>
+            <div class="lrn-panel-row-val">{{ t.learn_mm_row3_val | safe }}</div>
           </div>
         </div>
 
@@ -304,12 +306,12 @@
           <svg id="mm-svg"></svg>
 
           <div id="mm-legend">
-            <div class="mm-li"><span class="mm-dot" style="width:14px;height:14px;background:#1A0800"></span>Root — Finance core (largest, deep gold)</div>
-            <div class="mm-li"><span class="mm-dot" style="width:10px;height:10px;background:#5A3D1A"></span>CATEGORY — 4 pillars (topmost)</div>
-            <div class="mm-li"><span class="mm-dot" style="background:#7B2D2D"></span>CONCEPT — caramel crimson</div>
-            <div class="mm-li"><span class="mm-dot" style="background:#7A5C1A"></span>FORMULA — gold-warm brown</div>
-            <div class="mm-li"><span class="mm-dot" style="background:#3D5C35"></span>NOTION — soft sage</div>
-            <div class="mm-li mm-li-line"><span style="display:inline-block;width:24px;height:0;border-top:1px dashed rgba(90,60,30,.5);vertical-align:middle;margin-right:6px"></span>Connections from the Root plus a bit more</div>
+            <div class="mm-li"><span class="mm-dot" style="width:14px;height:14px;background:#1A0800"></span>{{ t.learn_mm_legend_root }}</div>
+            <div class="mm-li"><span class="mm-dot" style="width:10px;height:10px;background:#5A3D1A"></span>{{ t.learn_mm_legend_category }}</div>
+            <div class="mm-li"><span class="mm-dot" style="background:#7B2D2D"></span>{{ t.learn_mm_legend_concept }}</div>
+            <div class="mm-li"><span class="mm-dot" style="background:#7A5C1A"></span>{{ t.learn_mm_legend_formula }}</div>
+            <div class="mm-li"><span class="mm-dot" style="background:#3D5C35"></span>{{ t.learn_mm_legend_notion }}</div>
+            <div class="mm-li mm-li-line"><span style="display:inline-block;width:24px;height:0;border-top:1px dashed rgba(90,60,30,.5);vertical-align:middle;margin-right:6px"></span>{{ t.learn_mm_legend_connections }}</div>
           </div>
 
           <div id="mm-tip"></div>
@@ -613,36 +615,36 @@ window.addEventListener('resize', function() {
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="learn-dashboard">
       
-      <h2>Dashboard</h2><em>How to Read the Engine Room</em>
+      <h2>{{ t.learn_dash_section_title }}</h2><em>{{ t.learn_dash_section_sub }}</em>
     </div>
     <div class="lrn-wrap">
 
       <!-- ── Sidebar chips — ordered to match dashboard ── -->
       <nav class="lrn-toc" aria-label="Dashboard sections">
-        <div class="lrn-toc-label">Dashboard</div>
+        <div class="lrn-toc-label">{{ t.learn_dash_toc_label }}</div>
         <button class="lrn-toc-link lrn-toc-overview" data-tab="overview">
-          <span class="lrn-toc-num">↳</span>Overview
+          <span class="lrn-toc-num">↳</span>{{ t.learn_dash_toc_overview }}
         </button>
         <button class="lrn-toc-link" data-tab="tips">
-          <span class="lrn-toc-num">→</span>Tips &amp; Tricks
+          <span class="lrn-toc-num">→</span>{{ t.learn_dash_toc_tips }}
         </button>
         <button class="lrn-toc-link" data-tab="macro">
-          Macro
+          {{ t.learn_dash_toc_macro }}
         </button>
         <button class="lrn-toc-link" data-tab="indices">
-          Indices
+          {{ t.learn_dash_toc_indices }}
         </button>
         <button class="lrn-toc-link" data-tab="news">
-          News Feed
+          {{ t.learn_dash_toc_news }}
         </button>
         <button class="lrn-toc-link" data-tab="sectors">
-          Sectors
+          {{ t.learn_dash_toc_sectors }}
         </button>
         <button class="lrn-toc-link" data-tab="sentiment">
-          Sentiment
+          {{ t.learn_dash_toc_sentiment }}
         </button>
         <button class="lrn-toc-link" data-tab="portfolio">
-          Portfolio
+          {{ t.learn_dash_toc_portfolio }}
         </button>
       </nav>
 
@@ -652,65 +654,49 @@ window.addEventListener('resize', function() {
         <!-- ══ TAB: OVERVIEW ════════════════════════════ -->
         <div class="lrn-tab-panel" id="lrn-overview">
           <div class="lrn-panel-hdr">
-            <span class="lrn-panel-num">Dashboard</span>
-            <div class="lrn-panel-title">What is it, exactly?</div>
+            <span class="lrn-panel-num">{{ t.learn_dash_overview_panel_num }}</span>
+            <div class="lrn-panel-title">{{ t.learn_dash_overview_panel_title }}</div>
           </div>
           <div class="lrn-panel-rows">
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">In one sentence</div>
-              <div class="lrn-panel-row-val">The Dashboard is a <strong>real-time control room for global financial markets</strong>, updated automatically every day. Instead of checking ten different websites, everything you need to understand what's happening in the world economy is here, in one single screen.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_overview_row1_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_overview_row1_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">The core idea</div>
-              <div class="lrn-panel-row-val">Financial markets are like the weather — you can't predict exactly what will happen, but you can <strong>read the signals</strong> to know whether it's sunny, about to rain, or a storm is building. The Dashboard gives you those signals, organized and calculated automatically from real market data.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_overview_row2_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_overview_row2_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">What you see</div>
-              <div class="lrn-panel-row-val">Six sections, each with a specific job:<br><br>
-                <strong>Indices</strong> — the big thermometers of global markets (S&amp;P 500, FTSE 100, Nikkei…). When they go up, investors are confident. When they drop, they're scared or selling.<br><br>
-                <strong>News</strong> — market-moving headlines filtered by region. A war, a central bank decision, a bankruptcy — anything that can shift prices.<br><br>
-                <strong>Sectors</strong> — markets are split into industries (Tech, Energy, Healthcare…). Some sectors rise while others fall. Knowing <em>which one</em> is rising right now tells you where money is moving.<br><br>
-                <strong>Sentiment</strong> — are large investors (funds, institutions) quietly buying or quietly selling? This signal tries to detect their moves before they show up in prices.<br><br>
-                <strong>Macro</strong> — the economic backdrop: interest rates, dollar strength, overall market fear. These conditions shape everything else.<br><br>
-                <strong>Portfolio</strong> — a watchlist with a clear signal for each position: Buy / Watch / Avoid, calculated from all the indicators above.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_overview_row3_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_overview_row3_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Ticker tape</div>
-              <div class="lrn-panel-row-val">The dark scrolling strip that runs just below the navigation bar on every page — this is the ticker tape. It cycles through all 15 tracked indices continuously, showing three things for each: the ticker symbol, the latest closing price, and the daily percentage change in <span style="color:var(--green)">green</span> if it rose or <span style="color:var(--red)">red</span> if it fell.<br><br>
-                Indices appear in a fixed order — USA first, then Europe, Asia, then Global instruments — and the loop repeats seamlessly. <strong>Hover anywhere on the tape to pause it</strong> so you can read a specific entry without it scrolling away.<br><br>
-                The tape is populated from the same Indices data as the rest of the dashboard, so it reflects the most recent pipeline run. It is not a live intraday feed — prices update at the standard pipeline cadence (nightly after US market close). Use it as a rapid orientation tool: one glance before scrolling the page tells you whether today was broadly green or broadly red across all four regions.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_overview_row4_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_overview_row4_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Currency switcher</div>
-              <div class="lrn-panel-row-val">The dropdown in the top-right of the navigation bar — labelled <strong>USD</strong>, <strong>EUR</strong>, or <strong>HKD</strong> — converts all displayed prices into your preferred currency. Your choice is saved in your browser and persists across sessions.<br><br>
-                <strong>What changes:</strong> any index or portfolio position whose native currency is USD, EUR, or HKD. Switch to EUR and the S&amp;P 500 recalculates in real time using an FX rate refreshed every 6 hours.<br><br>
-                <strong>What does not change:</strong> indices priced in JPY, GBP, AUD, CHF, CAD, and similar currencies. Their value appears in native units with a small currency badge — e.g. <code>38,572 JPY</code>. No conversion is applied because their FX rates are outside the standard pipeline scope.<br><br>
-                <strong>Dimensionless instruments (VIX, DXY, TNX, IRX) never show a currency symbol.</strong> VIX is a volatility index in “points”, DXY is a ratio, TNX and IRX are yield percentages. They are not prices and have no currency to display or convert. The absence of a symbol is deliberate — it tells you at a glance that you are looking at an indicator, not a traded price.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_overview_row5_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_overview_row5_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">How to read it</div>
-              <div class="lrn-panel-row-val">Read top to bottom, like a funnel. Start with <strong>Macro</strong> to understand the overall mood. Check <strong>Indices</strong> to see if markets confirm that mood. Move to <strong>Sectors</strong> to find where money is flowing. Finally, <strong>Sentiment</strong> and <strong>Portfolio</strong> give you specific, actionable leads. Think of it as zooming in: global → regional → sector → individual position.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_overview_row6_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_overview_row6_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">What it doesn't do</div>
-              <div class="lrn-panel-row-val">The Dashboard <strong>does not tell you what to do</strong>. It gives you organized information and calculated signals, but no financial signal is foolproof. Markets can stay irrational for a long time. This data is a reading tool, not an oracle — use it to understand better, not to bet blindly.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_overview_row7_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_overview_row7_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Updates</div>
-              <div class="lrn-panel-row-val">Everything runs on an automated pipeline on GitHub — no human intervention needed. Here is exactly what updates when:<br><br>
-                <strong>News headlines</strong> — every hour, 24/7. The pipeline fetches the latest macro and market articles, recalculates indicators, re-renders the page, and deploys it to the web. You are never more than ~60 minutes behind on news.<br><br>
-                <strong>Prices, signals &amp; all indicators</strong> — every weekday at <strong>10:00 PM UTC</strong> (after US markets close). This is the main daily run: it fetches the latest closing prices for all 100+ tickers, recalculates every score, RVOL, Smart Money signal, momentum composite, sentiment, R-Perf, and yield curve regime, then re-renders and deploys the full dashboard.<br><br>
-                <strong>FX rates</strong> (EUR, HKD conversion) — every 6 hours: midnight, 6 AM, noon, 6 PM UTC.<br><br>
-                <strong>Historical price database</strong> — rebuilt in two batches every night to stay within API limits. Tickers 1–50 run at 2:30 AM and 3:30 AM UTC. Tickers 51–100 run at 3:00 AM and 4:00 AM UTC. This keeps two full years of daily price history fresh for every sparkline and momentum calculation.<br><br>
-                The <strong>timestamp</strong> under each dashboard section shows you the exact moment it was last computed. Fresh = under 6 hours (green dot). Stale = 6–30 hours (orange). Anything beyond 30 hours likely means the pipeline hit an issue or markets were closed — cross-check at the source if a decision depends on it.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_overview_row8_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_overview_row8_val | safe }}</div>
             </div>
 
           </div>
@@ -719,88 +705,64 @@ window.addEventListener('resize', function() {
         <!-- ══ TAB: INDICES ══════════════════════════════ -->
         <div class="lrn-tab-panel" id="lrn-indices">
           <div class="lrn-panel-hdr">
-            <span class="lrn-panel-num">02</span>
-            <div class="lrn-panel-title">Market Indices</div>
+            <span class="lrn-panel-num">{{ t.learn_dash_indices_panel_num }}</span>
+            <div class="lrn-panel-title">{{ t.learn_dash_indices_panel_title }}</div>
           </div>
           <div class="lrn-panel-rows">
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">What it is</div>
-              <div class="lrn-panel-row-val">An index is a <strong>basket of stocks that together represent a market</strong>. The S&amp;P 500, for example, holds the 500 largest US companies — when it moves, it tells you in a single number how American big business is doing that day. SAINHE tracks 15 such baskets simultaneously, across four regions: the United States, Europe, Asia, and global benchmarks. Instead of checking 15 different websites, you read the whole world from a single table.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_row_what_it_is }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_indices_row1_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Why it matters</div>
-              <div class="lrn-panel-row-val">Before looking at any individual company, you need to know <strong>the temperature of the room</strong>. Markets do not behave in isolation. When major indices fall sharply on high volume, nearly everything falls with them — good companies and bad ones alike. Rising indices with healthy activity create a tailwind that makes even mediocre investments look better for a while. Professionals call this "macro context." It is the first filter any serious investor applies. Without it, you risk making a decision about a stock while ignoring the tide the whole market is swimming against — or with.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_indices_row2_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_indices_row2_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">7d sparkline</div>
-              <div class="lrn-panel-row-val">The tiny line chart drawn from the last seven daily closing prices. It gives you an <strong>immediate visual sense of recent direction</strong> — no finance knowledge required. A line going up means the index gained over the week. A line going down means it lost ground. A flat line means it barely moved. You absorb this in one glance before reading a single number.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_indices_row3_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_indices_row3_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Price &amp; % Day</div>
-              <div class="lrn-panel-row-val"><strong>Price</strong> — the most recent adjusted closing value of the index or the ETF that tracks it, displayed in your selected currency.<br><br><strong>% Day</strong> — the percentage it moved on the most recent trading day. <span style="color:var(--green)">Green + plus</span> means it rose, <span style="color:var(--red)">red + minus</span> means it fell. A day of −3% or more is considered a significant drop worthy of investigation.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_indices_row4_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_indices_row4_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Currency display</div>
-              <div class="lrn-panel-row-val">The Price column uses three distinct display formats, each carrying a precise meaning:<br><br>
-                <strong>Symbol + number</strong> (<code>$ 6,152</code> / <code>€ 5,634</code> / <code>HK$ 48,122</code>) — a price in your selected display currency. Applies to all indices whose native currency is USD, EUR, or HKD. Switching the currency dropdown in the header reconverts every such row instantly.<br><br>
-                <strong>Native value + badge</strong> (e.g. <code>38,572 <span class="idx-cur-badge">JPY</span></code>) — the raw native price with a currency code pill. Applies to indices priced outside the conversion scope: JPY, GBP, AUD, CHF, CAD, CNY… Switching to EUR or USD has no effect on these rows — the badge is a visual reminder of that.<br><br>
-                <strong>Plain number, no symbol</strong> (e.g. <code>17.32</code>) — applies exclusively to dimensionless instruments: VIX, DXY, TNX, IRX. These measure volatility, dollar strength, and yield percentages — not prices. The complete absence of a currency indicator is intentional and informative.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_indices_row5_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_indices_row5_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Freshness indicator</div>
-              <div class="lrn-panel-row-val">Each index row carries a small colored dot next to its name. This is the <strong>staleness indicator</strong> — the same system used in the Portfolio table — and tells you how recently that row's data was fetched:<br><br>
-                <strong style="color:rgba(76,170,96,1)">Green dot</strong> — updated within the last 6 hours. Current and reliable.<br>
-                <strong style="color:rgba(200,150,50,1)">Yellow/Orange dot</strong> — 6 to 30 hours old. Still usable for context but verify before acting.<br>
-                <strong style="color:rgba(190,80,30,1)">Deep orange dot</strong> — 30 to 72 hours old. One or more trading sessions behind.<br>
-                <strong>Grey dot</strong> — older than 72 hours. Data is stale; that row should not be relied on.<br><br>
-                In normal operation all Indices rows update together in the nightly pipeline run, so dots are uniformly green after each successful run. A single non-green dot in an otherwise fresh table means that specific ticker threw a fetch error during the last run — its price, RVOL, and Smart Money reading may be one or more sessions behind. Check the box timestamp and the individual dot before drawing conclusions from that row.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_indices_row6_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_indices_row6_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">RVOL</div>
-              <div class="lrn-panel-row-val"><strong>Relative Volume</strong> — how much trading happened yesterday compared to a typical day over the last 20 sessions (roughly one month).<br><br>
-                <code>1.00</code> = exactly average — unremarkable.<br>
-                <code>1.50</code> = 50% more shares changed hands than usual — something attracted attention.<br>
-                <code>0.60</code> = only 60% of typical volume — a quiet, low-conviction session.<br><br>
-                Volume is the <strong>heartbeat of a market</strong>. Price changes without volume are whispers — they can easily reverse. Price changes on high volume are shouts — real money is making a decisive statement. A big drop on low volume is very different from a big drop on high volume. The first might be a blip; the second is serious selling pressure. When RVOL exceeds 1.20, SAINHE highlights it in gold — that is the threshold where something is worth examining.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_indices_row7_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_indices_row7_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Smart Money</div>
-              <div class="lrn-panel-row-val">Combines price direction with RVOL to produce a single label. Five possible readings:<br><br>
-                <strong>Accumulation</strong> — rose on above-normal volume. Institutional investors were actively buying. The best signal.<br>
-                <strong>Distribution</strong> — fell on above-normal volume. Large players were actively selling. A warning sign.<br>
-                <strong>Weak Rally</strong> — rose, but volume was below normal. Price went up without real conviction — often a temporary bounce that may not hold.<br>
-                <strong>Thin Slide</strong> — fell on below-normal volume. Less alarming than Distribution, but still negative.<br>
-                <strong>Neutral</strong> — no decisive signal in either direction.<br><br>
-                For instruments with no volume data — VIX, DXY, and US Treasury yields — the five-label system cannot be calculated. The column instead shows one of three simplified labels: <strong>RISING</strong> (price closed above the previous session), <strong>FALLING</strong> (price closed below), or <strong>FLAT</strong> (no meaningful change). These three labels are visually distinct from the five-label set to make clear that no volume inference is possible for these instruments — they are directional signals only, not Smart Money reads.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_indices_row8_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_indices_row8_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Example</div>
-              <div class="lrn-panel-row-val"><strong>Positive read:</strong> S&amp;P 500 — sparkline sloping up — +0.35% — RVOL 1.45 — Accumulation. Translation: the largest US companies rose by a third of a percent, with 45% more activity than usual. Professional investors were confidently buying. Good context for evaluating a US stock.<br><br>
-                <strong>Negative read:</strong> S&amp;P 500 — −1.80% — RVOL 1.60 — Distribution. The market fell nearly 2% while significantly more people than usual were selling. Not a day to rush into new positions.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_indices_row9_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_indices_row9_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">The 4 regions</div>
-              <div class="lrn-panel-row-val"><strong>USA</strong> — S&amp;P 500, Nasdaq, Dow Jones. Together they capture the full US market: the broad economy, technology specifically, and the 30 most iconic industrial companies.<br><br>
-                <strong>Europe</strong> — DAX (Germany), CAC 40 (France), Euro Stoxx 50 (50 biggest eurozone companies). Lets you see whether Europe is moving with the US or diverging.<br><br>
-                <strong>Asia</strong> — Nikkei (Japan), Hang Seng (Hong Kong), CSI 300 (mainland China). Asia trades while the West sleeps and often sets the tone for European and American opens.<br><br>
-                <strong>Global</strong> — MSCI World and key macro instruments: the US 10-Year and 3-Month Treasury yields, and the <strong>VIX</strong> (the "Fear Index"). VIX below 15 = calm. 15–20 = normal. Above 20 = rising anxiety. Above 30 = outright panic. The VIX gives you the emotional temperature of the market at a glance.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_indices_row10_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_indices_row10_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Summary strip</div>
-              <div class="lrn-panel-row-val">Below the table, a compact strip surfaces the two most important macro instruments at a glance — no need to scan the full table to find them:<br><br>
-                <strong>VIX</strong> — the current level plus a one-word regime: <em>Complacency</em> (below 15), <em>Normal</em> (15–30), or <em>Panic</em> (above 30). Even if you read nothing else in the Indices box, a single glance at the VIX regime tells you the emotional temperature of the entire market.<br><br>
-                <strong>DXY</strong> — the current dollar index level plus yesterday's percentage change plus a one-line equity impact signal: <em>Bearish pressure on equities</em> when DXY is rising, <em>Supportive for equities</em> when it is falling. This is the quickest way to assess whether dollar strength is creating a headwind for global assets before diving into individual indices.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_indices_row11_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_indices_row11_val | safe }}</div>
             </div>
 
           </div>
@@ -809,55 +771,44 @@ window.addEventListener('resize', function() {
         <!-- ══ TAB: NEWS ═════════════════════════════════ -->
         <div class="lrn-tab-panel" id="lrn-news">
           <div class="lrn-panel-hdr">
-            <span class="lrn-panel-num">03</span>
-            <div class="lrn-panel-title">Live News Feed</div>
+            <span class="lrn-panel-num">{{ t.learn_dash_news_panel_num }}</span>
+            <div class="lrn-panel-title">{{ t.learn_dash_news_panel_title }}</div>
           </div>
           <div class="lrn-panel-rows">
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">What it is</div>
-              <div class="lrn-panel-row-val">A continuously updated stream of macro and market-moving headlines, organized by geographic region. Markets are driven by two forces: data (prices, volumes, indicators) and events (news). The Indices section gives you the data. The News Feed gives you the events. Together they tell you not just <em>what</em> is happening, but <em>why</em>.<br><br>Every headline here was published by a financial news source and was deemed relevant enough to surface. You are not reading a general news site — every article in this feed has a potential connection to market prices.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_row_what_it_is }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_news_row1_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Why it matters</div>
-              <div class="lrn-panel-row-val">Markets are forward-looking machines. They do not react to what already happened — they react to what people expect to happen next. News is the raw material that shapes those expectations. A central bank raising interest rates unexpectedly, a trade war escalating, a major company missing its earnings — each of these events can move entire sectors or regions within minutes of publication.<br><br>Reading the news feed before studying signals and scores gives you <strong>narrative context</strong>: the story behind the numbers. A sector falling 2% looks very different if you know there was a surprise regulatory announcement that morning versus if there was no obvious catalyst. The first is explainable and possibly temporary. The second is a signal worth investigating further.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_indices_row2_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_news_row2_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">How each item is structured</div>
-              <div class="lrn-panel-row-val">Every article card shows four pieces of information:<br><br>
-                <strong>Source tag</strong> — the name of the publication or data provider (e.g. Reuters, Bloomberg, FT). This tells you how authoritative the information is. A central bank statement republished by Reuters carries more weight than an opinion piece.<br><br>
-                <strong>Timestamp</strong> — the exact date and time the article was published, in UTC. Markets move fast. An article from 3 hours ago is current context. An article from 3 days ago is background noise unless you are researching a developing story.<br><br>
-                <strong>Region tag</strong> — colour-coded: grey for Global, purple for USA, blue for EU, orange for Asia. This tells you at a glance which part of the world the news affects most directly.<br><br>
-                <strong>Headline</strong> — the title of the article, always clickable. Click it to open the full piece at the source. If a two-line summary is available, hover the card to expand it and read <em>Read full article ↗</em> to go deeper.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_news_row3_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_news_row3_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">The four regions</div>
-              <div class="lrn-panel-row-val"><strong>Global</strong> — stories that affect multiple regions simultaneously: IMF reports, WTO decisions, global commodity price moves, pandemics, or geopolitical events that span borders. When the Global feed is active and negative, no region is safe.<br><br>
-                <strong>USA</strong> — the United States is the world's largest economy and hosts the most liquid financial markets. Federal Reserve decisions, US inflation data, employment reports, major US corporate earnings — all of these are published here. When US news is positive, it tends to lift markets worldwide. When it is negative, the entire world tends to follow.<br><br>
-                <strong>EU (Europe)</strong> — European Central Bank policy, eurozone economic data, individual country political events (elections, budget crises), and major European corporate news. Europe often moves in correlation with the US but can diverge strongly around local political events — watch for that divergence in the Indices table.<br><br>
-                <strong>Asia</strong> — China's economic releases, Bank of Japan decisions, South Korean and Taiwanese tech sector news (Taiwan is critical for semiconductors), and broader emerging market events. Because Asian markets trade 8–14 hours ahead of the US, the Asia feed often gives you a preview of the mood before Western markets open.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_news_row4_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_news_row4_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">How to read it</div>
-              <div class="lrn-panel-row-val">Articles are ordered <strong>newest first</strong> within each region. You do not need to read everything — scan the headlines. Your eye will stop on keywords that matter: "rate hike," "GDP miss," "earnings beat," "tariff," "default," "record high." Those are your entry points.<br><br>
-                Once a headline catches your attention, hover to read the summary. If the summary raises a question — "which sectors does this affect?" — open the full article. Then cross-reference with the Indices table: is the relevant region or sector already moving? If yes, the market may have already priced in the news. If not, the reaction may still be coming.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_overview_row6_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_news_row5_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Look for</div>
-              <div class="lrn-panel-row-val"><strong>News without a price reaction</strong> — a cluster of negative headlines in one region, but no corresponding drop in that region's indices. This is called a "lag." The market has not reacted yet. It may be about to. This is one of the most actionable signals on the dashboard.<br><br>
-                <strong>Price moves without news</strong> — an index dropping significantly but the news feed for that region is quiet. This can mean the catalyst is not yet public (institutional trading ahead of an announcement) or that the move is technically driven and may reverse. Either way, it deserves attention.<br><br>
-                <strong>Converging bad news</strong> — negative headlines across multiple regions simultaneously, accompanied by falling indices and Distribution signals in the Smart Money column. That combination — bad news, falling prices, and high selling volume across the board — is the clearest signal to reduce risk exposure.<br><br>
-                <strong>Bad news already priced in</strong> — a negative article published days ago that caused a sharp drop, but the index has since stabilized or recovered. This suggests the market absorbed the shock. Less downside risk from that specific event going forward.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_news_row6_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_news_row6_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Updates</div>
-              <div class="lrn-panel-row-val">The news feed refreshes <strong>every hour, 24 hours a day, 7 days a week</strong>. Each hourly run fetches the latest articles, stores them, and immediately re-renders and deploys the full dashboard to the web. You are never more than ~60 minutes behind on headlines. The timestamp on each article tells you exactly when it was published — always check it before acting on a story.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_overview_row8_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_news_row7_val | safe }}</div>
             </div>
 
           </div>
@@ -866,105 +817,64 @@ window.addEventListener('resize', function() {
         <!-- ══ TAB: SECTORS ══════════════════════════════ -->
         <div class="lrn-tab-panel" id="lrn-sectors">
           <div class="lrn-panel-hdr">
-            <span class="lrn-panel-num">04</span>
-            <div class="lrn-panel-title">Sector Rotation</div>
+            <span class="lrn-panel-num">{{ t.learn_dash_sectors_panel_num }}</span>
+            <div class="lrn-panel-title">{{ t.learn_dash_sectors_panel_title }}</div>
           </div>
           <div class="lrn-panel-rows">
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">What it is</div>
-              <div class="lrn-panel-row-val">The stock market is not a single uniform thing. It is a collection of industries — Technology, Energy, Healthcare, Finance, and so on — that each behave differently depending on the economic environment. This section tracks <strong>16 of those industries across 4 geographic regions</strong>, using ETFs (Exchange-Traded Funds) as proxies for each sector in each region.<br><br>An ETF is simply a basket of stocks from that industry, bundled into a single tradeable instrument. When SAINHE shows the "Tech &amp; Semis" row for the USA, it is tracking an ETF that holds companies like NVIDIA, TSMC, and AMD together. When the ETF price goes up, it means the technology industry as a whole is gaining in that region.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_row_what_it_is }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sectors_row1_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Why it matters</div>
-              <div class="lrn-panel-row-val">Professional investors do not just ask "is the market going up?" — they ask "which part of the market is going up, and why?" This is called <strong>sector rotation</strong>: the phenomenon where money flows out of one industry and into another as economic conditions shift.<br><br>Classic examples: when interest rates rise, money tends to leave high-growth Technology (which depends on cheap borrowing) and rotate into Financials (banks earn more from higher rates) or Energy. When a recession is feared, money moves toward defensive sectors like Consumer Staples (food, household products — people keep buying regardless) and Healthcare. When the economy is booming, Industrials, Materials, and discretionary spending lead.<br><br>If you can identify which sectors are receiving money flows right now, you can position in the strongest areas and avoid the weakest ones. This section is your map of those flows.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_indices_row2_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sectors_row2_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">The 16 sectors</div>
-              <div class="lrn-panel-row-val">SAINHE covers 16 industries, chosen to reflect the modern economy including themes beyond traditional classifications:<br><br>
-                <strong>Tech &amp; Semis</strong> — semiconductors and software, the backbone of the digital economy.<br>
-                <strong>Robotics &amp; MedTech</strong> — automation, surgical systems, medical devices.<br>
-                <strong>Healthcare &amp; Pharma</strong> — hospitals, drug makers, biotech — defensive and innovation-driven.<br>
-                <strong>Finance &amp; Transac.</strong> — banks, insurance, payment processors.<br>
-                <strong>Strategic Materials</strong> — rare earths, lithium, copper — critical for electronics and energy transition.<br>
-                <strong>Energy</strong> — oil, gas, and traditional energy companies.<br>
-                <strong>Defense &amp; Aerospace</strong> — military contractors, space hardware, national security.<br>
-                <strong>EV &amp; Clean Energy</strong> — electric vehicles, solar, wind, grid technology.<br>
-                <strong>Space</strong> — commercial space, satellite communications, launch providers.<br>
-                <strong>Luxury</strong> — premium goods and experiences — a proxy for global wealth confidence.<br>
-                <strong>Agriculture</strong> — food production, fertilizers, agri-tech.<br>
-                <strong>Infra &amp; Water</strong> — utilities, water treatment, infrastructure spending.<br>
-                <strong>Consumer Staples</strong> — food, beverages, household products — the most defensive sector.<br>
-                <strong>Digital Assets</strong> — crypto-adjacent equities, blockchain infrastructure.<br>
-                <strong>Industrials</strong> — manufacturing, logistics, machinery — a broad economic barometer.<br>
-                <strong>Chemicals</strong> — industrial chemicals, specialty materials, a key input to most physical industries.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sectors_row3_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sectors_row3_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Zone tabs</div>
-              <div class="lrn-panel-row-val">The four buttons at the top — <strong>USA, Europe, Asia, World</strong> — switch which region's ETFs you are viewing. The same 16 sector rows are always displayed; only the underlying data changes.<br><br>
-                This is powerful because the same sector can be leading in one region and lagging in another. US Technology might be rallying while European Technology is flat or falling, due to different regulatory environments, currency effects, or local economic conditions. Comparing the same sector across regions lets you identify <strong>regional leadership</strong> — and regional leadership often precedes broader global moves.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sectors_row4_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sectors_row4_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Period tabs</div>
-              <div class="lrn-panel-row-val">The five buttons at the bottom — <strong>Today, 1M, 3M, 6M, 1Y</strong> — do two things simultaneously: they change the performance number shown in the rightmost column, and they update the sparkline chart to match that same period.<br><br>
-                This matters because different timeframes tell different stories. A sector can be down today but up strongly over 3 months — a short-term pullback in a longer uptrend. Or it can be up today but down over 6 months — a temporary bounce in a sustained decline. Using multiple timeframes together reveals the difference between noise and trend.<br><br>
-                <strong>Today</strong> — yesterday's single-day move. Very short-term, easily reversed.<br>
-                <strong>1M</strong> — last 21 trading days. Useful for identifying emerging momentum.<br>
-                <strong>3M</strong> — last 63 days. A medium-term trend signal. The most commonly used by active managers.<br>
-                <strong>6M</strong> — last 126 days. Shows sustained outperformance or underperformance.<br>
-                <strong>1Y</strong> — last 252 trading days. Long-term structural leadership.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sectors_row5_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sectors_row5_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Score column</div>
-              <div class="lrn-panel-row-val">The <strong>Score</strong> is a composite momentum indicator calculated as a weighted average of the sector ETF's returns across four time windows: <code>1M×20% + 3M×30% + 6M×30% + 1Y×20%</code>.<br><br>
-                It is displayed as a colored pill:<br>
-                <strong style="color:rgba(76,170,96,1)">Green</strong> (score above +0.10) — sustained positive momentum across multiple timeframes.<br>
-                <strong style="color:rgba(216,80,72,1)">Red</strong> (score below −0.10) — sustained negative momentum.<br>
-                <strong>Neutral</strong> (between −0.10 and +0.10) — mixed or flat trend.<br><br>
-                The score is not a price prediction. It is a <em>summary of what has already happened</em> — it tells you which sectors have had the most consistent upward price movement over the past year. Momentum tends to persist in markets (a sector rising tends to keep rising for a while), which makes this score a useful filter. But it is backward-looking by nature.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sectors_row6_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sectors_row6_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Gold left border</div>
-              <div class="lrn-panel-row-val">Any row with a <strong>gold left border</strong> is currently trading above its 200-day moving average — the average price of the last 200 trading days (roughly 10 months).<br><br>
-                Being above the 200-day average is one of the most widely watched signals in professional finance. It means the sector's price, right now, is higher than its long-term average. That is the definition of a structural uptrend. Institutions use this line as a key filter: many funds have rules against holding positions below their 200-day average.<br><br>
-                A sector entering gold-border territory for the first time after a long period below it is a particularly strong signal — it often marks the beginning of a sustained recovery phase. A sector losing its gold border is the mirror image: a potential turning point to watch for deterioration.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sectors_row7_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sectors_row7_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Score tint</div>
-              <div class="lrn-panel-row-val">Separate from the gold left border, any sector row with a composite Score <strong>above +0.30</strong> receives a <strong>warm background tint</strong> across the entire row. This is the score highlight — a visual shortcut meaning "this sector has meaningfully positive medium-term momentum."<br><br>
-                The two highlights are independent and can appear in any combination:<br><br>
-                <strong>Gold border only</strong> — the sector is above its DMA200 (healthy long-term trend) but its momentum score is below +0.30. Structurally sound, but not currently accelerating.<br>
-                <strong>Score tint only</strong> — strong recent momentum, but the sector has not yet recovered above its DMA200. A sector building strength before confirming a structural breakout.<br>
-                <strong>Both at once</strong> — score above +0.30 <em>and</em> above DMA200. This is the strongest visual signal in the table: sustained momentum confirmed by a healthy long-term structure. These rows are the primary candidates for deeper investigation in Sentiment and Portfolio.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sectors_row8_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sectors_row8_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Missing data ( — )</div>
-              <div class="lrn-panel-row-val">When a cell shows <strong>—</strong> for a given sector and region, it means SAINHE does not currently track a liquid ETF for that combination. Not every sector has a well-established, tradeable ETF in every region. Space and Digital Assets, for example, have liquid ETFs primarily in the USA but limited equivalents in Europe or Asia.<br><br>
-                A missing row does not mean the sector does not exist in that region — it means there is no reliable single instrument to represent it cleanly. These gaps are updated as new ETFs become available and are added to the tracking list.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sectors_row9_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sectors_row9_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">How to use it</div>
-              <div class="lrn-panel-row-val">Start with the <strong>World</strong> tab and the <strong>3M</strong> period to get a clean global view of which sectors have had the most sustained momentum. The sectors at the top of the score ranking, with gold borders, are where money has been flowing. These are your candidates for further research.<br><br>
-                Then switch to <strong>USA</strong> and compare. If a sector is strong globally and strong in the USA specifically, that is a high-conviction setup. If it is strong globally but weak in the USA, the leadership is coming from elsewhere — look at Asia or Europe.<br><br>
-                Finally, use the <strong>Today</strong> period to check for short-term disruptions: a strongly scored sector that is suddenly down 2% today on no apparent news might be a buying opportunity within a broader uptrend. A weakly scored sector that is up today is likely just a bounce — not a reversal.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_row_how_to_use }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sectors_row10_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Limitations</div>
-              <div class="lrn-panel-row-val">A few things this section does not tell you:<br><br>
-                <strong>ETF tracking error</strong> — an ETF may not perfectly replicate its underlying sector. Currency hedging, fees, and composition differences mean the ETF price and the "true" sector performance can diverge slightly.<br><br>
-                <strong>Momentum bias</strong> — the Score rewards what has already gone up. In a market reversal, the highest-scoring sectors can become the biggest losers as momentum unwinds. A high score is not a buy signal on its own — it is a starting point for deeper analysis.<br><br>
-                <strong>Sector concentration</strong> — some ETFs are heavily weighted toward a few large companies. "Tech &amp; Semis" in the USA might be 25% NVIDIA. A single company's earnings can move the entire sector score without it reflecting broad industry health.<br><br>
-                <strong>No valuation</strong> — the Score is purely price-based. A sector can have a great momentum score while being historically expensive. Price momentum and fundamental value are different things — this section measures the former only.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sectors_row11_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sectors_row11_val | safe }}</div>
             </div>
 
           </div>
@@ -973,132 +883,59 @@ window.addEventListener('resize', function() {
         <!-- ══ TAB: SENTIMENT ════════════════════════════ -->
         <div class="lrn-tab-panel" id="lrn-sentiment">
           <div class="lrn-panel-hdr">
-            <span class="lrn-panel-num">05</span>
-            <div class="lrn-panel-title">Smart Money Sentiment</div>
+            <span class="lrn-panel-num">{{ t.learn_dash_sentiment_panel_num }}</span>
+            <div class="lrn-panel-title">{{ t.learn_dash_sentiment_panel_title }}</div>
           </div>
           <div class="lrn-panel-rows">
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">What it is</div>
-              <div class="lrn-panel-row-val">This section attempts to answer a question that standard price data cannot: <strong>are large, sophisticated investors buying or selling right now?</strong> It does this not by accessing their private transaction data — that is impossible — but by reading the footprints they leave in public price and volume data.<br><br>
-                Each of the 16 sectors gets a single composite score between <strong>−1.0</strong> and <strong>+1.0</strong>, calculated entirely from real market OHLCV data (Open, High, Low, Close, Volume) using three indicators: the <strong>Money Flow Index (MFI)</strong>, the <strong>On-Balance Volume direction (OBV)</strong>, and the <strong>200-day Moving Average position (DMA200)</strong>. Zero opinion, zero analyst estimate, zero AI — pure math from the price series.<br><br>
-                Each sector card on the dashboard shows its score, a gauge bar, a plain-language label (Euphoric Bullish → Extreme Bearish), and three law tags that tell you exactly which component is green, red, or neutral. A tooltip (ⓘ) on every card shows the live formula breakdown. The footer of each card shows today's percentage change and the current RVOL — both key for confirming what the score implies.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_row_what_it_is }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sentiment_row1_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Ingredient 1 — MFI</div>
-              <div class="lrn-panel-row-val"><strong>Money Flow Index — 40% of the score — 14-day window</strong><br><br>
-                The MFI answers: "over the last 14 trading days, has more money flowed <em>into</em> this sector or <em>out of</em> it?" It works by combining price direction with volume. Each day, if the typical price (average of high + low + close) is higher than the previous day, all of that day's volume counts as <em>positive money flow</em>. If the typical price is lower, all that volume counts as <em>negative</em>. The ratio of 14 days of positive flow versus negative flow produces a number between 0 and 100.<br><br>
-                <strong>SAINHE's thresholds on the card:</strong><br>
-                <strong style="color:rgba(76,170,96,1)">MFI above 60 → OVERBOUGHT</strong> — strong sustained buying pressure. The green law tag fires.<br>
-                <strong style="color:rgba(216,80,72,1)">MFI below 40 → OVERSOLD</strong> — persistent selling pressure. The red law tag fires.<br>
-                <strong>MFI 40–60 → NEUTRAL</strong> — balanced flows, no clear edge.<br><br>
-                Note: classic textbook thresholds are 80 (overbought) and 20 (oversold). SAINHE uses 60/40 intentionally — tighter bounds mean the signal fires more often, which is appropriate for ETFs where extreme moves are less common than for individual stocks. MFI carries 40% of the total score because it is the most direct measure of money flow intensity.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sentiment_row2_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sentiment_row2_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Ingredient 2 — OBV</div>
-              <div class="lrn-panel-row-val"><strong>On-Balance Volume direction — 30% of the score — 20-day window</strong><br><br>
-                OBV is one of the oldest volume indicators in existence, created by Joe Granville in the 1960s. The mechanism is simple: on days when price closes up, all of that day's volume is added to a running cumulative total. On days when price closes down, all that volume is subtracted. The resulting line rises when buyers dominate and falls when sellers dominate.<br><br>
-                SAINHE does not use the raw OBV number — that absolute value is meaningless without context. Instead, it uses <strong>the direction of OBV over the last 20 trading sessions</strong>: is the OBV line higher than it was 20 days ago or lower?<br><br>
-                <strong>SAINHE's law tag labels on the card:</strong><br>
-                <strong style="color:rgba(76,170,96,1)">ACCUMULATION</strong> — OBV trending up over 20 sessions. Volume is flowing predominantly on up-days. Large players are building positions.<br>
-                <strong style="color:rgba(216,80,72,1)">DISTRIBUTION</strong> — OBV trending down. Volume is heavier on down-days. Large players are quietly exiting.<br>
-                <strong>NEUTRAL</strong> — OBV roughly flat over 20 sessions. No directional conviction.<br><br>
-                The critical property of OBV: it can <em>lead price</em>. If a sector's price is flat but OBV is rising — ACCUMULATION while price has not moved yet — that is a potential early signal of institutional positioning before the market reacts. This is why OBV is the core "smart money" detection tool in the score.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sentiment_row3_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sentiment_row3_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Ingredient 3 — DMA200</div>
-              <div class="lrn-panel-row-val"><strong>200-day Moving Average position — 30% of the score</strong><br><br>
-                This is the simplest component: is the sector ETF's current price <strong>above or below its 200-day moving average</strong> — the average adjusted closing price over the last 200 trading sessions (roughly 10 months)?<br><br>
-                <strong style="color:rgba(76,170,96,1)">ABOVE DMA200</strong> (green tag) — the sector is in a structural long-term uptrend. This adds a positive contribution to the score.<br>
-                <strong style="color:rgba(216,80,72,1)">BELOW DMA200</strong> (red tag) — the sector is in a long-term downtrend. This drags the score down regardless of short-term momentum.<br><br>
-                This component acts as a <strong>structural regime filter</strong>. Its purpose is to prevent a sector from reaching Euphoric purely on a short-term spike of buying pressure (MFI + OBV) when the long-term trend is still broken. Think of it as a sanity check: strong short-term flows are more trustworthy when the long-term structure is healthy. Without DMA200 in the formula, a sector bouncing hard from a multi-month downtrend could produce misleading Accumulation readings. The 30% weight ensures it has real influence — but not enough to override both MFI and OBV when they are aligned.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sentiment_row4_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sentiment_row4_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">The formula</div>
-              <div class="lrn-panel-row-val"><code>Score = MFI × 40% + OBV direction × 30% + DMA200 position × 30%</code><br><br>
-                All three components are normalized to the same −1 to +1 range before weighting. The result is a single number between −1.0 and +1.0.<br><br>
-                The five labels and their thresholds:<br><br>
-                <strong>Euphoric Bullish</strong> — score ≥ +0.60. All three indicators maximally aligned bullishly. Rare — and, crucially, a warning sign as much as a positive signal. See Biases below.<br>
-                <strong>Accumulation</strong> — score +0.10 to +0.59. Positive bias across most indicators. The most reliable positive reading.<br>
-                <strong>Neutral</strong> — score −0.10 to +0.10. Mixed signals, no clear edge.<br>
-                <strong>Caution</strong> — score −0.59 to −0.10. Negative bias building. Worth watching for deterioration.<br>
-                <strong>Extreme Bearish</strong> — score below −0.60. All indicators maximally negative. Also rare — and sometimes a contrarian buy signal (most selling already done).</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sentiment_row5_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sentiment_row5_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">RVOL Directionnel</div>
-              <div class="lrn-panel-row-val">Displayed in the <strong>footer of every sentiment card</strong> alongside today's percentage change, the RVOL Directionnel is described in the SAINHE blueprint as <em>"le signal clé"</em> — the key signal. It answers the question standard RVOL cannot: not just "was volume high?", but "was that high volume buying or selling?"<br><br>
-                <strong>Formula:</strong> <code>RVOL Dir = OBV delta yesterday ÷ average volume (20 sessions) × 100</code><br><br>
-                OBV delta yesterday = +yesterday's full volume if price closed up, −yesterday's full volume if price closed down. Dividing by the 20-day average volume then expresses it as a percentage of normal activity.<br><br>
-                <strong>Five levels:</strong><br>
-                <strong style="color:rgba(76,170,96,1)">> +120%</strong> — Strong Buy Pressure. More than 120% of average daily volume was deployed on a net-buying day. Highest conviction institutional signal.<br>
-                <strong>+20% to +120%</strong> — Mild Buy Pressure.<br>
-                <strong>−20% to +20%</strong> — Neutral Flow. Normal, no directional signal.<br>
-                <strong>−20% to −120%</strong> — Mild Sell Pressure.<br>
-                <strong style="color:rgba(216,80,72,1)">below −120%</strong> — Strong Sell Pressure. Active distribution in progress.<br><br>
-                Use this to <strong>confirm or question the score</strong>: if a sector shows Accumulation but today's RVOL Dir is negative, the short-term flow contradicts the medium-term signal — lower conviction. If RVOL Dir > +120% AND the score is Accumulation — that is the highest confluence this box can produce.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sentiment_row6_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sentiment_row6_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">The 3 Laws</div>
-              <div class="lrn-panel-row-val">Beyond the score, three specific flag conditions check for dangerous patterns. These override the score's apparent direction and should always be checked before acting on a sentiment reading:<br><br>
-                <strong>Law 1 — DMA Cross (False Breakout)</strong><br>
-                Condition: <code>OBV direction = DISTRIBUTION + Price is ABOVE DMA200</code><br>
-                Signal: ⚠️ FALSE BREAKOUT<br>
-                Meaning: the price has crossed above its long-term average — a normally bullish signal — but volume is flowing out on net. Large players are <em>selling into the strength</em>. The price breakout has no volume conviction behind it. This divergence is one of the most common patterns before a sharp reversal.<br><br>
-                <strong>Law 2 — RVOL Confirm (Institutional Confirmation)</strong><br>
-                Condition: <code>RVOL Dir > +120% + OBV = ACCUMULATION + Price is ABOVE DMA200</code><br>
-                Signal: 🟢 INSTITUTIONAL CONFIRM<br>
-                Meaning: all three structural conditions aligned, plus extraordinary buying volume yesterday. This is the maximum conviction signal SAINHE can generate — all layers agree and the volume is there to confirm it.<br><br>
-                <strong>Law 3 — Divergence (Sector Divergence)</strong><br>
-                Condition: <code>Sentiment Score > +0.30 + R-Perf vs World &lt; −1%</code><br>
-                Signal: 🟠 SECTOR DIVERGENCE<br>
-                Meaning: the sector looks strong in isolation — positive score, money flowing in — but it is significantly underperforming its global equivalent. The strength is <em>local noise</em>, not genuine leadership. This law creates a direct bridge between the Sentiment box and the Sectors box: a sector with a strong sentiment score but a red R-Perf is a trap, not an opportunity.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sentiment_row7_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sentiment_row7_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">How to read a card</div>
-              <div class="lrn-panel-row-val">Each of the 16 sector cards shows:<br><br>
-                <strong>Score + color</strong> — the composite −1.0/+1.0 number. Green above +0.10, red below −0.10, grey in between.<br>
-                <strong>ⓘ tooltip</strong> — hover to see the live component breakdown: OBV window (20d), MFI window (14d), DMA200, RVOL baseline (20d), and the formula confirmation.<br>
-                <strong>Gauge bar</strong> — a horizontal bar from −1 to +1 with a colored dot at the current score position. At a glance: dot on the right = bullish, left = bearish, center = neutral.<br>
-                <strong>Label</strong> — the plain-language summary beneath the gauge (Euphoric Bullish / Accumulation / Neutral / Caution / Extreme Bearish).<br>
-                <strong>3 Law tags</strong> — one tag per component. OBV shows ACCUMULATION / DISTRIBUTION / NEUTRAL. MFI shows the current number and OVERBOUGHT / OVERSOLD / NEUTRAL. DMA200 shows ABOVE DMA200 / BELOW DMA200. Read all three: a sector with Accumulation score driven entirely by a rising DMA200 while MFI is Neutral and OBV is flat is a weaker read than one where all three fire green.<br>
-                <strong>Footer</strong> — today's percentage change and the RVOL Directionnel. Always check these last: they tell you whether what happened yesterday reinforces or contradicts the score built from the previous 14–20 days.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sentiment_row8_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sentiment_row8_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Biases &amp; herding risks</div>
-              <div class="lrn-panel-row-val">This is the section of the dashboard that requires the most critical reading. Here are the specific, concrete risks:<br><br>
-
-                <strong>All three indicators are backward-looking — by design.</strong> MFI looks at the last 14 days. OBV at the last 20. DMA200 at the last 200. They summarize what already happened, not what will happen. A score of Euphoric Bullish today reflects the past few weeks of behavior. Markets can reverse in hours on a single macro announcement. The score does not know what is coming.<br><br>
-
-                <strong>"Smart Money" is a label, not a fact.</strong> SAINHE has zero access to dark pool data, institutional order flow, or any proprietary transaction records. The term "Smart Money" is borrowed from technical analysis jargon. What the score actually detects is <em>price and volume patterns that historically correlate with institutional activity</em>. That correlation is real but imperfect. It can and does break down, especially in highly-shorted ETFs, during index rebalances, or when options expiration mechanically inflates volume on specific days.<br><br>
-
-                <strong>Herding — the self-fulfilling loop that reverses at the top.</strong> SAINHE is not the only tool using these indicators. MFI, OBV, and the 200-day MA are among the most widely-used signals in professional finance. When a large population of traders all see ACCUMULATION at the same time, they all buy. That buying pushes the price up and further validates the signal. The real institutional money, which entered earlier at lower prices, then sells into this retail-driven rally. The signal was accurate in the past — and precisely because everyone acted on it, it becomes wrong going forward. This is the central paradox of popular technical indicators.<br><br>
-
-                <strong>Euphoric Bullish is a warning, not a green light.</strong> A score above +0.60 means every indicator is pushed to its extreme. But markets do not accelerate indefinitely — Euphoric readings frequently mark the <em>end</em> of a move. Mean reversion risk is highest when sentiment is most positive. Buying into Euphoria because "it's been working" is the single most common way retail investors buy the very top of a move. The correct reaction to Euphoric is not to buy — it is to ask what would need to change for the score to fall from here.<br><br>
-
-                <strong>OBV is distorted by mechanical events.</strong> Options expiration (typically every third Friday), ETF creation/redemption flows, quarterly index rebalances, and end-of-year tax-loss selling all generate large volume spikes that are unrelated to directional conviction. A single quarterly rebalance day can shift the 20-day OBV direction. SAINHE cannot distinguish this mechanical volume from genuine accumulation or distribution. When you see ACCUMULATION on a week that included expiration Friday, reduce your confidence in that reading.<br><br>
-
-                <strong>MFI false signals in thin ETFs.</strong> The MFI formula works best in instruments with large, consistent daily volume. In smaller-capitalization ETFs — Space, Digital Assets, Agriculture — a single institutional trade can represent 20–30% of a day's normal volume. That single trade can shift the MFI reading for the entire 14-day window. These sectors are more susceptible to misleading MFI signals than Tech, Finance, or Healthcare where volume is consistently deep.<br><br>
-
-                <strong>DMA200 is a crowded signal — which cuts both ways.</strong> Because virtually every professional and semi-professional market participant watches the 200-day moving average, a break above it triggers mechanical buying (making the breakout more powerful) and a break below triggers mechanical selling (making the drop deeper). This self-reinforcing behavior makes the DMA200 appear more predictive than it actually is. In strongly trending markets it is genuinely useful. In choppy, sideways markets it generates "whipsaws" — the price crosses the line repeatedly in both directions, triggering false signals each time.<br><br>
-
-                <strong>The lag is compounded, not averaged.</strong> Combining three lagging indicators does not cancel their delays — it layers them. MFI lags 14 days, OBV lags 20 days, DMA200 lags up to 200 days. A sector can begin deteriorating fundamentally well before the sentiment score reflects it. By the time all three components turn negative, a significant price decline may already be in progress. The score confirms trends; it does not predict reversals.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sentiment_row9_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sentiment_row9_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">How to use it well</div>
-              <div class="lrn-panel-row-val">Use this section as a <strong>confirmation layer, not a primary signal</strong>.<br><br>
-                <strong>Step 1 — find candidate sectors in the Sectors box</strong> (positive momentum score, gold border). Step 2 — open Sentiment and check the matching card. If OBV shows ACCUMULATION, MFI is not Oversold, and the Law 3 Divergence flag is absent, the momentum has volume support. If OBV shows DISTRIBUTION while the sector score is high, the momentum lacks conviction — be cautious.<br><br>
-                <strong>The three-layer maximum conviction setup</strong>: Accumulation sentiment score + Law 2 RVOL Confirm firing (RVOL Dir > +120%) + gold border in Sectors. All three simultaneously means: money is flowing in (MFI), volume is heavy and directionally bullish (RVOL Dir), OBV is rising (ACCUMULATION), price is above the long-term average (DMA200), and the sector beats its global equivalent (R-Perf positive). This combination is rare — when it occurs, it represents the most credible positive setup this dashboard can produce.<br><br>
-                <strong>As a contrarian flag</strong>: Extreme Bearish in a sector that has already been falling for months is worth noting. When every indicator is maximally negative, it typically means the heavy selling has already happened. The marginal seller is exhausted. This does not guarantee a reversal — but it shifts the risk/reward math. It is a reason to watch rather than dismiss the sector.<br><br>
-                <strong>Always check the timestamp</strong> under the box header. If the sentiment data is more than 30 hours old, the score may not reflect recent trading sessions. In fast-moving markets, a stale sentiment reading is worse than no reading.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_sentiment_row10_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_sentiment_row10_val | safe }}</div>
             </div>
 
           </div>
@@ -1108,34 +945,13 @@ window.addEventListener('resize', function() {
         <div class="lrn-tab-panel" id="lrn-tips">
           <div class="lrn-panel-hdr">
             <span class="lrn-panel-num">→</span>
-            <div class="lrn-panel-title">Tips &amp; Tricks</div>
+            <div class="lrn-panel-title">{{ t.learn_dash_tips_panel_title }}</div>
           </div>
           <div class="lrn-panel-rows">
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Reading order</div>
-              <div class="lrn-panel-row-val">The dashboard is numbered <strong>01–06 to match the professional reading sequence</strong>. Follow the boxes in order — each step builds context that changes how you interpret the next one. A BUY signal read in isolation is noise. The same BUY signal read after completing all six steps is either high conviction or immediately suspect — you will know which.<br><br>
-
-                <strong>Step 1 — Box 01 · Macro</strong><br>
-                Start here, before looking at a single price. Check four things in under ten seconds: is the ERP attractive or stretched (are stocks cheap vs bonds, or expensive)? Is the yield curve normal, flat, or inverted (expansion or recession signal)? Is the VIX below 20 (calm) or rising (fear building)? Is the DXY falling (supportive for global assets) or surging (headwind)?<br><br>
-                This establishes the <em>environment</em>. If Macro is hostile — inverted curve, expensive ERP, VIX above 25, DXY rising — every bullish signal in the boxes below carries less weight. You are swimming against the tide. If Macro is supportive across all four, confidence in downstream signals increases meaningfully. If it is mixed — the most common case — you need stronger confirmation from the layers below before acting.<br><br>
-
-                <strong>Step 2 — Box 02 · Indices</strong><br>
-                Now check whether the macro reading is showing up in actual prices. Look at the Smart Money column: are the major indices showing Accumulation or Distribution? Is RVOL elevated or muted? Cross-reference directly with Step 1: if Macro says expansion but the S&amp;P 500 shows Distribution on above-average volume, there is a contradiction. That contradiction is itself a signal — something is shifting. If Macro and Indices agree in the same direction, conviction rises. Check the VIX + DXY strip at the bottom of the box as a quick confirmation of the macro read you formed in Step 1.<br><br>
-
-                <strong>Step 3 — Box 03 · News</strong><br>
-                Find the narrative behind what you see in prices. A sector or index dropping 2% without any news is a technically interesting anomaly — something is moving without an obvious catalyst, worth investigating further. The same drop alongside a central bank surprise or an escalating trade dispute is entirely explainable and may already be fully priced in. News does not change the score — but it changes how much weight you give it. Reading headlines before acting on any signal prevents you from mistaking a known, priced-in event for a new opportunity.<br><br>
-
-                <strong>Step 4 — Box 04 · Sectors</strong><br>
-                Now zoom in. Switch to the <strong>World</strong> tab and the <strong>3M</strong> period. Look for sectors with both a gold left border (above DMA200) and a score tint (Score &gt; +0.30) — these are the industries that have received sustained money flows consistent with the macro regime established in Step 1. Not every green sector qualifies: a sector rising in a hostile macro environment is a counter-trend trade, not a rotation confirmation. You want sectors where the direction of money flow aligns with the context. These are your candidates.<br><br>
-
-                <strong>Step 5 — Box 05 · Sentiment</strong><br>
-                Validate your candidate sectors against institutional footprints. For each sector identified in Step 4, check its Sentiment card. Does OBV show <strong>ACCUMULATION</strong>? Is MFI above 40 and not flashing distribution? Is the sector above DMA200? If all three law tags are green and the score is Accumulation — the volume-based evidence supports the price-based momentum. If the Divergence Law (Law 3) is firing — positive sentiment score but underperforming its global equivalent — the strength is local noise, not genuine leadership. That sector drops off your list. If RVOL Directionnel in the card footer is above +120% and OBV is accumulating, that is the highest-conviction setup this dashboard produces.<br><br>
-
-                <strong>Step 6 — Box 06 · Portfolio</strong><br>
-                Only now look at individual positions. By this point you know the environment (Macro), what prices confirm (Indices), what the event context is (News), where institutional money is rotating (Sectors), and whether volume evidence supports the narrative (Sentiment). A <strong>BUY signal</strong> in Portfolio that is consistent with all five upstream layers is high conviction — all of the following align: favorable macro, indices confirming, no contradicting news, sector in rotation, institutional accumulation visible. A BUY signal that contradicts any one of those layers deserves skepticism. A BUY signal that contradicts multiple layers is likely a false positive — a local technical rebound inside a broader deterioration.<br><br>
-
-                <strong>The rule:</strong> the more upstream layers agree with a downstream signal, the higher the conviction. The more they contradict, the lower. This hierarchy is what separates a reading from a guess.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_tips_row1_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_tips_row1_val | safe }}</div>
             </div>
 
           </div>
@@ -1144,89 +960,44 @@ window.addEventListener('resize', function() {
         <!-- ══ TAB: MACRO ════════════════════════════════ -->
         <div class="lrn-tab-panel" id="lrn-macro">
           <div class="lrn-panel-hdr">
-            <span class="lrn-panel-num">01</span>
-            <div class="lrn-panel-title">Macro-Health</div>
+            <span class="lrn-panel-num">{{ t.learn_dash_macro_panel_num }}</span>
+            <div class="lrn-panel-title">{{ t.learn_dash_macro_panel_title }}</div>
           </div>
           <div class="lrn-panel-rows">
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">What it is</div>
-              <div class="lrn-panel-row-val">The Macro-Health box answers a single question: <strong>is the broader economic environment friendly or hostile to investing in stocks right now?</strong> It does this with four instruments — the Equity Risk Premium (ERP), the Yield Curve, the VIX, and the DXY — all calculated from live market data with no opinion or narrative involved.<br><br>
-                Think of these four signals as the <strong>weather conditions of financial markets</strong>. Individual sectors and stocks are like ships: a ship can be well-built, but if the sea is stormy and the wind is against you, even the best ship struggles. The Macro box tells you what the sea looks like before you decide whether to sail.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_row_what_it_is }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_macro_row1_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">ERP — Equity Risk Premium</div>
-              <div class="lrn-panel-row-val">The ERP answers the most fundamental question in all of investing: <strong>are stocks actually worth buying compared to the safe alternative?</strong><br><br>
-                The "safe alternative" in finance is a US government bond — specifically the 10-Year Treasury yield. When you lend money to the US government for 10 years, you are guaranteed a fixed return (e.g. 4.5%) with essentially zero risk of losing your money. Stocks, by contrast, carry real risk — prices can drop 50%. So the question becomes: how much extra return are stocks offering over that safe rate? That extra return is the Equity Risk Premium.<br><br>
-                Two definitions before the formula:<br>
-                The <strong>P/E ratio</strong> (Price-to-Earnings) measures how much investors collectively pay per dollar of annual corporate earnings. An S&amp;P 500 P/E of 25 means the market pays $25 for each $1 of earnings — an implicit yield of 4% (1 ÷ 25). This is the <strong>Earnings Yield</strong>. When the P/E rises (stocks get expensive), the earnings yield falls and the ERP compresses. When the P/E falls (stocks get cheap), the earnings yield rises and the ERP widens.<br><br>
-                <strong>The formula:</strong> <code>ERP = Earnings Yield of S&amp;P 500 − 10Y Treasury Yield</code><br>
-                Earnings Yield = 1 ÷ S&amp;P 500 P/E ratio. If the S&amp;P 500 trades at a P/E of 25, its earnings yield is 4%. If the 10Y yield is 4.5%, ERP = −0.5% — bonds are yielding more than equities. That is the definition of an irrational market for stocks.<br><br>
-                <strong>Three regimes:</strong><br>
-                <strong style="color:rgba(76,170,96,1)">ERP &gt; 2% — Attractive.</strong> Stocks offer at least 2% more than bonds after accounting for risk. Historically, this is a good long-term entry environment.<br>
-                <strong>ERP 0–2% — Neutral / Expensive.</strong> The premium is thin. Stocks are priced for perfection — any disappointment hits hard.<br>
-                <strong style="color:rgba(216,80,72,1)">ERP &lt; 0% — Irrational.</strong> Bonds are beating equities on a yield basis. Historically rare and often precedes a correction or a rate cut cycle.<br><br>
-                The ERP is not a timing signal — it does not tell you the market will drop next week. It is a <em>valuation context</em>: at low ERP, the margin of safety for stocks is thin. At high ERP, there is room to absorb disappointments.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_macro_row2_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_macro_row2_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Yield Curve</div>
-              <div class="lrn-panel-row-val">The yield curve is one of the most closely watched recession indicators in macroeconomics. SAINHE tracks the <strong>10Y − 3M Treasury spread</strong>: the difference between what the US government pays to borrow for 10 years versus what it pays to borrow for 3 months.<br><br>
-                In a normal, healthy economy, long-term borrowing costs more than short-term borrowing — investors want extra compensation for locking their money up longer and for uncertainty. So the 10-year yield is normally <em>higher</em> than the 3-month yield, producing a positive spread. This is called a <strong>normal</strong> or <strong>steep</strong> curve.<br><br>
-                When the curve <em>inverts</em> — the 3-month yield exceeds the 10-year — it means investors believe the economy is about to slow sharply. The Federal Reserve will have to cut short-term rates to stimulate growth, making long-term rates fall in anticipation. Every major US recession since 1970 has been preceded by an inverted yield curve. But the lead time varies: 6 to 24 months between inversion and actual recession. That uncertainty is why SAINHE does not treat inversion as an immediate alarm.<br><br>
-                <strong>Four regimes:</strong><br>
-                <strong style="color:rgba(76,170,96,1)">Steep (&gt; +1.0%)</strong> — positive slope, wide spread. Classic expansion signal. Risk-on environment historically favorable.<br>
-                <strong>Flat (0 to +1.0%)</strong> — spread narrowing. Economy transitioning. No clear signal — monitor for direction of change.<br>
-                <strong>Partial Inversion (−0.5% to 0)</strong> — caution zone. Historical false positives exist: 1998 (no recession followed) and 2019 (COVID interrupted the cycle, not a natural recession). Do not treat as a certainty.<br>
-                <strong style="color:rgba(216,80,72,1)">Full Inversion (&lt; −0.5%)</strong> — recession probable, not certain. Historical lead time 6–24 months. The longer the inversion persists, the higher the probability.<br><br>
-                There is a fifth state SAINHE flags separately: <strong>Disinversion</strong> — when the spread was negative and starts rising back toward zero. Counterintuitively, this is often <em>more dangerous</em> than the inversion itself. Historically, many recessions begin not during the deepest inversion, but precisely as the curve disinverts — because it means the Fed has already started cutting rates in response to visible economic stress.<br><br>
-                The two raw inputs — the 10-Year yield (ticker <code>TNX</code>) and the 3-Month yield (ticker <code>IRX</code>) — are also visible as live instruments in the <strong>Indices box</strong>, in the Global region. There you can read their absolute levels and daily percentage changes. Here in Macro, SAINHE uses those same figures to compute the spread and assign the regime label. The two boxes share the same underlying data: if TNX is falling and IRX is flat, the spread is widening — that is exactly what a disinversion looks like in practice.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_macro_row3_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_macro_row3_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">VIX — Fear Index</div>
-              <div class="lrn-panel-row-val">The VIX is the <strong>implied volatility of the S&amp;P 500 over the next 30 days</strong>, derived from options prices. It does not measure what is happening today — it measures what options traders are <em>paying to protect themselves against</em> in the near future. High options prices mean high fear. Low prices mean complacency.<br><br>
-                The VIX is sometimes called the "Fear Index" because it spikes during market stress and collapses during calm periods. It is calculated continuously and moves in real time — one of the few forward-looking indicators on the dashboard.<br><br>
-                <strong>Four regimes:</strong><br>
-                <strong>VIX &lt; 15 — Complacency.</strong> Markets are calm, almost eerily so. Options are cheap because nobody is buying protection. Historically, extreme complacency (VIX below 12) has sometimes preceded sharp corrections — not because the VIX caused them, but because low fear means leverage is high and positioning is stretched. Be alert, not bullish.<br>
-                <strong>VIX 15–20 — Normal.</strong> Healthy uncertainty. Markets are functioning with appropriate caution. This range is the baseline for typical trading conditions.<br>
-                <strong>VIX 20–30 — Elevated Fear.</strong> Investors are actively buying protection. Volatility is above normal. Risk assets typically underperform in this range.<br>
-                <strong>VIX &gt; 30 — Panic.</strong> Full-scale fear. Options are expensive because institutions are scrambling for hedges. Historically, VIX spikes above 30 have often been followed by strong medium-term recoveries — not because the crisis was over, but because panic means the heaviest selling is already done. VIX above 40 has historically been a contrarian buy signal for patient, long-term investors.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_macro_row4_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_macro_row4_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">DXY — US Dollar</div>
-              <div class="lrn-panel-row-val">The DXY is an index of the US dollar's value against a basket of six major currencies (euro, Japanese yen, British pound, Canadian dollar, Swedish krona, Swiss franc). It measures <strong>global demand for the dollar</strong>.<br><br>
-                Why does a currency index affect stocks? Because the dollar is the world's reserve currency — almost all global trade and most commodity prices are denominated in dollars. A strong dollar means:<br><br>
-                <strong>For US multinationals</strong> — revenues earned abroad (in euros, yen, etc.) convert back to fewer dollars, which compresses reported earnings. US exporters also become less competitive globally.<br>
-                <strong>For emerging market equities and bonds</strong> — a strong dollar raises the real cost of their dollar-denominated debt. This is why DXY rises tend to correlate with stress in emerging markets (Brazil, India, Turkey, Southeast Asia).<br>
-                <strong>For commodities</strong> — oil, gold, copper, and agricultural products are priced in dollars globally. When the dollar strengthens, these commodities become more expensive in local currencies, which often reduces demand, pushing prices down. A falling DXY tends to support commodity prices.<br><br>
-                <strong>SAINHE's signal:</strong> DXY rising day-on-day = bearish for equities and commodities. DXY falling = supportive. The 1-month return shown in the box tells you whether this is a trend or a single-day move — a trend matters far more than a daily blip.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_macro_row5_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_macro_row5_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">How the 4 combine</div>
-              <div class="lrn-panel-row-val">Each indicator tells a different part of the story. Reading them together is more powerful than any single one alone:<br><br>
-                <strong>Risk-On environment (best backdrop for equities):</strong><br>
-                ERP Attractive + Yield Curve Steep + VIX below 20 + DXY stable or falling.<br>
-                Translation: stocks are reasonably priced vs bonds, the economy is not signaling recession, fear is low, and the dollar is not creating headwinds. This is the backdrop in which individual sector and sentiment analysis carries the most weight — you are swimming with the tide.<br><br>
-                <strong>Defensive environment (reduce risk exposure):</strong><br>
-                ERP below 1% + Yield Curve Fully Inverted or Disinverting + VIX above 25 + DXY rising sharply.<br>
-                Translation: stocks are expensive vs bonds, recession signals are active, fear is elevated, and dollar strength is pressuring global assets. Even the best-looking sector signals become suspect in this environment — the tide is against you.<br><br>
-                <strong>Mixed environment (most common — be selective):</strong><br>
-                Two signals positive, two negative. This is the default condition most of the time. It means the market is in transition. Use the Sectors and Sentiment boxes more carefully — seek sectors where all layers align, and avoid those where any layer contradicts.<br><br>
-                <strong>The most dangerous combination — often missed:</strong><br>
-                VIX below 15 + ERP below 1% + Yield Curve disinverting. Complacency, expensive stocks, and the recession clock starting. This was the environment in early 2007 and late 2021 — markets were still rising, everyone felt fine, but the foundation had already shifted.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_macro_row6_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_macro_row6_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Limitations &amp; biases</div>
-              <div class="lrn-panel-row-val"><strong>The yield curve predicts direction, not timing.</strong> The famous 6–24 month lead time means you can be right about a recession coming and still lose money if you exit the market 18 months too early. Markets often continue rising well into an inversion. Using the yield curve as a sell signal requires patience and conviction that most investors do not have — and most cannot afford.<br><br>
-                <strong>The ERP depends on the P/E ratio, which is a lagging estimate.</strong> The trailing P/E uses the last 12 months of earnings. If the economy is about to slow and earnings are about to fall, the real future P/E is higher than the current number — meaning ERP looks better than it actually is. Forward P/E (analyst estimates) has the opposite problem: analysts are systematically over-optimistic about future earnings, making ERP look artificially attractive.<br><br>
-                <strong>VIX measures fear of volatility, not volatility itself.</strong> A low VIX does not mean markets are safe — it means market participants are not paying for protection. Crashes can begin from very low VIX readings because nobody was hedged. The VIX is a sentiment indicator as much as a risk indicator.<br><br>
-                <strong>DXY is US-centric.</strong> It tracks the dollar against six developed-market currencies from the 1970s. It gives zero weight to the Chinese yuan — the second-largest economy in the world. A rising DXY while USD/CNY is falling tells a different story than it appears in the index alone.<br><br>
-                <strong>These are macro filters, not timing tools.</strong> None of the four signals tells you when to buy or sell a specific asset. They set the context. A surgeon analogy: macro conditions are the hospital environment — clean or contaminated. The Sectors and Sentiment boxes are the surgeon's technique. Even in a contaminated environment, precise technique matters. Even in ideal conditions, poor technique fails.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_macro_row7_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_macro_row7_val | safe }}</div>
             </div>
 
           </div>
@@ -1235,99 +1006,64 @@ window.addEventListener('resize', function() {
         <!-- ══ TAB: PORTFOLIO ════════════════════════════ -->
         <div class="lrn-tab-panel" id="lrn-portfolio">
           <div class="lrn-panel-hdr">
-            <span class="lrn-panel-num">06</span>
-            <div class="lrn-panel-title">Portfolio Signal Table</div>
+            <span class="lrn-panel-num">{{ t.learn_dash_portfolio_panel_num }}</span>
+            <div class="lrn-panel-title">{{ t.learn_dash_portfolio_panel_title }}</div>
           </div>
           <div class="lrn-panel-rows">
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">What it is</div>
-              <div class="lrn-panel-row-val">The Portfolio box is a <strong>watchlist scanner</strong>: a table of individual stocks and ETFs that you follow, each analyzed automatically by the same indicators used throughout the rest of the dashboard. Where the Sectors box zooms out to 16 industries and Sentiment looks at sector ETFs, the Portfolio box zooms all the way in to <strong>specific tickers</strong> — the actual names in your tracking list.<br><br>
-                Every row in the table is updated at each pipeline run. The result is not a news opinion or an analyst recommendation — it is a structured summary of what the price and volume data for each ticker is saying right now, expressed in a format designed to be scanned quickly and acted on carefully.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_row_what_it_is }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_portfolio_row1_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">The columns</div>
-              <div class="lrn-panel-row-val">The table has nine columns. Reading left to right:<br><br>
-                <strong>Category</strong> — the sector this ticker belongs to (Tech &amp; Semis, Energy, Healthcare, etc.). Groups your positions by industry so you can see at a glance where you are concentrated.<br><br>
-                <strong>Ticker + Name</strong> — the stock symbol and company name. A small colored dot next to the name is a <strong>staleness indicator</strong>: green = data updated within 6 hours, yellow = 6–30 hours, orange = 30–72 hours, grey = older. If the dot is not green, double-check before acting — the signal may be based on stale data.<br><br>
-                <strong>Sparkline</strong> — a 7-day mini chart of adjusted closing prices. One glance tells you the recent direction without reading a single number.<br><br>
-                <strong>Price</strong> — the most recent adjusted closing price in your selected currency. Adjusted means it accounts for stock splits and dividend payments — it is the fair historical comparison number, not the raw price.<br><br>
-                <strong>Today %</strong> — the percentage change on the most recent trading day. Green = rose, red = fell.<br><br>
-                <strong>1M / 3M / 1Y</strong> — performance over the last month, last three months, and last year. These three together show whether a stock is in a short-term bounce within a longer downtrend, or in a sustained multi-timeframe uptrend.<br><br>
-                <strong>Score</strong> — the composite momentum score (see below).<br><br>
-                <strong>Signal</strong> — the automated verdict: BUY, WATCH, or AVOID.<br><br>
-                <strong>Evidence</strong> — the specific data points that drove the Signal, in raw format (e.g. <code>↑DMA200 ↑Score ↑RVOL</code>). This is the most important column: it tells you <em>why</em> the signal was generated, not just what it says.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_portfolio_row2_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_portfolio_row2_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Pulse bar</div>
-              <div class="lrn-panel-row-val">The horizontal strip at the very top of the Portfolio box — above the column headers — is the <strong>Pulse</strong>. It shows four aggregate numbers computed across all positions in the watchlist: total mark-to-market value in your selected currency, average daily change today (%), average composite Score, and a BUY / WATCH / AVOID count breakdown. It is a one-line health check of the watchlist as a whole. If six out of ten positions are AVOID and the average Score is negative, the Pulse makes that visible before you read a single row.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_portfolio_row3_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_portfolio_row3_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Anomaly feed</div>
-              <div class="lrn-panel-row-val">Directly below the Pulse, a narrow strip surfaces <strong>automatic flags from the most recent pipeline run</strong>. Examples: a position crossing its 200-day moving average, a relative volume spike above 1.5×, a signal flipping from BUY to AVOID. Alerts are color-coded — <span style="color:var(--green)">green</span> for positive structural events, <span style="color:var(--red)">red</span> for negative ones, <span style="color:var(--gold)">gold</span> for crossovers that require attention. If no anomaly fired in the last pipeline run, the strip is hidden entirely. Check it first — it tells you exactly which rows deserve scrutiny that day.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_portfolio_row4_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_portfolio_row4_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Expand a row</div>
-              <div class="lrn-panel-row-val">Click any position row to open a <strong>detail panel</strong> directly beneath it. The panel shows a larger, higher-resolution sparkline, plus the raw component values behind the Score — including the 6-month return, which is an input to the formula but is not displayed as a standalone column in the main table. It also shows the exact fetch timestamp for that individual ticker. Click the same row again to collapse. Only one row can be open at a time.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_portfolio_row5_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_portfolio_row5_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Column toggles &amp; sort</div>
-              <div class="lrn-panel-row-val">Two interactions are built into the column headers:<br><br>
-                <strong>Collapse groups</strong> — the return columns (1M / 3M / 1Y) and the signal columns (Score / Signal / Evidence) each have a small <strong>+</strong> toggle button in their shared header. Clicking it collapses that group into a single thin column, giving a cleaner view when you only want prices and daily change — especially useful on smaller screens.<br><br>
-                <strong>Sort</strong> — clicking any column header sorts the entire table by that column: once for descending, again for ascending. The active sort column is highlighted in gold. Use this to rank positions by Score (strongest momentum), by 3M return (best medium-term performers), or by today’s daily change (session outliers).</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_portfolio_row6_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_portfolio_row6_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">The Score</div>
-              <div class="lrn-panel-row-val">The Score is a <strong>composite momentum indicator</strong> that weighs recent performance across four time windows:<br><br>
-                <code>Score = 1M return × 20% + 3M return × 30% + 6M return × 30% + 1Y return × 20%</code><br><br>
-                The result is a single number, displayed in green if positive (above +0.10), red if negative (below −0.10), and grey if neutral.<br><br>
-                The weighting places the heaviest emphasis on the medium-term (3M and 6M together = 60%), with equal 20% bookends at either end (1M and 1Y). This means a recent short-term bounce barely moves the score on its own — the 3M and 6M windows must also be healthy for a high score to register. A stock that has been strong across all four windows gets the highest scores.<br><br>
-                Important: the Score is purely <em>price-based momentum</em>. It says nothing about whether the company is fundamentally healthy, whether it is profitable, or whether the valuation is reasonable. A high Score means the price has been rising across multiple timeframes. That is a useful technical signal — but it is not a fundamental endorsement.<br><br>
-                One detail: the <strong>6M return</strong> (30% weight — the largest single input) is computed internally but not displayed as a standalone column in the main table. The visible return columns are 1M, 3M, and 1Y. The 6M figure is available in the <strong>row detail panel</strong> when you click any position to expand it.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_portfolio_row7_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_portfolio_row7_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">BUY / WATCH / AVOID</div>
-              <div class="lrn-panel-row-val">The Signal is generated by combining the Score with the DMA200 position:<br><br>
-                <strong style="color:rgba(76,170,96,1)">BUY</strong> — the Score is strongly positive <em>and</em> the price is above its 200-day moving average. Both momentum and long-term trend structure are positive. This is the highest-confidence setup the box produces.<br><br>
-                <strong style="color:rgba(216,80,72,1)">AVOID</strong> — the Score is negative <em>and</em> the price is below its 200-day moving average. Both momentum and trend are working against this position. This does not necessarily mean "sell everything" — but it means the data does not support adding to or initiating a position here.<br><br>
-                <strong>WATCH</strong> — mixed or borderline signals. Either the Score is positive but price is below DMA200 (momentum rising but trend not yet confirmed), or the Score is weak but price is above DMA200 (trend intact but momentum fading). Watch means: the picture is incomplete, do not act until one or more signals clarify.<br><br>
-                Note: these signals are generated from price and volume data only. A stock can show BUY while facing a major legal risk, a product recall, or a governance scandal that is not yet priced in. Always read the Signal alongside the Evidence column and cross-check with the News Feed.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_portfolio_row8_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_portfolio_row8_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">The Evidence string</div>
-              <div class="lrn-panel-row-val">The Evidence column shows the specific data flags that fired when the signal was calculated. It uses a compact notation:<br><br>
-                <code>↑DMA200</code> — price is above the 200-day moving average<br>
-                <code>↓DMA200</code> — price is below the 200-day moving average<br>
-                <code>↑Score</code> — composite momentum score is positive<br>
-                <code>↓Score</code> — composite momentum score is negative<br>
-                <code>↑RVOL</code> — relative volume is above average (more activity than usual)<br><br>
-                This string is deliberately minimal — no narrative, no opinion. It shows you exactly which levers drove the automated verdict. Two BUY signals are not equal: a BUY driven by <code>↑DMA200 ↑Score ↑RVOL</code> (all three layers firing) is much stronger than a BUY driven by only <code>↑DMA200 ↑Score</code> without volume confirmation.<br><br>
-                The Evidence string is also how you spot a fragile signal: if a ticker shows BUY but the Evidence only has <code>↑DMA200</code> and the Score column is barely positive, the signal is borderline — treat it as WATCH in practice.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_portfolio_row9_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_portfolio_row9_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">How to use it</div>
-              <div class="lrn-panel-row-val">Start by reading the table <strong>top to bottom by category</strong>. Look for clusters: if three positions in the same sector all show AVOID, that sector has broad weakness in your specific holdings — cross-reference with the Sector and Sentiment boxes to understand if it is a sector-wide issue or isolated to those names.<br><br>
-                The most actionable setup: <strong>BUY signal + Evidence shows all three flags (↑DMA200, ↑Score, ↑RVOL) + the matching sector in the Sectors box has a gold border + the Sentiment card shows Accumulation</strong>. Four layers of agreement across two different boxes. That is the convergence this dashboard is designed to surface.<br><br>
-                The most dangerous overlooked signal: <strong>WATCH with a falling Score trend</strong>. A position that was BUY three weeks ago and is now WATCH with a Score that has dropped from +0.40 to +0.08 is quietly deteriorating. The signal has not turned AVOID yet — but momentum is leaving. These transitions are often more useful than a clean AVOID (which happens after a lot of the move has already occurred).<br><br>
-                Check the <strong>staleness dot</strong> first. If the data is orange or grey, the signal may be one or more trading sessions behind. In a fast-moving market, acting on stale signals is worse than not acting at all.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_row_how_to_use }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_portfolio_row10_val | safe }}</div>
             </div>
 
             <div class="lrn-panel-row">
-              <div class="lrn-panel-row-lbl">Limitations &amp; biases</div>
-              <div class="lrn-panel-row-val"><strong>The Score is backward-looking momentum — not value.</strong> A high score means the price has been rising. It does not mean the price is reasonable, the company is healthy, or the trend will continue. Some of the most expensive and overvalued stocks in history had the highest momentum scores right before they collapsed. Momentum works — until it stops, usually suddenly.<br><br>
-                <strong>The signal is binary at the thresholds.</strong> A stock with Score +0.11 above DMA200 gets BUY. A stock with Score +0.09 above DMA200 gets WATCH. These two stocks are essentially identical, but the label is different. Do not treat the label as a hard categorical truth — read the Score number and the Evidence string to understand how strong the signal actually is.<br><br>
-                <strong>No fundamental data.</strong> Revenue growth, profit margins, debt load, management quality, competitive position — none of this is in the Score or the Signal. A technically strong ticker can be fundamentally deteriorating. The Portfolio box is a <em>technical filter</em>, not a fundamental analysis tool.<br><br>
-                <strong>Concentration blindness.</strong> The table shows each ticker independently. It does not warn you if 8 out of 10 positions are in the same sector (all showing BUY because the sector is in a bull run). Sector concentration is a risk that requires reading the Category column deliberately, not just the Signal column.<br><br>
-                <strong>The pipeline runs once per day.</strong> Prices update at 22:00 UTC on weekdays after US market close. Intraday moves — an earnings release, a surprise announcement, a flash crash — will not appear in the table until the next pipeline run. For fast-moving situations, always verify with a live source before acting on a signal that was generated hours ago.</div>
+              <div class="lrn-panel-row-lbl">{{ t.learn_dash_macro_row7_lbl }}</div>
+              <div class="lrn-panel-row-val">{{ t.learn_dash_portfolio_row11_val | safe }}</div>
             </div>
 
           </div>
@@ -1336,8 +1072,8 @@ window.addEventListener('resize', function() {
 
         <!-- ══ EMPTY STATE (no tab selected) ══════════ -->
         <div class="lrn-empty" id="lrn-empty" style="text-align:center;padding:3rem 1rem">
-          <div class="lrn-empty-icon" style="color:rgba(196,149,90,.45);font-size:1.4rem;margin-bottom:.8rem">←</div>
-          <p class="lrn-empty-txt" style="color:rgba(245,232,208,.45);font-size:.9rem;line-height:1.6;max-width:340px;margin:0 auto">Select a topic on the left to explore the dashboard — each section has its own detailed breakdown.</p>
+          <div class="lrn-empty-icon" style="color:rgba(196,149,90,.45);font-size:1.4rem;margin-bottom:.8rem">{{ t.learn_dash_empty_icon }}</div>
+          <p class="lrn-empty-txt" style="color:rgba(245,232,208,.45);font-size:.9rem;line-height:1.6;max-width:340px;margin:0 auto">{{ t.learn_dash_empty_txt }}</p>
         </div>
 
       </div><!-- /lrn-body -->
@@ -1373,21 +1109,21 @@ window.addEventListener('resize', function() {
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="learn-stockanalysis">
       
-      <h2>Stock Analysis</h2><em>How to Dissect a Company</em>
+      <h2>{{ t.learn_sa_section_title }}</h2><em>{{ t.learn_sa_section_sub }}</em>
     </div>
     <div class="shell-placeholder">
-      <p>A walkthrough of the six analysis modules — from reading insider flow to building a valuation thesis and stress-testing it against macro tides. Coming soon.</p>
+      <p>{{ t.learn_sa_placeholder }}</p>
     </div>
   </div>
 
   <!-- ═══ PIPELINE STRIP ══════════════════════════════════════ -->
   <div class="pipeline">
-    <span>SAINHE pipeline</span>
+    <span>{{ t.learn_pipeline_label }}</span>
     <span class="pl-dot"></span>
-    <span>Fetch</span><span class="pl-arr">→</span>
-    <span>Compute</span><span class="pl-arr">→</span>
-    <span>Render</span><span class="pl-arr">→</span>
-    <span>Read</span>
+    <span>{{ t.learn_pipeline_fetch }}</span><span class="pl-arr">→</span>
+    <span>{{ t.learn_pipeline_compute }}</span><span class="pl-arr">→</span>
+    <span>{{ t.learn_pipeline_render }}</span><span class="pl-arr">→</span>
+    <span>{{ t.learn_pipeline_read }}</span>
   </div>
 
 </main>
@@ -1496,3 +1232,17 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

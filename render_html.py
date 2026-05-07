@@ -47,14 +47,36 @@ MONTH_ABBR = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov",
 
 
 # ============================================================
-#  TRANSLATIONS — EN only (JS handles all other languages)
+#  TRANSLATIONS
 # ============================================================
 
-def load_translations() -> dict:
-    """Charge locales/en.json."""
-    path = LOCALES_DIR / "en.json"
+# Pages rendered once per language (SSG) vs client-side i18n
+SSG_PAGES = {"learn"}  # pages that get a separate HTML per language
+
+def load_translations(lang: str = "en") -> dict:
+    """Charge locales/<lang>.json. Falls back to empty dict if missing."""
+    path = LOCALES_DIR / f"{lang}.json"
+    if not path.exists():
+        return {}
     with open(path, encoding="utf-8") as f:
         return json.load(f)
+
+def merged_translations(lang: str) -> dict:
+    """EN as base, overlaid with lang-specific translations (fallback to EN for missing keys)."""
+    en = load_translations("en")
+    if lang == "en":
+        return en
+    return {**en, **load_translations(lang)}
+
+# Per-language URLs for SSG pages (used by language switcher)
+def ssg_lang_urls(page: str) -> dict:
+    """Returns {lang_code: url} mapping for a given SSG page."""
+    urls = {"en": f"/{page}.html"}
+    for lang in LANGUAGES:
+        code = lang.lower()
+        if code != "en":
+            urls[code] = f"/{code}/{page}.html"
+    return urls
 
 
 # ============================================================
@@ -188,6 +210,8 @@ def render(currency: str = DEFAULT_CURRENCY):
     headers_content = (
         "/*.html\n"
         "  Cache-Control: no-cache, must-revalidate\n\n"
+        "/*/*.html\n"
+        "  Cache-Control: no-cache, must-revalidate\n\n"
         "/locales/*.json\n"
         "  Cache-Control: no-cache, must-revalidate\n"
     )
@@ -195,12 +219,12 @@ def render(currency: str = DEFAULT_CURRENCY):
     log.info("_headers written")
 
     con       = sqlite3.connect(DB_PATH)
-    t         = load_translations()
+    t_en      = load_translations("en")
     boxes     = load_boxes(con, currency)
     fx_rates  = _get_fx_rates(con)
     ts_map    = _box_timestamps(con)
     ts_render = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    page_navs = build_page_navs(t)
+    page_navs = build_page_navs(t_en)
 
     env = Environment(loader=FileSystemLoader(str(TEMPLATE_DIR)), autoescape=True)
 
@@ -208,7 +232,7 @@ def render(currency: str = DEFAULT_CURRENCY):
     def _data(bid): return boxes_by_id.get(bid, {}).get("data", {})
     def _meta(bid): return boxes_by_id.get(bid, {}).get("meta", {})
 
-    # Shared context (no i18n_json / locale_js / lang_urls — client-side now)
+    # Shared base context (client-side i18n for non-SSG pages)
     base_ctx = {
         "site_name"   : SITE_NAME,
         "site_slogan" : SITE_SLOGAN,
@@ -220,7 +244,8 @@ def render(currency: str = DEFAULT_CURRENCY):
         "ts_render"   : ts_render,
         "i18n_ver"    : ts_render[:10],   # YYYY-MM-DD — busts localStorage locale cache on new deploy
         "fx_rates_js" : fx_rates,
-        "t"           : t,
+        "t"           : t_en,
+        "lang_urls"   : {},  # empty = client-side reload behavior
     }
 
     # ── 1. Dashboard ────────────────────────────────────────
@@ -256,12 +281,26 @@ def render(currency: str = DEFAULT_CURRENCY):
         "page_nav"     : page_navs["stock-analysis"],
     })
 
-    # ── 3. Learn ─────────────────────────────────────────────
-    _render_page(env, "learn.html", OUTPUT_DIR / "learn.html", {
-        **base_ctx,
-        "current_page" : "learn",
-        "page_nav"     : page_navs["learn"],
-    })
+    # ── 3. Learn — SSG: one page per language ────────────────
+    learn_lang_urls = ssg_lang_urls("learn")
+    for lang_entry in LANGUAGES:
+        lang_code = lang_entry.lower()
+        t_lang    = merged_translations(lang_code)
+        lang_navs = build_page_navs(t_lang)
+        if lang_code == "en":
+            out_path = OUTPUT_DIR / "learn.html"
+        else:
+            lang_dir = OUTPUT_DIR / lang_code
+            lang_dir.mkdir(exist_ok=True)
+            out_path = lang_dir / "learn.html"
+        _render_page(env, "learn.html", out_path, {
+            **base_ctx,
+            "lang"         : lang_code,
+            "t"            : t_lang,
+            "current_page" : "learn",
+            "page_nav"     : lang_navs["learn"],
+            "lang_urls"    : learn_lang_urls,
+        })
 
     # ── 4. Contact ───────────────────────────────────────────
     _render_page(env, "contact.html", OUTPUT_DIR / "contact.html", {
@@ -271,7 +310,8 @@ def render(currency: str = DEFAULT_CURRENCY):
     })
 
     con.close()
-    log.info("Render complet — 4 pages EN + %d locales", len(locale_files))
+    n_learn = len(LANGUAGES)
+    log.info("Render complet — 4 pages + %d Learn SSG + %d locales", n_learn, len(locale_files))
 
 
 # ============================================================

@@ -893,6 +893,11 @@ a.news-hl:hover{color:var(--gold)}
   });
   </script>
 
+  <!-- SSG lang URLs: populated by Jinja2 for pages with per-language HTML -->
+  <script>
+  window.SAINHE_LANG_URLS = {{ lang_urls | tojson }};
+  </script>
+
   <!-- miniChart — shared sparkline helper (used by box_02, box_03, box_06) -->
   <script>
   function miniChart(cv, data, color, fill){
@@ -961,6 +966,13 @@ a.news-hl:hover{color:var(--gold)}
     var LOCALES={en:'en-US',fr:'fr-FR',de:'de-DE',es:'es-ES',zh:'zh-CN',ru:'ru-RU',ja:'ja-JP'};
     if(!LOCALES[code])return;
     try{localStorage.setItem('sainhe_lang',code);}catch(e){}
+    /* SSG pages: navigate to the pre-built language version */
+    var ssgUrl = (window.SAINHE_LANG_URLS||{})[code];
+    if(ssgUrl){
+      try{localStorage.setItem('sainhe_lang',code);}catch(e){}
+      location.href = ssgUrl;
+      return;
+    }
     if(code==='en'){location.reload();return;}
     var cached=null;
     try{cached=localStorage.getItem('sainhe_i18n_'+code);}catch(e){}
