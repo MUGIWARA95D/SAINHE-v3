@@ -204,5 +204,24 @@
 
   "learn_sb_label": "Apprendre ·",
   "learn_sb_body": "Comprenez chaque signal, lisez chaque section et agissez avec conviction.",
-  "learn_notice_en_only": "Cette page est en anglais. Utilisez la traduction automatique de votre navigateur si besoin."
+  "learn_notice_en_only": "Cette page est en anglais. Utilisez la traduction automatique de votre navigateur si besoin.",
+
+  "sectors": {
+    "Tech & Semis":        "Tech & Semi",
+    "Robotics & MedTech":  "Robotique & Medtech",
+    "Healthcare & Pharma": "Santé & Pharma",
+    "Finance & Transac.":  "Finance & Transac.",
+    "Strategic Materials": "Matériaux stratégiques",
+    "Energy":              "Énergie",
+    "Defense & Aerospace": "Défense & Aérospatial",
+    "EV & Clean Energy":   "VE & Énergie verte",
+    "Space":               "Espace",
+    "Luxury":              "Luxe",
+    "Agriculture":         "Agriculture",
+    "Infra & Water":       "Infra & Eau",
+    "Consumer Staples":    "Biens essentiels",
+    "Digital Assets":      "Actifs numériques",
+    "Industrials":         "Industrie",
+    "Chemicals":           "Chimie"
+  }
 }

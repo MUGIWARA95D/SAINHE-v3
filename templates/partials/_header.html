@@ -11,19 +11,20 @@
   })()" style="cursor:pointer">{{ site_name }}</span>
   <span class="logo-sub">{{ site_slogan }}</span>
   <nav class="hdr-nav">
-    <a href="#hero" class="hdr-nav-menu">{{ t.nav_menu }}</a>
+    <a href="#hero" class="hdr-nav-menu" data-i18n="nav_menu">{{ t.nav_menu }}</a>
     {% for link in page_nav %}
-    <a href="{{ link.href }}">{{ link.label }}</a>
+    <a href="{{ link.href }}" data-i18n="{{ link.key }}">{{ link.label }}</a>
     {% endfor %}
   </nav>
   <div class="spacer"></div>
   <!-- Language dropdown -->
   <div class="hdr-dd" id="dd-lang">
-    <button class="hdr-dd-btn" id="dd-lang-btn">{{ lang }}</button>
+    <button class="hdr-dd-btn" id="dd-lang-btn">EN</button>
     <div class="hdr-dd-menu">
       {% for code in languages %}
-      <div class="hdr-dd-item{% if code == lang %} active{% endif %}"
-           onclick="window.location.href='{{ lang_urls[code] }}'">{{ code }}</div>
+      <div class="hdr-dd-item"
+           data-lang="{{ code.lower() }}"
+           onclick="setLang('{{ code.lower() }}')">{{ code }}</div>
       {% endfor %}
     </div>
   </div>

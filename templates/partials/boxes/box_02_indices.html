@@ -2,10 +2,10 @@
 <!-- DATA: box_indices = {par_region: {USA:[{ticker,nom,close,chg_pct,sparkline,above_dma200,...}],...}, total:int} -->
 <section class="card" id="box-indices">
   <div class="card-h">
-    <span class="card-t">{{ t.box_indices_title }}</span>
+    <span class="card-t" data-i18n="box_indices_title">{{ t.box_indices_title }}</span>
     <div style="display:flex;align-items:center;gap:10px">
-      <span class="box-ts">{{ t.updated }} {{ ts_indices }}</span>
-      <span class="badge badge-gold">{{ box_indices.total }} {{ t.box_indices_badge_suffix }}</span>
+      <span class="box-ts"><span data-i18n="updated">{{ t.updated }}</span> {{ ts_indices }}</span>
+      <span class="badge badge-gold">{{ box_indices.total }} <span data-i18n="box_indices_badge_suffix">{{ t.box_indices_badge_suffix }}</span></span>
     </div>
   </div>
   <div style="overflow-x:auto"><table><thead><tr>
@@ -20,22 +20,6 @@
 </section>
 <script>
 (function(){
-  const I18N = window.SAINHE_I18N || {};
-  const LOC  = window.SAINHE_LOCALE || 'en';
-
-  /* column header labels */
-  var colMap = {
-    "th-index": I18N.col_index      ||"Index",
-    "th-7d":    I18N.col_7d         ||"7d",
-    "th-price": I18N.col_price      ||"Price",
-    "th-day":   I18N.col_day_pct    ||"% Day",
-    "th-rvol":  I18N.col_rvol       ||"RVOL",
-    "th-sm":    I18N.col_smart_money||"Smart Money"
-  };
-  Object.keys(colMap).forEach(function(id){
-    var el = document.getElementById(id);
-    if(el) el.textContent = colMap[id];
-  });
 
   function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
   function fmt(n){ return n!=null ? n.toLocaleString(LOC,{minimumFractionDigits:2,maximumFractionDigits:2}) : "—"; }
@@ -57,6 +41,21 @@
   var idxSparks = {};
 
   function renderIndices(){
+    var I18N = window.SAINHE_I18N || {};
+    var LOC  = window.SAINHE_LOCALE || 'en';
+    /* column header labels */
+    var colMap = {
+      "th-index": I18N.col_index      ||"Index",
+      "th-7d":    I18N.col_7d         ||"7d",
+      "th-price": I18N.col_price      ||"Price",
+      "th-day":   I18N.col_day_pct    ||"% Day",
+      "th-rvol":  I18N.col_rvol       ||"RVOL",
+      "th-sm":    I18N.col_smart_money||"Smart Money"
+    };
+    Object.keys(colMap).forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.textContent = colMap[id];
+    });
     Object.values(idxSparks).forEach(function(c){ try{ c.destroy(); }catch(e){} });
     Object.keys(idxSparks).forEach(function(k){ delete idxSparks[k]; });
 

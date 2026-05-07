@@ -2,9 +2,9 @@
 <!-- DATA: box_news = {par_region: {GLOBAL:[{source_id,titre,lien,resume,ts_pub}], USA:[...], EU:[...], ASIE:[...]}} -->
 <section class="card" id="box-news">
   <div class="card-h">
-    <span class="card-t">{{ t.box_news_title }}</span>
+    <span class="card-t" data-i18n="box_news_title">{{ t.box_news_title }}</span>
     <div style="display:flex;align-items:center;gap:10px">
-      <span class="box-ts">{{ t.updated }} {{ ts_news }}</span>
+      <span class="box-ts"><span data-i18n="updated">{{ t.updated }}</span> {{ ts_news }}</span>
       <span class="badge badge-red">&#9679; LIVE</span>
     </div>
   </div>
@@ -21,20 +21,7 @@
 </section>
 <script>
 (function(){
-  const I18N = window.SAINHE_I18N || {};
-
-  /* set tab labels */
-  var tabMap = {
-    "news-tab-global": I18N.tab_world  ||"World",
-    "news-tab-usa":    I18N.tab_usa    ||"USA",
-    "news-tab-eu":     I18N.tab_europe ||"Europe",
-    "news-tab-asie":   I18N.tab_asia   ||"Asia"
-  };
-  Object.keys(tabMap).forEach(function(id){
-    var el = document.getElementById(id);
-    if(el) el.textContent = tabMap[id];
-  });
-
+  var _curZone = "GLOBAL";
   function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
   const DATA = {{ box_news.par_region | tojson }};
 
@@ -48,6 +35,7 @@
   }
 
   function render(zone){
+    var I18N = window.SAINHE_I18N || {};
     var articles = DATA[zone] || [];
     var wrap = document.getElementById("news-scroll");
     wrap.textContent = "";
@@ -99,14 +87,35 @@
     });
   }
 
+  function setTabLabels(){
+    var I18N = window.SAINHE_I18N || {};
+    var tabMap = {
+      "news-tab-global": I18N.tab_world  ||"World",
+      "news-tab-usa":    I18N.tab_usa    ||"USA",
+      "news-tab-eu":     I18N.tab_europe ||"Europe",
+      "news-tab-asie":   I18N.tab_asia   ||"Asia"
+    };
+    Object.keys(tabMap).forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.textContent = tabMap[id];
+    });
+  }
+
+  window._sainheRenderNews = function(){
+    setTabLabels();
+    render(_curZone);
+  };
+
   document.querySelectorAll("#news-tabs .tab").forEach(function(btn){
     btn.addEventListener("click", function(){
       document.querySelectorAll("#news-tabs .tab").forEach(function(b){ b.classList.remove("active"); });
       this.classList.add("active");
-      render(this.dataset.r);
+      _curZone = this.dataset.r;
+      render(_curZone);
     });
   });
 
+  setTabLabels();
   render("GLOBAL");
 })();
 </script>

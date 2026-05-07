@@ -2,20 +2,23 @@
 <!-- DATA: box_macro = {ts, vix:{valeur,regime}, yield_curve:{valeur,inverted,us10y,us3m}, erp:{valeur,regime,sp500_pe}, dxy:{valeur,chg_pct}, sp500:{close,chg_pct,ret_1y}} -->
 <section class="card" id="box-macro">
   <div class="card-h">
-    <span class="card-t">{{ t.box_macro_title }}</span>
+    <span class="card-t" data-i18n="box_macro_title">{{ t.box_macro_title }}</span>
     <div style="display:flex;align-items:center;gap:10px">
-      <span class="box-ts">{{ t.updated }} {{ ts_macro }}</span>
-      <span class="badge badge-gold">{{ t.box_macro_badge }}</span>
+      <span class="box-ts"><span data-i18n="updated">{{ t.updated }}</span> {{ ts_macro }}</span>
+      <span class="badge badge-gold" data-i18n="box_macro_badge">{{ t.box_macro_badge }}</span>
     </div>
   </div>
   <div class="macro-grid" id="mgrid"></div>
 </section>
 <script>
 (function(){
-  const I18N = window.SAINHE_I18N || {};
-  const LOC  = window.SAINHE_LOCALE || 'en';
   const M    = {{ box_macro | tojson }};
   const grid = document.getElementById("mgrid");
+
+  window._sainheRenderMacro = function(){
+  const I18N = window.SAINHE_I18N || {};
+  const LOC  = window.SAINHE_LOCALE || 'en';
+  grid.textContent = "";
   function mk(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!=null)el.textContent=txt;return el;}
   function fmt(n,d){return n!=null?n.toLocaleString(LOC,{minimumFractionDigits:d||2,maximumFractionDigits:d||2}):"—";}
 
@@ -109,5 +112,7 @@
     I18N.dxy_sub2||"Strong USD = pressure on commodities & EM equities",
     dxySC, dxyS
   );
+  }; /* end _sainheRenderMacro */
+  window._sainheRenderMacro();
 })();
 </script>

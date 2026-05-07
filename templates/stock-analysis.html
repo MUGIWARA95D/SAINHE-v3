@@ -2,7 +2,6 @@
 <html lang="{{ lang }}" data-theme="light">
 {% include "partials/_head.html" %}
 <body>
-<script>window.SAINHE_I18N={{ i18n_json | safe }};window.SAINHE_LOCALE="{{ locale_js }}";</script>
 
 {% include "partials/_intro.html" %}
 
@@ -44,66 +43,66 @@
 
   <!-- ═══ STATEMENT BAR ═══════════════════════════════════════ -->
   <div class="statement-bar">
-    <span class="sb-label">{{ t.sa_sb_label }}</span>
-    <span class="sb-body">{{ t.sa_sb_body }}</span>
+    <span class="sb-label" data-i18n="sa_sb_label">{{ t.sa_sb_label }}</span>
+    <span class="sb-body" data-i18n="sa_sb_body">{{ t.sa_sb_body }}</span>
   </div>
 
   <!-- ─── 01 · THE ORACLE ─────────────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="oracle">
-      <h2>{{ t.sa_oracle_h2 }}</h2><em>{{ t.sa_oracle_em }}</em>
+      <h2 data-i18n="sa_oracle_h2">{{ t.sa_oracle_h2 }}</h2><em data-i18n="sa_oracle_em">{{ t.sa_oracle_em }}</em>
     </div>
-    <div class="shell-placeholder"><p>{{ t.sa_oracle_p }}</p></div>
+    <div class="shell-placeholder"><p data-i18n="sa_oracle_p">{{ t.sa_oracle_p }}</p></div>
   </div>
 
   <!-- ─── 02 · THE FORGE ──────────────────────────────────── -->
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="forge">
-      <h2>{{ t.sa_forge_h2 }}</h2><em>{{ t.sa_forge_em }}</em>
+      <h2 data-i18n="sa_forge_h2">{{ t.sa_forge_h2 }}</h2><em data-i18n="sa_forge_em">{{ t.sa_forge_em }}</em>
     </div>
-    <div class="shell-placeholder"><p>{{ t.sa_forge_p }}</p></div>
+    <div class="shell-placeholder"><p data-i18n="sa_forge_p">{{ t.sa_forge_p }}</p></div>
   </div>
 
   <!-- ─── 03 · DISCERNMENT ────────────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="discernement">
-      <h2>{{ t.sa_discernment_h2 }}</h2><em>{{ t.sa_discernment_em }}</em>
+      <h2 data-i18n="sa_discernment_h2">{{ t.sa_discernment_h2 }}</h2><em data-i18n="sa_discernment_em">{{ t.sa_discernment_em }}</em>
     </div>
-    <div class="shell-placeholder"><p>{{ t.sa_discernment_p }}</p></div>
+    <div class="shell-placeholder"><p data-i18n="sa_discernment_p">{{ t.sa_discernment_p }}</p></div>
   </div>
 
   <!-- ─── 04 · THE BALANCE ────────────────────────────────── -->
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="equilibre">
-      <h2>{{ t.sa_balance_h2 }}</h2><em>{{ t.sa_balance_em }}</em>
+      <h2 data-i18n="sa_balance_h2">{{ t.sa_balance_h2 }}</h2><em data-i18n="sa_balance_em">{{ t.sa_balance_em }}</em>
     </div>
-    <div class="shell-placeholder"><p>{{ t.sa_balance_p }}</p></div>
+    <div class="shell-placeholder"><p data-i18n="sa_balance_p">{{ t.sa_balance_p }}</p></div>
   </div>
 
   <!-- ─── 05 · THE TIDES ──────────────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="marees">
-      <h2>{{ t.sa_tides_h2 }}</h2><em>{{ t.sa_tides_em }}</em>
+      <h2 data-i18n="sa_tides_h2">{{ t.sa_tides_h2 }}</h2><em data-i18n="sa_tides_em">{{ t.sa_tides_em }}</em>
     </div>
-    <div class="shell-placeholder"><p>{{ t.sa_tides_p }}</p></div>
+    <div class="shell-placeholder"><p data-i18n="sa_tides_p">{{ t.sa_tides_p }}</p></div>
   </div>
 
   <!-- ─── 06 · COMPARISON ─────────────────────────────────── -->
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="comparaison">
-      <h2>{{ t.sa_comparison_h2 }}</h2><em>{{ t.sa_comparison_em }}</em>
+      <h2 data-i18n="sa_comparison_h2">{{ t.sa_comparison_h2 }}</h2><em data-i18n="sa_comparison_em">{{ t.sa_comparison_em }}</em>
     </div>
-    <div class="shell-placeholder"><p>{{ t.sa_comparison_p }}</p></div>
+    <div class="shell-placeholder"><p data-i18n="sa_comparison_p">{{ t.sa_comparison_p }}</p></div>
   </div>
 
   <!-- ═══ PIPELINE STRIP ══════════════════════════════════════ -->
   <div class="pipeline">
-    <span>{{ t.pipeline_label }}</span>
+    <span data-i18n="pipeline_label">{{ t.pipeline_label }}</span>
     <span class="pl-dot"></span>
-    <span>{{ t.pipeline_fetch }}</span><span class="pl-arr">→</span>
-    <span>{{ t.pipeline_compute }}</span><span class="pl-arr">→</span>
-    <span>{{ t.pipeline_render }}</span><span class="pl-arr">→</span>
-    <span>{{ t.pipeline_read }}</span>
+    <span data-i18n="pipeline_fetch">{{ t.pipeline_fetch }}</span><span class="pl-arr">→</span>
+    <span data-i18n="pipeline_compute">{{ t.pipeline_compute }}</span><span class="pl-arr">→</span>
+    <span data-i18n="pipeline_render">{{ t.pipeline_render }}</span><span class="pl-arr">→</span>
+    <span data-i18n="pipeline_read">{{ t.pipeline_read }}</span>
   </div>
 
 </main>

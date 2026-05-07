@@ -204,5 +204,24 @@
 
   "learn_sb_label": "学习 ·",
   "learn_sb_body": "理解每个信号的含义，读懂每个板块，并带着信念行动。",
-  "learn_notice_en_only": "本页面仅提供英文版本。如需，请使用浏览器的自动翻译功能。"
+  "learn_notice_en_only": "本页面仅提供英文版本。如需，请使用浏览器的自动翻译功能。",
+
+  "sectors": {
+    "Tech & Semis":        "科技与半导体",
+    "Robotics & MedTech":  "机器人与医疗技术",
+    "Healthcare & Pharma": "医疗健康与制药",
+    "Finance & Transac.":  "金融与支付",
+    "Strategic Materials": "战略材料",
+    "Energy":              "能源",
+    "Defense & Aerospace": "国防与航空航天",
+    "EV & Clean Energy":   "电动车与清洁能源",
+    "Space":               "航天",
+    "Luxury":              "奢侈品",
+    "Agriculture":         "农业",
+    "Infra & Water":       "基础设施与水务",
+    "Consumer Staples":    "必需消费品",
+    "Digital Assets":      "数字资产",
+    "Industrials":         "工业",
+    "Chemicals":           "化工"
+  }
 }

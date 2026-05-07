@@ -2,24 +2,27 @@
 <!-- DATA: box_sentiment = {global_avg, global_label, secteurs:[{secteur,sentiment_score,sentiment_label,couleur,mfi,obv_dir,above_dma200,rvol,chg_pct}]} -->
 <section class="card" id="box-sentiment">
   <div class="card-h">
-    <span class="card-t">{{ t.box_sentiment_title }}</span>
+    <span class="card-t" data-i18n="box_sentiment_title">{{ t.box_sentiment_title }}</span>
     <div style="display:flex;align-items:center;gap:10px">
-      <span class="box-ts">{{ t.updated }} {{ ts_sentiment }}</span>
-      <span class="badge badge-gold">{{ t.box_sentiment_badge }}</span>
+      <span class="box-ts"><span data-i18n="updated">{{ t.updated }}</span> {{ ts_sentiment }}</span>
+      <span class="badge badge-gold" data-i18n="box_sentiment_badge">{{ t.box_sentiment_badge }}</span>
     </div>
   </div>
   <div class="sector-grid" id="scgrid"></div>
 </section>
 <script>
 (function(){
-  const I18N = window.SAINHE_I18N || {};
   const ANA  = {{ box_sentiment.secteurs | tojson }};
   const grid = document.getElementById("scgrid");
 
   function mk(tag, cls, txt){ const el=document.createElement(tag); if(cls)el.className=cls; if(txt!=null)el.textContent=txt; return el; }
   function tag(cls, txt){ const el=mk("span","law-tag "+cls,txt); return el; }
 
+  function renderSentiment(){
+  const I18N = window.SAINHE_I18N || {};
+  grid.textContent = "";
   ANA.forEach(a => {
+    const secName = (I18N.sectors && I18N.sectors[a.secteur]) || a.secteur;
     const sc   = a.sentiment_score != null ? a.sentiment_score : 0;
     const pct  = Math.round((sc + 1) / 2 * 100);
     const col  = a.couleur || "var(--muted)";
@@ -35,7 +38,7 @@
 
     // Header
     const hdr = card.appendChild(mk("div","sc-hdr"));
-    hdr.appendChild(mk("span","sc-name",a.secteur));
+    hdr.appendChild(mk("span","sc-name",secName));
 
     // Score + methodology tooltip
     const infoWrap = hdr.appendChild(mk("span","sc-info"));
@@ -92,5 +95,9 @@
     empty.style.cssText = "padding:30px;color:var(--muted);text-align:center;grid-column:1/-1";
     empty.textContent = I18N.no_data_sentiment||"No sentiment data";
   }
+  } /* end renderSentiment */
+
+  window._sainheRenderSentiment = renderSentiment;
+  renderSentiment();
 })();
 </script>

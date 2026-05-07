@@ -4,22 +4,22 @@
   <div class="hero-inner">
     <div class="hero-eyebrow">
       <span class="hero-dot"></span>
-      <span>{{ t.hero_platform }} &middot; {{ ts_render }}</span>
+      <span><span data-i18n="hero_platform">{{ t.hero_platform }}</span> &middot; {{ ts_render }}</span>
     </div>
     <h1 class="hero-title">
-      {{ t.hero_title_1 }}<br>
-      <em>{{ t.hero_title_2 }}</em>
+      <span data-i18n="hero_title_1">{{ t.hero_title_1 }}</span><br>
+      <em data-i18n="hero_title_2">{{ t.hero_title_2 }}</em>
     </h1>
-    <p class="hero-lede">{{ t.hero_lede }}</p>
+    <p class="hero-lede" data-i18n="hero_lede">{{ t.hero_lede }}</p>
   </div>
   <div class="hero-chips">
     <a class="hero-chip{% if current_page == 'dashboard' %} hero-chip-active{% endif %}"
-       href="{{ lang_urls['dashboard'] if lang_urls is defined else 'index.html' }}">{{ t.nav_dashboard }}</a>
+       href="index.html" data-i18n="nav_dashboard">{{ t.nav_dashboard }}</a>
     <a class="hero-chip{% if current_page == 'stock-analysis' %} hero-chip-active{% endif %}"
-       href="{{ lang_urls['stock-analysis'] if lang_urls is defined else 'stock-analysis.html' }}">{{ t.nav_stock_analysis }}</a>
+       href="stock-analysis.html" data-i18n="nav_stock_analysis">{{ t.nav_stock_analysis }}</a>
     <a class="hero-chip{% if current_page == 'learn' %} hero-chip-active{% endif %}"
-       href="{{ lang_urls['learn'] if lang_urls is defined else 'learn.html' }}">{{ t.nav_learn }}</a>
+       href="learn.html" data-i18n="nav_learn">{{ t.nav_learn }}</a>
     <a class="hero-chip{% if current_page == 'contact' %} hero-chip-active{% endif %}"
-       href="{{ lang_urls['contact'] if lang_urls is defined else 'contact.html' }}">{{ t.nav_contact }}</a>
+       href="contact.html" data-i18n="nav_contact">{{ t.nav_contact }}</a>
   </div>
 </section>

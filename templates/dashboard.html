@@ -2,7 +2,6 @@
 <html lang="{{ lang }}" data-theme="light">
 {% include "partials/_head.html" %}
 <body>
-<script>window.SAINHE_I18N={{ i18n_json | safe }};window.SAINHE_LOCALE="{{ locale_js }}";</script>
 
 {% include "partials/_intro.html" %}
 
@@ -44,14 +43,14 @@
 
   <!-- ═══ STATEMENT BAR ═══════════════════════════════════════ -->
   <div class="statement-bar">
-    <span class="sb-label">{{ t.dash_sb_label }}</span>
-    <span class="sb-body">{{ t.dash_sb_body }}</span>
+    <span class="sb-label" data-i18n="dash_sb_label">{{ t.dash_sb_label }}</span>
+    <span class="sb-body" data-i18n="dash_sb_body">{{ t.dash_sb_body }}</span>
   </div>
 
   <!-- ─── 01 · MACRO ──────────────────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="nav-macro">
-      <h2>{{ t.sec_macro_title }}</h2><em>{{ t.sec_macro_sub }}</em>
+      <h2 data-i18n="sec_macro_title">{{ t.sec_macro_title }}</h2><em data-i18n="sec_macro_sub">{{ t.sec_macro_sub }}</em>
     </div>
     {% include "partials/boxes/box_01_macro.html" %}
   </div>
@@ -59,7 +58,7 @@
   <!-- ─── 02 · INDICES ────────────────────────────────────── -->
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="nav-indices">
-      <h2>{{ t.sec_indices_title }}</h2><em>{{ t.sec_indices_sub }}</em>
+      <h2 data-i18n="sec_indices_title">{{ t.sec_indices_title }}</h2><em data-i18n="sec_indices_sub">{{ t.sec_indices_sub }}</em>
     </div>
     {% include "partials/boxes/box_02_indices.html" %}
   </div>
@@ -67,7 +66,7 @@
   <!-- ─── 03 · NEWS ───────────────────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="nav-news">
-      <h2>{{ t.sec_news_title }}</h2><em>{{ t.sec_news_sub }}</em>
+      <h2 data-i18n="sec_news_title">{{ t.sec_news_title }}</h2><em data-i18n="sec_news_sub">{{ t.sec_news_sub }}</em>
     </div>
     {% include "partials/boxes/box_03_news.html" %}
   </div>
@@ -75,7 +74,7 @@
   <!-- ─── 04 · SECTORS ────────────────────────────────────── -->
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="nav-sectors">
-      <h2>{{ t.sec_sectors_title }}</h2><em>{{ t.sec_sectors_sub }}</em>
+      <h2 data-i18n="sec_sectors_title">{{ t.sec_sectors_title }}</h2><em data-i18n="sec_sectors_sub">{{ t.sec_sectors_sub }}</em>
     </div>
     {% include "partials/boxes/box_04_sectors.html" %}
   </div>
@@ -83,7 +82,7 @@
   <!-- ─── 05 · SENTIMENT ──────────────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="nav-sentiment">
-      <h2>{{ t.sec_sentiment_title }}</h2><em>{{ t.sec_sentiment_sub }}</em>
+      <h2 data-i18n="sec_sentiment_title">{{ t.sec_sentiment_title }}</h2><em data-i18n="sec_sentiment_sub">{{ t.sec_sentiment_sub }}</em>
     </div>
     {% include "partials/boxes/box_05_sentiment.html" %}
   </div>
@@ -91,19 +90,19 @@
   <!-- ─── 06 · PORTFOLIO ──────────────────────────────────── -->
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="nav-portfolio">
-      <h2>{{ t.sec_portfolio_title }}</h2><em>{{ t.sec_portfolio_sub }}</em>
+      <h2 data-i18n="sec_portfolio_title">{{ t.sec_portfolio_title }}</h2><em data-i18n="sec_portfolio_sub">{{ t.sec_portfolio_sub }}</em>
     </div>
     {% include "partials/boxes/box_06_portfolio.html" %}
   </div>
 
   <!-- ═══ PIPELINE STRIP ══════════════════════════════════════ -->
   <div class="pipeline">
-    <span>{{ t.pipeline_label }}</span>
+    <span data-i18n="pipeline_label">{{ t.pipeline_label }}</span>
     <span class="pl-dot"></span>
-    <span>{{ t.pipeline_fetch }}</span><span class="pl-arr">→</span>
-    <span>{{ t.pipeline_compute }}</span><span class="pl-arr">→</span>
-    <span>{{ t.pipeline_render }}</span><span class="pl-arr">→</span>
-    <span>{{ t.pipeline_read }}</span>
+    <span data-i18n="pipeline_fetch">{{ t.pipeline_fetch }}</span><span class="pl-arr">→</span>
+    <span data-i18n="pipeline_compute">{{ t.pipeline_compute }}</span><span class="pl-arr">→</span>
+    <span data-i18n="pipeline_render">{{ t.pipeline_render }}</span><span class="pl-arr">→</span>
+    <span data-i18n="pipeline_read">{{ t.pipeline_read }}</span>
   </div>
 
 </main>

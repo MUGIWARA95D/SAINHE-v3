@@ -204,5 +204,24 @@
 
   "learn_sb_label": "学ぶ ·",
   "learn_sb_body": "各シグナルの意味を理解し、各セクションを読み、確信を持って行動しましょう。",
-  "learn_notice_en_only": "このページは英語のみです。必要に応じてブラウザの翻訳機能をご利用ください。"
+  "learn_notice_en_only": "このページは英語のみです。必要に応じてブラウザの翻訳機能をご利用ください。",
+
+  "sectors": {
+    "Tech & Semis":        "テクノロジー＆半導体",
+    "Robotics & MedTech":  "ロボット工学＆医療技術",
+    "Healthcare & Pharma": "ヘルスケア＆製薬",
+    "Finance & Transac.":  "金融＆決済",
+    "Strategic Materials": "戦略的素材",
+    "Energy":              "エネルギー",
+    "Defense & Aerospace": "防衛＆航空宇宙",
+    "EV & Clean Energy":   "EV＆クリーンエネルギー",
+    "Space":               "宇宙",
+    "Luxury":              "ラグジュアリー",
+    "Agriculture":         "農業",
+    "Infra & Water":       "インフラ＆水",
+    "Consumer Staples":    "生活必需品",
+    "Digital Assets":      "デジタル資産",
+    "Industrials":         "産業",
+    "Chemicals":           "化学"
+  }
 }

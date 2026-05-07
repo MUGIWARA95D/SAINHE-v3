@@ -2,10 +2,10 @@
 <!-- DATA: box_sectors = {secteurs:[{nom, regions:{MONDE:{chg_pct,ret_1m..ret_1y,score,above_dma200,spark_today..spark_1y},...}}]} -->
 <section class="card" id="box-sectors">
   <div class="card-h">
-    <span class="card-t">{{ t.box_sectors_title }}</span>
+    <span class="card-t" data-i18n="box_sectors_title">{{ t.box_sectors_title }}</span>
     <div style="display:flex;align-items:center;gap:10px">
-      <span class="box-ts">{{ t.updated }} {{ ts_sectors }}</span>
-      <span class="badge badge-gold">{{ t.box_sectors_badge }}</span>
+      <span class="box-ts"><span data-i18n="updated">{{ t.updated }}</span> {{ ts_sectors }}</span>
+      <span class="badge badge-gold" data-i18n="box_sectors_badge">{{ t.box_sectors_badge }}</span>
     </div>
   </div>
 
@@ -38,49 +38,44 @@
 </section>
 <script>
 (function(){
-  const I18N  = window.SAINHE_I18N || {};
   const SECS  = {{ box_sectors.secteurs | tojson }};
   const Z_MAP = {usa:"USA", europe:"EU", asia:"ASIE", monde:"MONDE"};
   let cZ = "monde", cP = "chg_pct", cSP = "spark_today";
   const sparkCharts = {};
 
-  /* set zone tab labels */
-  var zTabMap = {
-    "zt-world":  I18N.tab_world ||"World",
-    "zt-usa":    I18N.tab_usa   ||"USA",
-    "zt-europe": I18N.tab_europe||"Europe",
-    "zt-asia":   I18N.tab_asia  ||"Asia"
-  };
-  Object.keys(zTabMap).forEach(function(id){
-    var el = document.getElementById(id);
-    if(el) el.textContent = zTabMap[id];
-  });
-
-  /* period tab labels + lbl values */
-  var todayLbl = I18N.col_today||"Today";
-  var pTabDefs = [
-    {id:"pt-today", lbl:todayLbl},
-    {id:"pt-1m",    lbl:I18N.col_1m||"1M"},
-    {id:"pt-3m",    lbl:I18N.col_3m||"3M"},
-    {id:"pt-6m",    lbl:I18N.col_6m||"6M"},
-    {id:"pt-1y",    lbl:I18N.col_1y||"1Y"}
-  ];
-  pTabDefs.forEach(function(d){
-    var el = document.getElementById(d.id);
-    if(el){ el.textContent = d.lbl; el.dataset.lbl = d.lbl; }
-  });
-
-  /* column headers */
-  var colHeaderMap = {
-    "shdr-sector": I18N.col_sector||"Sector",
-    "shdr-chart":  I18N.col_chart ||"Chart",
-    "shdr-score":  I18N.col_score ||"Score",
-    "hdr-perf":    todayLbl
-  };
-  Object.keys(colHeaderMap).forEach(function(id){
-    var el = document.getElementById(id);
-    if(el) el.textContent = colHeaderMap[id];
-  });
+  function setLabels(){
+    var I18N = window.SAINHE_I18N || {};
+    var zTabMap = {
+      "zt-world":  I18N.tab_world ||"World",
+      "zt-usa":    I18N.tab_usa   ||"USA",
+      "zt-europe": I18N.tab_europe||"Europe",
+      "zt-asia":   I18N.tab_asia  ||"Asia"
+    };
+    Object.keys(zTabMap).forEach(function(id){
+      var el = document.getElementById(id); if(el) el.textContent = zTabMap[id];
+    });
+    var todayLbl = I18N.col_today||"Today";
+    var pTabDefs = [
+      {id:"pt-today", lbl:todayLbl},
+      {id:"pt-1m",    lbl:I18N.col_1m||"1M"},
+      {id:"pt-3m",    lbl:I18N.col_3m||"3M"},
+      {id:"pt-6m",    lbl:I18N.col_6m||"6M"},
+      {id:"pt-1y",    lbl:I18N.col_1y||"1Y"}
+    ];
+    pTabDefs.forEach(function(d){
+      var el = document.getElementById(d.id);
+      if(el){ el.textContent = d.lbl; el.dataset.lbl = d.lbl; }
+    });
+    var colHeaderMap = {
+      "shdr-sector": I18N.col_sector||"Sector",
+      "shdr-chart":  I18N.col_chart ||"Chart",
+      "shdr-score":  I18N.col_score ||"Score",
+      "hdr-perf":    todayLbl
+    };
+    Object.keys(colHeaderMap).forEach(function(id){
+      var el = document.getElementById(id); if(el) el.textContent = colHeaderMap[id];
+    });
+  }
 
   function destroySparks(){
     Object.values(sparkCharts).forEach(c => { try{ c.destroy(); }catch(e){} });
@@ -88,6 +83,7 @@
   }
 
   function renderSectors(){
+    var I18N = window.SAINHE_I18N || {};
     destroySparks();
     const el   = document.getElementById("sec-list");
     const zone = Z_MAP[cZ];
@@ -97,6 +93,7 @@
     SECS.forEach((s, i) => {
       const r      = s.regions ? s.regions[zone] : null;
       const missing = !r;
+      const secName = (I18N.sectors && I18N.sectors[s.nom]) || s.nom;
 
       const row = document.createElement("div");
       row.className = "sec-row" + (missing ? " sec-missing" : (r.above_dma200 ? " golden-alpha" : ""));
@@ -104,7 +101,7 @@
       if (missing) {
         // Sector exists in config but no ETF for this zone
         const nm = document.createElement("span");
-        nm.className = "sec-name"; nm.textContent = s.nom;
+        nm.className = "sec-name"; nm.textContent = secName;
         const dash1 = document.createElement("span");
         dash1.className = "sec-spark"; dash1.style.cssText = "color:var(--faint);text-align:center;font-size:11px;display:flex;align-items:center;justify-content:center"; dash1.textContent = "—";
         const dash2 = document.createElement("span");
@@ -120,7 +117,7 @@
         const hot  = r.score != null && r.score > 0.3 ? " rvol-hot" : "";
 
         const nm = document.createElement("span");
-        nm.className = "sec-name"; nm.title = s.nom; nm.textContent = s.nom;
+        nm.className = "sec-name"; nm.title = secName; nm.textContent = secName;
 
         const spTd = document.createElement("div");
         spTd.className = "sec-spark";
@@ -162,6 +159,11 @@
     });
   }
 
+  window._sainheRenderSectors = function(){
+    setLabels();
+    renderSectors();
+  };
+
   // Zone tab clicks
   document.getElementById("ztabs").addEventListener("click", function(e){
     const b = e.target.closest(".tab"); if (!b) return;
@@ -180,6 +182,7 @@
     renderSectors();
   });
 
+  setLabels();
   renderSectors();
 })();
 </script>

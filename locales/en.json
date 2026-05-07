@@ -204,5 +204,24 @@
 
   "learn_sb_label": "Learn ·",
   "learn_sb_body": "Understand what every signal means, how to read each section, and how to act with conviction.",
-  "learn_notice_en_only": "This page is in English. Use your browser's translation feature if needed."
+  "learn_notice_en_only": "This page is in English. Use your browser's translation feature if needed.",
+
+  "sectors": {
+    "Tech & Semis":        "Tech & Semis",
+    "Robotics & MedTech":  "Robotics & MedTech",
+    "Healthcare & Pharma": "Healthcare & Pharma",
+    "Finance & Transac.":  "Finance & Transac.",
+    "Strategic Materials": "Strategic Materials",
+    "Energy":              "Energy",
+    "Defense & Aerospace": "Defense & Aerospace",
+    "EV & Clean Energy":   "EV & Clean Energy",
+    "Space":               "Space",
+    "Luxury":              "Luxury",
+    "Agriculture":         "Agriculture",
+    "Infra & Water":       "Infra & Water",
+    "Consumer Staples":    "Consumer Staples",
+    "Digital Assets":      "Digital Assets",
+    "Industrials":         "Industrials",
+    "Chemicals":           "Chemicals"
+  }
 }

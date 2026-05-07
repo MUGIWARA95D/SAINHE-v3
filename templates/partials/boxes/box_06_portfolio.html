@@ -2,9 +2,9 @@
 <!-- DATA: box_portfolio = {currency, tickers:[{ticker,nom,secteur,close,chg_pct,ret_1m,ret_3m,ret_6m,ret_1y,score,above_dma200,rvol,mfi,dma_200,sentiment_label,signal,sparkline,ts_update}], total:int} -->
 <section class="card" id="box-portfolio">
   <div class="card-h">
-    <span class="card-t">{{ t.box_portfolio_title }}</span>
+    <span class="card-t" data-i18n="box_portfolio_title">{{ t.box_portfolio_title }}</span>
     <div style="display:flex;align-items:center;gap:10px">
-      <span class="box-ts">{{ t.updated }} {{ ts_portfolio }}</span>
+      <span class="box-ts"><span data-i18n="updated">{{ t.updated }}</span> {{ ts_portfolio }}</span>
       <span class="badge badge-green" id="pt-cur-badge">{{ box_portfolio.total }} tickers &middot; <span id="pt-cur-label">{{ box_portfolio.currency }}</span></span>
     </div>
   </div>
@@ -33,8 +33,6 @@
 </section>
 <script>
 (function(){
-  const I18N = window.SAINHE_I18N || {};
-  const LOC  = window.SAINHE_LOCALE || 'en';
   const PORT = {{ box_portfolio.tickers | tojson }};
   const tb   = document.getElementById("ptb");
 
@@ -85,7 +83,7 @@
   function mk(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!=null)el.textContent=txt;return el;}
   function clear(el){while(el.firstChild) el.removeChild(el.firstChild);}
   function pct(n){return n!=null?(n>=0?"+":"")+n.toFixed(2)+"%":"—";}
-  function fmt(n){return n!=null?n.toLocaleString(LOC,{minimumFractionDigits:2,maximumFractionDigits:2}):"—";}
+  function fmt(n){return n!=null?n.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2}):"—";}
 
   function staleInfo(ts){
     if(!ts) return {cls:"ts-unk",label:"?"};
@@ -101,6 +99,7 @@
 
   /* signal display mapping */
   function sigLabel(s){
+    var I18N=window.SAINHE_I18N||{};
     return s==="BUY"?(I18N.signal_buy_display||"↑ Buy"):
            s==="AVOID"?(I18N.signal_avoid_display||"↓ Avoid"):
            s==="WATCH"?(I18N.signal_watch_display||"→ Watch"):
@@ -119,19 +118,22 @@
   }
 
   /* ── sort state ─────────────────────────────────────────── */
-  const SORT_LABELS={
-    secteur: I18N.col_category||"Category",
-    ticker:  I18N.col_ticker  ||"Ticker",
-    close:   I18N.col_price   ||"Price",
-    chg_pct: todayLbl,
-    ret_1m:  I18N.col_1m  ||"1M",
-    ret_3m:  I18N.col_3m  ||"3M",
-    ret_1y:  I18N.col_1y  ||"1Y",
-    score:   I18N.col_score||"Score",
-    mfi:     I18N.col_mfi  ||"MFI",
-    rvol:    I18N.col_rvol ||"RVOL",
-    above_dma200: I18N.col_dma200||"DMA200"
-  };
+  function getSortLabels(){
+    var I18N=window.SAINHE_I18N||{};
+    return {
+      secteur: I18N.col_category||"Category",
+      ticker:  I18N.col_ticker  ||"Ticker",
+      close:   I18N.col_price   ||"Price",
+      chg_pct: I18N.col_today   ||"Today",
+      ret_1m:  I18N.col_1m  ||"1M",
+      ret_3m:  I18N.col_3m  ||"3M",
+      ret_1y:  I18N.col_1y  ||"1Y",
+      score:   I18N.col_score||"Score",
+      mfi:     I18N.col_mfi  ||"MFI",
+      rvol:    I18N.col_rvol ||"RVOL",
+      above_dma200: I18N.col_dma200||"DMA200"
+    };
+  }
   let sortCol="score", sortDir=-1; /* default: score descending */
 
   function sortedPort(){
@@ -209,6 +211,7 @@
 
   /* ── anomalies feed ─────────────────────────────────────── */
   function renderAnomalies(){
+    var I18N=window.SAINHE_I18N||{};
     var el=document.getElementById("pt-anomalies");
     var alerts=[];
     PORT.forEach(function(p){
@@ -242,6 +245,7 @@
 
   /* ── portfolio pulse bandeau ────────────────────────────── */
   function renderPulse(){
+    var I18N=window.SAINHE_I18N||{};
     var el=document.getElementById("pt-pulse");
     var valid=PORT.filter(function(p){return p.score!=null;});
     var avg=valid.length?valid.reduce(function(s,p){return s+p.score;},0)/valid.length:null;
@@ -294,6 +298,8 @@
 
   /* ── main table render ──────────────────────────────────── */
   function renderTable(){
+    var I18N=window.SAINHE_I18N||{};
+    var SORT_LABELS=getSortLabels();
     /* destroy old sparkline instances before clearing DOM */
     Object.values(ptSparks).forEach(function(c){ try{ c.destroy(); }catch(e){} });
     Object.keys(ptSparks).forEach(function(k){ delete ptSparks[k]; });
@@ -330,7 +336,7 @@
       tr.addEventListener("click",function(){toggleExpand(tr,p);});
 
       /* col 1 — category */
-      tr.appendChild(mk("td",null,p.secteur||"—")).style.color="var(--muted)";
+      tr.appendChild(mk("td",null,(I18N.sectors&&I18N.sectors[p.secteur])||p.secteur||"—")).style.color="var(--muted)";
 
       /* col 2 — ticker + name */
       var td1=tr.appendChild(mk("td"));
@@ -445,8 +451,11 @@
     });
   }
 
-  /* ── expose pour le switcher de devise ─────────────────── */
+  /* ── expose pour le switcher de devise + i18n re-render ── */
   window._sainheRenderPortfolio = function(){
+    setColHeaders();
+    renderAnomalies();
+    renderPulse();
     renderTable();
     /* restore collapsed state after re-render */
     if(retCollapsed) ptTable.classList.add("pt-ret-collapsed");
@@ -454,6 +463,7 @@
   };
 
   /* ── init ───────────────────────────────────────────────── */
+  setColHeaders();
   renderAnomalies();
   renderPulse();
   renderTable();
