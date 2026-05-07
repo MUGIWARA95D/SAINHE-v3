@@ -218,6 +218,7 @@ def render(currency: str = DEFAULT_CURRENCY):
         "languages"   : LANGUAGES,
         "currencies"  : CURRENCIES,
         "ts_render"   : ts_render,
+        "i18n_ver"    : ts_render[:10],   # YYYY-MM-DD — busts localStorage locale cache on new deploy
         "fx_rates_js" : fx_rates,
         "t"           : t,
     }

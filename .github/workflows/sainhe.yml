@@ -23,8 +23,8 @@ on:
   schedule:
     # News — 4H 10H 14H 18H 22H Paris (CEST UTC+2)
     - cron: "0 2,8,12,16,20 * * *"
-    # FX — midi + minuit Paris (CEST UTC+2)
-    - cron: "0 10,22 * * *"
+    # FX — midi Paris (CEST UTC+2) + 21h UTC (décalé de 22h pour éviter collision full pipeline)
+    - cron: "0 10,21 * * *"
     # Full pipeline — lun-ven minuit Paris (CEST UTC+2)
     - cron: "0 22 * * 1-5"
 
@@ -161,7 +161,6 @@ jobs:
 
       - name: Calculate indicators
         run: python scripts/calc.py
-        continue-on-error: true
 
       - name: Render HTML
         run: python render_html.py

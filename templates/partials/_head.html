@@ -919,6 +919,16 @@ a.news-hl:hover{color:var(--gold)}
     window.SAINHE_LANG  =lang;
     window.SAINHE_LOCALE=LOCALES[lang]||'en-US';
     window.SAINHE_I18N  ={};
+    /* == version check: bust stale locale caches on new deploy == */
+    var _iver='{{ i18n_ver }}';
+    try{
+      if(localStorage.getItem('sainhe_i18n_ver')!==_iver){
+        Object.keys(localStorage).filter(function(k){return k.indexOf('sainhe_i18n_')===0&&k!=='sainhe_i18n_ver';})
+          .forEach(function(k){localStorage.removeItem(k);});
+        localStorage.setItem('sainhe_i18n_ver',_iver);
+      }
+    }catch(e){}
+    window.SAINHE_I18N_VER=_iver;
     if(lang!=='en'){
       try{var raw=localStorage.getItem('sainhe_i18n_'+lang);if(raw)window.SAINHE_I18N=JSON.parse(raw);}catch(e){}
     }
