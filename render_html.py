@@ -184,6 +184,16 @@ def render(currency: str = DEFAULT_CURRENCY):
         shutil.copy2(f, out_locales / f.name)
     log.info("Locales → output/locales/ (%d fichiers)", len(locale_files))
 
+    # ── Write _headers (Cloudflare Pages cache policy) ───────
+    headers_content = (
+        "/*.html\n"
+        "  Cache-Control: no-cache, must-revalidate\n\n"
+        "/locales/*.json\n"
+        "  Cache-Control: no-cache, must-revalidate\n"
+    )
+    (OUTPUT_DIR / "_headers").write_text(headers_content, encoding="utf-8")
+    log.info("_headers written")
+
     con       = sqlite3.connect(DB_PATH)
     t         = load_translations()
     boxes     = load_boxes(con, currency)
