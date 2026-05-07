@@ -124,11 +124,11 @@ h1,h2,h3,h4{font-family:var(--serif);color:var(--h);font-weight:400}
 .hdr-dd-item.active{color:var(--gold);border-left:2px solid var(--gold);padding-left:10px}
 
 /* ═══════════════════ TICKER BAR ═══════════════════ */
-#ticker{background:var(--h);height:30px;overflow:hidden;display:flex;align-items:center;position:relative;z-index:1}
+#ticker{background:var(--h);height:30px;overflow:hidden;display:flex;align-items:center;position:relative;z-index:1;transform:translateZ(0);-webkit-transform:translateZ(0)}
 [data-theme="dark"] #ticker{background:#1E1A14}
-.tk-scroll{display:flex;animation:tkscroll 50s linear infinite;white-space:nowrap}
+.tk-scroll{display:flex;animation:tkscroll 50s linear infinite;white-space:nowrap;will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 #ticker:hover .tk-scroll{animation-play-state:paused}
-@keyframes tkscroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes tkscroll{from{transform:translateX(0) translateZ(0)}to{transform:translateX(-50%) translateZ(0)}}
 .tk-item{display:inline-flex;align-items:center;gap:6px;padding:0 16px;font-size:11px;
   border-right:1px solid rgba(255,255,255,.08);height:30px;color:#F5F0E6}
 [data-theme="dark"] .tk-item{color:var(--p)}
