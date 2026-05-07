@@ -2,25 +2,39 @@
 <!-- DATA: box_news = {par_region: {GLOBAL:[{source_id,titre,lien,resume,ts_pub}], USA:[...], EU:[...], ASIE:[...]}} -->
 <section class="card" id="box-news">
   <div class="card-h">
-    <span class="card-t">Live News Feed</span>
+    <span class="card-t">{{ t.box_news_title }}</span>
     <div style="display:flex;align-items:center;gap:10px">
-      <span class="box-ts">Updated {{ ts_news }}</span>
+      <span class="box-ts">{{ t.updated }} {{ ts_news }}</span>
       <span class="badge badge-red">&#9679; LIVE</span>
     </div>
   </div>
 
   <!-- Region tabs -->
   <div class="tabs" id="news-tabs">
-    <button class="tab active" data-r="GLOBAL">World</button>
-    <button class="tab" data-r="USA">USA</button>
-    <button class="tab" data-r="EU">Europe</button>
-    <button class="tab" data-r="ASIE">Asia</button>
+    <button class="tab active" data-r="GLOBAL" id="news-tab-global"></button>
+    <button class="tab" data-r="USA" id="news-tab-usa"></button>
+    <button class="tab" data-r="EU" id="news-tab-eu"></button>
+    <button class="tab" data-r="ASIE" id="news-tab-asie"></button>
   </div>
 
   <div id="news-scroll"></div>
 </section>
 <script>
 (function(){
+  const I18N = window.SAINHE_I18N || {};
+
+  /* set tab labels */
+  var tabMap = {
+    "news-tab-global": I18N.tab_world  ||"World",
+    "news-tab-usa":    I18N.tab_usa    ||"USA",
+    "news-tab-eu":     I18N.tab_europe ||"Europe",
+    "news-tab-asie":   I18N.tab_asia   ||"Asia"
+  };
+  Object.keys(tabMap).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.textContent = tabMap[id];
+  });
+
   function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
   const DATA = {{ box_news.par_region | tojson }};
 
@@ -38,7 +52,7 @@
     var wrap = document.getElementById("news-scroll");
     wrap.textContent = "";
     if(!articles.length){
-      var empty = mkEl("div", null, "No articles for this region");
+      var empty = mkEl("div", null, I18N.news_empty||"No articles for this region");
       empty.style.cssText = "padding:20px;color:var(--muted);text-align:center";
       wrap.appendChild(empty);
       return;
@@ -77,7 +91,7 @@
           more.href = n.lien;
           more.target = "_blank";
           more.rel = "noopener noreferrer";
-          more.textContent = "Read full article ↗";
+          more.textContent = I18N.news_read_more||"Read full article ↗";
           item.appendChild(more);
         }
       }

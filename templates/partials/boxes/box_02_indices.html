@@ -2,26 +2,43 @@
 <!-- DATA: box_indices = {par_region: {USA:[{ticker,nom,close,chg_pct,sparkline,above_dma200,...}],...}, total:int} -->
 <section class="card" id="box-indices">
   <div class="card-h">
-    <span class="card-t">Global Indices</span>
+    <span class="card-t">{{ t.box_indices_title }}</span>
     <div style="display:flex;align-items:center;gap:10px">
-      <span class="box-ts">Updated {{ ts_indices }}</span>
-      <span class="badge badge-gold">{{ box_indices.total }} Indices &middot; Smart Money Bias</span>
+      <span class="box-ts">{{ t.updated }} {{ ts_indices }}</span>
+      <span class="badge badge-gold">{{ box_indices.total }} {{ t.box_indices_badge_suffix }}</span>
     </div>
   </div>
   <div style="overflow-x:auto"><table><thead><tr>
-    <th style="min-width:130px">Index</th>
-    <th style="min-width:56px">7d</th>
-    <th>Price</th>
-    <th>% Day</th>
-    <th>RVOL</th>
-    <th>Smart Money</th>
+    <th style="min-width:130px" id="th-index"></th>
+    <th style="min-width:56px" id="th-7d"></th>
+    <th id="th-price"></th>
+    <th id="th-day"></th>
+    <th id="th-rvol"></th>
+    <th id="th-sm"></th>
   </tr></thead><tbody id="idx-tb"></tbody></table></div>
   <div class="sent-hub" id="shub"></div>
 </section>
 <script>
 (function(){
+  const I18N = window.SAINHE_I18N || {};
+  const LOC  = window.SAINHE_LOCALE || 'en';
+
+  /* column header labels */
+  var colMap = {
+    "th-index": I18N.col_index      ||"Index",
+    "th-7d":    I18N.col_7d         ||"7d",
+    "th-price": I18N.col_price      ||"Price",
+    "th-day":   I18N.col_day_pct    ||"% Day",
+    "th-rvol":  I18N.col_rvol       ||"RVOL",
+    "th-sm":    I18N.col_smart_money||"Smart Money"
+  };
+  Object.keys(colMap).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.textContent = colMap[id];
+  });
+
   function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-  function fmt(n){ return n!=null ? n.toLocaleString("en",{minimumFractionDigits:2,maximumFractionDigits:2}) : "—"; }
+  function fmt(n){ return n!=null ? n.toLocaleString(LOC,{minimumFractionDigits:2,maximumFractionDigits:2}) : "—"; }
   function staleInfo(ts){
     if(!ts) return {cls:"ts-unk", label:"?"};
     const ageH = (Date.now() - new Date(ts)) / 3600000;
@@ -71,7 +88,7 @@
         } else {
           const conv = window.fxConvert(x.close, x.native_devise);
           if (conv !== null) {
-            priceTxt = window.fxSymbol() + conv.toLocaleString("en",{minimumFractionDigits:2,maximumFractionDigits:2});
+            priceTxt = window.fxSymbol() + conv.toLocaleString(LOC,{minimumFractionDigits:2,maximumFractionDigits:2});
           } else {
             priceTxt = fmt(x.close)
               + `<span class="idx-cur-badge">${esc(x.native_devise||"")}</span>`;
@@ -80,13 +97,14 @@
 
         let sm = "—", sc = "";
         if (x.chg_pct != null && rv != null) {
-          if (chg > 0  && rv > 1.2) { sm="ACCUMULATION"; sc="smb-acc";  }
-          else if (chg > 0  && rv < 0.8) { sm="WEAK RALLY";   sc="smb-weak"; }
-          else if (chg < 0  && rv > 1.2) { sm="DISTRIBUTION"; sc="smb-dist"; }
-          else if (chg < 0  && rv < 0.8) { sm="THIN SLIDE";   sc="smb-thin"; }
-          else                           { sm="NEUTRAL";      sc="smb-neut"; }
+          if (chg > 0  && rv > 1.2) { sm=I18N.smb_accumulation||"ACCUMULATION"; sc="smb-acc";  }
+          else if (chg > 0  && rv < 0.8) { sm=I18N.smb_weak_rally||"WEAK RALLY";   sc="smb-weak"; }
+          else if (chg < 0  && rv > 1.2) { sm=I18N.smb_distribution||"DISTRIBUTION"; sc="smb-dist"; }
+          else if (chg < 0  && rv < 0.8) { sm=I18N.smb_thin_slide||"THIN SLIDE";   sc="smb-thin"; }
+          else                           { sm=I18N.smb_neutral||"NEUTRAL";      sc="smb-neut"; }
         } else if (x.chg_pct != null) {
-          sm = chg > 0 ? "RISING" : chg < 0 ? "FALLING" : "FLAT"; sc = "smb-neut";
+          sm = chg > 0 ? (I18N.smb_rising||"RISING") : chg < 0 ? (I18N.smb_falling||"FALLING") : (I18N.smb_flat||"FLAT");
+          sc = "smb-neut";
         }
         const st = staleInfo(x.ts_update);
         h += `<tr>
@@ -104,7 +122,7 @@
       });
     });
 
-    tb.innerHTML = h || `<tr><td colspan="6" style="padding:20px;color:var(--muted);text-align:center">No data</td></tr>`;
+    tb.innerHTML = h || `<tr><td colspan="6" style="padding:20px;color:var(--muted);text-align:center">${I18N.no_data_indices||"No data"}</td></tr>`;
 
     all.forEach(({uid, x}) => {
       const cv = document.getElementById("isp_" + uid);
@@ -122,13 +140,13 @@
     const dxy  = flat.find(x => x.ticker === "DX-Y.NYB");
     let hub = "";
     if (vix && vix.close != null) {
-      const reg = vix.close < 15 ? "Complacency" : vix.close > 30 ? "Panic" : "Normal";
-      hub += `<span><strong>VIX:</strong> ${fmt(vix.close)} — ${reg}</span>`;
+      const reg = vix.close < 15 ? (I18N.vix_complacency||"Complacency") : vix.close > 30 ? (I18N.vix_panic||"Panic") : (I18N.vix_normal||"Normal");
+      hub += `<span><strong>${I18N.hub_vix||"VIX:"}</strong> ${fmt(vix.close)} — ${reg}</span>`;
     }
     if (dxy && dxy.close != null) {
       const sp = (dxy.chg_pct||0) >= 0 ? "+" : "";
-      const tr = (dxy.chg_pct||0) > 0 ? "Bearish pressure on equities" : "Supportive for equities";
-      hub += `<span><strong>DXY:</strong> ${fmt(dxy.close)} (${sp}${(dxy.chg_pct||0).toFixed(2)}%) — ${tr}</span>`;
+      const tr = (dxy.chg_pct||0) > 0 ? (I18N.dxy_bearish||"Bearish pressure on equities") : (I18N.dxy_supportive||"Supportive for equities");
+      hub += `<span><strong>${I18N.hub_dxy||"DXY:"}</strong> ${fmt(dxy.close)} (${sp}${(dxy.chg_pct||0).toFixed(2)}%) — ${tr}</span>`;
     }
     document.getElementById("shub").innerHTML = hub;
   }

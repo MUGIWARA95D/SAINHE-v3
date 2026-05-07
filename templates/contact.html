@@ -2,6 +2,7 @@
 <html lang="{{ lang }}" data-theme="light">
 {% include "partials/_head.html" %}
 <body>
+<script>window.SAINHE_I18N={{ i18n_json | safe }};window.SAINHE_LOCALE="{{ locale_js }}";</script>
 
 {% include "partials/_intro.html" %}
 
@@ -43,29 +44,28 @@
 
   <!-- ═══ STATEMENT BAR ═══════════════════════════════════════ -->
   <div class="statement-bar">
-    <span class="sb-label">Contact ·</span>
-    <span class="sb-body">Questions, feedback, or partnership inquiries — reach out directly.</span>
+    <span class="sb-label">{{ t.contact_sb_label }}</span>
+    <span class="sb-body">{{ t.contact_sb_body }}</span>
   </div>
 
-  <!-- ─── CONTACT SECTION — chocolat ──────────────────────── -->
+  <!-- ─── CONTACT SECTION ──────────────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="contact-form">
-      
-      <h2>Get in Touch</h2><em>Direct Line</em>
+      <h2>{{ t.contact_h2 }}</h2><em>{{ t.contact_em }}</em>
     </div>
     <div class="shell-placeholder">
-      <p>Contact form coming soon. In the meantime, reach out via the channels below.</p>
+      <p>{{ t.contact_coming_soon }}</p>
     </div>
   </div>
 
   <!-- ═══ PIPELINE STRIP ══════════════════════════════════════ -->
   <div class="pipeline">
-    <span>SAINHE pipeline</span>
+    <span>{{ t.pipeline_label }}</span>
     <span class="pl-dot"></span>
-    <span>Fetch</span><span class="pl-arr">→</span>
-    <span>Compute</span><span class="pl-arr">→</span>
-    <span>Render</span><span class="pl-arr">→</span>
-    <span>Read</span>
+    <span>{{ t.pipeline_fetch }}</span><span class="pl-arr">→</span>
+    <span>{{ t.pipeline_compute }}</span><span class="pl-arr">→</span>
+    <span>{{ t.pipeline_render }}</span><span class="pl-arr">→</span>
+    <span>{{ t.pipeline_read }}</span>
   </div>
 
 </main>

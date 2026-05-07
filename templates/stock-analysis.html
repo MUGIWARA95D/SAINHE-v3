@@ -2,6 +2,7 @@
 <html lang="{{ lang }}" data-theme="light">
 {% include "partials/_head.html" %}
 <body>
+<script>window.SAINHE_I18N={{ i18n_json | safe }};window.SAINHE_LOCALE="{{ locale_js }}";</script>
 
 {% include "partials/_intro.html" %}
 
@@ -43,84 +44,66 @@
 
   <!-- ═══ STATEMENT BAR ═══════════════════════════════════════ -->
   <div class="statement-bar">
-    <span class="sb-label">Coming soon ·</span>
-    <span class="sb-body">Deep-dive analysis tools: smart money signals, forensic accounting, valuation frameworks, and comparative metrics.</span>
+    <span class="sb-label">{{ t.sa_sb_label }}</span>
+    <span class="sb-body">{{ t.sa_sb_body }}</span>
   </div>
 
-  <!-- ─── 01 · THE ORACLE — chocolat ─────────────────────────── -->
+  <!-- ─── 01 · THE ORACLE ─────────────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="oracle">
-      
-      <h2>The Oracle</h2><em>Smart Money Signals</em>
+      <h2>{{ t.sa_oracle_h2 }}</h2><em>{{ t.sa_oracle_em }}</em>
     </div>
-    <div class="shell-placeholder">
-      <p>Deep insider flow, institutional positioning, and dark pool activity — coming soon.</p>
-    </div>
+    <div class="shell-placeholder"><p>{{ t.sa_oracle_p }}</p></div>
   </div>
 
-  <!-- ─── 02 · THE FORGE — crème ────────────────────────────── -->
+  <!-- ─── 02 · THE FORGE ──────────────────────────────────── -->
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="forge">
-      
-      <h2>The Forge</h2><em>Forensic Accounting</em>
+      <h2>{{ t.sa_forge_h2 }}</h2><em>{{ t.sa_forge_em }}</em>
     </div>
-    <div class="shell-placeholder">
-      <p>SEC filing decoder, earnings quality score, and red-flag detection — coming soon.</p>
-    </div>
+    <div class="shell-placeholder"><p>{{ t.sa_forge_p }}</p></div>
   </div>
 
-  <!-- ─── 03 · DISCERNMENT — chocolat ──────────────────── -->
+  <!-- ─── 03 · DISCERNMENT ────────────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="discernement">
-      
-      <h2>Discernment</h2><em>Valuation Intelligence</em>
+      <h2>{{ t.sa_discernment_h2 }}</h2><em>{{ t.sa_discernment_em }}</em>
     </div>
-    <div class="shell-placeholder">
-      <p>Intrinsic value models, margin of safety calculator, and peer-relative pricing — coming soon.</p>
-    </div>
+    <div class="shell-placeholder"><p>{{ t.sa_discernment_p }}</p></div>
   </div>
 
-  <!-- ─── 04 · THE BALANCE — crème ─────────────────────────── -->
+  <!-- ─── 04 · THE BALANCE ────────────────────────────────── -->
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="equilibre">
-      
-      <h2>The Balance</h2><em>Risk &amp; Portfolio Fit</em>
+      <h2>{{ t.sa_balance_h2 }}</h2><em>{{ t.sa_balance_em }}</em>
     </div>
-    <div class="shell-placeholder">
-      <p>Volatility profile, correlation matrix, and position-sizing guidance — coming soon.</p>
-    </div>
+    <div class="shell-placeholder"><p>{{ t.sa_balance_p }}</p></div>
   </div>
 
-  <!-- ─── 05 · THE TIDES — chocolat ──────────────────────── -->
+  <!-- ─── 05 · THE TIDES ──────────────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="marees">
-      
-      <h2>The Tides</h2><em>Macro &amp; Sector Tide</em>
+      <h2>{{ t.sa_tides_h2 }}</h2><em>{{ t.sa_tides_em }}</em>
     </div>
-    <div class="shell-placeholder">
-      <p>Macro tailwinds, sector rotation context, and cycle positioning for a single stock — coming soon.</p>
-    </div>
+    <div class="shell-placeholder"><p>{{ t.sa_tides_p }}</p></div>
   </div>
 
-  <!-- ─── 06 · COMPARISON — crème ─────────────────────────── -->
+  <!-- ─── 06 · COMPARISON ─────────────────────────────────── -->
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="comparaison">
-      
-      <h2>Comparison</h2><em>Side-by-Side Analysis</em>
+      <h2>{{ t.sa_comparison_h2 }}</h2><em>{{ t.sa_comparison_em }}</em>
     </div>
-    <div class="shell-placeholder">
-      <p>Compare up to four tickers across all dimensions simultaneously — coming soon.</p>
-    </div>
+    <div class="shell-placeholder"><p>{{ t.sa_comparison_p }}</p></div>
   </div>
 
   <!-- ═══ PIPELINE STRIP ══════════════════════════════════════ -->
   <div class="pipeline">
-    <span>SAINHE pipeline</span>
+    <span>{{ t.pipeline_label }}</span>
     <span class="pl-dot"></span>
-    <span>Fetch</span><span class="pl-arr">→</span>
-    <span>Compute</span><span class="pl-arr">→</span>
-    <span>Render</span><span class="pl-arr">→</span>
-    <span>Read</span>
+    <span>{{ t.pipeline_fetch }}</span><span class="pl-arr">→</span>
+    <span>{{ t.pipeline_compute }}</span><span class="pl-arr">→</span>
+    <span>{{ t.pipeline_render }}</span><span class="pl-arr">→</span>
+    <span>{{ t.pipeline_read }}</span>
   </div>
 
 </main>

@@ -11,7 +11,7 @@
   })()" style="cursor:pointer">{{ site_name }}</span>
   <span class="logo-sub">{{ site_slogan }}</span>
   <nav class="hdr-nav">
-    <a href="#hero" class="hdr-nav-menu">Menu</a>
+    <a href="#hero" class="hdr-nav-menu">{{ t.nav_menu }}</a>
     {% for link in page_nav %}
     <a href="{{ link.href }}">{{ link.label }}</a>
     {% endfor %}
@@ -23,7 +23,7 @@
     <div class="hdr-dd-menu">
       {% for code in languages %}
       <div class="hdr-dd-item{% if code == lang %} active{% endif %}"
-           onclick="window.location.href='?lang={{ code }}&amp;currency={{ currency }}'">{{ code }}</div>
+           onclick="window.location.href='{{ lang_urls[code] }}'">{{ code }}</div>
       {% endfor %}
     </div>
   </div>
@@ -41,7 +41,7 @@
   </div>
 
   <!-- Dark mode pill -->
-  <button class="thm-pill" id="thm" title="Toggle theme" aria-label="Toggle dark mode">
+  <button class="thm-pill" id="thm" title="{{ t.toggle_theme }}" aria-label="{{ t.toggle_dark_mode }}">
     <span class="tp-sun">&#9728;</span>
     <span class="tp-moon">&#9790;</span>
   </button>

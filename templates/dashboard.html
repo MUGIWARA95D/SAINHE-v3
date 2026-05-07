@@ -2,6 +2,7 @@
 <html lang="{{ lang }}" data-theme="light">
 {% include "partials/_head.html" %}
 <body>
+<script>window.SAINHE_I18N={{ i18n_json | safe }};window.SAINHE_LOCALE="{{ locale_js }}";</script>
 
 {% include "partials/_intro.html" %}
 
@@ -43,72 +44,66 @@
 
   <!-- ═══ STATEMENT BAR ═══════════════════════════════════════ -->
   <div class="statement-bar">
-    <span class="sb-label">Read today ·</span>
-    <span class="sb-body">Smart money bias, rotation tape, law-weighted sentiment, and the macro health of the engine room.</span>
+    <span class="sb-label">{{ t.dash_sb_label }}</span>
+    <span class="sb-body">{{ t.dash_sb_body }}</span>
   </div>
 
-  <!-- ─── 01 · MACRO — chocolat ──────────────────────────── -->
+  <!-- ─── 01 · MACRO ──────────────────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="nav-macro">
-      
-      <h2>Macro</h2><em>Economic Health Signals</em>
+      <h2>{{ t.sec_macro_title }}</h2><em>{{ t.sec_macro_sub }}</em>
     </div>
     {% include "partials/boxes/box_01_macro.html" %}
   </div>
 
-  <!-- ─── 02 · INDICES — crème ────────────────────────────── -->
+  <!-- ─── 02 · INDICES ────────────────────────────────────── -->
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="nav-indices">
-      
-      <h2>Indices</h2><em>Global Market Pulse</em>
+      <h2>{{ t.sec_indices_title }}</h2><em>{{ t.sec_indices_sub }}</em>
     </div>
     {% include "partials/boxes/box_02_indices.html" %}
   </div>
 
-  <!-- ─── 03 · NEWS — chocolat ─────────────────────────────── -->
+  <!-- ─── 03 · NEWS ───────────────────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="nav-news">
-      
-      <h2>News</h2><em>Live Market Intelligence</em>
+      <h2>{{ t.sec_news_title }}</h2><em>{{ t.sec_news_sub }}</em>
     </div>
     {% include "partials/boxes/box_03_news.html" %}
   </div>
 
-  <!-- ─── 04 · SECTORS — crème ────────────────────────────── -->
+  <!-- ─── 04 · SECTORS ────────────────────────────────────── -->
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="nav-sectors">
-      
-      <h2>Sectors</h2><em>Industry Rotation View</em>
+      <h2>{{ t.sec_sectors_title }}</h2><em>{{ t.sec_sectors_sub }}</em>
     </div>
     {% include "partials/boxes/box_04_sectors.html" %}
   </div>
 
-  <!-- ─── 05 · SENTIMENT — chocolat ───────────────────────── -->
+  <!-- ─── 05 · SENTIMENT ──────────────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="nav-sentiment">
-      
-      <h2>Sentiment</h2><em>Bias Reality Laws</em>
+      <h2>{{ t.sec_sentiment_title }}</h2><em>{{ t.sec_sentiment_sub }}</em>
     </div>
     {% include "partials/boxes/box_05_sentiment.html" %}
   </div>
 
-  <!-- ─── 06 · PORTFOLIO — crème ──────────────────────────── -->
+  <!-- ─── 06 · PORTFOLIO ──────────────────────────────────── -->
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="nav-portfolio">
-      
-      <h2>Portfolio</h2><em>Holdings Score Tracker</em>
+      <h2>{{ t.sec_portfolio_title }}</h2><em>{{ t.sec_portfolio_sub }}</em>
     </div>
     {% include "partials/boxes/box_06_portfolio.html" %}
   </div>
 
   <!-- ═══ PIPELINE STRIP ══════════════════════════════════════ -->
   <div class="pipeline">
-    <span>SAINHE pipeline</span>
+    <span>{{ t.pipeline_label }}</span>
     <span class="pl-dot"></span>
-    <span>Fetch</span><span class="pl-arr">→</span>
-    <span>Compute</span><span class="pl-arr">→</span>
-    <span>Render</span><span class="pl-arr">→</span>
-    <span>Read</span>
+    <span>{{ t.pipeline_fetch }}</span><span class="pl-arr">→</span>
+    <span>{{ t.pipeline_compute }}</span><span class="pl-arr">→</span>
+    <span>{{ t.pipeline_render }}</span><span class="pl-arr">→</span>
+    <span>{{ t.pipeline_read }}</span>
   </div>
 
 </main>
@@ -175,17 +170,14 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
     var btn = dd.querySelector(".hdr-dd-btn");
     if(!btn) return;
 
-    // Click toggle
     btn.addEventListener("click",function(e){
       e.stopPropagation();
       dd.classList.contains("open") ? closeDd(dd,0) : openDd(dd);
     });
 
-    // Hover open/close
     dd.addEventListener("mouseenter",function(){ openDd(dd); });
     dd.addEventListener("mouseleave",function(){ closeDd(dd, 200); });
 
-    // Keep open when hovering the menu itself
     var menu = dd.querySelector(".hdr-dd-menu");
     if(menu){
       menu.addEventListener("mouseenter",function(){ clearTimeout(closeTimers[dd.id]); });
@@ -205,11 +197,12 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
   const all     = ORDER.flatMap(r=>REGIONS[r]||[]);
   const el      = document.getElementById("tksc");
   if(!el||!all.length) return;
+  const loc = window.SAINHE_LOCALE || 'en';
   const frag = document.createDocumentFragment();
   for(let r=0;r<2;r++){
     all.forEach(x=>{
       const chg=x.chg_pct||0, s=chg>=0?"+":"";
-      const pr=x.close!=null?x.close.toLocaleString("en",{minimumFractionDigits:2,maximumFractionDigits:2}):"—";
+      const pr=x.close!=null?x.close.toLocaleString(loc,{minimumFractionDigits:2,maximumFractionDigits:2}):"—";
       const item=document.createElement("div"); item.className="tk-item";
       const name=document.createElement("span"); name.className="tk-name"; name.textContent=x.ticker||"";
       const price=document.createElement("span"); price.textContent=pr;
@@ -241,7 +234,6 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
 
   sections.forEach(function(s){ obs.observe(s); });
 
-  // fallback: click still works
   links.forEach(function(a){
     a.addEventListener("click", function(){
       setActive(this.getAttribute("href").slice(1));

@@ -2,9 +2,9 @@
 <!-- DATA: box_portfolio = {currency, tickers:[{ticker,nom,secteur,close,chg_pct,ret_1m,ret_3m,ret_6m,ret_1y,score,above_dma200,rvol,mfi,dma_200,sentiment_label,signal,sparkline,ts_update}], total:int} -->
 <section class="card" id="box-portfolio">
   <div class="card-h">
-    <span class="card-t">Portfolio Signal Table</span>
+    <span class="card-t">{{ t.box_portfolio_title }}</span>
     <div style="display:flex;align-items:center;gap:10px">
-      <span class="box-ts">Updated {{ ts_portfolio }}</span>
+      <span class="box-ts">{{ t.updated }} {{ ts_portfolio }}</span>
       <span class="badge badge-green" id="pt-cur-badge">{{ box_portfolio.total }} tickers &middot; <span id="pt-cur-label">{{ box_portfolio.currency }}</span></span>
     </div>
   </div>
@@ -13,19 +13,19 @@
   <div style="overflow-x:auto">
     <table id="pt-table">
       <thead><tr id="pt-head">
-        <th data-sort="secteur">Category</th>
-        <th data-sort="ticker">Ticker</th>
+        <th data-sort="secteur" id="th-cat"></th>
+        <th data-sort="ticker" id="th-ticker"></th>
         <th></th>
-        <th data-sort="close">Price</th>
-        <th data-sort="chg_pct" class="pt-ret-parent" style="white-space:nowrap">Today&thinsp;<span id="pt-ret-btn" class="pt-ret-toggle" title="Toggle 1M · 3M · 1Y">▸</span></th>
-        <th class="pt-ret" data-sort="ret_1m">1M</th>
-        <th class="pt-ret" data-sort="ret_3m">3M</th>
-        <th class="pt-ret" data-sort="ret_1y">1Y</th>
-        <th data-sort="score">Score</th>
-        <th class="pt-sig-parent" style="white-space:nowrap">Momentum&thinsp;<span id="pt-sig-btn" class="pt-sig-toggle" title="Toggle MFI · RVOL · DMA200">▸</span></th>
-        <th class="pt-sig" data-sort="mfi">MFI</th>
-        <th class="pt-sig" data-sort="rvol">RVOL</th>
-        <th class="pt-sig" data-sort="above_dma200">DMA200</th>
+        <th data-sort="close" id="th-price"></th>
+        <th data-sort="chg_pct" class="pt-ret-parent" style="white-space:nowrap" id="th-today"><span id="pt-ret-btn" class="pt-ret-toggle"></span></th>
+        <th class="pt-ret" data-sort="ret_1m" id="th-1m"></th>
+        <th class="pt-ret" data-sort="ret_3m" id="th-3m"></th>
+        <th class="pt-ret" data-sort="ret_1y" id="th-1y"></th>
+        <th data-sort="score" id="th-score"></th>
+        <th class="pt-sig-parent" style="white-space:nowrap" id="th-momentum"><span id="pt-sig-btn" class="pt-sig-toggle"></span></th>
+        <th class="pt-sig" data-sort="mfi" id="th-mfi"></th>
+        <th class="pt-sig" data-sort="rvol" id="th-rvol"></th>
+        <th class="pt-sig" data-sort="above_dma200" id="th-dma200"></th>
       </tr></thead>
       <tbody id="ptb"></tbody>
     </table>
@@ -33,17 +33,59 @@
 </section>
 <script>
 (function(){
+  const I18N = window.SAINHE_I18N || {};
+  const LOC  = window.SAINHE_LOCALE || 'en';
   const PORT = {{ box_portfolio.tickers | tojson }};
   const tb   = document.getElementById("ptb");
 
   /* sparkline registry — destroyed before re-render */
   var ptSparks = {};
 
+  /* ── i18n column headers ────────────────────────────────── */
+  var todayLbl    = I18N.col_today    ||"Today";
+  var momentumLbl = I18N.col_momentum ||"Momentum";
+  var colHeaderMap = {
+    "th-cat":      I18N.col_category||"Category",
+    "th-ticker":   I18N.col_ticker  ||"Ticker",
+    "th-price":    I18N.col_price   ||"Price",
+    "th-1m":       I18N.col_1m      ||"1M",
+    "th-3m":       I18N.col_3m      ||"3M",
+    "th-1y":       I18N.col_1y      ||"1Y",
+    "th-score":    I18N.col_score   ||"Score",
+    "th-mfi":      I18N.col_mfi     ||"MFI",
+    "th-rvol":     I18N.col_rvol    ||"RVOL",
+    "th-dma200":   I18N.col_dma200  ||"DMA200"
+  };
+  Object.keys(colHeaderMap).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.textContent = colHeaderMap[id];
+  });
+  /* today header — has toggle button child */
+  (function(){
+    var thToday = document.getElementById("th-today");
+    var retBtn  = document.getElementById("pt-ret-btn");
+    if(thToday && retBtn){
+      thToday.childNodes[0] && thToday.insertBefore(document.createTextNode(todayLbl+" "), retBtn);
+      retBtn.title = I18N.toggle_returns||"Toggle 1M · 3M · 1Y";
+      retBtn.textContent = "▸";
+    }
+  })();
+  /* momentum header — has toggle button child */
+  (function(){
+    var thMom  = document.getElementById("th-momentum");
+    var sigBtn = document.getElementById("pt-sig-btn");
+    if(thMom && sigBtn){
+      thMom.insertBefore(document.createTextNode(momentumLbl+" "), sigBtn);
+      sigBtn.title = I18N.toggle_signals||"Toggle MFI · RVOL · DMA200";
+      sigBtn.textContent = "▸";
+    }
+  })();
+
   /* ── helpers ────────────────────────────────────────────── */
   function mk(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!=null)el.textContent=txt;return el;}
   function clear(el){while(el.firstChild) el.removeChild(el.firstChild);}
   function pct(n){return n!=null?(n>=0?"+":"")+n.toFixed(2)+"%":"—";}
-  function fmt(n){return n!=null?n.toLocaleString("en",{minimumFractionDigits:2,maximumFractionDigits:2}):"—";}
+  function fmt(n){return n!=null?n.toLocaleString(LOC,{minimumFractionDigits:2,maximumFractionDigits:2}):"—";}
 
   function staleInfo(ts){
     if(!ts) return {cls:"ts-unk",label:"?"};
@@ -58,7 +100,12 @@
   }
 
   /* signal display mapping */
-  function sigLabel(s){return s==="BUY"?"Flux ↑":s==="AVOID"?"Flux ↓":s==="WATCH"?"Neutre":"N/A";}
+  function sigLabel(s){
+    return s==="BUY"?(I18N.signal_buy_display||"↑ Buy"):
+           s==="AVOID"?(I18N.signal_avoid_display||"↓ Avoid"):
+           s==="WATCH"?(I18N.signal_watch_display||"→ Watch"):
+           (I18N.signal_na||"N/A");
+  }
   function sigCls(s){return s==="BUY"?"sig-buy":s==="AVOID"?"sig-avoid":s==="WATCH"?"sig-watch":"sig-na";}
 
   /* sentiment badge color */
@@ -73,9 +120,17 @@
 
   /* ── sort state ─────────────────────────────────────────── */
   const SORT_LABELS={
-    secteur:"Category", ticker:"Ticker", close:"Price",
-    chg_pct:"Today", ret_1m:"1M", ret_3m:"3M", ret_1y:"1Y",
-    score:"Score", mfi:"MFI", rvol:"RVOL", above_dma200:"DMA200"
+    secteur: I18N.col_category||"Category",
+    ticker:  I18N.col_ticker  ||"Ticker",
+    close:   I18N.col_price   ||"Price",
+    chg_pct: todayLbl,
+    ret_1m:  I18N.col_1m  ||"1M",
+    ret_3m:  I18N.col_3m  ||"3M",
+    ret_1y:  I18N.col_1y  ||"1Y",
+    score:   I18N.col_score||"Score",
+    mfi:     I18N.col_mfi  ||"MFI",
+    rvol:    I18N.col_rvol ||"RVOL",
+    above_dma200: I18N.col_dma200||"DMA200"
   };
   let sortCol="score", sortDir=-1; /* default: score descending */
 
@@ -129,10 +184,10 @@
     var mfiStr=p.mfi!=null?Math.round(p.mfi):"—";
     var rvolStr=p.rvol!=null?p.rvol.toFixed(2):"—";
     info.appendChild(mk("div","pt-expand-score",
-      "Score: "+(sc!=null?(sc>=0?"+":"")+sc.toFixed(2):"—")+
-      " · DMA200: "+dmaStr+" · MFI: "+mfiStr+" · RVOL: "+rvolStr));
+      (I18N.col_score||"Score")+": "+(sc!=null?(sc>=0?"+":"")+sc.toFixed(2):"—")+
+      " · "+(I18N.col_dma200||"DMA200")+": "+dmaStr+" · "+(I18N.col_mfi||"MFI")+": "+mfiStr+" · "+(I18N.col_rvol||"RVOL")+": "+rvolStr));
     info.appendChild(mk("div","pt-expand-rets",
-      "1M: "+pct(p.ret_1m)+" · 3M: "+pct(p.ret_3m)+" · 1Y: "+pct(p.ret_1y)));
+      (I18N.col_1m||"1M")+": "+pct(p.ret_1m)+" · "+(I18N.col_3m||"3M")+": "+pct(p.ret_3m)+" · "+(I18N.col_1y||"1Y")+": "+pct(p.ret_1y)));
 
     var sentEl=info.appendChild(document.createElement("div"));
     var sentBadge=sentEl.appendChild(mk("span",null,p.sentiment_label||"—"));
@@ -160,20 +215,20 @@
       var pri=Math.abs(p.score||0)*(p.rvol||1);
       var hhmm=tsHHMM(p.ts_update);
       if((p.rvol||0)>1.5)
-        alerts.push({ticker:p.ticker,msg:"Abnormal volume · RVOL: "+p.rvol.toFixed(2)+"×",cls:"al-gold",hhmm:hhmm,pri:pri});
+        alerts.push({ticker:p.ticker,msg:(I18N.anomaly_vol_prefix||"Abnormal volume · RVOL: ")+p.rvol.toFixed(2)+"×",cls:"al-gold",hhmm:hhmm,pri:pri});
       if(p.above_dma200===0&&(p.score||0)<-0.1)
-        alerts.push({ticker:p.ticker,msg:"Negative momentum below DMA200",cls:"al-red",hhmm:hhmm,pri:pri});
+        alerts.push({ticker:p.ticker,msg:I18N.anomaly_neg||"Negative momentum below DMA200",cls:"al-red",hhmm:hhmm,pri:pri});
       if(p.above_dma200===1&&(p.score||0)>0.4)
-        alerts.push({ticker:p.ticker,msg:"Strong signal above DMA200",cls:"al-green",hhmm:hhmm,pri:pri});
+        alerts.push({ticker:p.ticker,msg:I18N.anomaly_strong||"Strong signal above DMA200",cls:"al-green",hhmm:hhmm,pri:pri});
       if(p.sentiment_label==="Extreme Fear"&&p.signal==="BUY")
-        alerts.push({ticker:p.ticker,msg:"Divergence: Flux ↑ despite Extreme Fear",cls:"al-gold",hhmm:hhmm,pri:pri*2});
+        alerts.push({ticker:p.ticker,msg:I18N.anomaly_divergence||"Divergence: signal ↑ despite Extreme Fear",cls:"al-gold",hhmm:hhmm,pri:pri*2});
     });
     clear(el);
     if(!alerts.length) return;
     alerts.sort(function(a,b){return b.pri-a.pri;});
     var hdr=el.appendChild(document.createElement("div"));
     hdr.className="pt-anom-hdr";
-    hdr.appendChild(document.createTextNode("◈ Anomalies "));
+    hdr.appendChild(document.createTextNode((I18N.anomaly_title||"◈ Anomalies")+" "));
     hdr.appendChild(mk("span",null,"["+alerts.length+"]")).style.color="var(--gold)";
     alerts.slice(0,5).forEach(function(a){
       var row=el.appendChild(document.createElement("div"));
@@ -203,19 +258,19 @@
 
     /* col 1 — avg score */
     var c1=el.appendChild(document.createElement("div")); c1.className="pt-pulse-col";
-    c1.appendChild(mk("div","pt-pulse-lbl","Avg Score"));
+    c1.appendChild(mk("div","pt-pulse-lbl",I18N.pulse_avg_score||"Avg Score"));
     var v1=c1.appendChild(mk("div","pt-pulse-val",avgArrow+(avg!=null?(avg>=0?"+":"")+avg.toFixed(2):"—")));
     v1.style.color=avgColor;
 
     /* col 2 — above dma200 */
     var c2=el.appendChild(document.createElement("div")); c2.className="pt-pulse-col";
-    c2.appendChild(mk("div","pt-pulse-lbl","Above DMA200"));
+    c2.appendChild(mk("div","pt-pulse-lbl",I18N.pulse_above_dma||"Above DMA200"));
     var v2=c2.appendChild(mk("div","pt-pulse-val",above+" / "+total));
     v2.style.color=dmaColor;
 
     /* col 3 — momentum counts */
     var c3=el.appendChild(document.createElement("div")); c3.className="pt-pulse-col";
-    c3.appendChild(mk("div","pt-pulse-lbl","Momentum"));
+    c3.appendChild(mk("div","pt-pulse-lbl",I18N.pulse_momentum||"Momentum"));
     var v3=c3.appendChild(document.createElement("div")); v3.className="pt-pulse-val";
     var su=v3.appendChild(mk("span",null,up+" ↑")); su.style.color="var(--green)";
     v3.appendChild(mk("span",null," · ")).style.color="var(--faint)";
@@ -231,7 +286,7 @@
     var si=staleInfo(latestTs);
     var ageColor=si.cls==="ts-fresh"?"#2C7A3E":si.cls==="ts-ok"?"#B06A18":si.cls==="ts-stale"?"#A03020":"#7A0A18";
     var c4=el.appendChild(document.createElement("div")); c4.className="pt-pulse-col";
-    c4.appendChild(mk("div","pt-pulse-lbl","Last Fetch"));
+    c4.appendChild(mk("div","pt-pulse-lbl",I18N.pulse_last_fetch||"Last Fetch"));
     var v4=c4.appendChild(mk("div","pt-pulse-val",si.label));
     v4.style.color=ageColor;
     if(si.cls==="ts-old") v4.style.fontWeight="900";
@@ -266,7 +321,7 @@
       var etd=etr.appendChild(document.createElement("td"));
       etd.colSpan=13;
       etd.style.cssText="padding:20px;color:var(--muted);text-align:center";
-      etd.textContent="No watchlist data";
+      etd.textContent=I18N.no_data_portfolio||"No watchlist data";
       return;
     }
 

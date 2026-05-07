@@ -2,46 +2,85 @@
 <!-- DATA: box_sectors = {secteurs:[{nom, regions:{MONDE:{chg_pct,ret_1m..ret_1y,score,above_dma200,spark_today..spark_1y},...}}]} -->
 <section class="card" id="box-sectors">
   <div class="card-h">
-    <span class="card-t">Sector Performance</span>
+    <span class="card-t">{{ t.box_sectors_title }}</span>
     <div style="display:flex;align-items:center;gap:10px">
-      <span class="box-ts">Updated {{ ts_sectors }}</span>
-      <span class="badge badge-gold">R-PERF VS GLOBAL &middot; RVOL</span>
+      <span class="box-ts">{{ t.updated }} {{ ts_sectors }}</span>
+      <span class="badge badge-gold">{{ t.box_sectors_badge }}</span>
     </div>
   </div>
 
   <!-- Zone tabs — full width -->
   <div class="tabs" id="ztabs">
-    <button class="tab active" data-z="monde">World</button>
-    <button class="tab" data-z="usa">USA</button>
-    <button class="tab" data-z="europe">Europe</button>
-    <button class="tab" data-z="asia">Asia</button>
+    <button class="tab active" data-z="monde" id="zt-world"></button>
+    <button class="tab" data-z="usa"    id="zt-usa"></button>
+    <button class="tab" data-z="europe" id="zt-europe"></button>
+    <button class="tab" data-z="asia"   id="zt-asia"></button>
   </div>
 
   <!-- Column headers -->
   <div class="sec-hdr">
-    <span class="sec-hdr-name">Sector</span>
-    <span class="sec-hdr-spark">Chart</span>
-    <span class="sec-hdr-score">Score</span>
-    <span class="sec-hdr-perf" id="hdr-perf">Today</span>
+    <span class="sec-hdr-name" id="shdr-sector"></span>
+    <span class="sec-hdr-spark" id="shdr-chart"></span>
+    <span class="sec-hdr-score" id="shdr-score"></span>
+    <span class="sec-hdr-perf" id="hdr-perf"></span>
   </div>
 
   <div id="sec-scroll"><div id="sec-list"></div></div>
 
   <!-- Period tabs — full width -->
   <div class="ptabs" id="ptabs">
-    <button class="ptab active" data-p="chg_pct" data-sp="spark_today" data-lbl="Today">Today</button>
-    <button class="ptab" data-p="ret_1m"  data-sp="spark_1m"    data-lbl="1M">1M</button>
-    <button class="ptab" data-p="ret_3m"  data-sp="spark_3m"    data-lbl="3M">3M</button>
-    <button class="ptab" data-p="ret_6m"  data-sp="spark_6m"    data-lbl="6M">6M</button>
-    <button class="ptab" data-p="ret_1y"  data-sp="spark_1y"    data-lbl="1Y">1Y</button>
+    <button class="ptab active" data-p="chg_pct" data-sp="spark_today" id="pt-today"></button>
+    <button class="ptab" data-p="ret_1m"  data-sp="spark_1m"    id="pt-1m"></button>
+    <button class="ptab" data-p="ret_3m"  data-sp="spark_3m"    id="pt-3m"></button>
+    <button class="ptab" data-p="ret_6m"  data-sp="spark_6m"    id="pt-6m"></button>
+    <button class="ptab" data-p="ret_1y"  data-sp="spark_1y"    id="pt-1y"></button>
   </div>
 </section>
 <script>
 (function(){
+  const I18N  = window.SAINHE_I18N || {};
   const SECS  = {{ box_sectors.secteurs | tojson }};
   const Z_MAP = {usa:"USA", europe:"EU", asia:"ASIE", monde:"MONDE"};
   let cZ = "monde", cP = "chg_pct", cSP = "spark_today";
   const sparkCharts = {};
+
+  /* set zone tab labels */
+  var zTabMap = {
+    "zt-world":  I18N.tab_world ||"World",
+    "zt-usa":    I18N.tab_usa   ||"USA",
+    "zt-europe": I18N.tab_europe||"Europe",
+    "zt-asia":   I18N.tab_asia  ||"Asia"
+  };
+  Object.keys(zTabMap).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.textContent = zTabMap[id];
+  });
+
+  /* period tab labels + lbl values */
+  var todayLbl = I18N.col_today||"Today";
+  var pTabDefs = [
+    {id:"pt-today", lbl:todayLbl},
+    {id:"pt-1m",    lbl:I18N.col_1m||"1M"},
+    {id:"pt-3m",    lbl:I18N.col_3m||"3M"},
+    {id:"pt-6m",    lbl:I18N.col_6m||"6M"},
+    {id:"pt-1y",    lbl:I18N.col_1y||"1Y"}
+  ];
+  pTabDefs.forEach(function(d){
+    var el = document.getElementById(d.id);
+    if(el){ el.textContent = d.lbl; el.dataset.lbl = d.lbl; }
+  });
+
+  /* column headers */
+  var colHeaderMap = {
+    "shdr-sector": I18N.col_sector||"Sector",
+    "shdr-chart":  I18N.col_chart ||"Chart",
+    "shdr-score":  I18N.col_score ||"Score",
+    "hdr-perf":    todayLbl
+  };
+  Object.keys(colHeaderMap).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.textContent = colHeaderMap[id];
+  });
 
   function destroySparks(){
     Object.values(sparkCharts).forEach(c => { try{ c.destroy(); }catch(e){} });

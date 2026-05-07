@@ -2,16 +2,17 @@
 <!-- DATA: box_sentiment = {global_avg, global_label, secteurs:[{secteur,sentiment_score,sentiment_label,couleur,mfi,obv_dir,above_dma200,rvol,chg_pct}]} -->
 <section class="card" id="box-sentiment">
   <div class="card-h">
-    <span class="card-t">Sector Analysis &mdash; Sentiment &amp; Reality Check</span>
+    <span class="card-t">{{ t.box_sentiment_title }}</span>
     <div style="display:flex;align-items:center;gap:10px">
-      <span class="box-ts">Updated {{ ts_sentiment }}</span>
-      <span class="badge badge-gold">3 Laws &middot; Anti-Bias</span>
+      <span class="box-ts">{{ t.updated }} {{ ts_sentiment }}</span>
+      <span class="badge badge-gold">{{ t.box_sentiment_badge }}</span>
     </div>
   </div>
   <div class="sector-grid" id="scgrid"></div>
 </section>
 <script>
 (function(){
+  const I18N = window.SAINHE_I18N || {};
   const ANA  = {{ box_sentiment.secteurs | tojson }};
   const grid = document.getElementById("scgrid");
 
@@ -24,11 +25,11 @@
     const col  = a.couleur || "var(--muted)";
     const chg  = a.chg_pct != null ? (a.chg_pct>=0?"+":"") + a.chg_pct.toFixed(2) + "%" : "—";
     const obvC = a.obv_dir==="up" ? "law-g" : a.obv_dir==="down" ? "law-r" : "law-y";
-    const obvL = a.obv_dir==="up" ? "ACCUMULATION" : a.obv_dir==="down" ? "DISTRIBUTION" : "NEUTRAL";
+    const obvL = a.obv_dir==="up" ? (I18N.sent_accumulation||"ACCUMULATION") : a.obv_dir==="down" ? (I18N.sent_distribution||"DISTRIBUTION") : (I18N.sent_neutral||"NEUTRAL");
     const mfiC = a.mfi!=null ? (a.mfi>70?"law-g":a.mfi<30?"law-r":"law-y") : "law-y";
-    const mfiL = a.mfi!=null ? (a.mfi>70?"OVERBOUGHT":a.mfi<30?"OVERSOLD":"NEUTRAL") : "N/A";
+    const mfiL = a.mfi!=null ? (a.mfi>70?(I18N.sent_overbought||"OVERBOUGHT"):a.mfi<30?(I18N.sent_oversold||"OVERSOLD"):(I18N.sent_neutral||"NEUTRAL")) : (I18N.signal_na||"N/A");
     const dmaC = a.above_dma200 ? "law-g" : "law-r";
-    const dmaL = a.above_dma200 ? "ABOVE DMA200" : "BELOW DMA200";
+    const dmaL = a.above_dma200 ? (I18N.sent_above_dma||"ABOVE DMA200") : (I18N.sent_below_dma||"BELOW DMA200");
 
     const card = mk("div","sc");
 
@@ -42,16 +43,21 @@
     sc_el.style.color = col;
     infoWrap.appendChild(mk("span","sc-info-btn","ⓘ"));
     const tip = infoWrap.appendChild(mk("span","sc-tip"));
-    tip.appendChild(mk("div","sc-tip-title","Methodology"));
-    [["OBV direction","20d window"],["MFI","14d window"],["DMA","200-day"],["RVOL baseline","20d avg"]].forEach(function(pair){
+    tip.appendChild(mk("div","sc-tip-title", I18N.sent_methodology||"Methodology"));
+    [
+      [I18N.sent_obv_direction||"OBV direction", I18N.sent_obv_window||"20d window"],
+      [I18N.sent_mfi||"MFI",                     I18N.sent_mfi_window||"14d window"],
+      [I18N.sent_dma||"DMA",                     I18N.sent_dma_period||"200-day"],
+      [I18N.sent_rvol_baseline||"RVOL baseline",  I18N.sent_rvol_window||"20d avg"]
+    ].forEach(function(pair){
       const row = tip.appendChild(mk("div","sc-tip-row"));
       row.appendChild(mk("span",null,pair[0]));
       row.appendChild(mk("span",null,pair[1]));
     });
     tip.appendChild(mk("div","sc-tip-div"));
     const formula = tip.appendChild(mk("div","sc-tip-formula"));
-    const fb = formula.appendChild(mk("b",null,"Score"));
-    formula.appendChild(document.createTextNode(" = MFI×40% + OBV×30% + DMA200×30%"));
+    formula.appendChild(mk("b",null,I18N.col_score||"Score"));
+    formula.appendChild(document.createTextNode(I18N.sent_formula||" = MFI×40% + OBV×30% + DMA200×30%"));
 
     // Gauge
     const gauge = card.appendChild(mk("div","gauge"));
@@ -71,12 +77,12 @@
       row.appendChild(tag(tagCls, tagTxt));
       row.appendChild(document.createTextNode(" "+labelTxt));
     }
-    addLaw(obvC, obvL, "OBV Direction");
-    addLaw(mfiC, "MFI "+(a.mfi!=null?Math.round(a.mfi):"—"), mfiL);
-    addLaw(dmaC, dmaL, "vs DMA200");
+    addLaw(obvC, obvL, I18N.sent_obv_direction_label||"OBV Direction");
+    addLaw(mfiC, (I18N.sent_mfi||"MFI")+" "+(a.mfi!=null?Math.round(a.mfi):"—"), mfiL);
+    addLaw(dmaC, dmaL, I18N.sent_vs_dma||"vs DMA200");
 
     // Footer
-    card.appendChild(mk("div","sc-foot","Today: "+chg+" · RVOL: "+(a.rvol!=null?a.rvol.toFixed(2):"—")));
+    card.appendChild(mk("div","sc-foot",(I18N.col_today||"Today")+": "+chg+" · "+(I18N.col_rvol||"RVOL")+": "+(a.rvol!=null?a.rvol.toFixed(2):"—")));
 
     grid.appendChild(card);
   });
@@ -84,7 +90,7 @@
   if (!ANA.length){
     const empty = grid.appendChild(mk("div"));
     empty.style.cssText = "padding:30px;color:var(--muted);text-align:center;grid-column:1/-1";
-    empty.textContent = "No sentiment data";
+    empty.textContent = I18N.no_data_sentiment||"No sentiment data";
   }
 })();
 </script>

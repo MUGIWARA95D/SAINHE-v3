@@ -815,9 +815,9 @@ a.news-hl:hover{color:var(--gold)}
     var val = window.fxConvert(amount, native_devise);
     if(val == null)
       return amount != null
-        ? amount.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})
+        ? amount.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2})
         : '—';
-    return val.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+    return val.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2});
   };
 
   /* Format price WITH currency symbol — symbol only prepended when conversion succeeds.
@@ -826,9 +826,9 @@ a.news-hl:hover{color:var(--gold)}
     var val = window.fxConvert(amount, native_devise);
     if(val == null)
       return amount != null
-        ? amount.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})
+        ? amount.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2})
         : '—';
-    return window.fxSymbol() + val.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+    return window.fxSymbol() + val.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2});
   };
 
   /* Currency prefix symbol */

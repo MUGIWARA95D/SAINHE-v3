@@ -4,6 +4,7 @@
 <body>
 
 {% include "partials/_intro.html" %}
+<script>window.SAINHE_I18N={{ i18n_json | safe }};window.SAINHE_LOCALE="{{ locale_js }}";</script>
 
 <!-- ═══ WATERMARK ══════════════════════════════════ -->
 <svg id="wm" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -43,9 +44,19 @@
 
   <!-- ═══ STATEMENT BAR ═══════════════════════════════════════ -->
   <div class="statement-bar">
-    <span class="sb-label">Learn ·</span>
-    <span class="sb-body">Understand what every signal means, how to read each section, and how to act with conviction.</span>
+    <span class="sb-label">{{ t.learn_sb_label }}</span>
+    <span class="sb-body">{{ t.learn_sb_body }}</span>
   </div>
+
+  {% if lang != 'EN' %}
+  <!-- ─── LANGUAGE NOTICE ─────────────────────────────────── -->
+  <div style="background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:6px;
+              padding:10px 18px;margin:12px 24px;font-size:12px;color:var(--gold);display:flex;
+              align-items:center;gap:8px">
+    <span>🌐</span>
+    <span>{{ t.learn_notice_en_only }}</span>
+  </div>
+  {% endif %}
 
   <!-- ─── 00 · WHY FINANCE ────────────────────────────────── -->
   <div class="sec-band sec-choc" id="learn-whyfinance">
