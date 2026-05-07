@@ -672,6 +672,14 @@ window.addEventListener('resize', function() {
             </div>
 
             <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Currency switcher</div>
+              <div class="lrn-panel-row-val">The dropdown in the top-right of the navigation bar — labelled <strong>USD</strong>, <strong>EUR</strong>, or <strong>HKD</strong> — converts all displayed prices into your preferred currency. Your choice is saved in your browser and persists across sessions.<br><br>
+                <strong>What changes:</strong> any index or portfolio position whose native currency is USD, EUR, or HKD. Switch to EUR and the S&amp;P 500 recalculates in real time using an FX rate refreshed every 6 hours.<br><br>
+                <strong>What does not change:</strong> indices priced in JPY, GBP, AUD, CHF, CAD, and similar currencies. Their value appears in native units with a small currency badge — e.g. <code>38,572 JPY</code>. No conversion is applied because their FX rates are outside the standard pipeline scope.<br><br>
+                <strong>Dimensionless instruments (VIX, DXY, TNX, IRX) never show a currency symbol.</strong> VIX is a volatility index in “points”, DXY is a ratio, TNX and IRX are yield percentages. They are not prices and have no currency to display or convert. The absence of a symbol is deliberate — it tells you at a glance that you are looking at an indicator, not a traded price.</div>
+            </div>
+
+            <div class="lrn-panel-row">
               <div class="lrn-panel-row-lbl">How to read it</div>
               <div class="lrn-panel-row-val">Read top to bottom, like a funnel. Start with <strong>Macro</strong> to understand the overall mood. Check <strong>Indices</strong> to see if markets confirm that mood. Move to <strong>Sectors</strong> to find where money is flowing. Finally, <strong>Sentiment</strong> and <strong>Portfolio</strong> give you specific, actionable leads. Think of it as zooming in: global → regional → sector → individual position.</div>
             </div>
@@ -720,6 +728,14 @@ window.addEventListener('resize', function() {
             <div class="lrn-panel-row">
               <div class="lrn-panel-row-lbl">Price &amp; % Day</div>
               <div class="lrn-panel-row-val"><strong>Price</strong> — the most recent adjusted closing value of the index or the ETF that tracks it, displayed in your selected currency.<br><br><strong>% Day</strong> — the percentage it moved on the most recent trading day. <span style="color:var(--green)">Green + plus</span> means it rose, <span style="color:var(--red)">red + minus</span> means it fell. A day of −3% or more is considered a significant drop worthy of investigation.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Currency display</div>
+              <div class="lrn-panel-row-val">The Price column uses three distinct display formats, each carrying a precise meaning:<br><br>
+                <strong>Symbol + number</strong> (<code>$ 6,152</code> / <code>€ 5,634</code> / <code>HK$ 48,122</code>) — a price in your selected display currency. Applies to all indices whose native currency is USD, EUR, or HKD. Switching the currency dropdown in the header reconverts every such row instantly.<br><br>
+                <strong>Native value + badge</strong> (e.g. <code>38,572 <span class="idx-cur-badge">JPY</span></code>) — the raw native price with a currency code pill. Applies to indices priced outside the conversion scope: JPY, GBP, AUD, CHF, CAD, CNY… Switching to EUR or USD has no effect on these rows — the badge is a visual reminder of that.<br><br>
+                <strong>Plain number, no symbol</strong> (e.g. <code>17.32</code>) — applies exclusively to dimensionless instruments: VIX, DXY, TNX, IRX. These measure volatility, dollar strength, and yield percentages — not prices. The complete absence of a currency indicator is intentional and informative.</div>
             </div>
 
             <div class="lrn-panel-row">
@@ -1129,6 +1145,8 @@ window.addEventListener('resize', function() {
               <div class="lrn-panel-row-lbl">ERP — Equity Risk Premium</div>
               <div class="lrn-panel-row-val">The ERP answers the most fundamental question in all of investing: <strong>are stocks actually worth buying compared to the safe alternative?</strong><br><br>
                 The "safe alternative" in finance is a US government bond — specifically the 10-Year Treasury yield. When you lend money to the US government for 10 years, you are guaranteed a fixed return (e.g. 4.5%) with essentially zero risk of losing your money. Stocks, by contrast, carry real risk — prices can drop 50%. So the question becomes: how much extra return are stocks offering over that safe rate? That extra return is the Equity Risk Premium.<br><br>
+                Two definitions before the formula:<br>
+                The <strong>P/E ratio</strong> (Price-to-Earnings) measures how much investors collectively pay per dollar of annual corporate earnings. An S&amp;P 500 P/E of 25 means the market pays $25 for each $1 of earnings — an implicit yield of 4% (1 ÷ 25). This is the <strong>Earnings Yield</strong>. When the P/E rises (stocks get expensive), the earnings yield falls and the ERP compresses. When the P/E falls (stocks get cheap), the earnings yield rises and the ERP widens.<br><br>
                 <strong>The formula:</strong> <code>ERP = Earnings Yield of S&amp;P 500 − 10Y Treasury Yield</code><br>
                 Earnings Yield = 1 ÷ S&amp;P 500 P/E ratio. If the S&amp;P 500 trades at a P/E of 25, its earnings yield is 4%. If the 10Y yield is 4.5%, ERP = −0.5% — bonds are yielding more than equities. That is the definition of an irrational market for stocks.<br><br>
                 <strong>Three regimes:</strong><br>
@@ -1148,7 +1166,8 @@ window.addEventListener('resize', function() {
                 <strong>Flat (0 to +1.0%)</strong> — spread narrowing. Economy transitioning. No clear signal — monitor for direction of change.<br>
                 <strong>Partial Inversion (−0.5% to 0)</strong> — caution zone. Historical false positives exist: 1998 (no recession followed) and 2019 (COVID interrupted the cycle, not a natural recession). Do not treat as a certainty.<br>
                 <strong style="color:rgba(216,80,72,1)">Full Inversion (&lt; −0.5%)</strong> — recession probable, not certain. Historical lead time 6–24 months. The longer the inversion persists, the higher the probability.<br><br>
-                There is a fifth state SAINHE flags separately: <strong>Disinversion</strong> — when the spread was negative and starts rising back toward zero. Counterintuitively, this is often <em>more dangerous</em> than the inversion itself. Historically, many recessions begin not during the deepest inversion, but precisely as the curve disinverts — because it means the Fed has already started cutting rates in response to visible economic stress.</div>
+                There is a fifth state SAINHE flags separately: <strong>Disinversion</strong> — when the spread was negative and starts rising back toward zero. Counterintuitively, this is often <em>more dangerous</em> than the inversion itself. Historically, many recessions begin not during the deepest inversion, but precisely as the curve disinverts — because it means the Fed has already started cutting rates in response to visible economic stress.<br><br>
+                The two raw inputs — the 10-Year yield (ticker <code>TNX</code>) and the 3-Month yield (ticker <code>IRX</code>) — are also visible as live instruments in the <strong>Indices box</strong>, in the Global region. There you can read their absolute levels and daily percentage changes. Here in Macro, SAINHE uses those same figures to compute the spread and assign the regime label. The two boxes share the same underlying data: if TNX is falling and IRX is flat, the spread is widening — that is exactly what a disinversion looks like in practice.</div>
             </div>
 
             <div class="lrn-panel-row">
@@ -1228,12 +1247,35 @@ window.addEventListener('resize', function() {
             </div>
 
             <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Pulse bar</div>
+              <div class="lrn-panel-row-val">The horizontal strip at the very top of the Portfolio box — above the column headers — is the <strong>Pulse</strong>. It shows four aggregate numbers computed across all positions in the watchlist: total mark-to-market value in your selected currency, average daily change today (%), average composite Score, and a BUY / WATCH / AVOID count breakdown. It is a one-line health check of the watchlist as a whole. If six out of ten positions are AVOID and the average Score is negative, the Pulse makes that visible before you read a single row.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Anomaly feed</div>
+              <div class="lrn-panel-row-val">Directly below the Pulse, a narrow strip surfaces <strong>automatic flags from the most recent pipeline run</strong>. Examples: a position crossing its 200-day moving average, a relative volume spike above 1.5×, a signal flipping from BUY to AVOID. Alerts are color-coded — <span style="color:var(--green)">green</span> for positive structural events, <span style="color:var(--red)">red</span> for negative ones, <span style="color:var(--gold)">gold</span> for crossovers that require attention. If no anomaly fired in the last pipeline run, the strip is hidden entirely. Check it first — it tells you exactly which rows deserve scrutiny that day.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Expand a row</div>
+              <div class="lrn-panel-row-val">Click any position row to open a <strong>detail panel</strong> directly beneath it. The panel shows a larger, higher-resolution sparkline, plus the raw component values behind the Score — including the 6-month return, which is an input to the formula but is not displayed as a standalone column in the main table. It also shows the exact fetch timestamp for that individual ticker. Click the same row again to collapse. Only one row can be open at a time.</div>
+            </div>
+
+            <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Column toggles &amp; sort</div>
+              <div class="lrn-panel-row-val">Two interactions are built into the column headers:<br><br>
+                <strong>Collapse groups</strong> — the return columns (1M / 3M / 1Y) and the signal columns (Score / Signal / Evidence) each have a small <strong>+</strong> toggle button in their shared header. Clicking it collapses that group into a single thin column, giving a cleaner view when you only want prices and daily change — especially useful on smaller screens.<br><br>
+                <strong>Sort</strong> — clicking any column header sorts the entire table by that column: once for descending, again for ascending. The active sort column is highlighted in gold. Use this to rank positions by Score (strongest momentum), by 3M return (best medium-term performers), or by today’s daily change (session outliers).</div>
+            </div>
+
+            <div class="lrn-panel-row">
               <div class="lrn-panel-row-lbl">The Score</div>
               <div class="lrn-panel-row-val">The Score is a <strong>composite momentum indicator</strong> that weighs recent performance across four time windows:<br><br>
                 <code>Score = 1M return × 20% + 3M return × 30% + 6M return × 30% + 1Y return × 20%</code><br><br>
                 The result is a single number, displayed in green if positive (above +0.10), red if negative (below −0.10), and grey if neutral.<br><br>
                 The weighting places the heaviest emphasis on the medium-term (3M and 6M together = 60%), with equal 20% bookends at either end (1M and 1Y). This means a recent short-term bounce barely moves the score on its own — the 3M and 6M windows must also be healthy for a high score to register. A stock that has been strong across all four windows gets the highest scores.<br><br>
-                Important: the Score is purely <em>price-based momentum</em>. It says nothing about whether the company is fundamentally healthy, whether it is profitable, or whether the valuation is reasonable. A high Score means the price has been rising across multiple timeframes. That is a useful technical signal — but it is not a fundamental endorsement.</div>
+                Important: the Score is purely <em>price-based momentum</em>. It says nothing about whether the company is fundamentally healthy, whether it is profitable, or whether the valuation is reasonable. A high Score means the price has been rising across multiple timeframes. That is a useful technical signal — but it is not a fundamental endorsement.<br><br>
+                One detail: the <strong>6M return</strong> (30% weight — the largest single input) is computed internally but not displayed as a standalone column in the main table. The visible return columns are 1M, 3M, and 1Y. The 6M figure is available in the <strong>row detail panel</strong> when you click any position to expand it.</div>
             </div>
 
             <div class="lrn-panel-row">
