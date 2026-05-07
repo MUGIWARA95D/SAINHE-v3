@@ -40,44 +40,43 @@
   var ptSparks = {};
 
   /* ── i18n column headers ────────────────────────────────── */
-  var todayLbl    = I18N.col_today    ||"Today";
-  var momentumLbl = I18N.col_momentum ||"Momentum";
-  var colHeaderMap = {
-    "th-cat":      I18N.col_category||"Category",
-    "th-ticker":   I18N.col_ticker  ||"Ticker",
-    "th-price":    I18N.col_price   ||"Price",
-    "th-1m":       I18N.col_1m      ||"1M",
-    "th-3m":       I18N.col_3m      ||"3M",
-    "th-1y":       I18N.col_1y      ||"1Y",
-    "th-score":    I18N.col_score   ||"Score",
-    "th-mfi":      I18N.col_mfi     ||"MFI",
-    "th-rvol":     I18N.col_rvol    ||"RVOL",
-    "th-dma200":   I18N.col_dma200  ||"DMA200"
-  };
-  Object.keys(colHeaderMap).forEach(function(id){
-    var el = document.getElementById(id);
-    if(el) el.textContent = colHeaderMap[id];
-  });
-  /* today header — has toggle button child */
-  (function(){
+  function setColHeaders(){
+    var I18N = window.SAINHE_I18N || {};
+    var todayLbl    = I18N.col_today    ||"Today";
+    var momentumLbl = I18N.col_momentum ||"Momentum";
+    var colHeaderMap = {
+      "th-cat":      I18N.col_category||"Category",
+      "th-ticker":   I18N.col_ticker  ||"Ticker",
+      "th-price":    I18N.col_price   ||"Price",
+      "th-1m":       I18N.col_1m      ||"1M",
+      "th-3m":       I18N.col_3m      ||"3M",
+      "th-1y":       I18N.col_1y      ||"1Y",
+      "th-score":    I18N.col_score   ||"Score",
+      "th-mfi":      I18N.col_mfi     ||"MFI",
+      "th-rvol":     I18N.col_rvol    ||"RVOL",
+      "th-dma200":   I18N.col_dma200  ||"DMA200"
+    };
+    Object.keys(colHeaderMap).forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.textContent = colHeaderMap[id];
+    });
     var thToday = document.getElementById("th-today");
     var retBtn  = document.getElementById("pt-ret-btn");
     if(thToday && retBtn){
-      thToday.childNodes[0] && thToday.insertBefore(document.createTextNode(todayLbl+" "), retBtn);
+      Array.from(thToday.childNodes).forEach(function(n){ if(n.nodeType===3) n.remove(); });
+      thToday.insertBefore(document.createTextNode(todayLbl+" "), retBtn);
       retBtn.title = I18N.toggle_returns||"Toggle 1M · 3M · 1Y";
       retBtn.textContent = "▸";
     }
-  })();
-  /* momentum header — has toggle button child */
-  (function(){
     var thMom  = document.getElementById("th-momentum");
     var sigBtn = document.getElementById("pt-sig-btn");
     if(thMom && sigBtn){
+      Array.from(thMom.childNodes).forEach(function(n){ if(n.nodeType===3) n.remove(); });
       thMom.insertBefore(document.createTextNode(momentumLbl+" "), sigBtn);
       sigBtn.title = I18N.toggle_signals||"Toggle MFI · RVOL · DMA200";
       sigBtn.textContent = "▸";
     }
-  })();
+  }
 
   /* ── helpers ────────────────────────────────────────────── */
   function mk(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!=null)el.textContent=txt;return el;}

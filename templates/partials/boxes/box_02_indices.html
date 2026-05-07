@@ -22,7 +22,7 @@
 (function(){
 
   function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-  function fmt(n){ return n!=null ? n.toLocaleString(LOC,{minimumFractionDigits:2,maximumFractionDigits:2}) : "—"; }
+  function fmt(n){ return n!=null ? n.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2}) : "—"; }
   function staleInfo(ts){
     if(!ts) return {cls:"ts-unk", label:"?"};
     const ageH = (Date.now() - new Date(ts)) / 3600000;
