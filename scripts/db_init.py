@@ -262,7 +262,7 @@ def _build_seed_rows():
             "watchlist",
             None,
             info.get("secteur"),
-            "USD",
+            info.get("devise", "USD"),   # devise native (JPY, CHF, GBP…) ou USD par défaut
             1,
             1,
         ))
@@ -305,6 +305,20 @@ def init_db():
         """,
         seed_rows,
     )
+
+    # Migration : met à jour la devise des tickers watchlist dont le config.py
+    # définit explicitement une devise non-USD (les lignes existantes ont "USD" hardcodé).
+    watchlist_devises = [
+        (info["devise"], ticker)
+        for ticker, info in WATCHLIST.items()
+        if "devise" in info
+    ]
+    if watchlist_devises:
+        cur.executemany(
+            "UPDATE ticker_info SET devise = ? WHERE ticker = ? AND type = 'watchlist'",
+            watchlist_devises,
+        )
+        print(f"[db_init] {len(watchlist_devises)} devises watchlist mises à jour")
 
     con.commit()
     con.close()

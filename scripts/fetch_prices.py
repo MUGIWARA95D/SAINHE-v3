@@ -125,11 +125,30 @@ def _filter_partial_intraday(ticker: str, rows: list[tuple]) -> list[tuple]:
 #  FETCH — curl_cffi Chrome impersonation
 # ============================================================
 
-def fetch_one(ticker: str, period1: int, period2: int) -> list[tuple] | None:
+def _maybe_update_devise(con: sqlite3.Connection, ticker: str, currency: str) -> None:
+    """
+    Met à jour ticker_info.devise si Yahoo Finance rapporte une devise différente
+    de celle actuellement stockée. Garde une trace dans les logs.
+    """
+    row = con.execute(
+        "SELECT devise FROM ticker_info WHERE ticker = ?", (ticker,)
+    ).fetchone()
+    if row and row[0] != currency:
+        con.execute(
+            "UPDATE ticker_info SET devise = ? WHERE ticker = ?", (currency, ticker)
+        )
+        con.commit()
+        log.info("devise auto-update: %s  %s → %s  (source: Yahoo meta.currency)",
+                 ticker, row[0], currency)
+
+
+def fetch_one(ticker: str, period1: int, period2: int) -> tuple[list[tuple] | None, str | None]:
     """
     Télécharge l'historique OHLCV pour un ticker via Yahoo Finance v8.
-    Retourne une liste de tuples (ticker, date, open, high, low, close, adj_close, volume)
-    ou None sur échec.
+    Retourne (rows, detected_currency) :
+      - rows    : liste de tuples (ticker, date, open, high, low, close, adj_close, volume)
+      - currency: devise native détectée dans meta.currency (ex: "JPY", "USD"…)
+    Retourne (None, None) sur échec.
     """
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
     params = {
@@ -163,12 +182,13 @@ def fetch_one(ticker: str, period1: int, period2: int) -> list[tuple] | None:
             result = data.get("chart", {}).get("result")
             if not result:
                 log.warning("%s — réponse vide", ticker)
-                return None
+                return None, None
 
-            res      = result[0]
-            ts_list  = res.get("timestamp", [])
-            quote    = res["indicators"]["quote"][0]
-            adj_list = res["indicators"].get("adjclose", [{}])[0].get("adjclose", [None] * len(ts_list))
+            res               = result[0]
+            detected_currency = res.get("meta", {}).get("currency")   # ex: "JPY", "USD", "CHF"
+            ts_list           = res.get("timestamp", [])
+            quote             = res["indicators"]["quote"][0]
+            adj_list          = res["indicators"].get("adjclose", [{}])[0].get("adjclose", [None] * len(ts_list))
 
             rows = []
             for j, ts in enumerate(ts_list):
@@ -189,7 +209,7 @@ def fetch_one(ticker: str, period1: int, period2: int) -> list[tuple] | None:
 
             # Garde anti-intraday : drop la dernière row si partial
             rows = _filter_partial_intraday(ticker, rows)
-            return rows
+            return rows, detected_currency
 
         except Exception as exc:
             log.warning("%s — erreur tentative %d/%d : %s", ticker, attempt, MAX_RETRIES, exc)
@@ -197,7 +217,7 @@ def fetch_one(ticker: str, period1: int, period2: int) -> list[tuple] | None:
                 time.sleep(SLEEP_429 if "429" in str(exc) else 10)
 
     log.error("%s — abandon après %d tentatives.", ticker, MAX_RETRIES)
-    return None
+    return None, None
 
 
 # ============================================================
@@ -249,7 +269,7 @@ def main(mode: str = "update", half: int = -1):
     total_skip      = 0
 
     for i, ticker in enumerate(tickers):
-        rows = fetch_one(ticker, period1, period2)
+        rows, detected_currency = fetch_one(ticker, period1, period2)
 
         if rows is None:
             total_skip += 1
@@ -258,7 +278,13 @@ def main(mode: str = "update", half: int = -1):
             n = insert_prices(con, rows)
             total_inserted += n
             total_ok       += 1
-            log.info("OK   %s — %d rows (%d new)", ticker, len(rows), n)
+            log.info("OK   %s — %d rows (%d new)%s",
+                     ticker, len(rows), n,
+                     f"  [devise={detected_currency}]" if detected_currency else "")
+
+        # Auto-correction de la devise native si Yahoo en rapporte une différente
+        if detected_currency:
+            _maybe_update_devise(con, ticker, detected_currency)
 
         if i < len(tickers) - 1:
             time.sleep(random.uniform(SLEEP_MIN, SLEEP_MAX))

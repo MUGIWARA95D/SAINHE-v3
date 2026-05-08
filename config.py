@@ -87,26 +87,26 @@ WATCHLIST = {
     "NVDA"      : {"nom": "NVIDIA",             "secteur": "Tech & Semis"},
     "AAPL"      : {"nom": "Apple",              "secteur": "Tech & Semis"},
     "MSFT"      : {"nom": "Microsoft",          "secteur": "Tech & Semis"},
-    "ASML"      : {"nom": "ASML Holding",       "secteur": "Tech & Semis"},
-    "TSM"       : {"nom": "Taiwan Semi (TSMC)", "secteur": "Tech & Semis"},
+    "ASML"      : {"nom": "ASML Holding",       "secteur": "Tech & Semis"},          # NASDAQ → USD
+    "TSM"       : {"nom": "Taiwan Semi (TSMC)", "secteur": "Tech & Semis"},           # NYSE ADR → USD
 
     # ── Robotics & MedTech ────────────────────────────────────
-    "6954.T"    : {"nom": "Fanuc",              "secteur": "Robotics & MedTech"},
+    "6954.T"    : {"nom": "Fanuc",              "secteur": "Robotics & MedTech",  "devise": "JPY"},
     "ISRG"      : {"nom": "Intuitive Surgical", "secteur": "Robotics & MedTech"},
 
     # ── Healthcare & Pharma ───────────────────────────────────
-    "ROG.SW"    : {"nom": "Roche",              "secteur": "Healthcare & Pharma"},
+    "ROG.SW"    : {"nom": "Roche",              "secteur": "Healthcare & Pharma", "devise": "CHF"},
     "ZTS"       : {"nom": "Zoetis",             "secteur": "Healthcare & Pharma"},
 
     # ── Energy ────────────────────────────────────────────────
-    "2222.SR"   : {"nom": "Saudi Aramco",       "secteur": "Energy"},
+    "2222.SR"   : {"nom": "Saudi Aramco",       "secteur": "Energy",              "devise": "SAR"},
     "XOM"       : {"nom": "ExxonMobil",         "secteur": "Energy"},
 
     # ── Defense & Aerospace ───────────────────────────────────
     "LMT"       : {"nom": "Lockheed Martin",    "secteur": "Defense & Aerospace"},
-    "SAF.PA"    : {"nom": "Safran",             "secteur": "Defense & Aerospace"},
-    "RHM.DE"    : {"nom": "Rheinmetall",        "secteur": "Defense & Aerospace"},
-    "KAP.IL"    : {"nom": "Elbit Systems",      "secteur": "Defense & Aerospace"},
+    "SAF.PA"    : {"nom": "Safran",             "secteur": "Defense & Aerospace", "devise": "EUR"},
+    "RHM.DE"    : {"nom": "Rheinmetall",        "secteur": "Defense & Aerospace", "devise": "EUR"},
+    "KAP.IL"    : {"nom": "Elbit Systems",      "secteur": "Defense & Aerospace", "devise": "ILS"},
 
     # ── EV & Clean Energy ─────────────────────────────────────
     "TSLA"      : {"nom": "Tesla",              "secteur": "EV & Clean Energy"},
@@ -118,25 +118,25 @@ WATCHLIST = {
 
     # ── Luxury ────────────────────────────────────────────────
     "RACE"      : {"nom": "Ferrari",            "secteur": "Luxury"},
-    "RMS.PA"    : {"nom": "Hermès",             "secteur": "Luxury"},
+    "RMS.PA"    : {"nom": "Hermès",             "secteur": "Luxury",              "devise": "EUR"},
 
     # ── Agriculture ───────────────────────────────────────────
     "DE"        : {"nom": "John Deere",         "secteur": "Agriculture"},
     "CTVA"      : {"nom": "Corteva",            "secteur": "Agriculture"},
 
     # ── Infra & Water ─────────────────────────────────────────
-    "GEBN.SW"   : {"nom": "Geberit",            "secteur": "Infra & Water"},
+    "GEBN.SW"   : {"nom": "Geberit",            "secteur": "Infra & Water",       "devise": "CHF"},
     "ECL"       : {"nom": "Ecolab",             "secteur": "Infra & Water"},
 
     # ── Consumer Staples ──────────────────────────────────────
-    "NESN.SW"   : {"nom": "Nestlé",             "secteur": "Consumer Staples"},
+    "NESN.SW"   : {"nom": "Nestlé",             "secteur": "Consumer Staples",    "devise": "CHF"},
     "KO"        : {"nom": "Coca-Cola",          "secteur": "Consumer Staples"},
 
     # ── Industrials ───────────────────────────────────────────
-    "COA.L"     : {"nom": "Coats Group",        "secteur": "Industrials"},
+    "COA.L"     : {"nom": "Coats Group",        "secteur": "Industrials",         "devise": "GBP"},
 
     # ── Strategic Materials ───────────────────────────────────
-    "600111.SS" : {"nom": "Northern Rare Earth", "secteur": "Strategic Materials"},
+    "600111.SS" : {"nom": "Northern Rare Earth", "secteur": "Strategic Materials", "devise": "CNY"},
     "GLD"       : {"nom": "SPDR Gold ETF",        "secteur": "Strategic Materials"},
 
     # ── Digital Assets ────────────────────────────────────────
@@ -228,11 +228,24 @@ CALENDAR_SOURCES = {
 }
 
 # ============================================================
-#  7. TAUX DE CHANGE — fetch_fx.py (yfinance)
+#  7. TAUX DE CHANGE — fetch_fx.py (Frankfurter/yfinance)
+#  Clé  : "USD_XXX"  — taux de conversion USD → XXX
+#  Val  : ticker yfinance (fallback)
+#  Note : CURRENCIES = ["USD","EUR","HKD"] → devises d'affichage
+#         Autres paires servent uniquement à convertir les prix natifs
+#         des tickers du portefeuille (JPY, CHF, GBP, CNY, ILS, SAR).
 # ============================================================
 FX_SOURCES = {
+    # ── Devises d'affichage (USD/EUR/HKD) ────────────────────
     "USD_EUR": "USDEUR=X",
     "USD_HKD": "USDHKD=X",
+    # ── Devises portefeuille ──────────────────────────────────
+    "USD_JPY": "USDJPY=X",   # 6954.T — Fanuc
+    "USD_CHF": "USDCHF=X",   # ROG.SW, GEBN.SW, NESN.SW
+    "USD_GBP": "USDGBP=X",   # COA.L
+    "USD_CNY": "USDCNY=X",   # 600111.SS
+    "USD_ILS": "USDILS=X",   # KAP.IL
+    "USD_SAR": "USDSAR=X",   # 2222.SR
 }
 
 # ============================================================

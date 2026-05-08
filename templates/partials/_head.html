@@ -821,15 +821,20 @@ a.news-hl:hover{color:var(--gold)}
   window.SAINHE_CUR = localStorage.getItem('sainhe_currency') || 'USD';
 
   /* Convert amount from native_devise → current display currency.
-     Returns null for unknown devises (GBP, JPY…) — caller falls back to raw. */
+     Uses SAINHE_FX lookup — supports all pairs stored in fx_rates (JPY, CHF, GBP…).
+     Returns null only for devises absent from the FX table (e.g. SAR, ILS if not fetched). */
   window.fxConvert = function(amount, native_devise){
     if(amount == null) return null;
     var fx = window.SAINHE_FX, cur = window.SAINHE_CUR || 'USD';
+    var nd = native_devise || 'USD';
     var usd;
-    if     (native_devise === 'USD') usd = amount;
-    else if(native_devise === 'EUR') usd = amount / fx.EUR;
-    else if(native_devise === 'HKD') usd = amount / fx.HKD;
-    else return null;
+    if(nd === 'USD'){
+      usd = amount;
+    } else if(fx[nd] !== undefined){
+      usd = amount / fx[nd];   // native → USD  (fx[nd] = USD per 1 native unit)
+    } else {
+      return null;             // devise inconnue (pas dans fx_rates)
+    }
     return usd * (fx[cur] !== undefined ? fx[cur] : 1.0);
   };
 

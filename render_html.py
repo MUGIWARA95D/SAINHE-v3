@@ -109,16 +109,31 @@ def load_boxes(con: sqlite3.Connection, currency: str) -> list[dict]:
 # ============================================================
 
 def _get_fx_rates(con: sqlite3.Connection) -> dict:
+    """
+    Retourne un dict {DEVISE: taux_USD} utilisé côté JS dans fxConvert.
+    USD = 1.0 (base), EUR/HKD avec fallback hardcodé, autres paires dynamiquement.
+    Structure : {"USD": 1.0, "EUR": 0.92, "HKD": 7.82, "JPY": 145.0, ...}
+    """
     rows = con.execute("SELECT pair, rate FROM fx_rates ORDER BY ts DESC").fetchall()
     seen: dict[str, float] = {}
     for pair, rate in rows:
         if pair not in seen:
-            seen[pair] = rate
-    return {
+            seen[pair] = rate          # garde la valeur la plus récente par paire
+
+    # Base toujours présente (USD = 1.0, EUR/HKD avec fallback si DB vide)
+    result: dict[str, float] = {
         "USD": 1.0,
         "EUR": round(seen.get("USD_EUR", 0.9200), 6),
         "HKD": round(seen.get("USD_HKD", 7.8200), 6),
     }
+    # Toutes les autres paires stockées (JPY, CHF, GBP, CNY, ILS, SAR…)
+    for pair, rate in seen.items():
+        if "_" in pair:
+            target = pair.split("_")[1]   # "USD_JPY" → "JPY"
+            if target not in result:
+                result[target] = round(rate, 6)
+
+    return result
 
 
 def _box_timestamps(con: sqlite3.Connection) -> dict:

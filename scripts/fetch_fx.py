@@ -1,8 +1,11 @@
 """
-fetch_fx.py — Récupère les taux de change USD/EUR et USD/HKD.
+fetch_fx.py — Récupère les taux de change USD/XXX pour toutes les paires de FX_SOURCES.
 Source principale : api.frankfurter.app (BCE, gratuit, zéro API key, zéro rate limit).
-Fallback         : yfinance (USDEUR=X / USDHKD=X).
+Fallback         : yfinance (USDXXX=X).
 Stocke dans fx_rates (INSERT OR IGNORE, horodatage UTC).
+
+Paires couvertes : USD/EUR, USD/HKD (affichage) + USD/JPY, USD/CHF, USD/GBP,
+                   USD/CNY, USD/ILS, USD/SAR (conversion prix portefeuille).
 
 Lancement :
     python scripts/fetch_fx.py
@@ -25,10 +28,12 @@ from config import DB_PATH, FX_SOURCES
 #  CONFIG
 # ============================================================
 
-FRANKFURTER_URL = "https://api.frankfurter.app/latest?from=USD&to=EUR,HKD"
-TIMEOUT         = 10
-MAX_RETRIES     = 3
-SLEEP_RETRY     = 10.0
+# Currencies to fetch — derived from FX_SOURCES keys ("USD_EUR" → "EUR")
+_FX_TARGETS      = [k.split("_")[1] for k in FX_SOURCES]
+FRANKFURTER_URL  = f"https://api.frankfurter.app/latest?from=USD&to={','.join(_FX_TARGETS)}"
+TIMEOUT          = 10
+MAX_RETRIES      = 3
+SLEEP_RETRY      = 10.0
 
 logging.basicConfig(
     level=logging.INFO,
@@ -44,8 +49,10 @@ log = logging.getLogger(__name__)
 
 def _fetch_frankfurter() -> dict[str, float]:
     """
-    Appelle api.frankfurter.app → {"base":"USD","rates":{"EUR":0.867,"HKD":7.83}}
-    Retourne {"USD_EUR": 0.867, "USD_HKD": 7.83} ou {} sur échec.
+    Appelle api.frankfurter.app → {"base":"USD","rates":{"EUR":0.867,"HKD":7.83,...}}
+    Retourne {"USD_EUR": 0.867, "USD_HKD": 7.83, ...} pour toutes les paires disponibles.
+    Note : Frankfurter (BCE) ne couvre pas toutes les devises (ex: SAR, ILS) — yfinance
+           prend le relais pour les paires manquantes.
     """
     try:
         r = requests.get(FRANKFURTER_URL, timeout=TIMEOUT)
@@ -53,10 +60,11 @@ def _fetch_frankfurter() -> dict[str, float]:
         data = r.json()
         rates = data.get("rates", {})
         result = {}
-        if "EUR" in rates:
-            result["USD_EUR"] = float(rates["EUR"])
-        if "HKD" in rates:
-            result["USD_HKD"] = float(rates["HKD"])
+        for pair in FX_SOURCES:
+            target = pair.split("_")[1]   # "USD_EUR" → "EUR"
+            if target in rates:
+                result[pair] = float(rates[target])
+                log.info("  %s = %.6f  [frankfurter]", pair, result[pair])
         return result
     except Exception as e:
         log.warning("Frankfurter échec : %s", e)
@@ -118,15 +126,15 @@ def _fetch_yfinance() -> dict[str, float]:
 # ============================================================
 
 def fetch_rates() -> dict[str, float]:
-    log.info("Tentative Frankfurter (BCE)…")
+    log.info("Tentative Frankfurter (BCE)… (%d paires demandées)", len(FX_SOURCES))
     rates = _fetch_frankfurter()
 
     if len(rates) == len(FX_SOURCES):
-        for pair, rate in rates.items():
-            log.info("  %s = %.6f  [frankfurter]", pair, rate)
         return rates
 
-    log.warning("Frankfurter incomplet (%d/%d) — fallback yfinance…", len(rates), len(FX_SOURCES))
+    missing = [p for p in FX_SOURCES if p not in rates]
+    log.warning("Frankfurter incomplet (%d/%d) — fallback yfinance pour : %s",
+                len(rates), len(FX_SOURCES), ", ".join(missing))
     yf_rates = _fetch_yfinance()
     # Merge : yfinance complète les paires manquantes
     for pair, rate in yf_rates.items():

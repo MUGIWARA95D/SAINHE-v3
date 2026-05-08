@@ -349,9 +349,18 @@
       cv.id="psp_"+p.ticker.replace(/\W/g,"_");
       cv.width=56; cv.height=22; cv.className="idx-spark";
 
-      /* col 4 — price (converted to current display currency) */
-      var priceTd = tr.appendChild(mk("td", null, window.fxPrice(p.close, p.native_devise||'USD')));
+      /* col 4 — price (converted to display currency, or native + badge if devise not in FX table) */
+      var priceTd = tr.appendChild(mk("td"));
       priceTd.style.fontVariantNumeric = "tabular-nums";
+      var nd   = p.native_devise || 'USD';
+      var conv = window.fxConvert(p.close, nd);
+      if(conv !== null){
+        priceTd.textContent = window.fxSymbol() + conv.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2});
+      } else {
+        priceTd.innerHTML = (p.close != null
+          ? p.close.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2})
+          : '—') + ' <span class="idx-cur-badge">' + nd + '</span>';
+      }
 
       /* col 5 — today % */
       var chgTd=tr.appendChild(mk("td",null,pct(p.chg_pct)));
