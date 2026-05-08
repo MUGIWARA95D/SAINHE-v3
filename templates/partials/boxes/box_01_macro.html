@@ -102,8 +102,8 @@
   const dxyC = (dxy.chg_pct||0)>0 ? "var(--red)" : "var(--green)";
   const dxyS = (dxy.chg_pct||0)>0 ? (I18N.dxy_bearish||"Bearish for equities") : (I18N.dxy_supportive||"Supportive for equities");
   const dxySC= (dxy.chg_pct||0)>0 ? "law-r" : "law-g";
-  const dxyCh= dxy.chg_pct!=null ? ((dxy.chg_pct>=0?"+":"")+dxy.chg_pct.toFixed(2)+"%") : "—";
-  const retM = dxy.ret_1m!=null?(dxy.ret_1m>=0?"+":"")+dxy.ret_1m.toFixed(2)+"%":"—";
+  const dxyCh= dxy.chg_pct!=null ? ((dxy.chg_pct>=0?"+":"")+(dxy.chg_pct*100).toFixed(2)+"%") : "—";
+  const retM = dxy.ret_1m!=null?(dxy.ret_1m>=0?"+":"")+(dxy.ret_1m*100).toFixed(2)+"%":"—";
   addCard(
     I18N.dxy_title||"DXY — US Dollar Index",
     dxyV!=null ? fmt(dxyV) : "—",
