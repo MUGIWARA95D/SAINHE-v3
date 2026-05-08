@@ -2,20 +2,25 @@
 fetch_fx.py — Récupère les taux de change USD/XXX pour toutes les paires de FX_SOURCES.
 Source principale : api.frankfurter.app (BCE, gratuit, zéro API key, zéro rate limit).
 Fallback         : yfinance (USDXXX=X).
-Stocke dans fx_rates (INSERT OR IGNORE, horodatage UTC).
+Stocke dans :
+  - fx_rates  : historique 7 jours (2 fetches/jour), pour SAINHE_FX côté client
+  - fx_daily  : 1 taux par paire par jour, conservé 2 ans, pour ajuster les returns
 
 Paires couvertes : USD/EUR, USD/HKD (affichage) + USD/JPY, USD/CHF, USD/GBP,
                    USD/CNY, USD/ILS, USD/SAR (conversion prix portefeuille).
 
 Lancement :
-    python scripts/fetch_fx.py
+    python scripts/fetch_fx.py                    # fetch + insert du jour
+    python scripts/fetch_fx.py --backfill         # remplit fx_daily sur 2 ans (Frankfurter)
+    python scripts/fetch_fx.py --backfill --years 1   # backfill sur 1 an
 """
 
+import argparse
 import sqlite3
 import sys
 import time
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 import requests
@@ -145,35 +150,98 @@ def fetch_rates() -> dict[str, float]:
 
 
 # ============================================================
-#  INSERT
+#  INSERT — fx_rates (7 jours) + fx_daily (2 ans)
 # ============================================================
 
 def insert_rates(con: sqlite3.Connection, rates: dict[str, float], ts: str):
+    """Insère dans fx_rates (horodaté) et fx_daily (1 par jour)."""
+    today = ts[:10]   # "YYYY-MM-DD"
+
     for pair, rate in rates.items():
+        # fx_rates — historique court (SAINHE_FX côté client)
         con.execute(
             "INSERT OR IGNORE INTO fx_rates (pair, ts, rate) VALUES (?, ?, ?)",
             (pair, ts, rate),
         )
-    # Purge : garde 7 jours glissants, supprime le reste
-    con.execute(
-        "DELETE FROM fx_rates WHERE ts < datetime('now', '-7 days')"
-    )
+        # fx_daily — historique long (ajustement returns calc.py)
+        con.execute(
+            "INSERT OR IGNORE INTO fx_daily (pair, date, rate) VALUES (?, ?, ?)",
+            (pair, today, rate),
+        )
+
+    # Purge fx_rates : garde 7 jours glissants seulement
+    con.execute("DELETE FROM fx_rates WHERE ts < datetime('now', '-7 days')")
     con.commit()
+
+
+# ============================================================
+#  BACKFILL — historique Frankfurter (2 ans)
+# ============================================================
+
+def backfill_fx_daily(con: sqlite3.Connection, years: int = 2):
+    """
+    Remplit fx_daily avec les taux historiques Frankfurter sur `years` ans.
+    Utilise l'API range : api.frankfurter.app/START..END?from=USD&to=XXX,YYY
+    Cibles : toutes les devises de FX_SOURCES supportées par Frankfurter (pas SAR).
+    INSERT OR IGNORE — safe à relancer, ne réécrit pas l'existant.
+    """
+    end   = datetime.now(timezone.utc).date()
+    start = end - timedelta(days=years * 365)
+
+    # Frankfurter ne supporte pas toutes les devises — exclure SAR
+    # On teste sur les targets de FX_SOURCES
+    targets = [k.split("_")[1] for k in FX_SOURCES]
+    url = (
+        f"https://api.frankfurter.app/{start}..{end}"
+        f"?from=USD&to={','.join(targets)}"
+    )
+    log.info("Backfill fx_daily %s → %s (%d cibles)…", start, end, len(targets))
+
+    try:
+        r = requests.get(url, timeout=60)
+        r.raise_for_status()
+        data = r.json()
+    except Exception as e:
+        log.error("Backfill Frankfurter échec : %s", e)
+        return
+
+    daily_rates = data.get("rates", {})   # {"2024-05-08": {"EUR": 0.915, "JPY": 154.2, ...}, ...}
+    inserted = 0
+
+    for date_str, rate_map in daily_rates.items():
+        for pair in FX_SOURCES:
+            target = pair.split("_")[1]
+            if target in rate_map:
+                con.execute(
+                    "INSERT OR IGNORE INTO fx_daily (pair, date, rate) VALUES (?, ?, ?)",
+                    (pair, date_str, float(rate_map[target])),
+                )
+                inserted += 1
+
+    con.commit()
+    log.info("Backfill terminé — %d lignes insérées dans fx_daily.", inserted)
 
 
 # ============================================================
 #  MAIN
 # ============================================================
 
-def main():
+def main(backfill: bool = False, backfill_years: int = 2):
+    con = sqlite3.connect(DB_PATH)
+
+    if backfill:
+        backfill_fx_daily(con, years=backfill_years)
+        con.close()
+        return
+
     rates = fetch_rates()
 
     if not rates:
         log.error("Aucun taux récupéré.")
+        con.close()
         sys.exit(1)
 
-    ts  = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    con = sqlite3.connect(DB_PATH)
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     insert_rates(con, rates, ts)
     con.close()
 
@@ -181,11 +249,14 @@ def main():
 
     missing = [p for p in FX_SOURCES if p not in rates]
     if missing:
-        # Certaines devises exotiques (SAR…) ne sont pas couvertes par Frankfurter/yfinance.
-        # Ce n'est pas bloquant — les tickers concernés afficheront le badge devise natif.
         log.warning("Paires manquantes (affichage badge natif): %s", ", ".join(missing))
-    # Ne pas sys.exit(1) pour des paires optionnelles — les 7/8 paires critiques suffisent.
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Fetch FX rates (Frankfurter / yfinance)")
+    parser.add_argument("--backfill", action="store_true",
+                        help="Remplit fx_daily avec 2 ans d'historique Frankfurter")
+    parser.add_argument("--years", type=int, default=2,
+                        help="Nombre d'années à backfiller (défaut: 2)")
+    args = parser.parse_args()
+    main(backfill=args.backfill, backfill_years=args.years)

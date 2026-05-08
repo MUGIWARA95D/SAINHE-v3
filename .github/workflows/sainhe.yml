@@ -95,6 +95,13 @@ jobs:
         run: python scripts/fetch_prices.py
         continue-on-error: true
 
+      - name: "[refresh:prices] Fetch Fundamentals (P/E S&P 500 → ERP)"
+        if: |
+          contains(github.event.head_commit.message, '[refresh:prices]') ||
+          contains(github.event.head_commit.message, '[refresh:all]')
+        run: python scripts/fetch_fundamentals.py
+        continue-on-error: true
+
       - name: Calculate indicators
         run: python scripts/calc.py
         continue-on-error: true
@@ -281,6 +288,10 @@ jobs:
 
       - name: Fetch Prices
         run: python scripts/fetch_prices.py
+
+      - name: Fetch Fundamentals (P/E S&P 500 → ERP)
+        run: python scripts/fetch_fundamentals.py
+        continue-on-error: true
 
       - name: Fetch News
         run: python scripts/fetch_news.py

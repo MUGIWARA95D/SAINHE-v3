@@ -109,6 +109,16 @@ CREATE TABLE IF NOT EXISTS fx_rates (
     UNIQUE(pair, ts)
 );
 
+-- ── 5b. FX_DAILY ──────────────────────────────────────────
+-- Un taux par paire par jour — conservé sur 2 ans pour ajuster les returns.
+-- Alimenté par fetch_fx.py + backfill Frankfurter historique.
+CREATE TABLE IF NOT EXISTS fx_daily (
+    pair  TEXT NOT NULL,
+    date  TEXT NOT NULL,   -- YYYY-MM-DD
+    rate  REAL NOT NULL,
+    PRIMARY KEY (pair, date)
+);
+
 -- ── 6. MACRO_BANDEAU ──────────────────────────────────────
 -- Dernières valeurs macro pour le bandeau (VIX, TNX, IRX, DXY, ERP…).
 -- Un seul enregistrement actif, remplacé à chaque fetch.
@@ -210,11 +220,17 @@ INDEXES = [
     "CREATE INDEX IF NOT EXISTS idx_rperf_secteur_date   ON rperf (secteur, region, date DESC);",
     "CREATE INDEX IF NOT EXISTS idx_news_ts_pub          ON news (ts_pub DESC);",
     "CREATE INDEX IF NOT EXISTS idx_news_region          ON news (region, ts_pub DESC);",
+    "CREATE INDEX IF NOT EXISTS idx_fx_daily_pair_date ON fx_daily (pair, date DESC);",
 ]
 
 # ============================================================
 #  SEED — ticker_info depuis config.py
 # ============================================================
+
+# Devise native par région — EU ETFs trade en EUR, ASIE ETFs en HKD
+# fetch_prices.py corrigera automatiquement via meta.currency Yahoo si différent
+_REGION_DEVISE = {"MONDE": "USD", "USA": "USD", "EU": "EUR", "ASIE": "HKD"}
+
 
 def _build_seed_rows():
     rows = []
@@ -236,7 +252,7 @@ def _build_seed_rows():
             "etf_sector",
             meta["region"],
             meta["secteur"],
-            "USD",                 # tout stocké en USD
+            _REGION_DEVISE.get(meta["region"], "USD"),  # devise native par région
             1,                     # volume_flag
             1,                     # actif
         ))
@@ -319,6 +335,24 @@ def init_db():
             watchlist_devises,
         )
         print(f"[db_init] {len(watchlist_devises)} devises watchlist mises à jour")
+
+    # Migration : met à jour la devise des ETFs sectoriels EU/ASIE (étaient tous "USD")
+    ticker_meta = {}
+    for secteur, regions in SECTOR_TICKERS.items():
+        for region, ticker in regions.items():
+            if ticker and ticker not in ticker_meta:
+                ticker_meta[ticker] = {"secteur": secteur, "region": region}
+    etf_devises = [
+        (_REGION_DEVISE.get(meta["region"], "USD"), ticker)
+        for ticker, meta in ticker_meta.items()
+        if _REGION_DEVISE.get(meta["region"], "USD") != "USD"
+    ]
+    if etf_devises:
+        cur.executemany(
+            "UPDATE ticker_info SET devise = ? WHERE ticker = ? AND type = 'etf_sector'",
+            etf_devises,
+        )
+        print(f"[db_init] {len(etf_devises)} devises etf_sector mises à jour")
 
     con.commit()
     con.close()

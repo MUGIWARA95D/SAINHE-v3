@@ -45,6 +45,42 @@ log = logging.getLogger(__name__)
 #  LOAD PRICES FROM DB
 # ============================================================
 
+def load_fx_series(con: sqlite3.Connection, devise: str) -> pd.Series | None:
+    """
+    Charge les taux de change USD/devise depuis fx_daily sous forme de Series
+    indexée par date (datetime). Retourne None si devise='USD' ou données absentes.
+    Utilisé pour convertir les prix natifs en USD avant calcul des returns.
+    """
+    if not devise or devise == "USD":
+        return None
+    pair = f"USD_{devise}"
+    rows = con.execute(
+        "SELECT date, rate FROM fx_daily WHERE pair = ? ORDER BY date ASC",
+        (pair,),
+    ).fetchall()
+    if not rows:
+        return None
+    s = pd.Series({r[0]: float(r[1]) for r in rows})
+    s.index = pd.to_datetime(s.index)
+    return s
+
+
+def usd_adjust(close: pd.Series, fx: pd.Series | None) -> pd.Series:
+    """
+    Convertit une série de prix natifs en USD.
+    fx = Series de taux USD_DEVISE (1 USD = fx[date] unités de devise).
+    donc prix_USD = prix_natif / fx[date].
+    Utilise ffill pour les jours sans cotation FX (week-ends, fériés).
+    Si fx est None ou toutes les valeurs manquantes → retourne close inchangé.
+    """
+    if fx is None:
+        return close
+    fx_aligned = fx.reindex(close.index, method="ffill")
+    if fx_aligned.isna().all():
+        return close   # pas de données FX → fallback devise native
+    return close / fx_aligned
+
+
 def load_prices(con: sqlite3.Connection, ticker: str) -> pd.DataFrame:
     """
     Lit l'historique OHLCV pour un ticker depuis la table prices.
@@ -464,6 +500,12 @@ def main():
     tickers = load_all_tickers(con)
     ts_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
+    # Charge toutes les devises en une requête (évite N requêtes dans la boucle)
+    devise_map: dict[str, str] = {
+        r[0]: r[1]
+        for r in con.execute("SELECT ticker, devise FROM ticker_info WHERE actif=1").fetchall()
+    }
+
     log.info("Calcul pour %d tickers (date=%s)", len(tickers), ts_date)
     ok = 0
     skipped = 0
@@ -479,10 +521,20 @@ def main():
             skipped += 1
             continue
 
+        # ── Ajustement USD pour momentum/score ───────────
+        # Les indicateurs techniques (DMA, MFI, OBV, RVOL) restent en devise
+        # native — ce sont des indicateurs relatifs, currency-neutral.
+        # Seuls les returns et le score composite sont normalisés en USD
+        # pour permettre le ranking inter-régions.
+        devise  = devise_map.get(ticker, "USD")
+        fx      = load_fx_series(con, devise)
+        df_usd  = df.copy()
+        df_usd["close"] = usd_adjust(df["close"], fx)
+
         # ── Calculs ──────────────────────────────────────
-        dma50, dma200, above_dma200 = calc_dma(df)
-        momentum                    = calc_momentum(df)
-        score                       = calc_score(momentum)
+        dma50, dma200, above_dma200 = calc_dma(df)           # prix natifs
+        momentum                    = calc_momentum(df_usd)   # prix USD-ajustés
+        score                       = calc_score(momentum)    # score en USD
         rvol, rvol_dir              = calc_rvol(df)
         obv, obv_dir                = calc_obv(df)
         mfi                         = calc_mfi(df)
