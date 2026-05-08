@@ -154,6 +154,10 @@ def insert_rates(con: sqlite3.Connection, rates: dict[str, float], ts: str):
             "INSERT OR IGNORE INTO fx_rates (pair, ts, rate) VALUES (?, ?, ?)",
             (pair, ts, rate),
         )
+    # Purge : garde 7 jours glissants, supprime le reste
+    con.execute(
+        "DELETE FROM fx_rates WHERE ts < datetime('now', '-7 days')"
+    )
     con.commit()
 
 
