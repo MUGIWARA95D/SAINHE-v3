@@ -89,11 +89,11 @@
     var sEl = document.getElementById("shdr-score");
     var pEl = document.getElementById("hdr-perf");
     if(sEl){
-      sEl.textContent = scoreBase + (sortCol==="score" ? (sortDir===1?" ▼":" ▲") : "");
+      sEl.textContent = scoreBase + (sortCol==="score" ? (sortDir===1?" ▼":" ▲") : " ⇅");
       sEl.classList.toggle("sec-hdr-sorted", sortCol==="score");
     }
     if(pEl){
-      pEl.textContent = perfLbl + (sortCol==="perf" ? (sortDir===1?" ▼":" ▲") : "");
+      pEl.textContent = perfLbl + (sortCol==="perf" ? (sortDir===1?" ▼":" ▲") : " ⇅");
       pEl.classList.toggle("sec-hdr-sorted", sortCol==="perf");
     }
   }
