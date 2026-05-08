@@ -47,21 +47,6 @@
     <span class="sb-body" data-i18n="learn_sb_body">{{ t.learn_sb_body }}</span>
   </div>
 
-  <!-- ─── LANGUAGE NOTICE — only shown on EN version (SSG pages are already translated) ── -->
-  {% if lang == 'en' %}
-  <div id="learn-lang-notice" style="display:none;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:6px;
-              padding:10px 18px;margin:12px 24px;font-size:12px;color:var(--gold);
-              align-items:center;gap:8px">
-    <span>🌐</span>
-    <span data-i18n="learn_notice_en_only">{{ t.learn_notice_en_only }}</span>
-  </div>
-  <script>
-  if(window.SAINHE_LANG&&window.SAINHE_LANG!=='en'){
-    var n=document.getElementById('learn-lang-notice');
-    if(n)n.style.display='flex';
-  }
-  </script>
-  {% endif %}
 
   <!-- ─── 00 · WHY FINANCE ────────────────────────────────── -->
   <div class="sec-band sec-choc" id="learn-whyfinance">
