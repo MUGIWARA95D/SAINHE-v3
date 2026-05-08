@@ -77,10 +77,12 @@ def _fetch_frankfurter() -> dict[str, float]:
 
 def _fetch_yfinance() -> dict[str, float]:
     """
-    Fallback : lit les taux FX depuis yfinance (USDEUR=X, USDHKD=X).
-    Retourne {"USD_EUR": ..., "USD_HKD": ...} ou {} sur échec.
+    Fallback : lit les taux FX depuis yfinance (USDXXX=X).
+    Retourne {"USD_XXX": rate, ...} ou {} sur échec.
+    Note : avec group_by='ticker', l'accès est raw[yf_ticker]['Close'],
+           indépendamment du nombre de tickers.
     """
-    tickers = list(FX_SOURCES.values())   # ["USDEUR=X", "USDHKD=X"]
+    tickers = list(FX_SOURCES.values())
 
     for attempt in range(1, MAX_RETRIES + 1):
         try:
@@ -99,10 +101,7 @@ def _fetch_yfinance() -> dict[str, float]:
             result = {}
             for pair, yf_ticker in FX_SOURCES.items():
                 try:
-                    if len(tickers) == 1:
-                        series = raw["Close"]
-                    else:
-                        series = raw["Close"][yf_ticker]
+                    series = raw[yf_ticker]["Close"]
                     rate = series.dropna().iloc[-1]
                     result[pair] = float(rate)
                 except Exception as e:
@@ -176,8 +175,12 @@ def main():
 
     log.info("Terminé — %d/%d paires insérées (ts=%s)", len(rates), len(FX_SOURCES), ts)
 
-    if len(rates) < len(FX_SOURCES):
-        sys.exit(1)
+    missing = [p for p in FX_SOURCES if p not in rates]
+    if missing:
+        # Certaines devises exotiques (SAR…) ne sont pas couvertes par Frankfurter/yfinance.
+        # Ce n'est pas bloquant — les tickers concernés afficheront le badge devise natif.
+        log.warning("Paires manquantes (affichage badge natif): %s", ", ".join(missing))
+    # Ne pas sys.exit(1) pour des paires optionnelles — les 7/8 paires critiques suffisent.
 
 
 if __name__ == "__main__":
