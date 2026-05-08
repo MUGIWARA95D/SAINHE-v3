@@ -111,7 +111,7 @@
         row.appendChild(nm); row.appendChild(dash1); row.appendChild(dash2); row.appendChild(dash3);
       } else {
         const perf = r[cP];
-        const cls  = perf == null ? "p-flat" : perf > 0.3 ? "p-up" : perf < -0.3 ? "p-dn" : "p-flat";
+        const cls  = perf == null ? "p-flat" : perf > 0 ? "p-up" : perf < 0 ? "p-dn" : "p-flat";
         const sg   = (perf != null && perf >= 0) ? "+" : "";
         const sc   = r.score != null ? r.score.toFixed(2) : "—";
         const hot  = r.score != null && r.score > 0.3 ? " rvol-hot" : "";
@@ -135,7 +135,7 @@
 
         const pEl = document.createElement("span");
         pEl.className = "sec-perf " + cls;
-        pEl.textContent = perf != null ? sg + Math.abs(perf).toFixed(2) + "%" : "—";
+        pEl.textContent = perf != null ? sg + (Math.abs(perf) * 100).toFixed(2) + "%" : "—";
 
         row.appendChild(nm); row.appendChild(spTd); row.appendChild(scEl); row.appendChild(pEl);
       }

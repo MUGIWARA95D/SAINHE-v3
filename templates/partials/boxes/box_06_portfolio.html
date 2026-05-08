@@ -81,7 +81,7 @@
   /* ── helpers ────────────────────────────────────────────── */
   function mk(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!=null)el.textContent=txt;return el;}
   function clear(el){while(el.firstChild) el.removeChild(el.firstChild);}
-  function pct(n){return n!=null?(n>=0?"+":"")+n.toFixed(2)+"%":"—";}
+  function pct(n){return n!=null?(n>=0?"+":"")+(n*100).toFixed(2)+"%":"—";}
   function fmt(n){return n!=null?n.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2}):"—";}
 
   function staleInfo(ts){

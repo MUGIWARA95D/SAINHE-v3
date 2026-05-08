@@ -114,7 +114,7 @@
           </td>
           <td><canvas class="idx-spark" id="isp_${esc(uid)}" width="56" height="22"></canvas></td>
           <td style="font-variant-numeric:tabular-nums">${priceTxt}</td>
-          <td class="${c}" style="font-weight:600">${s}${Math.abs(chg).toFixed(2)}%</td>
+          <td class="${c}" style="font-weight:600">${s}${(Math.abs(chg) * 100).toFixed(2)}%</td>
           <td style="font-variant-numeric:tabular-nums"><span class="${rvCls}">${esc(rvTxt)}</span></td>
           <td>${sc ? `<span class="smb ${sc}">${sm}</span>` : esc(sm)}</td>
         </tr>`;
@@ -145,7 +145,7 @@
     if (dxy && dxy.close != null) {
       const sp = (dxy.chg_pct||0) >= 0 ? "+" : "";
       const tr = (dxy.chg_pct||0) > 0 ? (I18N.dxy_bearish||"Bearish pressure on equities") : (I18N.dxy_supportive||"Supportive for equities");
-      hub += `<span><strong>${I18N.hub_dxy||"DXY:"}</strong> ${fmt(dxy.close)} (${sp}${(dxy.chg_pct||0).toFixed(2)}%) — ${tr}</span>`;
+      hub += `<span><strong>${I18N.hub_dxy||"DXY:"}</strong> ${fmt(dxy.close)} (${sp}${((dxy.chg_pct||0) * 100).toFixed(2)}%) — ${tr}</span>`;
     }
     document.getElementById("shub").innerHTML = hub;
   }
