@@ -21,8 +21,8 @@
   <div class="sec-hdr">
     <span class="sec-hdr-name" id="shdr-sector"></span>
     <span class="sec-hdr-spark" id="shdr-chart"></span>
-    <span class="sec-hdr-score" id="shdr-score"></span>
-    <span class="sec-hdr-perf" id="hdr-perf"></span>
+    <span class="sec-hdr-score sec-hdr-sortable" id="shdr-score"></span>
+    <span class="sec-hdr-perf  sec-hdr-sortable" id="hdr-perf"></span>
   </div>
 
   <div id="sec-scroll"><div id="sec-list"></div></div>
@@ -36,13 +36,69 @@
     <button class="ptab" data-p="ret_1y"  data-sp="spark_1y"    id="pt-1y"></button>
   </div>
 </section>
+<style>
+.sec-hdr-sortable{cursor:pointer;user-select:none;transition:color .15s}
+.sec-hdr-sortable:hover{color:var(--gold)!important}
+.sec-hdr-sorted{color:var(--gold)!important}
+</style>
 <script>
 (function(){
   const SECS  = {{ box_sectors.secteurs | tojson }};
   const Z_MAP = {usa:"USA", europe:"EU", asia:"ASIE", monde:"MONDE"};
   let cZ = "monde", cP = "chg_pct", cSP = "spark_today";
+
+  /* ── Sort state ─────────────────────────────────────────────
+     sortCol : null | "score" | "perf"
+     sortDir : 0 = default (nom ordre), 1 = desc, -1 = asc   */
+  let sortCol = null, sortDir = 0;
+
   const sparkCharts = {};
 
+  /* ── Sort helpers ───────────────────────────────────────── */
+  function cycleSortCol(col){
+    if(sortCol !== col){ sortCol = col; sortDir = 1; }          // nouvelle colonne → desc
+    else if(sortDir === 1){ sortDir = -1; }                     // même colonne → asc
+    else { sortDir = 0; sortCol = null; }                       // même colonne → défaut
+    renderSectors();
+  }
+
+  function sortedSecs(zone){
+    if(!sortCol || sortDir === 0) return SECS.slice();
+    return SECS.slice().sort(function(a, b){
+      var ra = a.regions ? a.regions[zone] : null;
+      var rb = b.regions ? b.regions[zone] : null;
+      // secteurs sans ETF toujours en bas
+      if(!ra && !rb) return 0;
+      if(!ra) return 1;
+      if(!rb) return -1;
+      var va = sortCol === "score" ? ra.score : ra[cP];
+      var vb = sortCol === "score" ? rb.score : rb[cP];
+      // nulls toujours en bas
+      if(va == null && vb == null) return 0;
+      if(va == null) return 1;
+      if(vb == null) return -1;
+      return sortDir === 1 ? vb - va : va - vb;
+    });
+  }
+
+  function updateSortHeaders(){
+    var I18N = window.SAINHE_I18N || {};
+    var scoreBase = I18N.col_score || "Score";
+    var activeTab = document.querySelector("#ptabs .ptab.active");
+    var perfLbl   = activeTab ? (activeTab.dataset.lbl || activeTab.textContent || "Today") : "Today";
+    var sEl = document.getElementById("shdr-score");
+    var pEl = document.getElementById("hdr-perf");
+    if(sEl){
+      sEl.textContent = scoreBase + (sortCol==="score" ? (sortDir===1?" ▼":" ▲") : "");
+      sEl.classList.toggle("sec-hdr-sorted", sortCol==="score");
+    }
+    if(pEl){
+      pEl.textContent = perfLbl + (sortCol==="perf" ? (sortDir===1?" ▼":" ▲") : "");
+      pEl.classList.toggle("sec-hdr-sorted", sortCol==="perf");
+    }
+  }
+
+  /* ── Labels i18n ────────────────────────────────────────── */
   function setLabels(){
     var I18N = window.SAINHE_I18N || {};
     var zTabMap = {
@@ -66,119 +122,104 @@
       var el = document.getElementById(d.id);
       if(el){ el.textContent = d.lbl; el.dataset.lbl = d.lbl; }
     });
-    var colHeaderMap = {
-      "shdr-sector": I18N.col_sector||"Sector",
-      "shdr-chart":  I18N.col_chart ||"Chart",
-      "shdr-score":  I18N.col_score ||"Score",
-      "hdr-perf":    todayLbl
-    };
-    Object.keys(colHeaderMap).forEach(function(id){
-      var el = document.getElementById(id); if(el) el.textContent = colHeaderMap[id];
-    });
+    var sEl = document.getElementById("shdr-sector"); if(sEl) sEl.textContent = I18N.col_sector||"Sector";
+    var cEl = document.getElementById("shdr-chart");  if(cEl) cEl.textContent = I18N.col_chart ||"Chart";
+    updateSortHeaders();
   }
 
+  /* ── Sparklines ─────────────────────────────────────────── */
   function destroySparks(){
     Object.values(sparkCharts).forEach(c => { try{ c.destroy(); }catch(e){} });
     Object.keys(sparkCharts).forEach(k => delete sparkCharts[k]);
   }
 
+  /* ── Render ─────────────────────────────────────────────── */
   function renderSectors(){
     var I18N = window.SAINHE_I18N || {};
     destroySparks();
+    updateSortHeaders();
     const el   = document.getElementById("sec-list");
     const zone = Z_MAP[cZ];
     el.textContent = "";
 
-    // Fixed order — no sort, all 16 sectors always shown
-    SECS.forEach((s, i) => {
-      const r      = s.regions ? s.regions[zone] : null;
+    const sorted = sortedSecs(zone);
+
+    sorted.forEach((s, i) => {
+      const r       = s.regions ? s.regions[zone] : null;
       const missing = !r;
       const secName = (I18N.sectors && I18N.sectors[s.nom]) || s.nom;
 
       const row = document.createElement("div");
       row.className = "sec-row" + (missing ? " sec-missing" : (r.above_dma200 ? " golden-alpha" : ""));
 
-      if (missing) {
-        // Sector exists in config but no ETF for this zone
+      if(missing){
         const nm = document.createElement("span");
         nm.className = "sec-name"; nm.textContent = secName;
-        const dash1 = document.createElement("span");
-        dash1.className = "sec-spark"; dash1.style.cssText = "color:var(--faint);text-align:center;font-size:11px;display:flex;align-items:center;justify-content:center"; dash1.textContent = "—";
-        const dash2 = document.createElement("span");
-        dash2.className = "sec-score sec-score-neu"; dash2.textContent = "—";
-        const dash3 = document.createElement("span");
-        dash3.className = "sec-perf p-flat"; dash3.textContent = "—";
-        row.appendChild(nm); row.appendChild(dash1); row.appendChild(dash2); row.appendChild(dash3);
+        const d1 = document.createElement("span");
+        d1.className = "sec-spark"; d1.style.cssText = "color:var(--faint);text-align:center;font-size:11px;display:flex;align-items:center;justify-content:center"; d1.textContent = "—";
+        const d2 = document.createElement("span"); d2.className = "sec-score sec-score-neu"; d2.textContent = "—";
+        const d3 = document.createElement("span"); d3.className = "sec-perf p-flat"; d3.textContent = "—";
+        row.appendChild(nm); row.appendChild(d1); row.appendChild(d2); row.appendChild(d3);
       } else {
         const perf = r[cP];
         const cls  = perf == null ? "p-flat" : perf > 0 ? "p-up" : perf < 0 ? "p-dn" : "p-flat";
         const sg   = (perf != null && perf >= 0) ? "+" : "";
-        const sc   = r.score != null ? r.score.toFixed(2) : "—";
-        const hot  = r.score != null && r.score > 0.3 ? " rvol-hot" : "";
 
         const nm = document.createElement("span");
         nm.className = "sec-name"; nm.title = secName; nm.textContent = secName;
 
-        const spTd = document.createElement("div");
-        spTd.className = "sec-spark";
+        const spTd = document.createElement("div"); spTd.className = "sec-spark";
         const cv = document.createElement("canvas");
-        cv.id = "ss" + i; cv.width = 92; cv.height = 28; cv.className = "idx-spark";
+        cv.id = "ss"+i; cv.width = 92; cv.height = 28; cv.className = "idx-spark";
         spTd.appendChild(cv);
 
         const scEl = document.createElement("span");
-        const scColorCls = r.score == null ? "sec-score-neu"
-                         : r.score >  0.1  ? "sec-score-pos"
-                         : r.score < -0.1  ? "sec-score-neg"
-                         :                   "sec-score-neu";
-        scEl.className = "sec-score " + scColorCls;
+        const scCls = r.score == null ? "sec-score-neu" : r.score > 0.1 ? "sec-score-pos" : r.score < -0.1 ? "sec-score-neg" : "sec-score-neu";
+        scEl.className = "sec-score " + scCls;
         scEl.textContent = r.score != null ? (r.score >= 0 ? "+" : "") + r.score.toFixed(2) : "—";
 
-        const pEl = document.createElement("span");
-        pEl.className = "sec-perf " + cls;
+        const pEl = document.createElement("span"); pEl.className = "sec-perf " + cls;
         pEl.textContent = perf != null ? sg + (Math.abs(perf) * 100).toFixed(2) + "%" : "—";
 
         row.appendChild(nm); row.appendChild(spTd); row.appendChild(scEl); row.appendChild(pEl);
       }
-
       el.appendChild(row);
     });
 
-    // Draw sparklines after DOM is built
-    SECS.forEach((s, i) => {
+    // Sparklines (même ordre trié)
+    sorted.forEach((s, i) => {
       const r = s.regions ? s.regions[zone] : null;
-      if (!r) return;
-      const cv  = document.getElementById("ss" + i);
-      if (!cv) return;
+      if(!r) return;
+      const cv = document.getElementById("ss"+i);
+      if(!cv) return;
       let raw = [];
-      try { if(r[cSP]) raw = JSON.parse(r[cSP]); } catch(e) {}
-      if (!raw.length) return;
+      try{ if(r[cSP]) raw = JSON.parse(r[cSP]); }catch(e){}
+      if(!raw.length) return;
       const perf = r[cP];
-      const col  = perf == null ? "rgb(138,126,110)" : perf > 0.3 ? "rgb(44,122,62)" : perf < -0.3 ? "rgb(160,48,32)" : "rgb(138,126,110)";
-      const c    = miniChart(cv, raw, col, true);
-      if (c) sparkCharts["ss" + i] = c;
+      const col  = perf == null ? "rgb(138,126,110)" : perf > 0 ? "rgb(44,122,62)" : perf < 0 ? "rgb(160,48,32)" : "rgb(138,126,110)";
+      const c = miniChart(cv, raw, col, true);
+      if(c) sparkCharts["ss"+i] = c;
     });
   }
 
-  window._sainheRenderSectors = function(){
-    setLabels();
-    renderSectors();
-  };
+  window._sainheRenderSectors = function(){ setLabels(); renderSectors(); };
 
-  // Zone tab clicks
+  // Clic sur en-têtes de colonnes → tri
+  document.getElementById("shdr-score").addEventListener("click", function(){ cycleSortCol("score"); });
+  document.getElementById("hdr-perf").addEventListener("click",   function(){ cycleSortCol("perf");  });
+
+  // Zone tabs
   document.getElementById("ztabs").addEventListener("click", function(e){
-    const b = e.target.closest(".tab"); if (!b) return;
+    const b = e.target.closest(".tab"); if(!b) return;
     document.querySelectorAll("#ztabs .tab").forEach(t => t.classList.remove("active"));
     b.classList.add("active"); cZ = b.dataset.z; renderSectors();
   });
 
-  // Period tab clicks
+  // Period tabs
   document.getElementById("ptabs").addEventListener("click", function(e){
-    const b = e.target.closest(".ptab"); if (!b) return;
+    const b = e.target.closest(".ptab"); if(!b) return;
     document.querySelectorAll("#ptabs .ptab").forEach(t => t.classList.remove("active"));
-    b.classList.add("active");
-    cP  = b.dataset.p;
-    cSP = b.dataset.sp;
-    document.getElementById("hdr-perf").textContent = b.dataset.lbl;
+    b.classList.add("active"); cP = b.dataset.p; cSP = b.dataset.sp;
     renderSectors();
   });
 
