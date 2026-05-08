@@ -239,13 +239,17 @@ FX_SOURCES = {
     # ── Devises d'affichage (USD/EUR/HKD) ────────────────────
     "USD_EUR": "USDEUR=X",
     "USD_HKD": "USDHKD=X",
-    # ── Devises portefeuille ──────────────────────────────────
-    "USD_JPY": "USDJPY=X",   # 6954.T — Fanuc
-    "USD_CHF": "USDCHF=X",   # ROG.SW, GEBN.SW, NESN.SW
-    "USD_GBP": "USDGBP=X",   # COA.L
-    "USD_CNY": "USDCNY=X",   # 600111.SS
-    "USD_ILS": "USDILS=X",   # KAP.IL
-    "USD_SAR": "USDSAR=X",   # 2222.SR
+    # ── Indices globaux ───────────────────────────────────────
+    "USD_JPY": "USDJPY=X",   # ^N225 (Nikkei), 6954.T (Fanuc)
+    "USD_GBP": "USDGBP=X",   # ^FTSE (FTSE 100), COA.L
+    "USD_CHF": "USDCHF=X",   # ^SSMI (SMI), ROG/GEBN/NESN.SW
+    "USD_CNY": "USDCNY=X",   # 000001.SS (Shanghai), 600111.SS
+    "USD_INR": "USDINR=X",   # ^NSEI (Nifty 50)
+    "USD_CAD": "USDCAD=X",   # ^GSPTSE (TSX)
+    "USD_AUD": "USDAUD=X",   # ^AXJO (ASX 200)
+    # ── Devises portefeuille exotiques ────────────────────────
+    "USD_ILS": "USDILS=X",   # KAP.IL (Elbit Systems)
+    "USD_SAR": "USDSAR=X",   # 2222.SR (Saudi Aramco)
 }
 
 # ============================================================
