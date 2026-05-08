@@ -138,6 +138,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: dev
 
       - uses: actions/setup-python@v5
         with:
@@ -194,10 +196,12 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'schedule' &&
-      contains(github.event.schedule, '0 10,22 * * *')
+      contains(github.event.schedule, '0 10,21 * * *')
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: dev
 
       - uses: actions/setup-python@v5
         with:
@@ -252,6 +256,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: dev
 
       - uses: actions/setup-python@v5
         with:
