@@ -170,7 +170,7 @@ def fetch_one(ticker: str, period1: int, period2: int) -> tuple[list[tuple] | No
 
             if resp.status_code == 404:
                 log.warning("%s — 404 introuvable, skip", ticker)
-                return None
+                return None, None
 
             if resp.status_code != 200:
                 log.warning("%s — HTTP %d (tentative %d/%d)",
