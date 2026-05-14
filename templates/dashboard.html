@@ -219,15 +219,20 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
   tip.addEventListener('mouseleave', scheduleHide);
 
   /* click on .ci OR on the hint inside the tooltip → navigate */
+  function _learnUrl(tab, row){
+    var lang=window.SAINHE_LANG||'en';
+    var base=lang!=='en'?'/'+lang+'/learn.html':'/learn.html';
+    return base+'#open-lrn-'+tab+(row?'--'+row:'');
+  }
   document.addEventListener('click',function(e){
     var ci=e.target.classList.contains('ci')?e.target:null;
     if(ci&&ci.dataset.tab){
       e.stopPropagation();
-      window.location.href='/learn.html#open-lrn-'+ci.dataset.tab+(ci.dataset.row?'--'+ci.dataset.row:'');
+      window.location.href=_learnUrl(ci.dataset.tab,ci.dataset.row||null);
       return;
     }
     if(e.target===_hint&&_tab){
-      window.location.href='/learn.html#open-lrn-'+_tab+(_row?'--'+_row:'');
+      window.location.href=_learnUrl(_tab,_row);
     }
   });
 })();
