@@ -152,6 +152,7 @@
   "sent_rvol_window": "20T-Ø",
   "sent_formula": " = MFI×40% + OBV×30% + GDL200×30%",
   "sent_legend_bullish": "Bullisch",
+  "sent_legend_neutral": "Neutral",
   "sent_legend_bearish": "Bärisch",
   "sent_legend_learn": "→ Mehr erfahren",
   "sent_obv_direction_label": "OBV-Richtung",

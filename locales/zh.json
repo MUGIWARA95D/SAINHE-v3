@@ -152,6 +152,7 @@
   "sent_rvol_window": "20日均值",
   "sent_formula": " = MFI×40% + OBV×30% + 200日均线×30%",
   "sent_legend_bullish": "看涨",
+  "sent_legend_neutral": "中性",
   "sent_legend_bearish": "看跌",
   "sent_legend_learn": "→ 了解更多",
   "sent_obv_direction_label": "OBV方向",

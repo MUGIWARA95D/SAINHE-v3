@@ -152,6 +152,7 @@
   "sent_rvol_window": "20日平均",
   "sent_formula": " = MFI×40% + OBV×30% + 200日移動平均×30%",
   "sent_legend_bullish": "強気",
+  "sent_legend_neutral": "中立",
   "sent_legend_bearish": "弱気",
   "sent_legend_learn": "→ 詳しく",
   "sent_obv_direction_label": "OBV方向",
