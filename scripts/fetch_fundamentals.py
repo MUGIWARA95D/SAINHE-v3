@@ -183,7 +183,7 @@ def main():
         log.info("IVV échoué, fallback sur VOO…")
         pe = fetch_trailing_pe("VOO")
 
-    con = sqlite3.connect(DB_PATH)
+    con = sqlite3.connect(DB_PATH, timeout=30)
     update_macro_bandeau(con, pe)
     con.close()
     log.info("Terminé.")

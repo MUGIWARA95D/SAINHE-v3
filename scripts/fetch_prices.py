@@ -263,7 +263,7 @@ def main(mode: str = "update", half: int = -1):
     else:
         log.info("Mode=%s | %d tickers (tous)", mode, len(tickers))
 
-    con             = sqlite3.connect(DB_PATH)
+    con             = sqlite3.connect(DB_PATH, timeout=30)
     total_inserted  = 0
     total_ok        = 0
     total_skip      = 0

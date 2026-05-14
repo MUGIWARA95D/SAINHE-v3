@@ -106,7 +106,8 @@
   function staleInfo(ts){
     if(!ts) return {cls:"ts-unk",label:"?"};
     const h=(Date.now()-new Date(ts))/3600000;
-    const l=h<1?"<1h":h<24?Math.round(h)+"h":Math.round(h/24)+"d";
+    const _i=window.SAINHE_I18N||{};
+    const l=h<1?(_i.time_lt1h||"<1h"):h<24?Math.round(h)+(_i.time_h||"h"):Math.round(h/24)+(_i.time_d||"d");
     return h<6?{cls:"ts-fresh",label:l}:h<30?{cls:"ts-ok",label:l}:h<72?{cls:"ts-stale",label:l}:{cls:"ts-old",label:l};
   }
   function tsHHMM(ts){

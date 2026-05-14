@@ -189,7 +189,7 @@ def main():
     src_ids   = active_sources(hour)
     log.info("Heure UTC=%dh — sources actives : %s", hour, src_ids)
 
-    con           = sqlite3.connect(DB_PATH)
+    con           = sqlite3.connect(DB_PATH, timeout=30)
     total_fetched = 0
     total_new     = 0
 

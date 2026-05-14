@@ -496,7 +496,7 @@ def _f(x) -> float | None:
 # ============================================================
 
 def main():
-    con     = sqlite3.connect(DB_PATH)
+    con     = sqlite3.connect(DB_PATH, timeout=30)
     tickers = load_all_tickers(con)
     ts_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 

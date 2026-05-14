@@ -233,7 +233,7 @@ def render(currency: str = DEFAULT_CURRENCY):
     (OUTPUT_DIR / "_headers").write_text(headers_content, encoding="utf-8")
     log.info("_headers written")
 
-    con       = sqlite3.connect(DB_PATH)
+    con       = sqlite3.connect(DB_PATH, timeout=30)
     t_en      = load_translations("en")
     boxes     = load_boxes(con, currency)
     fx_rates  = _get_fx_rates(con)

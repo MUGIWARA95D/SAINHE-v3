@@ -227,7 +227,7 @@ def backfill_fx_daily(con: sqlite3.Connection, years: int = 2):
 # ============================================================
 
 def main(backfill: bool = False, backfill_years: int = 2):
-    con = sqlite3.connect(DB_PATH)
+    con = sqlite3.connect(DB_PATH, timeout=30)
 
     if backfill:
         backfill_fx_daily(con, years=backfill_years)

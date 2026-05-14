@@ -160,7 +160,7 @@ def audit_snapshot(con: sqlite3.Connection) -> list[tuple]:
 # ============================================================
 
 def main():
-    con = sqlite3.connect(DB_PATH)
+    con = sqlite3.connect(DB_PATH, timeout=30)
 
     tickers = [
         r[0] for r in con.execute(

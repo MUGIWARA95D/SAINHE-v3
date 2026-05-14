@@ -26,7 +26,8 @@
   function staleInfo(ts){
     if(!ts) return {cls:"ts-unk", label:"?"};
     const ageH = (Date.now() - new Date(ts)) / 3600000;
-    const lbl  = ageH < 1 ? "<1h" : ageH < 24 ? Math.round(ageH)+"h" : Math.round(ageH/24)+"d";
+    const I18N_= window.SAINHE_I18N||{};
+    const lbl  = ageH < 1 ? (I18N_.time_lt1h||"<1h") : ageH < 24 ? Math.round(ageH)+(I18N_.time_h||"h") : Math.round(ageH/24)+(I18N_.time_d||"d");
     if(ageH <  6) return {cls:"ts-fresh", label:lbl};
     if(ageH < 30) return {cls:"ts-ok",    label:lbl};
     if(ageH < 72) return {cls:"ts-stale", label:lbl};
@@ -141,7 +142,7 @@
       let raw = [];
       try { if(x.sparkline) raw = JSON.parse(x.sparkline); } catch(e) {}
       if (!raw.length) return;
-      const ch = miniChart(cv, raw, (x.chg_pct||0)>=0 ? "rgb(44,122,62)" : "rgb(160,48,32)", false);
+      const ch = miniChart(cv, raw, x.chg_pct==null ? "rgb(120,110,90)" : x.chg_pct>=0 ? "rgb(44,122,62)" : "rgb(160,48,32)", false);
       if(ch) idxSparks["isp_" + uid] = ch;
     });
 
@@ -151,7 +152,10 @@
     const dxy  = flat.find(x => x.ticker === "DX-Y.NYB");
     let hub = "";
     if (vix && vix.close != null) {
-      const reg = vix.close < 15 ? (I18N.vix_complacency||"Complacency") : vix.close > 30 ? (I18N.vix_panic||"Panic") : (I18N.vix_normal||"Normal");
+      const reg = vix.close < 15 ? (I18N.vix_complacency||"Complacency")
+                : vix.close < 20 ? (I18N.vix_normal||"Normal")
+                : vix.close <= 30 ? (I18N.vix_fear||"Elevated Fear")
+                : (I18N.vix_panic||"Panic");
       hub += `<span><strong>${I18N.hub_vix||"VIX:"}</strong> ${fmt(vix.close)} — ${reg}</span>`;
     }
     if (dxy && dxy.close != null) {

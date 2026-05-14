@@ -178,9 +178,8 @@ def _build_evidence(item: dict) -> str:
         parts.append("DMA200: " + ("↑" if item["above_dma200"] else "↓"))
     obv = item.get("obv_dir")
     if obv is not None:
-        if obv == 1 or obv == "up":      parts.append("OBV: acc")
-        elif obv == -1 or obv == "down": parts.append("OBV: dist")
-        elif obv:                        parts.append("OBV: " + str(obv))
+        if obv == 1:    parts.append("OBV: acc")
+        elif obv == -1: parts.append("OBV: dist")
     mfi = item.get("mfi")
     if mfi is not None:
         parts.append(f"MFI: {mfi:.0f}")

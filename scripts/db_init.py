@@ -293,7 +293,7 @@ def _build_seed_rows():
 def init_db():
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    con = sqlite3.connect(DB_PATH)
+    con = sqlite3.connect(DB_PATH, timeout=30)
     cur = con.cursor()
 
     # Pragmas performance
