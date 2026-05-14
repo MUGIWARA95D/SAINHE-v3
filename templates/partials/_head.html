@@ -126,7 +126,7 @@ h1,h2,h3,h4{font-family:var(--serif);color:var(--h);font-weight:400}
 #ticker{background:var(--h);height:30px;overflow:hidden;display:flex;align-items:center;position:relative;z-index:1;transform:translateZ(0);-webkit-transform:translateZ(0)}
 [data-theme="dark"] #ticker{background:#1E1A14}
 .tk-scroll{display:flex;animation:tkscroll 50s linear infinite;white-space:nowrap;will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
-#ticker:hover .tk-scroll{animation-play-state:paused}
+@media(hover:hover){#ticker:hover .tk-scroll{animation-play-state:paused}}
 @keyframes tkscroll{from{transform:translateX(0) translateZ(0)}to{transform:translateX(-50%) translateZ(0)}}
 .tk-item{display:inline-flex;align-items:center;gap:6px;padding:0 16px;font-size:11px;
   border-right:1px solid rgba(255,255,255,.08);height:30px;color:#F5F0E6}
@@ -554,8 +554,9 @@ a.news-hl:hover{color:var(--gold)}
   /* Bands — le gros problème : 44px → 14px */
   .sec-choc,.sec-creme{padding:0 14px 28px;border-radius:12px;margin-bottom:28px}
 
-  /* Section labels */
-  .section-lbl{padding:28px 0 14px}
+  /* Section labels — top:44px keeps h2 below the ::before line (top:32px);
+     right:40px clears the ⓘ button (22px wide at right:20px) */
+  .section-lbl{padding:44px 40px 14px 0}
   .section-lbl h2{font-size:22px}
   .section-lbl em{font-size:11px}
   .section-num{font-size:10px;padding:4px 10px}
