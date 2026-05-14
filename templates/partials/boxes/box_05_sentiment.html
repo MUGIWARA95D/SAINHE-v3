@@ -44,7 +44,7 @@
     const infoWrap = hdr.appendChild(mk("span","sc-info"));
     const sc_el = infoWrap.appendChild(mk("span","sc-score",(sc>=0?"+":"")+sc.toFixed(2)));
     sc_el.style.color = col;
-    infoWrap.appendChild(mk("span","sc-info-btn","ⓘ"));
+    infoWrap.appendChild(mk("span","sc-info-btn","i"));
     const tip = infoWrap.appendChild(mk("span","sc-tip"));
     tip.appendChild(mk("div","sc-tip-title", I18N.sent_methodology||"Methodology"));
     [

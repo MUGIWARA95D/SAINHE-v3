@@ -49,6 +49,13 @@
 
   <!-- ─── 01 · MACRO ──────────────────────────────────────── -->
   <div class="sec-band sec-choc">
+    <div class="bib-wrap">
+      <button class="box-info-btn" aria-label="About this section">i</button>
+      <div class="box-info-pop">
+        <p class="bip-desc">Four live signals — ERP, Yield Curve, VIX, DXY — tell you whether the macro environment is friendly or hostile to equities.</p>
+        <a class="bip-link" href="/learn.html#lrn-macro">Read more →</a>
+      </div>
+    </div>
     <div class="section-lbl" id="nav-macro">
       <h2 data-i18n="sec_macro_title">{{ t.sec_macro_title }}</h2><em data-i18n="sec_macro_sub">{{ t.sec_macro_sub }}</em>
     </div>
@@ -57,6 +64,13 @@
 
   <!-- ─── 02 · INDICES ────────────────────────────────────── -->
   <div class="sec-band sec-creme">
+    <div class="bib-wrap">
+      <button class="box-info-btn" aria-label="About this section">i</button>
+      <div class="box-info-pop">
+        <p class="bip-desc">15 major indices across USA, Europe, Asia, and global benchmarks. Each row shows price, daily change, 1-month return, and Smart Money Bias.</p>
+        <a class="bip-link" href="/learn.html#lrn-indices">Read more →</a>
+      </div>
+    </div>
     <div class="section-lbl" id="nav-indices">
       <h2 data-i18n="sec_indices_title">{{ t.sec_indices_title }}</h2><em data-i18n="sec_indices_sub">{{ t.sec_indices_sub }}</em>
     </div>
@@ -65,6 +79,13 @@
 
   <!-- ─── 03 · NEWS ───────────────────────────────────────── -->
   <div class="sec-band sec-choc">
+    <div class="bib-wrap">
+      <button class="box-info-btn" aria-label="About this section">i</button>
+      <div class="box-info-pop">
+        <p class="bip-desc">Live macro headlines from Bloomberg, FT, and MarketWatch, organized by region.</p>
+        <a class="bip-link" href="/learn.html#lrn-news">Read more →</a>
+      </div>
+    </div>
     <div class="section-lbl" id="nav-news">
       <h2 data-i18n="sec_news_title">{{ t.sec_news_title }}</h2><em data-i18n="sec_news_sub">{{ t.sec_news_sub }}</em>
     </div>
@@ -73,6 +94,13 @@
 
   <!-- ─── 04 · SECTORS ────────────────────────────────────── -->
   <div class="sec-band sec-creme">
+    <div class="bib-wrap">
+      <button class="box-info-btn" aria-label="About this section">i</button>
+      <div class="box-info-pop">
+        <p class="bip-desc">16 industries tracked across 4 regions via ETFs. Sort by Score or performance to spot leaders and laggards.</p>
+        <a class="bip-link" href="/learn.html#lrn-sectors">Read more →</a>
+      </div>
+    </div>
     <div class="section-lbl" id="nav-sectors">
       <h2 data-i18n="sec_sectors_title">{{ t.sec_sectors_title }}</h2><em data-i18n="sec_sectors_sub">{{ t.sec_sectors_sub }}</em>
     </div>
@@ -81,6 +109,13 @@
 
   <!-- ─── 05 · SENTIMENT ──────────────────────────────────── -->
   <div class="sec-band sec-choc">
+    <div class="bib-wrap">
+      <button class="box-info-btn" aria-label="About this section">i</button>
+      <div class="box-info-pop">
+        <p class="bip-desc">Composite score (−1.0 to +1.0) per sector built from MFI, OBV, and DMA200. Pure math — no opinion.</p>
+        <a class="bip-link" href="/learn.html#lrn-sentiment">Read more →</a>
+      </div>
+    </div>
     <div class="section-lbl" id="nav-sentiment">
       <h2 data-i18n="sec_sentiment_title">{{ t.sec_sentiment_title }}</h2><em data-i18n="sec_sentiment_sub">{{ t.sec_sentiment_sub }}</em>
     </div>
@@ -89,6 +124,13 @@
 
   <!-- ─── 06 · PORTFOLIO ──────────────────────────────────── -->
   <div class="sec-band sec-creme">
+    <div class="bib-wrap">
+      <button class="box-info-btn" aria-label="About this section">i</button>
+      <div class="box-info-pop">
+        <p class="bip-desc">Your watchlist auto-scanned at every pipeline run using the same technical indicators as the rest of the dashboard.</p>
+        <a class="bip-link" href="/learn.html#lrn-portfolio">Read more →</a>
+      </div>
+    </div>
     <div class="section-lbl" id="nav-portfolio">
       <h2 data-i18n="sec_portfolio_title">{{ t.sec_portfolio_title }}</h2><em data-i18n="sec_portfolio_sub">{{ t.sec_portfolio_sub }}</em>
     </div>
@@ -123,6 +165,72 @@ function setTheme(t){
 }
 try{setTheme(localStorage.getItem("sainhe_theme")||"light");}catch(e){setTheme("light");}
 if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dark"?"light":"dark");});
+
+/* ── CI toggle ───────────────────────────────────── */
+(function(){
+  var btn=document.getElementById('ci-tgl');
+  if(!btn) return;
+  btn.addEventListener('click',function(){
+    var next=document.documentElement.dataset.ci==='on'?'off':'on';
+    document.documentElement.dataset.ci=next;
+    try{localStorage.setItem('sainhe_ci',next);}catch(e){}
+  });
+})();
+
+/* ── CI tooltip (floating, event-delegated) ──────── */
+(function(){
+  var tip=document.createElement('div');
+  tip.id='ci-tip';
+  var _txt=document.createElement('span');
+  var _hint=document.createElement('span');
+  _hint.className='ci-hint';
+  tip.appendChild(_txt);
+  tip.appendChild(_hint);
+  document.body.appendChild(tip);
+
+  var _hideT=null, _tab=null, _row=null;
+
+  function showTip(ci){
+    clearTimeout(_hideT);
+    _tab=ci.dataset.tab||null; _row=ci.dataset.row||null;
+    _txt.textContent=ci.dataset.tip;
+    if(_tab){
+      _hint.textContent=(window.SAINHE_I18N&&window.SAINHE_I18N.ci_hint)||'→ Click to open Learn panel';
+      _hint.style.display='block';
+    } else {
+      _hint.style.display='none';
+    }
+    tip.classList.add('ci-vis');
+    var r=ci.getBoundingClientRect();
+    tip.style.left=Math.max(8,Math.min(r.left-10,window.innerWidth-260))+'px';
+    tip.style.top=(r.bottom+8)+'px';
+  }
+  function scheduleHide(){
+    clearTimeout(_hideT);
+    _hideT=setTimeout(function(){ tip.classList.remove('ci-vis'); },300);
+  }
+
+  document.addEventListener('mouseover',function(e){
+    var ci=e.target.classList.contains('ci')?e.target:null;
+    if(ci&&ci.dataset.tip){ showTip(ci); return; }
+    if(tip.contains(e.target)){ clearTimeout(_hideT); return; }
+    scheduleHide();
+  });
+  tip.addEventListener('mouseleave', scheduleHide);
+
+  /* click on .ci OR on the hint inside the tooltip → navigate */
+  document.addEventListener('click',function(e){
+    var ci=e.target.classList.contains('ci')?e.target:null;
+    if(ci&&ci.dataset.tab){
+      e.stopPropagation();
+      window.location.href='/learn.html#open-lrn-'+ci.dataset.tab+(ci.dataset.row?'--'+ci.dataset.row:'');
+      return;
+    }
+    if(e.target===_hint&&_tab){
+      window.location.href='/learn.html#open-lrn-'+_tab+(_row?'--'+_row:'');
+    }
+  });
+})();
 
 
 /* ── Scroll progress ─────────────────────────────── */
@@ -212,6 +320,33 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
     });
   }
   el.appendChild(frag);
+})();
+
+/* ── Box Info Popovers ───────────────────────────── */
+(function(){
+  var locked = null;
+  function closeAll(){
+    document.querySelectorAll('.box-info-pop.bip-open').forEach(function(p){ p.classList.remove('bip-open'); });
+    document.querySelectorAll('.box-info-btn.bib-on').forEach(function(b){ b.classList.remove('bib-on'); });
+    locked = null;
+  }
+  document.querySelectorAll('.box-info-btn').forEach(function(btn){
+    var pop = btn.nextElementSibling;
+    if(!pop) return;
+    var hideTimer;
+    function scheduleHide(){ hideTimer = setTimeout(function(){ if(locked !== pop) pop.classList.remove('bip-open'); }, 400); }
+    function cancelHide(){ clearTimeout(hideTimer); }
+    btn.addEventListener('mouseenter', function(){ cancelHide(); pop.classList.add('bip-open'); });
+    btn.addEventListener('mouseleave', scheduleHide);
+    pop.addEventListener('mouseenter', cancelHide);
+    pop.addEventListener('mouseleave', scheduleHide);
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      if(locked === pop){ closeAll(); }
+      else { closeAll(); pop.classList.add('bip-open'); btn.classList.add('bib-on'); locked = pop; }
+    });
+  });
+  document.addEventListener('click', function(){ closeAll(); });
 })();
 
 /* ── Nav highlight (scroll-tracked) ─────────────── */

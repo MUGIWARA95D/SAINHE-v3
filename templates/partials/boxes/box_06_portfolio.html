@@ -56,11 +56,30 @@
       "th-rvol":     I18N.col_rvol    ||"RVOL",
       "th-dma200":   I18N.col_dma200  ||"DMA200"
     };
+    var colTips = {
+      "th-price":  "Closing price in your selected display currency.",
+      "th-1m":     "Total return over 1 month.",
+      "th-3m":     "Total return over 3 months.",
+      "th-1y":     "Total return over 1 year.",
+      "th-score":  "Composite momentum score (−1.0 to +1.0) — weighted average of 1M/3M/6M/1Y price returns in USD.",
+      "th-mfi":    "Money Flow Index (14-day) — above 55 = accumulation zone, below 45 = distribution zone.",
+      "th-rvol":   "Relative Volume — today's volume vs 20-day average. Above 1.5 = elevated activity.",
+      "th-dma200": "200-day Moving Average position. 1 = price above DMA200 (bullish trend), 0 = below (bearish)."
+    };
+    var colRows = {
+      "th-price":"pt-cols","th-1m":"pt-cols","th-3m":"pt-cols","th-1y":"pt-cols",
+      "th-score":"pt-score","th-mfi":"pt-cols","th-rvol":"pt-cols","th-dma200":"pt-cols"
+    };
+    /* scope to #pt-table — th-price and th-rvol exist in both indices and portfolio */
+    var ptTbl = document.getElementById("pt-table");
+    function ptTh(id){ return ptTbl ? ptTbl.querySelector('[id="'+id+'"]') : document.getElementById(id); }
     Object.keys(colHeaderMap).forEach(function(id){
-      var el = document.getElementById(id);
-      if(el) el.textContent = colHeaderMap[id];
+      var el = ptTh(id);
+      if(!el) return;
+      el.textContent = colHeaderMap[id];
+      if(colTips[id] && window._ci) el.appendChild(window._ci(colTips[id],'portfolio',colRows[id]||null));
     });
-    var thToday = document.getElementById("th-today");
+    var thToday = ptTh("th-today");
     var retBtn  = document.getElementById("pt-ret-btn");
     if(thToday && retBtn){
       Array.from(thToday.childNodes).forEach(function(n){ if(n.nodeType===3) n.remove(); });
@@ -68,7 +87,7 @@
       retBtn.title = I18N.toggle_returns||"Toggle 1M · 3M · 1Y";
       retBtn.textContent = "▸";
     }
-    var thMom  = document.getElementById("th-momentum");
+    var thMom  = ptTh("th-momentum");
     var sigBtn = document.getElementById("pt-sig-btn");
     if(thMom && sigBtn){
       Array.from(thMom.childNodes).forEach(function(n){ if(n.nodeType===3) n.remove(); });
@@ -311,9 +330,11 @@
       var base=SORT_LABELS[col]||col;
       var savedRet=th.querySelector(".pt-ret-toggle");
       var savedSig=th.querySelector(".pt-sig-toggle");
+      var savedCi =th.querySelector(".ci");
       th.textContent=base; /* clean label only */
       if(savedRet) th.appendChild(savedRet);
       if(savedSig) th.appendChild(savedSig);
+      if(savedCi)  th.appendChild(savedCi);
       th.classList.toggle("pt-sort-active",col===sortCol);
       if(col===sortCol) th.setAttribute("data-dir",sortDir===-1?"desc":"asc");
       else th.removeAttribute("data-dir");
@@ -374,10 +395,12 @@
         td.className="pt-ret"+(v==null?"":(v>=0?" p-up":" p-dn"));
       });
 
-      /* col 9 — score */
-      var sc=p.score;
-      var scTd=tr.appendChild(mk("td",null,sc!=null?(sc>=0?"+":"")+sc.toFixed(2):"—"));
+      /* col 9 — score (fallback to sentiment_score when momentum score unavailable) */
+      var sc=p.score!=null?p.score:p.sentiment_score;
+      var scTxt=sc!=null?(sc>=0?"+":"")+sc.toFixed(2):"—";
+      var scTd=tr.appendChild(mk("td",null,scTxt));
       scTd.style.cssText="font-weight:600;color:"+(sc==null?"var(--muted)":sc>=0.1?"var(--green)":sc<=-0.1?"var(--red)":"var(--muted)");
+      if(p.score==null&&sc!=null) scTd.title="Sentiment score (momentum data unavailable)";
 
       /* col 10 — momentum (renamed signal) */
       tr.appendChild(mk("td")).appendChild(mk("span","sig "+sigCls(p.signal),sigLabel(p.signal)));

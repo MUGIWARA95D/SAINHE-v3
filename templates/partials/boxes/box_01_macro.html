@@ -22,9 +22,10 @@
   function mk(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!=null)el.textContent=txt;return el;}
   function fmt(n,d){return n!=null?n.toLocaleString(LOC,{minimumFractionDigits:d||2,maximumFractionDigits:d||2}):"—";}
 
-  function addCard(label, value, valueColor, sub1, sub2, sigClass, sigText){
+  function addCard(label, value, valueColor, sub1, sub2, sigClass, sigText, tip, row){
     const mc = grid.appendChild(mk("div","mc"));
-    mc.appendChild(mk("div","mc-label",label));
+    const lbl = mc.appendChild(mk("div","mc-label",label));
+    if(tip && window._ci){ lbl.appendChild(window._ci(tip,'macro',row)); }
     const val = mc.appendChild(mk("div","mc-val",value));
     if(valueColor) val.style.color = valueColor;
     if(sub1) mc.appendChild(mk("div","mc-sub",sub1));
@@ -49,7 +50,9 @@
     erpC,
     (I18N.erp_earnings_yield||"Earnings Yield")+": "+ey+" (P/E "+(erp.sp500_pe!=null?erp.sp500_pe.toFixed(1):"—")+") − 10Y: "+fmt(y10v)+"%",
     I18N.erp_sub2||"ERP > 2% = attractive · < 0% = bonds beat equities",
-    erpSC, erpS
+    erpSC, erpS,
+    "Expected return of equities above the risk-free rate. ERP > 2% = stocks attractive vs bonds, < 0% = bonds beat equities.",
+    "erp"
   );
 
   // ── Yield Curve ─────────────────────────────────────────
@@ -73,7 +76,9 @@
     ycCfg.color,
     "US 10Y: "+fmt(yc.us10y)+"% · US 3M: "+fmt(yc.us3m)+"%",
     ycCfg.note,
-    ycCfg.cls, ycCfg.label
+    ycCfg.cls, ycCfg.label,
+    "10Y minus 3M US Treasury spread. Negative = inverted curve = historical recession signal with 6–24 month lead time.",
+    "yc"
   );
 
   // ── VIX ──────────────────────────────────────────────────
@@ -93,7 +98,9 @@
     vixC,
     I18N.vix_sub||"< 15 = Complacency · 15–20 = Normal · 20–30 = Fear · > 30 = Panic",
     null,
-    vixSC, vixL
+    vixSC, vixL,
+    "CBOE Volatility Index — market's 30-day implied volatility. < 15 = complacency · 15–20 = normal · 20–30 = fear · > 30 = panic.",
+    "vix"
   );
 
   // ── DXY ──────────────────────────────────────────────────
@@ -110,7 +117,9 @@
     dxyC,
     (I18N.col_today||"Today")+": "+dxyCh+" · "+(I18N.col_1m||"1M")+": "+retM,
     I18N.dxy_sub2||"Strong USD = pressure on commodities & EM equities",
-    dxySC, dxyS
+    dxySC, dxyS,
+    "US Dollar Index vs a basket of 6 currencies. Rising DXY = headwind for EM assets and commodities. Falling DXY = tailwind.",
+    "dxy"
   );
   }; /* end _sainheRenderMacro */
   window._sainheRenderMacro();

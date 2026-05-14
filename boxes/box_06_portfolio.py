@@ -197,10 +197,16 @@ def _compute_signal(item: dict) -> str:
     BUY   : score > 0.05  ET sentiment > 0  ET above_dma200 = 1
     AVOID : score < -0.05 OU sentiment < -0.1
     WATCH : sinon
+    Si score (momentum) est indisponible, sentiment_score est utilisé en fallback.
     """
     score   = item.get("score")
     sent    = item.get("sentiment_score")
     above   = item.get("above_dma200")
+
+    # Fallback : si le score momentum est absent (ex. FX historique manquant),
+    # utiliser sentiment_score (MFI + OBV + DMA200) comme proxy.
+    if score is None and sent is not None:
+        score = sent
 
     if score is None or sent is None:
         return "N/A"
