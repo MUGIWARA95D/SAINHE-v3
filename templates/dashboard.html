@@ -379,6 +379,16 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
     });
   });
 })();
+
+/* ── Localize bip-link hrefs for non-EN languages ── */
+(function(){
+  var lang = window.SAINHE_LANG || 'en';
+  if(lang === 'en') return;
+  var base = '/' + lang + '/learn.html';
+  document.querySelectorAll('a.bip-link[href^="/learn.html"]').forEach(function(a){
+    a.href = a.href.replace(/\/learn\.html/, base);
+  });
+})();
 </script>
 
 </body>
