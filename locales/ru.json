@@ -151,6 +151,9 @@
   "sent_rvol_baseline": "База RVOL",
   "sent_rvol_window": "Ср. 20д",
   "sent_formula": " = MFI×40% + OBV×30% + СМА200×30%",
+  "sent_legend_bullish": "Бычий",
+  "sent_legend_bearish": "Медвежий",
+  "sent_legend_learn": "→ Подробнее",
   "sent_obv_direction_label": "Направление OBV",
   "sent_vs_dma": "vs СМА200",
 

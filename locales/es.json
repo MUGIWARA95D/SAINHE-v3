@@ -151,6 +151,9 @@
   "sent_rvol_baseline": "Base RVOL",
   "sent_rvol_window": "Med. 20d",
   "sent_formula": " = MFI×40% + OBV×30% + MMA200×30%",
+  "sent_legend_bullish": "Alcista",
+  "sent_legend_bearish": "Bajista",
+  "sent_legend_learn": "→ Aprender más",
   "sent_obv_direction_label": "Dirección OBV",
   "sent_vs_dma": "vs MMA200",
 

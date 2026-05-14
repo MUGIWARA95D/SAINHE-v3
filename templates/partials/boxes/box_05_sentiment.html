@@ -8,6 +8,7 @@
       <span class="badge badge-gold" data-i18n="box_sentiment_badge">{{ t.box_sentiment_badge }}</span>
     </div>
   </div>
+  <div class="sc-legend" id="sc-legend"></div>
   <div class="sector-grid" id="scgrid"></div>
 </section>
 <script>
@@ -18,8 +19,52 @@
   function mk(tag, cls, txt){ const el=document.createElement(tag); if(cls)el.className=cls; if(txt!=null)el.textContent=txt; return el; }
   function tag(cls, txt){ const el=mk("span","law-tag "+cls,txt); return el; }
 
+  function renderLegend(){
+    const I18N = window.SAINHE_I18N || {};
+    const leg = document.getElementById("sc-legend");
+    if(!leg) return;
+    leg.textContent = "";
+
+    /* scale */
+    const scaleWrap = leg.appendChild(mk("span","sc-legend-scale"));
+    scaleWrap.appendChild(mk("span",null,"−1")).style.cssText="color:var(--red);font-weight:600";
+    scaleWrap.appendChild(mk("span","sc-legend-track"));
+    scaleWrap.appendChild(mk("span",null,"+1")).style.cssText="color:var(--green);font-weight:600";
+
+    /* sep */
+    const sep = leg.appendChild(mk("span",null,"·"));
+    sep.style.cssText="color:var(--faint)";
+
+    /* color chips */
+    const chips = leg.appendChild(mk("span","sc-legend-chips"));
+    [
+      ["var(--green)", I18N.sent_legend_bullish||"Bullish",  "> +0.3"],
+      ["var(--gold)",  I18N.sent_neutral||"Neutral",         "−0.3 → +0.3"],
+      ["var(--red)",   I18N.sent_legend_bearish||"Bearish",  "< −0.3"]
+    ].forEach(function(item){
+      const chip = chips.appendChild(mk("span","sc-legend-chip"));
+      const dot = chip.appendChild(mk("span","sc-legend-dot"));
+      dot.style.background = item[0];
+      chip.appendChild(mk("span",null,item[1])).style.color="var(--p)";
+      const thr = chip.appendChild(mk("span",null," "+item[2]));
+      thr.style.cssText="color:var(--faint);font-size:9px";
+    });
+
+    /* formula */
+    const formula = leg.appendChild(mk("span","sc-legend-formula"));
+    formula.appendChild(mk("b",null,I18N.col_score||"Score"));
+    formula.appendChild(document.createTextNode(I18N.sent_formula||" = MFI×40% + OBV×30% + DMA200×30%"));
+
+    /* learn link */
+    const lang = window.SAINHE_LANG||'en';
+    const learnHref = (lang!=='en'?'/'+lang:'')+'/learn.html#lrn-sentiment';
+    const lnk = leg.appendChild(mk("a","sc-legend-link",I18N.sent_legend_learn||"→ Learn more"));
+    lnk.href = learnHref;
+  }
+
   function renderSentiment(){
   const I18N = window.SAINHE_I18N || {};
+  renderLegend();
   grid.textContent = "";
   ANA.forEach(a => {
     const secName = (I18N.sectors && I18N.sectors[a.secteur]) || a.secteur;

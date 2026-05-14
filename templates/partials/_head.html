@@ -298,6 +298,22 @@ a.news-hl:hover{color:var(--gold)}
 .sc-tip-formula{font-size:9.5px;color:var(--muted);line-height:1.5}
 .sc-tip-formula b{color:var(--p)}
 
+/* ── Sentiment legend bar ─────────────────────────────── */
+.sc-legend{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;
+  padding:7px 12px;margin:0 0 14px;
+  background:var(--bg2);border:1px solid var(--border-lt);border-radius:6px;
+  font-size:10px;color:var(--muted)}
+.sc-legend-scale{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.sc-legend-track{width:48px;height:4px;border-radius:2px;
+  background:linear-gradient(90deg,var(--red),var(--gold) 50%,var(--green))}
+.sc-legend-chips{display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap}
+.sc-legend-chip{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.sc-legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sc-legend-formula{font-size:9.5px;font-style:italic;color:var(--faint);
+  margin-left:auto;white-space:nowrap}
+.sc-legend-link{font-size:10px;font-weight:600;color:var(--gold);white-space:nowrap;
+  text-decoration:none;flex-shrink:0}
+.sc-legend-link:hover{text-decoration:underline}
 /* ═══════════════════ BOX_05 — MACRO ═══════════════════ */
 .macro-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 14px}
 @media(max-width:700px){.macro-grid{grid-template-columns:1fr}}
