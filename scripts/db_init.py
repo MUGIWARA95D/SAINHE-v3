@@ -238,8 +238,10 @@ CREATE TABLE IF NOT EXISTS macro_liquidity (
     -- ── Credit Spreads ────────────────────────────────────────
     hy_oas_us           REAL,               -- US HY OAS, bps (FRED BAMLH0A0HYM2 × 100)
     hy_oas_us_date      TEXT,
-    hy_oas_eu           REAL,               -- EU HY OAS, bps (FRED BAMLHE00EHY2Y × 100)
+    hy_oas_eu           REAL,               -- EU HY OAS, bps (FRED BAMLHE00EHY2EY × 100)
     hy_oas_eu_date      TEXT,
+    hy_oas_em           REAL,               -- EM HY OAS, bps (FRED BAMLEMHBHYCRPIOAS × 100)
+    hy_oas_em_date      TEXT,
 
     -- ── Valuation ────────────────────────────────────────────
     cape_us             REAL,               -- Shiller CAPE US (multpl.com)
@@ -350,6 +352,18 @@ def _build_seed_rows():
 
 
 # ============================================================
+#  HELPERS
+# ============================================================
+
+def _add_col_if_missing(cur, table: str, column: str, col_type: str):
+    """ALTER TABLE ... ADD COLUMN — no-op if column already exists."""
+    existing = {row[1] for row in cur.execute(f"PRAGMA table_info({table})")}
+    if column not in existing:
+        cur.execute(f"ALTER TABLE {table} ADD COLUMN {column} {col_type}")
+        print(f"[db_init] Migration: added {table}.{column} ({col_type})")
+
+
+# ============================================================
 #  MAIN
 # ============================================================
 
@@ -416,6 +430,10 @@ def init_db():
             etf_devises,
         )
         print(f"[db_init] {len(etf_devises)} devises etf_sector mises à jour")
+
+    # ── Migrations idempotentes — ajout de colonnes manquantes ───────────────
+    _add_col_if_missing(cur, "macro_liquidity", "hy_oas_em",      "REAL")
+    _add_col_if_missing(cur, "macro_liquidity", "hy_oas_em_date", "TEXT")
 
     con.commit()
     con.close()
