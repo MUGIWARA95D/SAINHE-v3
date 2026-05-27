@@ -106,15 +106,16 @@ WATCHLIST = {
     "LMT"       : {"nom": "Lockheed Martin",    "secteur": "Defense & Aerospace"},
     "SAF.PA"    : {"nom": "Safran",             "secteur": "Defense & Aerospace", "devise": "EUR"},
     "RHM.DE"    : {"nom": "Rheinmetall",        "secteur": "Defense & Aerospace", "devise": "EUR"},
-    "KAP.IL"    : {"nom": "Elbit Systems",      "secteur": "Defense & Aerospace", "devise": "ILS"},
+    "LDO.MI"    : {"nom": "Leonardo",           "secteur": "Defense & Aerospace", "devise": "EUR"},
+    # SpaceX — privé, pas de données marché. Dans DB actif=1 pour affichage "—"
+    # "SPACEX"  : {"nom": "SpaceX",             "secteur": "Defense & Aerospace"},
 
     # ── EV & Clean Energy ─────────────────────────────────────
     "TSLA"      : {"nom": "Tesla",              "secteur": "EV & Clean Energy"},
     "GEV"       : {"nom": "GE Vernova",         "secteur": "EV & Clean Energy"},
 
     # ── Space ─────────────────────────────────────────────────
-    # SpaceX non coté — placeholder pour quand les données seront dispo
-    # "SPACEX"  : {"nom": "SpaceX",             "secteur": "Space", "actif": False},
+    # (SpaceX déplacé sous Defense & Aerospace — voir ci-dessus)
 
     # ── Luxury ────────────────────────────────────────────────
     "RACE"      : {"nom": "Ferrari",            "secteur": "Luxury"},
@@ -134,19 +135,20 @@ WATCHLIST = {
 
     # ── Industrials ───────────────────────────────────────────
     "COA.L"     : {"nom": "Coats Group",        "secteur": "Industrials",         "devise": "GBP"},
+    "CAT"       : {"nom": "Caterpillar",         "secteur": "Industrials"},
 
     # ── Strategic Materials ───────────────────────────────────
     "600111.SS" : {"nom": "Northern Rare Earth", "secteur": "Strategic Materials", "devise": "CNY"},
     "GLD"       : {"nom": "SPDR Gold ETF",        "secteur": "Strategic Materials"},
+    "KAP.L"     : {"nom": "Kazatomprom",          "secteur": "Strategic Materials", "devise": "USD"},  # LSE, coté USD
 
     # ── Digital Assets ────────────────────────────────────────
     "BTC-USD"   : {"nom": "Bitcoin",             "secteur": "Digital Assets"},
 
-    # ── Non cotés / données indisponibles ─────────────────────
-    # SpaceX  : privé, pas de données marchés
-    # Gazprom : sanctions, données inaccessibles depuis 2022
-    # Décommenter quand les données seront disponibles :
-    # "GAZP.ME" : {"nom": "Gazprom",            "secteur": "Energy",  "actif": False},
+    # ── Energy ────────────────────────────────────────────────
+    # Gazprom — sanctionné/suspendu (MOEX). Dans DB actif=1 pour affichage "—".
+    # Décommenter ici quand les données seront de nouveau disponibles :
+    # "GAZP"    : {"nom": "Gazprom",             "secteur": "Energy",              "devise": "RUB"},
 }
 
 # ============================================================
@@ -248,7 +250,7 @@ FX_SOURCES = {
     "USD_CAD": "USDCAD=X",   # ^GSPTSE (TSX)
     "USD_AUD": "USDAUD=X",   # ^AXJO (ASX 200)
     # ── Devises portefeuille exotiques ────────────────────────
-    "USD_ILS": "USDILS=X",   # KAP.IL (Elbit Systems)
+    # USD_ILS supprimé — KAP.IL (Elbit Systems) désactivé
     "USD_SAR": "USDSAR=X",   # 2222.SR (Saudi Aramco)
 }
 

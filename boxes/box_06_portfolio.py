@@ -41,7 +41,7 @@ def _fetch_watchlist(con: sqlite3.Connection) -> list[dict]:
     rows = con.execute(
         """
         SELECT
-            s.ticker,
+            ti.ticker,
             ti.nom,
             ti.secteur,
             ti.devise,
@@ -63,8 +63,8 @@ def _fetch_watchlist(con: sqlite3.Connection) -> list[dict]:
             s.sentiment_label,
             s.sparkline_json,
             s.ts_update
-        FROM snapshot s
-        JOIN ticker_info ti ON ti.ticker = s.ticker
+        FROM ticker_info ti
+        LEFT JOIN snapshot s ON s.ticker = ti.ticker
         WHERE ti.type  = 'watchlist'
           AND ti.actif = 1
         """,

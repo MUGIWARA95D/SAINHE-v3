@@ -1,5 +1,30 @@
 <!-- ═══ BOX_05 — SENTIMENT ANALYSIS ════════════════════════ -->
-<!-- DATA: box_sentiment = {global_avg, global_label, secteurs:[{secteur,sentiment_score,sentiment_label,couleur,mfi,obv_dir,above_dma200,rvol,chg_pct}]} -->
+<style>
+/* ── Sentiment cards — same visual language as macro liq-cards ─── */
+.sc{
+  background:var(--card-alt);
+  border:1px solid var(--border-lt);
+  border-left:3px solid var(--border-lt);
+  border-radius:7px;
+  padding:12px 14px 10px;
+  transition:background .2s, border-color .15s;
+}
+.sc:hover{border-color:var(--gold);box-shadow:var(--shadow)}
+.sc.sig-g{background:var(--green-bg);border-left-color:var(--green-border)}
+.sc.sig-r{background:var(--red-bg);border-left-color:var(--red-border)}
+.sc.sig-y{background:var(--orange-bg);border-left-color:var(--orange-border)}
+
+/* Legend badge pill */
+.sc-lbl-badge{
+  display:inline-block;font-size:9px;font-weight:700;
+  padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:.5px;
+  margin-top:4px;
+}
+/* Score bar container — tighter spacing */
+.sc-score-row{display:flex;align-items:baseline;gap:6px;margin-bottom:6px}
+.sc-score-num{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+</style>
+
 <section class="card" id="box-sentiment">
   <div class="card-h">
     <span class="card-t" data-i18n="box_sentiment_title">{{ t.box_sentiment_title }}</span>
@@ -11,13 +36,30 @@
   <div class="sc-legend" id="sc-legend"></div>
   <div class="sector-grid" id="scgrid"></div>
 </section>
+
 <script>
 (function(){
   const ANA  = {{ box_sentiment.secteurs | tojson }};
   const grid = document.getElementById("scgrid");
 
   function mk(tag, cls, txt){ const el=document.createElement(tag); if(cls)el.className=cls; if(txt!=null)el.textContent=txt; return el; }
-  function tag(cls, txt){ const el=mk("span","law-tag "+cls,txt); return el; }
+  function lawTag(cls, txt){ return mk("span","law-tag "+cls, txt); }
+
+  // ── Signal mapping — CSS variables, consistent with box_01 macro ────────────
+  // GREEN  = positive momentum (Accumulation)
+  // ORANGE = caution zone (Euphoric = overbought warning, Caution = weakening)
+  // RED    = negative momentum (Bearish, Extreme Fear)
+  // Neutral = no background tint
+  function sentSig(label){
+    switch(label){
+      case "Accumulation": return {cls:"sig-g", lawCls:"law-g", text:"var(--green)",  gaugeColor:"var(--green)"};
+      case "Euphoric":     return {cls:"sig-y", lawCls:"law-y", text:"var(--orange)", gaugeColor:"var(--orange)"};
+      case "Caution":      return {cls:"sig-y", lawCls:"law-y", text:"var(--orange)", gaugeColor:"var(--orange)"};
+      case "Bearish":      return {cls:"sig-r", lawCls:"law-r", text:"var(--red)",    gaugeColor:"var(--red)"};
+      case "Extreme Fear": return {cls:"sig-r", lawCls:"law-r", text:"var(--red)",    gaugeColor:"var(--red)"};
+      default:             return {cls:"",      lawCls:"law-y", text:"var(--muted)",  gaugeColor:"var(--gold)"};
+    }
+  }
 
   function renderLegend(){
     const I18N = window.SAINHE_I18N || {};
@@ -25,122 +67,136 @@
     if(!leg) return;
     leg.textContent = "";
 
-    /* scale */
+    /* Score scale −1 → +1 */
     const scaleWrap = leg.appendChild(mk("span","sc-legend-scale"));
     scaleWrap.appendChild(mk("span",null,"−1")).style.cssText="color:var(--red);font-weight:600";
     scaleWrap.appendChild(mk("span","sc-legend-track"));
     scaleWrap.appendChild(mk("span",null,"+1")).style.cssText="color:var(--green);font-weight:600";
 
-    /* sep */
     const sep = leg.appendChild(mk("span",null,"·"));
-    sep.style.cssText="color:var(--faint)";
+    sep.style.color = "var(--faint)";
 
-    /* color chips */
+    /* Signal chips — matching sentSig colors */
     const chips = leg.appendChild(mk("span","sc-legend-chips"));
     [
-      ["var(--green)", I18N.sent_legend_bullish||"Bullish",  "> +0.3"],
-      ["var(--gold)",  I18N.sent_legend_neutral||"Neutral",   "−0.3 → +0.3"],
-      ["var(--red)",   I18N.sent_legend_bearish||"Bearish",  "< −0.3"]
+      ["var(--green)",  I18N.sent_legend_bullish||"Accumulation",  "≥ +0.1"],
+      ["var(--gold)",   I18N.sent_legend_neutral||"Neutral",        "0 → +0.1"],
+      ["var(--orange)", I18N.sent_caution||"Caution",               "−0.1 → 0"],
+      ["var(--red)",    I18N.sent_legend_bearish||"Bearish",        "< −0.1"],
     ].forEach(function(item){
       const chip = chips.appendChild(mk("span","sc-legend-chip"));
       const dot = chip.appendChild(mk("span","sc-legend-dot"));
       dot.style.background = item[0];
-      chip.appendChild(mk("span",null,item[1])).style.color="var(--p)";
-      const thr = chip.appendChild(mk("span",null," "+item[2]));
-      thr.style.cssText="color:var(--faint);font-size:9px";
+      chip.appendChild(mk("span",null,item[1])).style.color = "var(--p)";
+      chip.appendChild(mk("span",null," "+item[2])).style.cssText = "color:var(--faint);font-size:9px";
     });
 
-    /* formula */
+    /* Formula */
     const formula = leg.appendChild(mk("span","sc-legend-formula"));
     formula.appendChild(mk("b",null,I18N.col_score||"Score"));
     formula.appendChild(document.createTextNode(I18N.sent_formula||" = MFI×40% + OBV×30% + DMA200×30%"));
 
-    /* learn link */
+    /* Learn link */
     const lang = window.SAINHE_LANG||'en';
-    const learnHref = (lang!=='en'?'/'+lang:'')+'/learn.html#lrn-sentiment';
     const lnk = leg.appendChild(mk("a","sc-legend-link",I18N.sent_legend_learn||"→ Learn more"));
-    lnk.href = learnHref;
+    lnk.href = (lang!=='en'?'/'+lang:'')+'/learn.html#lrn-sentiment';
   }
 
   function renderSentiment(){
-  const I18N = window.SAINHE_I18N || {};
-  renderLegend();
-  grid.textContent = "";
-  ANA.forEach(a => {
-    const secName = (I18N.sectors && I18N.sectors[a.secteur]) || a.secteur;
-    const sc   = a.sentiment_score != null ? a.sentiment_score : 0;
-    const pct  = Math.round((sc + 1) / 2 * 100);
-    const col  = a.couleur || "var(--muted)";
-    const chg  = a.chg_pct != null ? (a.chg_pct>=0?"+":"") + (a.chg_pct*100).toFixed(2) + "%" : "—";
-    const obvC = a.obv_dir==="up" ? "law-g" : a.obv_dir==="down" ? "law-r" : "law-y";
-    const obvL = a.obv_dir==="up" ? (I18N.sent_accumulation||"ACCUMULATION") : a.obv_dir==="down" ? (I18N.sent_distribution||"DISTRIBUTION") : (I18N.sent_neutral||"NEUTRAL");
-    const mfiC = a.mfi!=null ? (a.mfi>70?"law-g":a.mfi<30?"law-r":"law-y") : "law-y";
-    const mfiL = a.mfi!=null ? (a.mfi>70?(I18N.sent_overbought||"OVERBOUGHT"):a.mfi<30?(I18N.sent_oversold||"OVERSOLD"):(I18N.sent_neutral||"NEUTRAL")) : (I18N.signal_na||"N/A");
-    const dmaC = a.above_dma200 ? "law-g" : "law-r";
-    const dmaL = a.above_dma200 ? (I18N.sent_above_dma||"ABOVE DMA200") : (I18N.sent_below_dma||"BELOW DMA200");
+    const I18N = window.SAINHE_I18N || {};
+    renderLegend();
+    grid.textContent = "";
 
-    const card = mk("div","sc");
+    ANA.forEach(function(a){
+      const secName = (I18N.sectors && I18N.sectors[a.secteur]) || a.secteur;
+      const sc      = a.sentiment_score != null ? a.sentiment_score : 0;
+      const pct     = Math.round((sc + 1) / 2 * 100);
+      const label   = a.sentiment_label || "Neutral";
+      const sig     = sentSig(label);
+      const chg     = a.chg_pct != null ? (a.chg_pct>=0?"+":"") + (a.chg_pct*100).toFixed(2) + "%" : "—";
 
-    // Header
-    const hdr = card.appendChild(mk("div","sc-hdr"));
-    hdr.appendChild(mk("span","sc-name",secName));
+      // ── Signal classes for OBV, MFI, DMA ─────────────────────────────────
+      const obvC = a.obv_dir==="up"   ? "law-g" : a.obv_dir==="down" ? "law-r" : "law-y";
+      const obvL = a.obv_dir==="up"   ? (I18N.sent_accumulation||"ACCUMULATION")
+                 : a.obv_dir==="down" ? (I18N.sent_distribution||"DISTRIBUTION")
+                 :                      (I18N.sent_neutral||"NEUTRAL");
 
-    // Score + methodology tooltip
-    const infoWrap = hdr.appendChild(mk("span","sc-info"));
-    const sc_el = infoWrap.appendChild(mk("span","sc-score",(sc>=0?"+":"")+sc.toFixed(2)));
-    sc_el.style.color = col;
-    infoWrap.appendChild(mk("span","sc-info-btn","i"));
-    const tip = infoWrap.appendChild(mk("span","sc-tip"));
-    tip.appendChild(mk("div","sc-tip-title", I18N.sent_methodology||"Methodology"));
-    [
-      [I18N.sent_obv_direction||"OBV direction", I18N.sent_obv_window||"20d window"],
-      [I18N.sent_mfi||"MFI",                     I18N.sent_mfi_window||"14d window"],
-      [I18N.sent_dma||"DMA",                     I18N.sent_dma_period||"200-day"],
-      [I18N.sent_rvol_baseline||"RVOL baseline",  I18N.sent_rvol_window||"20d avg"]
-    ].forEach(function(pair){
-      const row = tip.appendChild(mk("div","sc-tip-row"));
-      row.appendChild(mk("span",null,pair[0]));
-      row.appendChild(mk("span",null,pair[1]));
+      const mfiC = a.mfi!=null ? (a.mfi>70?"law-g":a.mfi<30?"law-r":"law-y") : "law-y";
+      const mfiL = a.mfi!=null ? (a.mfi>70?(I18N.sent_overbought||"OVERBOUGHT")
+                                 :a.mfi<30?(I18N.sent_oversold||"OVERSOLD")
+                                 :         (I18N.sent_neutral||"NEUTRAL"))
+                               : (I18N.signal_na||"N/A");
+
+      const dmaC = a.above_dma200 ? "law-g" : "law-r";
+      const dmaL = a.above_dma200 ? (I18N.sent_above_dma||"ABOVE DMA200")
+                                  : (I18N.sent_below_dma||"BELOW DMA200");
+
+      // ── Card ───────────────────────────────────────────────────────────────
+      const card = mk("div","sc"+(sig.cls?" "+sig.cls:""));
+
+      // Header row: sector name + score + info tooltip
+      const hdr = card.appendChild(mk("div","sc-hdr"));
+      hdr.appendChild(mk("span","sc-name",secName));
+
+      const infoWrap = hdr.appendChild(mk("span","sc-info"));
+      const sc_el = infoWrap.appendChild(mk("span","sc-score-num",(sc>=0?"+":"")+sc.toFixed(2)));
+      sc_el.style.color = sig.text;
+      infoWrap.appendChild(mk("span","sc-info-btn","i"));
+
+      // Methodology tooltip
+      const tip = infoWrap.appendChild(mk("span","sc-tip"));
+      tip.appendChild(mk("div","sc-tip-title", I18N.sent_methodology||"Methodology"));
+      [
+        [I18N.sent_obv_direction||"OBV direction", I18N.sent_obv_window||"20d window"],
+        [I18N.sent_mfi||"MFI",                     I18N.sent_mfi_window||"14d window"],
+        [I18N.sent_dma||"DMA",                     I18N.sent_dma_period||"200-day"],
+        [I18N.sent_rvol_baseline||"RVOL baseline",  I18N.sent_rvol_window||"20d avg"],
+      ].forEach(function(pair){
+        const row = tip.appendChild(mk("div","sc-tip-row"));
+        row.appendChild(mk("span",null,pair[0]));
+        row.appendChild(mk("span",null,pair[1]));
+      });
+      tip.appendChild(mk("div","sc-tip-div"));
+      const tipFormula = tip.appendChild(mk("div","sc-tip-formula"));
+      tipFormula.appendChild(mk("b",null,I18N.col_score||"Score"));
+      tipFormula.appendChild(document.createTextNode(I18N.sent_formula||" = MFI×40% + OBV×30% + DMA200×30%"));
+
+      // Sentiment label badge (like law-tag in macro)
+      const badge = card.appendChild(mk("span","sc-lbl-badge law-tag "+sig.lawCls, label));
+
+      // Gauge bar
+      const gauge = card.appendChild(mk("div","gauge"));
+      gauge.style.marginTop = "8px";
+      const fill  = gauge.appendChild(mk("div","gauge-fill"));
+      fill.style.cssText = "width:"+pct+"%;background:"+sig.gaugeColor;
+      const dot   = gauge.appendChild(mk("div","gauge-dot"));
+      dot.style.cssText  = "left:calc("+pct+"% - 5px);background:"+sig.gaugeColor;
+
+      // Signal rows (OBV / MFI / DMA) — same law-tag style as macro badges
+      const laws = card.appendChild(mk("div","laws"));
+      laws.style.marginTop = "8px";
+      function addLaw(tagCls, tagTxt, labelTxt){
+        const row = laws.appendChild(mk("div","law"));
+        row.appendChild(lawTag(tagCls, tagTxt));
+        row.appendChild(document.createTextNode(" "+labelTxt));
+      }
+      addLaw(obvC, obvL, I18N.sent_obv_direction_label||"OBV Direction");
+      addLaw(mfiC, (I18N.sent_mfi||"MFI")+" "+(a.mfi!=null?Math.round(a.mfi):"—"), mfiL);
+      addLaw(dmaC, dmaL, I18N.sent_vs_dma||"vs DMA200");
+
+      // Footer
+      card.appendChild(mk("div","sc-foot",
+        (I18N.col_today||"Today")+": "+chg+" · "+(I18N.col_rvol||"RVOL")+": "+(a.rvol!=null?a.rvol.toFixed(2):"—")));
+
+      grid.appendChild(card);
     });
-    tip.appendChild(mk("div","sc-tip-div"));
-    const formula = tip.appendChild(mk("div","sc-tip-formula"));
-    formula.appendChild(mk("b",null,I18N.col_score||"Score"));
-    formula.appendChild(document.createTextNode(I18N.sent_formula||" = MFI×40% + OBV×30% + DMA200×30%"));
 
-    // Gauge
-    const gauge = card.appendChild(mk("div","gauge"));
-    const fill  = gauge.appendChild(mk("div","gauge-fill"));
-    fill.style.cssText = `width:${pct}%;background:${col}`;
-    const dot = gauge.appendChild(mk("div","gauge-dot"));
-    dot.style.cssText = `left:calc(${pct}% - 5px);background:${col}`;
-
-    // Label
-    const lbl = card.appendChild(mk("div",null,a.sentiment_label||"N/A"));
-    lbl.style.cssText = `font-size:10px;color:${col};font-weight:600;margin-bottom:6px`;
-
-    // Laws
-    const laws = card.appendChild(mk("div","laws"));
-    function addLaw(tagCls, tagTxt, labelTxt){
-      const row = laws.appendChild(mk("div","law"));
-      row.appendChild(tag(tagCls, tagTxt));
-      row.appendChild(document.createTextNode(" "+labelTxt));
+    if(!ANA.length){
+      const empty = grid.appendChild(mk("div"));
+      empty.style.cssText = "padding:30px;color:var(--muted);text-align:center;grid-column:1/-1";
+      empty.textContent = I18N.no_data_sentiment||"No sentiment data";
     }
-    addLaw(obvC, obvL, I18N.sent_obv_direction_label||"OBV Direction");
-    addLaw(mfiC, (I18N.sent_mfi||"MFI")+" "+(a.mfi!=null?Math.round(a.mfi):"—"), mfiL);
-    addLaw(dmaC, dmaL, I18N.sent_vs_dma||"vs DMA200");
-
-    // Footer
-    card.appendChild(mk("div","sc-foot",(I18N.col_today||"Today")+": "+chg+" · "+(I18N.col_rvol||"RVOL")+": "+(a.rvol!=null?a.rvol.toFixed(2):"—")));
-
-    grid.appendChild(card);
-  });
-
-  if (!ANA.length){
-    const empty = grid.appendChild(mk("div"));
-    empty.style.cssText = "padding:30px;color:var(--muted);text-align:center;grid-column:1/-1";
-    empty.textContent = I18N.no_data_sentiment||"No sentiment data";
   }
-  } /* end renderSentiment */
 
   window._sainheRenderSentiment = renderSentiment;
   renderSentiment();

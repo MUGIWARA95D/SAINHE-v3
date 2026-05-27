@@ -1,5 +1,67 @@
 <!-- ═══ BOX_01 — MACRO HEALTH ═══════════════════════════════ -->
-<!-- DATA: box_macro = {ts, vix:{valeur,regime}, yield_curve:{valeur,inverted,us10y,us3m}, erp:{valeur,regime,sp500_pe}, dxy:{valeur,chg_pct}, sp500:{close,chg_pct,ret_1y}} -->
+<style>
+/* ── Global Macro Context Strip — card layout ─────────── */
+#liq-strip{padding:10px 14px 6px}
+.liq-strip-hdr{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;
+  color:var(--gold);text-align:center;padding-bottom:10px}
+.liq-section{margin-bottom:14px}
+.liq-section-title{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;
+  color:var(--muted);border-bottom:1px solid var(--border-lt);padding-bottom:5px;margin-bottom:8px}
+.liq-cards{display:flex;flex-wrap:wrap;gap:7px}
+
+/* ── Shared card style — applies to BOTH liq-cards and mc cards in this box ── */
+.liq-card{
+  display:flex;flex-direction:column;gap:3px;
+  padding:9px 13px 8px;border-radius:7px;
+  flex:1 1 130px;min-width:115px;
+  border-left:3px solid var(--border-lt);
+  background:var(--card-alt);
+  transition:background .2s;
+}
+.liq-card.na{opacity:.45;border-left-color:transparent}
+.liq-card.sig-g{background:var(--green-bg);border-left-color:var(--green-border)}
+.liq-card.sig-r{background:var(--red-bg);border-left-color:var(--red-border)}
+.liq-card.sig-y{background:var(--orange-bg);border-left-color:var(--orange-border)}
+.liq-card-label{font-size:9px;text-transform:uppercase;letter-spacing:.4px;
+  color:var(--muted);line-height:1.4}
+.liq-card-val{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15}
+.liq-card-val.sig-g{color:var(--green)}
+.liq-card-val.sig-r{color:var(--red)}
+.liq-card-val.sig-y{color:var(--orange)}
+.liq-card-val.na{color:var(--muted)}
+.liq-card-sub{font-size:9px;color:var(--muted);line-height:1.4}
+
+/* ── Separator between global and US sections ── */
+.liq-divider-wrap{display:flex;align-items:center;gap:8px;padding:4px 14px 0}
+.liq-divider-line{flex:1;height:1px;background:var(--border-lt)}
+.liq-divider-label{font-size:8.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.9px;color:var(--muted);white-space:nowrap}
+
+/* ── US macro cards — harmonized with liq-cards ── */
+.macro-grid{display:flex;flex-wrap:wrap;gap:7px;padding:8px 14px 10px}
+.mc{
+  display:flex;flex-direction:column;gap:3px;
+  padding:9px 13px 8px;border-radius:7px;
+  flex:1 1 180px;min-width:160px;
+  border-left:3px solid var(--border-lt);
+  background:var(--card-alt);
+  transition:background .2s;
+}
+.mc.sig-g{background:var(--green-bg);border-left-color:var(--green-border)}
+.mc.sig-r{background:var(--red-bg);border-left-color:var(--red-border)}
+.mc.sig-y{background:var(--orange-bg);border-left-color:var(--orange-border)}
+.mc-label{font-size:9px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);line-height:1.4}
+.mc-val{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15}
+.mc-sub{font-size:9px;color:var(--muted);line-height:1.5;margin-top:1px}
+.mc-sig{display:inline-block;margin-top:4px;font-size:9px;font-weight:700;
+  padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:.5px}
+
+.liq-card-inf{font-size:8.5px;color:var(--muted);line-height:1.4;margin-top:3px;font-style:italic;opacity:.82}
+.liq-footer{font-size:9px;color:var(--muted);text-align:right;padding:2px 14px 8px;opacity:.65}
+@media(max-width:700px){.liq-card,.mc{flex:1 1 calc(50% - 7px)}}
+@media(max-width:480px){.liq-card,.mc{flex:1 1 100%}}
+</style>
+
 <section class="card" id="box-macro">
   <div class="card-h">
     <span class="card-t" data-i18n="box_macro_title">{{ t.box_macro_title }}</span>
@@ -8,8 +70,21 @@
       <span class="badge badge-gold" data-i18n="box_macro_badge">{{ t.box_macro_badge }}</span>
     </div>
   </div>
+
+  <!-- ── Global strip first (world-level) ── -->
+  <div id="liq-strip"></div>
+
+  <!-- ── Separator before US indicators ── -->
+  <div class="liq-divider-wrap" id="liq-divider" style="display:none">
+    <div class="liq-divider-line"></div>
+    <span class="liq-divider-label">US Market Indicators</span>
+    <div class="liq-divider-line"></div>
+  </div>
+
+  <!-- ── 4 US macro cards (ERP, Yield Curve, VIX, DXY) ── -->
   <div class="macro-grid" id="mgrid"></div>
 </section>
+
 <script>
 (function(){
   const M    = {{ box_macro | tojson }};
@@ -19,108 +94,274 @@
   const I18N = window.SAINHE_I18N || {};
   const LOC  = window.SAINHE_LOCALE || 'en';
   grid.textContent = "";
+
   function mk(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!=null)el.textContent=txt;return el;}
   function fmt(n,d){return n!=null?n.toLocaleString(LOC,{minimumFractionDigits:d||2,maximumFractionDigits:d||2}):"—";}
 
-  function addCard(label, value, valueColor, sub1, sub2, sigClass, sigText, tip, row){
+  // ── US mc card builder (harmonized: same colors as liq-cards) ──────────────
+  function addCard(label,value,valueColor,sub1,sub2,sigClass,sigText,tip,row){
     const mc = grid.appendChild(mk("div","mc"));
-    const lbl = mc.appendChild(mk("div","mc-label",label));
-    if(tip && window._ci){ lbl.appendChild(window._ci(tip,'macro',row)); }
-    const val = mc.appendChild(mk("div","mc-val",value));
-    if(valueColor) val.style.color = valueColor;
-    if(sub1) mc.appendChild(mk("div","mc-sub",sub1));
-    if(sub2) mc.appendChild(mk("div","mc-sub",sub2));
-    if(sigText){
-      const sig = mc.appendChild(mk("span","mc-sig",sigText));
-      sig.className = "mc-sig law-tag " + sigClass;
-    }
+    // Map law-X → sig-X for background tint (same visual language as liq-cards)
+    const sigMap = {"law-g":"sig-g","law-r":"sig-r","law-y":"sig-y"};
+    if(sigMap[sigClass]) mc.classList.add(sigMap[sigClass]);
+
+    const lbl=mc.appendChild(mk("div","mc-label",label));
+    if(tip&&window._ci){lbl.appendChild(window._ci(tip,'macro',row));}
+    const val=mc.appendChild(mk("div","mc-val",value));
+    if(valueColor)val.style.color=valueColor;
+    if(sub1)mc.appendChild(mk("div","mc-sub",sub1));
+    if(sub2)mc.appendChild(mk("div","mc-sub",sub2));
+    if(sigText){const sig=mc.appendChild(mk("span","mc-sig",sigText));sig.className="mc-sig law-tag "+sigClass;}
   }
 
-  // ── ERP ─────────────────────────────────────────────────
-  const erp  = M.erp || {};
-  const erpV = erp.valeur;
-  const erpC = erpV==null?"var(--muted)":erpV>=0.02?"var(--green)":erpV>=0.01?"var(--orange)":"var(--red)";
-  const erpS = erpV==null?"N/A":erpV>=0.02?(I18N.erp_attractive||"Attractive"):erpV>=0.01?(I18N.erp_neutral||"Neutral"):(I18N.erp_expensive||"Expensive");
-  const erpSC= erpV==null?"":erpV>=0.02?"law-g":erpV>=0.01?"law-y":"law-r";
-  const ey   = erp.sp500_pe ? (100/erp.sp500_pe).toFixed(2)+"%" : "—";
-  const y10v = (M.yield_curve||{}).us10y;
-  addCard(
-    I18N.erp_title||"Equity Risk Premium (ERP)",
-    erpV!=null ? (erpV*100).toFixed(2)+"%" : "—",
-    erpC,
-    (I18N.erp_earnings_yield||"Earnings Yield")+": "+ey+" (P/E "+(erp.sp500_pe!=null?erp.sp500_pe.toFixed(1):"—")+") − 10Y: "+fmt(y10v)+"%",
-    I18N.erp_sub2||"ERP > 2% = attractive · < 0% = bonds beat equities",
-    erpSC, erpS,
-    "Expected return of equities above the risk-free rate. ERP > 2% = stocks attractive vs bonds, < 0% = bonds beat equities.",
-    "erp"
-  );
+  // ── ERP ─────────────────────────────────────────────────────────────────────
+  const erp=M.erp||{};const erpV=erp.valeur;
+  const erpC=erpV==null?"var(--muted)":erpV>=0.02?"var(--green)":erpV>=0.01?"var(--orange)":"var(--red)";
+  const erpS=erpV==null?"N/A":erpV>=0.02?(I18N.erp_attractive||"Attractive"):erpV>=0.01?(I18N.erp_neutral||"Neutral"):(I18N.erp_expensive||"Expensive");
+  const erpSC=erpV==null?"":erpV>=0.02?"law-g":erpV>=0.01?"law-y":"law-r";
+  const ey=erp.sp500_pe?(100/erp.sp500_pe).toFixed(2)+"%":"—";
+  const y10v=(M.yield_curve||{}).us10y;
+  addCard(I18N.erp_title||"Equity Risk Premium",erpV!=null?(erpV*100).toFixed(2)+"%":"—",erpC,
+    (I18N.erp_earnings_yield||"Earnings Yield")+": "+ey+" · P/E "+(erp.sp500_pe!=null?erp.sp500_pe.toFixed(1):"—")+" · 10Y "+fmt(y10v)+"%",
+    erp.text||null,
+    erpSC,erpS,"Expected return of equities above the risk-free rate.","erp");
 
-  // ── Yield Curve ─────────────────────────────────────────
-  // 4-regime probabilistic signal — not a binary recession trigger
-  const yc  = M.yield_curve || {};
-  const ycV = yc.valeur;
-  const YC  = {
-    steep            : { label: I18N.yc_steep  ||"Steep (Normal)",    cls:"law-g", color:"var(--green)",
-                         note: I18N.yc_steep_note  ||"Positive slope — expansionary environment" },
-    flat             : { label: I18N.yc_flat   ||"Flat — No Signal",  cls:"law-y", color:"var(--yellow)",
-                         note: I18N.yc_flat_note   ||"Ambiguous signal — monitor, no action warranted" },
-    partial_inversion: { label: I18N.yc_partial||"Partial Inversion", cls:"law-y", color:"var(--orange)",
-                         note: I18N.yc_partial_note||"Caution · Historical false positives exist (1998, 2019)" },
-    full_inversion   : { label: I18N.yc_full   ||"Full Inversion",    cls:"law-r", color:"var(--red)",
-                         note: I18N.yc_full_note   ||"Recession probable, not certain · Lead time 6–24m" },
+  // ── Yield Curve ──────────────────────────────────────────────────────────────
+  const yc=M.yield_curve||{};const ycV=yc.valeur;
+  const YC={
+    steep:{label:I18N.yc_steep||"Steep — Expansion",cls:"law-g",color:"var(--green)",note:I18N.yc_steep_note||"Positive slope — expansionary environment"},
+    flat:{label:I18N.yc_flat||"Flat — No Signal",cls:"law-y",color:"var(--orange)",note:I18N.yc_flat_note||"Ambiguous — monitor closely, no action warranted"},
+    partial_inversion:{label:I18N.yc_partial||"Partial Inversion",cls:"law-y",color:"var(--orange)",note:I18N.yc_partial_note||"Caution · Historical false positives exist (1998, 2019)"},
+    full_inversion:{label:I18N.yc_full||"Full Inversion",cls:"law-r",color:"var(--red)",note:I18N.yc_full_note||"Recession probable, not certain · Lead time 6–24 months"},
   };
-  const ycCfg = YC[yc.regime] || { label:"N/A", cls:"", color:"var(--muted)", note:"" };
-  addCard(
-    I18N.yc_title||"Yield Curve (10Y − 3M)",
-    ycV!=null ? (ycV>=0?"+":"")+ycV.toFixed(2)+"%" : "—",
-    ycCfg.color,
-    "US 10Y: "+fmt(yc.us10y)+"% · US 3M: "+fmt(yc.us3m)+"%",
-    ycCfg.note,
-    ycCfg.cls, ycCfg.label,
-    "10Y minus 3M US Treasury spread. Negative = inverted curve = historical recession signal with 6–24 month lead time.",
-    "yc"
-  );
+  const ycCfg=YC[yc.regime]||{label:"N/A",cls:"",color:"var(--muted)",note:""};
+  addCard(I18N.yc_title||"Yield Curve (10Y − 3M)",ycV!=null?(ycV>=0?"+":"")+ycV.toFixed(2)+"%":"—",ycCfg.color,
+    "US 10Y: "+fmt(yc.us10y)+"% · US 3M: "+fmt(yc.us3m)+"%",yc.text||ycCfg.note,
+    ycCfg.cls,ycCfg.label,"10Y minus 3M US Treasury spread.","yc");
 
-  // ── VIX ──────────────────────────────────────────────────
-  const vix  = M.vix || {};
-  const vixV = vix.valeur;
-  const vixC = vix.regime==="complacency"?"var(--orange)":vix.regime==="panic"?"var(--red)":vix.regime==="fear"?"var(--orange)":"var(--green)";
-  const vixL = {
-    complacency: I18N.vix_complacency||"Complacency",
-    normal:      I18N.vix_normal     ||"Normal",
-    fear:        I18N.vix_fear       ||"Elevated Fear",
-    panic:       I18N.vix_panic      ||"Panic"
-  }[vix.regime]||(I18N.signal_na||"N/A");
-  const vixSC= vix.regime==="panic"?"law-r":vix.regime==="fear"?"law-y":vix.regime==="complacency"?"law-y":"law-g";
-  addCard(
-    I18N.vix_title||"VIX — Fear Index",
-    vixV!=null ? fmt(vixV) : "—",
-    vixC,
-    I18N.vix_sub||"< 15 = Complacency · 15–20 = Normal · 20–30 = Fear · > 30 = Panic",
-    null,
-    vixSC, vixL,
-    "CBOE Volatility Index — market's 30-day implied volatility. < 15 = complacency · 15–20 = normal · 20–30 = fear · > 30 = panic.",
-    "vix"
-  );
+  // ── VIX ──────────────────────────────────────────────────────────────────────
+  const vix=M.vix||{};const vixV=vix.valeur;
+  const vixC=vix.regime==="complacency"?"var(--orange)":vix.regime==="panic"?"var(--red)":vix.regime==="fear"?"var(--orange)":"var(--green)";
+  const vixL={complacency:I18N.vix_complacency||"Complacency",normal:I18N.vix_normal||"Normal",fear:I18N.vix_fear||"Elevated Fear",panic:I18N.vix_panic||"Panic"}[vix.regime]||(I18N.signal_na||"N/A");
+  const vixSC=vix.regime==="panic"?"law-r":vix.regime==="fear"?"law-y":vix.regime==="complacency"?"law-y":"law-g";
+  addCard(I18N.vix_title||"VIX — Market Fear Index",vixV!=null?fmt(vixV):"—",vixC,
+    vix.text||null,null,
+    vixSC,vixL,"CBOE Volatility Index — implied 30-day volatility.","vix");
 
-  // ── DXY ──────────────────────────────────────────────────
-  const dxy  = M.dxy || {};
-  const dxyV = dxy.valeur;
-  const dxyC = (dxy.chg_pct||0)>0 ? "var(--red)" : "var(--green)";
-  const dxyS = (dxy.chg_pct||0)>0 ? (I18N.dxy_bearish||"Bearish for equities") : (I18N.dxy_supportive||"Supportive for equities");
-  const dxySC= (dxy.chg_pct||0)>0 ? "law-r" : "law-g";
-  const dxyCh= dxy.chg_pct!=null ? ((dxy.chg_pct>=0?"+":"")+(dxy.chg_pct*100).toFixed(2)+"%") : "—";
-  const retM = dxy.ret_1m!=null?(dxy.ret_1m>=0?"+":"")+(dxy.ret_1m*100).toFixed(2)+"%":"—";
-  addCard(
-    I18N.dxy_title||"DXY — US Dollar Index",
-    dxyV!=null ? fmt(dxyV) : "—",
-    dxyC,
-    (I18N.col_today||"Today")+": "+dxyCh+" · "+(I18N.col_1m||"1M")+": "+retM,
-    I18N.dxy_sub2||"Strong USD = pressure on commodities & EM equities",
-    dxySC, dxyS,
-    "US Dollar Index vs a basket of 6 currencies. Rising DXY = headwind for EM assets and commodities. Falling DXY = tailwind.",
-    "dxy"
-  );
+  // ── DXY ──────────────────────────────────────────────────────────────────────
+  const dxy=M.dxy||{};const dxyV=dxy.valeur;
+  const dxyChg=dxy.chg_pct||0;
+  const dxyC=dxyChg>0?"var(--red)":"var(--green)";
+  const dxyS=dxyChg>0?(I18N.dxy_bearish||"Bearish for risk assets"):(I18N.dxy_supportive||"Supportive for risk assets");
+  const dxySC=dxyChg>0?"law-r":"law-g";
+  const dxyCh=dxy.chg_pct!=null?((dxy.chg_pct>=0?"+":"")+(dxy.chg_pct*100).toFixed(2)+"%"):"—";
+  const retM=dxy.ret_1m!=null?(dxy.ret_1m>=0?"+":"")+(dxy.ret_1m*100).toFixed(2)+"%":"—";
+  addCard(I18N.dxy_title||"DXY — US Dollar Index",dxyV!=null?fmt(dxyV):"—",dxyC,
+    (I18N.col_today||"Today")+": "+dxyCh+" · "+(I18N.col_1m||"1 month")+": "+retM,
+    dxy.text||null,
+    dxySC,dxyS,"US Dollar Index vs a basket of 6 major currencies.","dxy");
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ── GLOBAL MACRO CONTEXT STRIP ─────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  const L  = M.liq || {};
+  const ls = document.getElementById("liq-strip");
+  const ld = document.getElementById("liq-divider");
+
+  if(ls && L && L.date){
+    if(ld) ld.style.display = "flex";
+    ls.textContent = "";
+
+    // ── Format helpers ──────────────────────────────────────────────────────
+    function asOf(d){
+      if(!d) return "";
+      try{
+        const dt = new Date(d.length===7 ? d+"-01" : d+"T00:00:00");
+        const age = (Date.now()-dt.getTime())/864e5;
+        return age > 45
+          ? dt.toLocaleDateString("en-US",{month:"short",year:"numeric"})
+          : dt.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+      }catch(e){return d;}
+    }
+    // Values stored as actual trillions/billions after script fix
+    function fmtT(v){return v!=null ? "$"+v.toFixed(2)+"T" : "—";}
+    function fmtB(v){return v!=null ? "$"+Math.round(v).toLocaleString()+"B" : "—";}
+    function fmtPct(v,dec){dec=dec||1;return v!=null ? (v>=0?"+":"")+v.toFixed(dec)+"%" : "—";}
+    function fmtBps(v){return v!=null ? Math.round(v)+"bps" : "—";}
+    function fmtMult(v){return v!=null ? "×"+v.toFixed(1) : "—";}
+
+    // ── Signal helpers (green = favorable, red = risk, orange = caution) ────
+    // Balance sheet WoW: positive = expanding (green), negative = draining (red)
+    function wkSig(v){return v==null?"":(v>0?"sig-g":"sig-r");}
+    // M2/M3 YoY: > 3% = healthy growth (green), < 0% = deflation risk (red)
+    function m2Sig(v){return v==null?"":(v>=3?"sig-g":v<0?"sig-r":"sig-y");}
+    // HY OAS: < 350bps tight (green), 350–500 caution (orange), > 500 stress (red)
+    function hySig(v){return v==null?"":(v>500?"sig-r":v>350?"sig-y":"sig-g");}
+    // CB Trend: expansion = green, contraction = red, mixed = orange
+    function trendSig(t){return t==="EXPANSION"?"sig-g":t==="CONTRACTION"?"sig-r":t==="MIXED"?"sig-y":"";}
+    // Bund/yield curve shape: steep = green, full inversion = red, partial = orange
+    function ycSig(s){return s==="steep"?"sig-g":s==="full_inversion"?"sig-r":s&&s.includes("inversion")?"sig-y":"";}
+    // CAPE: > 34 = expensive (red), > 24 = elevated (orange), ≤ 24 = fair (green)
+    function capeSig(v){return v==null?"":(v>34?"sig-r":v>24?"sig-y":"sig-g");}
+    // P/E: > 28 = expensive (red), > 20 = elevated (orange), ≤ 20 = fair (green)
+    function peSig(v){return v==null?"":(v>28?"sig-r":v>20?"sig-y":"sig-g");}
+    // CNH/USD: > 7.3 = yuan stress (orange warning)
+    function cnhSig(v){return v==null?"":(v>7.3?"sig-y":"");}
+    // Yield level: informational only — no directional color on raw rate level
+    function yieldSig(){return "";}
+
+    // ── Card builder ────────────────────────────────────────────────────────
+    function mkCard(label, value, sig, sub, inf){
+      const isNA = (value === "—");
+      const card = document.createElement("div");
+      card.className = "liq-card" + (sig && !isNA ? " "+sig : "") + (isNA ? " na" : "");
+      const lbl = card.appendChild(document.createElement("div"));
+      lbl.className = "liq-card-label";
+      lbl.textContent = label;
+      const val = card.appendChild(document.createElement("div"));
+      val.className = "liq-card-val" + (isNA ? " na" : (sig ? " "+sig : ""));
+      val.textContent = value;
+      if(sub){
+        const s = card.appendChild(document.createElement("div"));
+        s.className = "liq-card-sub";
+        s.textContent = sub;
+      }
+      if(inf){
+        const i = card.appendChild(document.createElement("div"));
+        i.className = "liq-card-inf";
+        i.textContent = inf;
+      }
+      return card;
+    }
+
+    // ── Section builder ─────────────────────────────────────────────────────
+    function mkSection(title, cards){
+      const sec = ls.appendChild(document.createElement("div"));
+      sec.className = "liq-section";
+      const hdr = sec.appendChild(document.createElement("div"));
+      hdr.className = "liq-section-title";
+      hdr.textContent = title;
+      const row = sec.appendChild(document.createElement("div"));
+      row.className = "liq-cards";
+      cards.forEach(c => row.appendChild(c));
+    }
+
+    // ── Strip header ─────────────────────────────────────────────────────────
+    const hdr = ls.appendChild(document.createElement("div"));
+    hdr.className = "liq-strip-hdr";
+    hdr.textContent = "Global Macro Context";
+
+    // ── Section 1 — Liquidity & Money Supply ─────────────────────────────────
+    // Sub-texts: raw API values + dates only. No editorial interpretation.
+    const fedWkTxt = L.fed_walcl_wk_pct!=null ? fmtPct(L.fed_walcl_wk_pct,2)+" w/w" : null;
+    const ecbWkTxt = L.ecb_assets_wk_pct!=null ? fmtPct(L.ecb_assets_wk_pct,2)+" w/w" : null;
+
+    mkSection("Liquidity & Money Supply", [
+      mkCard("Fed Balance Sheet",
+        fmtT(L.fed_walcl_t), wkSig(L.fed_walcl_wk_pct),
+        [fedWkTxt, L.fed_walcl_date?"as of "+asOf(L.fed_walcl_date):null].filter(Boolean).join(" · ")||null,
+        L.fed_bs_text||null),
+
+      mkCard("ECB Balance Sheet",
+        fmtT(L.ecb_assets_t), wkSig(L.ecb_assets_wk_pct),
+        [ecbWkTxt, L.ecb_assets_date?"as of "+asOf(L.ecb_assets_date):null].filter(Boolean).join(" · ")||null,
+        L.ecb_bs_text||null),
+
+      mkCard("Reverse Repo (RRP)",
+        fmtB(L.rrp_b), null,
+        L.rrp_date?"as of "+asOf(L.rrp_date):null),
+
+      mkCard("Treasury Account (TGA)",
+        fmtB(L.tga_b), null,
+        L.tga_date?"as of "+asOf(L.tga_date):null),
+
+      mkCard("US Money Supply (M2 YoY)",
+        fmtPct(L.us_m2_yoy), m2Sig(L.us_m2_yoy),
+        L.us_m2_date?"as of "+asOf(L.us_m2_date):null,
+        L.us_m2_text||null),
+
+      mkCard("EU Money Supply (M3 YoY)",
+        fmtPct(L.eu_m3_yoy), m2Sig(L.eu_m3_yoy),
+        L.eu_m3_date?"as of "+asOf(L.eu_m3_date):null,
+        L.eu_m3_text||null),
+
+      mkCard("China Money Supply (M2 YoY)",
+        fmtPct(L.china_m2_yoy), m2Sig(L.china_m2_yoy),
+        L.china_m2_date?"as of "+asOf(L.china_m2_date):null),
+
+      mkCard("US High Yield Spread",
+        fmtBps(L.hy_oas_us), hySig(L.hy_oas_us),
+        L.hy_oas_us_date?"as of "+asOf(L.hy_oas_us_date):null,
+        L.hy_oas_us_text||null),
+
+      mkCard("Emerging Markets HY Spread",
+        fmtBps(L.hy_oas_eu), hySig(L.hy_oas_eu),
+        L.hy_oas_eu_date?"as of "+asOf(L.hy_oas_eu_date):null,
+        L.hy_oas_eu_text||null),
+
+      mkCard("Central Banks Trend",
+        L.global_cb_trend||"—", trendSig(L.global_cb_trend), null),
+    ]);
+
+    // ── Section 2 — Global Yield Curves ──────────────────────────────────────
+    const bundSpr = L.bund_spread!=null
+      ? (L.bund_spread>=0?"+":"")+L.bund_spread.toFixed(2)+"%"
+      : "—";
+    // bund_signal is a computed field stored in DB (steep/flat/partial_inversion/full_inversion)
+    const bundSignalLabel = L.bund_signal ? L.bund_signal.replace(/_/g," ") : null;
+
+    mkSection("Global Yield Curves", [
+      mkCard("German Bund 10Y",
+        L.bund_10y!=null ? L.bund_10y.toFixed(2)+"%" : "—", yieldSig(),
+        L.bund_date?"as of "+asOf(L.bund_date):null),
+
+      mkCard("German Bund 2Y",
+        L.bund_2y!=null ? L.bund_2y.toFixed(2)+"%" : "—", yieldSig(),
+        L.bund_date?"as of "+asOf(L.bund_date):null),
+
+      mkCard("Bund Yield Curve (10Y − 2Y)",
+        bundSpr, ycSig(L.bund_signal),
+        bundSignalLabel),
+
+      mkCard("Japan Gov. Bonds 10Y",
+        L.jgb_10y!=null ? L.jgb_10y.toFixed(2)+"%" : "—", yieldSig(),
+        L.jgb_10y_date?"as of "+asOf(L.jgb_10y_date):null),
+
+      mkCard("UK Gilt 10Y",
+        L.uk_10y!=null ? L.uk_10y.toFixed(2)+"%" : "—", yieldSig(),
+        L.uk_10y_date?"as of "+asOf(L.uk_10y_date):null),
+    ]);
+
+    // ── Section 3 — Valuation & Credit ───────────────────────────────────────
+    mkSection("Valuation & Credit", [
+      mkCard("Shiller CAPE — United States",
+        L.cape_us!=null ? L.cape_us.toFixed(1) : "—", capeSig(L.cape_us),
+        L.cape_date?"as of "+asOf(L.cape_date):null,
+        L.cape_text||null),
+
+      mkCard("Price / Earnings — Europe",
+        fmtMult(L.pe_eu), peSig(L.pe_eu), null),
+
+      mkCard("Price / Earnings — Japan",
+        fmtMult(L.pe_jp), peSig(L.pe_jp), null),
+
+      mkCard("Price / Earnings — Emerging Markets",
+        fmtMult(L.pe_em), peSig(L.pe_em), null),
+
+      mkCard("Gold / S&P 500 Ratio",
+        L.gold_stocks!=null ? L.gold_stocks.toFixed(3)+" oz/pt" : "—", null, null,
+        L.gold_text||null),
+
+      mkCard("Yuan / USD",
+        L.cnh_usd!=null ? L.cnh_usd.toFixed(4) : "—", cnhSig(L.cnh_usd), null,
+        L.cnh_text||null),
+    ]);
+
+    // ── Footer ───────────────────────────────────────────────────────────────
+    const ft = ls.appendChild(document.createElement("div"));
+    ft.className = "liq-footer";
+    ft.textContent = "Data as of " + L.date + " · FRED, ECB SDW, multpl.com, yfinance";
+  }
   }; /* end _sainheRenderMacro */
   window._sainheRenderMacro();
 })();

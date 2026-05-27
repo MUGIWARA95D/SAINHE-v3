@@ -15,10 +15,18 @@ Stocke dans :
 Tickers fetchés : ALL_SECTOR_ETFS + ALL_INDEX_TICKERS + WATCHLIST
 
 Lancement :
-    python scripts/fetch_prices.py                    # update 5 jours
-    python scripts/fetch_prices.py --mode full        # 2 ans complets
-    python scripts/fetch_prices.py --mode full --half 0   # première moitié
-    python scripts/fetch_prices.py --mode full --half 1   # deuxième moitié
+    python scripts/fetch_prices.py                           # update 7 jours (tous)
+    python scripts/fetch_prices.py --mode full               # 2 ans complets (tous)
+    python scripts/fetch_prices.py --mode full --half 0      # première moitié
+    python scripts/fetch_prices.py --mode full --half 1      # deuxième moitié
+    python scripts/fetch_prices.py --mode full --tickers LDO.MI CAT KAP.L
+    python scripts/fetch_prices.py --mode backfill           # +30 jours en arrière/ticker → cible 7 ans
+    python scripts/fetch_prices.py --mode backfill --tickers NVDA AAPL
+
+Stratégie backfill :
+    Chaque nuit, backfill étend l'historique de 30 jours en arrière par ticker.
+    Après ~85 nuits (≈ 3 mois), la profondeur cible de 7 ans est atteinte.
+    Les tickers sans données (GAZP, SPACEX, nouveaux) sont silencieusement skippés.
 """
 
 import random
@@ -45,10 +53,13 @@ from config import (
 #  CONFIG
 # ============================================================
 
-SLEEP_MIN   = 10.0   # pause min entre tickers (aléatoire)
-SLEEP_MAX   = 30.0   # pause max entre tickers
-SLEEP_429   = 90.0   # attente sur rate-limit
-MAX_RETRIES = 2
+SLEEP_MIN      = 10.0   # pause min entre tickers (aléatoire)
+SLEEP_MAX      = 30.0   # pause max entre tickers
+SLEEP_429      = 90.0   # attente sur rate-limit
+MAX_RETRIES    = 2
+
+BACKFILL_DAYS  = 30     # jours étendus en arrière par ticker et par run (backfill)
+TARGET_YEARS   = 7      # profondeur cible en années pour le mode backfill
 
 logging.basicConfig(
     level=logging.INFO,
@@ -72,13 +83,37 @@ def _all_tickers() -> list[str]:
 
 
 def _periods_for_mode(mode: str) -> tuple[int, int]:
-    """Retourne (period1, period2) en timestamps Unix."""
+    """Retourne (period1, period2) en timestamps Unix pour update et full."""
     now = int(datetime.now(timezone.utc).timestamp())
     if mode == "update":
         start = int((datetime.now(timezone.utc) - timedelta(days=7)).timestamp())
     else:
         start = int((datetime.now(timezone.utc) - timedelta(days=730)).timestamp())  # 2 ans
     return start, now
+
+
+def _backfill_window(con: sqlite3.Connection, ticker: str) -> tuple[int, int] | None:
+    """
+    Calcule la fenêtre backfill pour un ticker :
+    - Trouve la date la plus ancienne dans prices
+    - Remonte de BACKFILL_DAYS jours avant cette date
+    - Retourne None si : pas de données existantes (besoin --mode full d'abord)
+                         ou cible 7 ans déjà atteinte
+    """
+    row = con.execute("SELECT MIN(date) FROM prices WHERE ticker=?", (ticker,)).fetchone()
+    if not row or not row[0]:
+        return None  # pas de données — skip (besoin --mode full d'abord)
+
+    oldest_dt = datetime.strptime(row[0], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    target_dt = datetime.now(timezone.utc) - timedelta(days=TARGET_YEARS * 365)
+
+    if oldest_dt <= target_dt + timedelta(days=1):
+        return None  # cible 7 ans déjà atteinte pour ce ticker
+
+    period2 = int((oldest_dt - timedelta(days=1)).timestamp())
+    start_dt = max(oldest_dt - timedelta(days=BACKFILL_DAYS + 1), target_dt)
+    period1  = int(start_dt.timestamp())
+    return period1, period2
 
 
 def _filter_partial_intraday(ticker: str, rows: list[tuple]) -> list[tuple]:
@@ -246,16 +281,25 @@ def insert_prices(con: sqlite3.Connection, rows: list[tuple]) -> int:
 #  MAIN
 # ============================================================
 
-def main(mode: str = "update", half: int = -1):
+def main(mode: str = "update", half: int = -1, tickers_filter: list[str] | None = None):
     """
-    half = -1  → tous les tickers
-    half =  0  → première moitié  (cron 2h30 / 3h30)
-    half =  1  → deuxième moitié  (cron 3h00 / 4h00)
+    mode           : "update" | "full" | "backfill"
+    half           : -1 = tous | 0 = première moitié | 1 = deuxième moitié (ignoré si tickers_filter)
+    tickers_filter : liste de tickers à restreindre (ex: ["LDO.MI","CAT","KAP.L"])
     """
-    period1, period2 = _periods_for_mode(mode)
-    tickers          = _all_tickers()
+    tickers = _all_tickers()
 
-    if half in (0, 1):
+    # ── Filtre --tickers ────────────────────────────────────────
+    if tickers_filter:
+        wanted = set(tickers_filter)
+        tickers = [t for t in tickers if t in wanted]
+        missing = wanted - set(tickers)
+        if missing:
+            log.warning("--tickers non reconnus (absents de config) : %s", ", ".join(sorted(missing)))
+        log.info("Mode=%s | tickers=%s (%d)", mode, ", ".join(tickers), len(tickers))
+
+    # ── Filtre --half (ignoré si --tickers fourni) ──────────────
+    elif half in (0, 1):
         mid     = len(tickers) // 2
         tickers = tickers[:mid] if half == 0 else tickers[mid:]
         label   = "A (1-50)" if half == 0 else "B (51-100)"
@@ -263,12 +307,38 @@ def main(mode: str = "update", half: int = -1):
     else:
         log.info("Mode=%s | %d tickers (tous)", mode, len(tickers))
 
-    con             = sqlite3.connect(DB_PATH, timeout=30)
-    total_inserted  = 0
-    total_ok        = 0
-    total_skip      = 0
+    # ── Période globale (update / full) — backfill calcule par ticker ──
+    if mode != "backfill":
+        global_period1, global_period2 = _periods_for_mode(mode)
+
+    con            = sqlite3.connect(DB_PATH, timeout=30)
+    total_inserted = 0
+    total_ok       = 0
+    total_skip     = 0
+    total_done     = 0  # backfill : cible déjà atteinte
 
     for i, ticker in enumerate(tickers):
+
+        # ── Fenêtre temporelle ──────────────────────────────────
+        if mode == "backfill":
+            window = _backfill_window(con, ticker)
+            if window is None:
+                row = con.execute("SELECT MIN(date) FROM prices WHERE ticker=?", (ticker,)).fetchone()
+                if not row or not row[0]:
+                    log.info("SKIP_BF  %s — aucune donnée locale (lancer --mode full d'abord)", ticker)
+                else:
+                    log.info("DONE_BF  %s — cible %dy déjà atteinte (oldest: %s)", ticker, TARGET_YEARS, row[0])
+                    total_done += 1
+                total_skip += 1
+                continue
+            period1, period2 = window
+            log.debug("%s — backfill window: %s → %s",
+                      ticker,
+                      datetime.fromtimestamp(period1, tz=timezone.utc).strftime("%Y-%m-%d"),
+                      datetime.fromtimestamp(period2, tz=timezone.utc).strftime("%Y-%m-%d"))
+        else:
+            period1, period2 = global_period1, global_period2
+
         rows, detected_currency = fetch_one(ticker, period1, period2)
 
         if rows is None:
@@ -290,19 +360,26 @@ def main(mode: str = "update", half: int = -1):
             time.sleep(random.uniform(SLEEP_MIN, SLEEP_MAX))
 
     con.close()
-    log.info("Terminé — %d OK, %d skip, %d nouvelles lignes insérées.",
-             total_ok, total_skip, total_inserted)
+    summary = f"Terminé — {total_ok} OK, {total_skip} skip"
+    if mode == "backfill":
+        summary += f" ({total_done} déjà à cible)"
+    summary += f", {total_inserted} nouvelles lignes insérées."
+    log.info(summary)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Fetch OHLCV via curl_cffi (Chrome)")
     parser.add_argument(
-        "--mode", choices=["full", "update"], default="update",
-        help="full = 2 ans | update = 7 derniers jours",
+        "--mode", choices=["full", "update", "backfill"], default="update",
+        help="full = 2 ans | update = 7 jours | backfill = +30j en arrière vers cible 7 ans",
     )
     parser.add_argument(
         "--half", type=int, choices=[-1, 0, 1], default=-1,
-        help="-1 = tous | 0 = première moitié | 1 = deuxième moitié",
+        help="-1 = tous | 0 = première moitié | 1 = deuxième moitié (ignoré si --tickers)",
+    )
+    parser.add_argument(
+        "--tickers", nargs="+", default=None, metavar="TICKER",
+        help="Restreindre à une liste de tickers (ex: --tickers LDO.MI CAT KAP.L)",
     )
     args = parser.parse_args()
-    main(mode=args.mode, half=args.half)
+    main(mode=args.mode, half=args.half, tickers_filter=args.tickers)

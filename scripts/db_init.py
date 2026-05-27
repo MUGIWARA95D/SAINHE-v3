@@ -191,7 +191,69 @@ CREATE TABLE IF NOT EXISTS snapshot (
     sparkline_json  TEXT
 );
 
--- ── 9. NEWS ───────────────────────────────────────────────
+-- ── 9. MACRO_LIQUIDITY ────────────────────────────────────
+-- Global macro liquidity snapshot — one row per fetch date.
+-- Sources: FRED API, ECB SDW, yfinance, multpl.com
+-- Columns are nullable — "N/A" shown in UI when data unavailable.
+CREATE TABLE IF NOT EXISTS macro_liquidity (
+    date                TEXT PRIMARY KEY,   -- YYYY-MM-DD (fetch date)
+    ts                  TEXT,               -- ISO datetime of fetch
+
+    -- ── Fed / US Plumbing ────────────────────────────────────
+    fed_walcl_t         REAL,               -- Fed balance sheet, trillions USD
+    fed_walcl_wk_pct    REAL,               -- WoW % change
+    fed_walcl_date      TEXT,               -- FRED data as-of date
+    rrp_b               REAL,               -- Reverse Repo, billions USD
+    rrp_date            TEXT,
+    tga_b               REAL,               -- Treasury General Account, billions USD
+    tga_date            TEXT,
+
+    -- ── ECB ──────────────────────────────────────────────────
+    ecb_assets_t        REAL,               -- ECB total assets, trillions EUR
+    ecb_assets_wk_pct   REAL,               -- WoW % change
+    ecb_assets_date     TEXT,               -- ECB data as-of date
+
+    -- ── M2 / Money Supply ────────────────────────────────────
+    us_m2_yoy           REAL,               -- US M2 YoY %
+    us_m2_date          TEXT,
+    eu_m3_yoy           REAL,               -- EU M3 YoY %
+    eu_m3_date          TEXT,
+    china_m2_yoy        REAL,               -- China M2 YoY %
+    china_m2_date       TEXT,
+
+    -- ── Global CB Trend Signal ────────────────────────────────
+    global_cb_trend     TEXT,               -- 'EXPANSION' | 'CONTRACTION' | 'MIXED'
+
+    -- ── Yield Curves ─────────────────────────────────────────
+    bund_10y            REAL,               -- German Bund 10Y proxy (ECB AAA EU), %
+    bund_2y             REAL,               -- German Bund 2Y proxy, %
+    bund_spread         REAL,               -- 10Y − 2Y
+    bund_signal         TEXT,               -- steep | flat | partial_inversion | full_inversion
+    bund_date           TEXT,
+    jgb_10y             REAL,               -- JGB 10Y, % (monthly FRED)
+    jgb_10y_date        TEXT,
+    uk_10y              REAL,               -- UK Gilt 10Y, % (monthly FRED)
+    uk_10y_date         TEXT,
+
+    -- ── Credit Spreads ────────────────────────────────────────
+    hy_oas_us           REAL,               -- US HY OAS, bps (FRED BAMLH0A0HYM2 × 100)
+    hy_oas_us_date      TEXT,
+    hy_oas_eu           REAL,               -- EU HY OAS, bps (FRED BAMLHE00EHY2Y × 100)
+    hy_oas_eu_date      TEXT,
+
+    -- ── Valuation ────────────────────────────────────────────
+    cape_us             REAL,               -- Shiller CAPE US (multpl.com)
+    cape_date           TEXT,
+    pe_eu               REAL,               -- P/E EU proxy via VGK ETF
+    pe_jp               REAL,               -- P/E JP proxy via EWJ ETF
+    pe_em               REAL,               -- P/E EM proxy via EEM ETF
+
+    -- ── Allocation Ratios ─────────────────────────────────────
+    gold_stocks         REAL,               -- (GLD × 10) / ^GSPC — oz gold per S&P point
+    cnh_usd             REAL                -- USD/CNH — yuan stress indicator
+);
+
+-- ── 10. NEWS ──────────────────────────────────────────────
 -- Articles RSS. Dédupliqués par hash MD5 du titre.
 CREATE TABLE IF NOT EXISTS news (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -221,6 +283,7 @@ INDEXES = [
     "CREATE INDEX IF NOT EXISTS idx_news_ts_pub          ON news (ts_pub DESC);",
     "CREATE INDEX IF NOT EXISTS idx_news_region          ON news (region, ts_pub DESC);",
     "CREATE INDEX IF NOT EXISTS idx_fx_daily_pair_date ON fx_daily (pair, date DESC);",
+    "CREATE INDEX IF NOT EXISTS idx_macro_liq_date      ON macro_liquidity (date DESC);",
 ]
 
 # ============================================================
