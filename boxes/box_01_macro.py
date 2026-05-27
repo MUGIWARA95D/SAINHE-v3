@@ -1,5 +1,5 @@
 """
-box_01_macro.py — Santé macro : VIX, Yield Curve, ERP, DXY.
+box_01_macro.py — Santé macro : VIX, Yield Curve, ERP, DXY + Global Liquidity Strip.
 """
 
 import sqlite3
@@ -63,6 +63,235 @@ def _yc_regime(spread: float | None) -> str | None:
 
 
 # ══════════════════════════════════════════════════════════════
+# ── 1c. PROFESSIONAL INFERENCE TEXT ENGINE
+#
+#  Tier 1 — Institutional published thresholds:
+#    VIX    : CBOE VIX White Paper (regime bands)
+#    ERP    : CAPM / Damodaran (1960–present dataset)
+#    YC     : NY Fed recession probability model
+#    CAPE   : Shiller / Yale CAPE (1881–present, long-run avg = 17)
+#    HY OAS : ICE BofA HY index / Fed Financial Stability Report
+#
+#  Tier 2 — No official standard; historical percentile context:
+#    M2/M3 YoY      : FRED / ECB SDW historical range (1990–present)
+#    CNH/USD         : PBOC managed-float band (post-2015 reform)
+#    Balance sheets  : CB WoW directional change
+#    Gold/S&P ratio  : historical risk-on / risk-off context
+#    DXY level       : 10-year average ~98 (1985 Plaza Accord era)
+# ══════════════════════════════════════════════════════════════
+
+# ── Tier 1 ──────────────────────────────────────────────────────────────────
+
+def _vix_text(v):
+    """CBOE VIX White Paper regime classification."""
+    if v is None:
+        return ""
+    if v < 12:
+        return (f"{v:.1f} — extreme complacency (CBOE <12). "
+                f"Tail-risk structurally underpriced; vol spikes to >30 typically occur within 3–6 months of sub-12 readings.")
+    if v < 15:
+        return (f"{v:.1f} — complacency zone (CBOE <15). "
+                f"Implied volatility below historical norm; out-of-the-money puts historically cheap at this level.")
+    if v < 20:
+        return (f"{v:.1f} — normal range (CBOE 15–20). "
+                f"Orderly markets; no systemic stress. Long equity exposure appropriate without excess hedging premium.")
+    if v < 30:
+        return (f"{v:.1f} — elevated fear (CBOE 20–30). "
+                f"Risk-off rotation developing; 1–2 standard deviation event. Consistent with sector rotation, not crisis.")
+    return (f"{v:.1f} — panic zone (CBOE >30). "
+            f"Consistent with crisis episodes (GFC 2008: 80, COVID 2020: 66). Historically a mean-reversion buy signal within 20–30 sessions.")
+
+
+def _erp_text(erp, us10y, sp500_pe):
+    """CAPM / Damodaran equity risk premium framework."""
+    if erp is None:
+        return ""
+    erp_pct = erp * 100
+    ey_pct  = (100.0 / sp500_pe) if sp500_pe else None
+    y10_str = f"{us10y:.2f}%" if us10y is not None else "N/A"
+    ey_str  = f"{ey_pct:.2f}%" if ey_pct is not None else "N/A"
+
+    if erp < 0:
+        return (f"Negative ERP ({erp_pct:+.2f}%): risk-free rate ({y10_str}) exceeds earnings yield ({ey_str}). "
+                f"Historically rare — last observed 1997–2000 and 2006–2008 (Damodaran). "
+                f"Bonds structurally outperform equities on a risk-adjusted basis at these levels.")
+    if erp < ERP_EXPENSIVE:
+        return (f"ERP at {erp_pct:.2f}% — below 1% CAPM threshold. "
+                f"Near-zero equity premium vs bonds (earnings yield {ey_str} vs 10Y {y10_str}). "
+                f"Risk-adjusted returns historically favour fixed income (Damodaran, 1960–present).")
+    if erp < ERP_ATTRACTIVE:
+        return (f"ERP at {erp_pct:.2f}% — below the 2% CAPM attractiveness threshold. "
+                f"Equity premium modest vs bonds. Balanced allocation warranted; no strong directional signal (Damodaran).")
+    return (f"ERP at {erp_pct:.2f}% — above 2% CAPM threshold. "
+            f"Earnings yield ({ey_str}) meaningfully exceeds risk-free rate ({y10_str}). "
+            f"Historically associated with above-average forward equity returns (Damodaran, 1960–present).")
+
+
+def _yc_text(spread):
+    """NY Fed yield curve recession model language."""
+    if spread is None:
+        return ""
+    if spread >= 1.0:
+        return (f"{spread:+.2f}% spread — expansionary slope. "
+                f"NY Fed recession model: low probability when 10Y−3M >100bps. "
+                f"Historically consistent with a sustained economic growth environment.")
+    if spread >= 0.0:
+        return (f"{spread:+.2f}% spread — flattening towards zero. "
+                f"NY Fed: ambiguous signal; no confirmed recession indicator. "
+                f"Historical lead time to full inversion: 12–18 months from this stage.")
+    if spread >= -0.5:
+        return (f"{spread:.2f}% — partial inversion. NY Fed: caution, not confirmation. "
+                f"False positives documented: 1998 (LTCM), 2019 (Fed pivot). "
+                f"Sustained full inversion required for elevated recession probability.")
+    return (f"{spread:.2f}% — full inversion. NY Fed recession model at elevated probability. "
+            f"Historical lead time to recession: 6–24 months (avg. 14 months, 1970–2023). "
+            f"~70% of full inversions preceded a recession.")
+
+
+def _cape_text(cape):
+    """Shiller / Yale CAPE — long-run mean 17 (1881–present)."""
+    CAPE_MEAN = 17.0
+    if cape is None:
+        return ""
+    ratio = cape / CAPE_MEAN
+    if cape <= 20:
+        return (f"{cape:.1f} — near long-run mean of {CAPE_MEAN:.0f} (Shiller/Yale, 1881–present). "
+                f"Forward 10-year real returns historically ~8–10% annualised from this level.")
+    if cape <= 25:
+        return (f"{cape:.1f} ({ratio:.1f}× long-run mean of {CAPE_MEAN:.0f}, Shiller/Yale, 1881–present). "
+                f"Modest valuation premium. 10-year forward real returns historically 4–7% from this level.")
+    if cape <= 34:
+        return (f"{cape:.1f} ({ratio:.1f}× the long-run mean of {CAPE_MEAN:.0f}, Shiller/Yale, 1881–present). "
+                f"Elevated valuation. 10-year forward real returns historically compressed to 0–4%.")
+    return (f"{cape:.1f} ({ratio:.1f}× the long-run mean of {CAPE_MEAN:.0f}, Shiller/Yale, 1881–present). "
+            f"Comparable to 1929 peak (33) and dot-com peak 2000 (44). "
+            f"Forward 10-year real returns historically near-zero or negative at this level.")
+
+
+def _hy_text(bps, variant="US"):
+    """ICE BofA HY OAS — Fed Financial Stability Report framework."""
+    if bps is None:
+        return ""
+    if variant == "US":
+        avg, pre_gfc, label = 525, 240, "ICE BofA US HY"
+    else:
+        avg, pre_gfc, label = 600, 280, "ICE BofA EM HY"
+
+    if bps < pre_gfc + 20:
+        return (f"{bps:.0f}bps — approaching pre-GFC lows (~{pre_gfc}bps, mid-2007). "
+                f"{label}: extreme compression. Credit risk structurally underpriced; late-cycle complacency signal.")
+    if bps < 350:
+        return (f"{bps:.0f}bps — well below {label} long-run avg (~{avg}bps). "
+                f"Comparable to 2006–2007 pre-GFC and 2021 post-COVID troughs. Compressed spreads = underpriced credit risk.")
+    if bps < 500:
+        return (f"{bps:.0f}bps — below {label} long-run avg (~{avg}bps). "
+                f"Orderly credit conditions. No systemic stress per Fed Financial Stability Report framework.")
+    if bps < 700:
+        return (f"{bps:.0f}bps — {label} stress zone (>500bps). "
+                f"Consistent with Fed FSR 'elevated vulnerability' classification. Monitor for spread widening acceleration.")
+    return (f"{bps:.0f}bps — {label} crisis level (>700bps). "
+            f"Consistent with GFC peak (2000bps, 2008) and COVID spike (1100bps, 2020). Systemic stress signal.")
+
+
+# ── Tier 2 ──────────────────────────────────────────────────────────────────
+
+def _m2_text(yoy, region="US"):
+    """M2/M3 YoY — historical context (FRED/ECB SDW, 1990–present). No official threshold."""
+    if yoy is None:
+        return ""
+    if region == "US":
+        avg, label = 6.0, "FRED M2, 1990–present avg ~6%"
+    else:
+        avg, label = 5.0, "ECB M3, 1990–present avg ~5%"
+
+    if yoy < 0:
+        return (f"{yoy:+.1f}% YoY — monetary contraction. "
+                f"Below zero for the first time since the 1930s in the US; consistent with QT-driven deleveraging. "
+                f"Historically precedes deflationary pressure by 12–18 months ({label}).")
+    if yoy < 3:
+        return (f"{yoy:+.1f}% YoY — subdued money growth, below historical avg of ~{avg:.0f}% ({label}). "
+                f"Disinflationary. No excess liquidity risk; watch for demand contraction if sustained.")
+    if yoy < avg + 2:
+        return (f"{yoy:+.1f}% YoY — within normal historical range ({label}). "
+                f"No excess liquidity signal. Consistent with trend GDP growth.")
+    return (f"{yoy:+.1f}% YoY — above historical avg of ~{avg:.0f}% ({label}). "
+            f"Excess money supply growth historically leads CPI inflation by 12–24 months (Friedman/Schwartz; ECB Working Papers).")
+
+
+def _cnh_text(rate):
+    """CNH/USD — PBOC managed-float context (post-2015 reform band: ~6.1–7.35)."""
+    if rate is None:
+        return ""
+    if rate < 6.5:
+        return (f"{rate:.4f} CNH/USD — strong yuan. "
+                f"Consistent with PBOC appreciation bias or capital inflows. Positive for EM risk appetite.")
+    if rate < 7.0:
+        return (f"{rate:.4f} CNH/USD — within PBOC managed band (6.1–7.35). "
+                f"No currency stress signal. FX reserve drawdown pressure absent.")
+    if rate < 7.3:
+        return (f"{rate:.4f} CNH/USD — approaching '7.3' psychological threshold. "
+                f"PBOC historically intervenes near this level (2019: 7.19, 2022: 7.35). Watch FX reserves.")
+    return (f"{rate:.4f} CNH/USD — above 7.3 threshold. "
+            f"Consistent with yuan depreciation episodes (trade war 2019, 2022 selloff). "
+            f"PBOC intervention risk elevated; negative for EM sentiment broadly.")
+
+
+def _balance_sheet_text(wk_pct, label="Fed"):
+    """Central bank balance sheet WoW change — Tier 2 directional context."""
+    if wk_pct is None:
+        return ""
+    if abs(wk_pct) < 0.05:
+        return f"Flat week-on-week (±0.05%). {label} balance sheet in maintenance phase; no net policy impulse."
+    if wk_pct > 0.5:
+        return (f"{wk_pct:+.2f}% w/w — meaningful expansion. "
+                f"{label} adding reserves to the system; net loosening of financial conditions.")
+    if wk_pct > 0:
+        return f"{wk_pct:+.2f}% w/w — marginal expansion. {label} balance sheet growing modestly."
+    if wk_pct > -0.5:
+        return f"{wk_pct:+.2f}% w/w — measured contraction. {label} running QT at a gradual pace."
+    return (f"{wk_pct:+.2f}% w/w — notable contraction. "
+            f"{label} actively draining reserves via QT; tightening financial conditions.")
+
+
+def _gold_ratio_text(ratio):
+    """Gold/S&P 500 oz-per-index-point ratio — historical risk-on/off context."""
+    if ratio is None:
+        return ""
+    # Context: 2019–2022 avg ~0.42–0.55; 2011 defensive peak ~1.73
+    if ratio > 1.0:
+        return (f"{ratio:.3f} oz/pt — elevated vs recent range (2019–2023 avg: ~0.42–0.55). "
+                f"Gold meaningfully outperforming equities. Consistent with macro uncertainty peaks (2011: 1.73).")
+    if ratio > 0.6:
+        return (f"{ratio:.3f} oz/pt — above recent norm (2019–2022 avg: ~0.42–0.55). "
+                f"Gold outperforming equities; mild defensive rotation underway.")
+    if ratio > 0.42:
+        return (f"{ratio:.3f} oz/pt — within recent historical range (2019–2023: 0.42–0.55). "
+                f"Balanced allocation between risk assets and gold; no strong directional signal.")
+    return (f"{ratio:.3f} oz/pt — below recent historical range. "
+            f"Equities strongly outperforming gold; risk-on dominant regime.")
+
+
+def _dxy_text(val):
+    """DXY — historical level context (10-year avg ~98; Plaza Accord era range: 70–120)."""
+    if val is None:
+        return ""
+    if val > 108:
+        return (f"DXY at {val:.1f} — strong USD territory (10Y avg: ~98). "
+                f"Historically headwind for USD-priced commodities, EM debt, and US multinational earnings.")
+    if val > 102:
+        return (f"DXY at {val:.1f} — above 10-year average (~98). "
+                f"Mild USD strength; moderate drag on EM currencies and commodity indices.")
+    if val > 95:
+        return (f"DXY at {val:.1f} — near 10-year average (~98). "
+                f"Neutral USD; balanced impact on global risk assets and commodities.")
+    if val > 88:
+        return (f"DXY at {val:.1f} — mild USD weakness vs 10-year avg (~98). "
+                f"Historically supportive for commodities, gold, and EM equities.")
+    return (f"DXY at {val:.1f} — historically weak USD (10Y avg: ~98). "
+            f"Strong tailwind for gold, commodities, and USD-denominated EM debt service.")
+
+
+# ══════════════════════════════════════════════════════════════
 # ── 2. QUERY
 # ══════════════════════════════════════════════════════════════
 
@@ -84,6 +313,25 @@ def _fetch_macro(con: sqlite3.Connection) -> dict:
         return {}
 
     cols = ["ts", "vix", "us10y", "us3m", "dxy", "erp", "yield_curve", "sp500_pe", "sp500_earnings_yield"]
+    return dict(zip(cols, row))
+
+
+def _fetch_liquidity(con: sqlite3.Connection) -> dict:
+    """
+    Lit la dernière ligne de macro_liquidity.
+    Retourne {} si la table est vide ou absente.
+    """
+    try:
+        row = con.execute(
+            "SELECT * FROM macro_liquidity ORDER BY date DESC LIMIT 1"
+        ).fetchone()
+    except Exception:
+        return {}
+    if not row:
+        return {}
+    cols = [d[0] for d in con.execute(
+        "SELECT * FROM macro_liquidity LIMIT 0"
+    ).description]
     return dict(zip(cols, row))
 
 
@@ -134,6 +382,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
     macro  = _fetch_macro(con)
     sp500  = _fetch_index_snapshot(con, "^GSPC")
     dxy    = _fetch_index_snapshot(con, "DX-Y.NYB")
+    liq    = _fetch_liquidity(con)
 
     # ── Régimes ─────────────────────────────────────────────
     vix_val = macro.get("vix")
@@ -164,6 +413,23 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
     inverted = (yc_val < 0) if yc_val is not None else None
     yc_regime = _yc_regime(yc_val)
 
+    # ── Inference texts (generated in Python, displayed verbatim by JS) ──────
+    vix_text    = _vix_text(vix_val)
+    erp_text    = _erp_text(erp_val, macro.get("us10y"), macro.get("sp500_pe"))
+    yc_text     = _yc_text(yc_val)
+    dxy_text    = _dxy_text(dxy.get("close"))
+    # Liq strip — Tier 1
+    cape_text   = _cape_text(liq.get("cape_us"))
+    hy_us_text  = _hy_text(liq.get("hy_oas_us"), "US")
+    hy_em_text  = _hy_text(liq.get("hy_oas_eu"), "EM")
+    # Liq strip — Tier 2
+    us_m2_text  = _m2_text(liq.get("us_m2_yoy"), "US")
+    eu_m3_text  = _m2_text(liq.get("eu_m3_yoy"), "EU")
+    cnh_text    = _cnh_text(liq.get("cnh_usd"))
+    fed_bs_text = _balance_sheet_text(liq.get("fed_walcl_wk_pct"), "Fed")
+    ecb_bs_text = _balance_sheet_text(liq.get("ecb_assets_wk_pct"), "ECB")
+    gold_text   = _gold_ratio_text(liq.get("gold_stocks"))
+
     return {
         "meta": {**META, "titre": META["titre"].get(lang, META["titre"]["EN"])},
         "data": {
@@ -171,6 +437,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
             "vix"        : {
                 "valeur" : vix_val,
                 "regime" : vix_regime,
+                "text"   : vix_text,
             },
             "yield_curve": {
                 "valeur"  : yc_val,
@@ -178,23 +445,81 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
                 "regime"  : yc_regime,   # "steep"|"flat"|"partial_inversion"|"full_inversion"
                 "us10y"   : macro.get("us10y"),
                 "us3m"    : macro.get("us3m"),
+                "text"    : yc_text,
             },
             "erp"        : {
                 "valeur"  : erp_val,
                 "regime"  : erp_regime,
                 "sp500_pe": macro.get("sp500_pe"),
+                "text"    : erp_text,
             },
             "dxy"        : {
                 "valeur"  : dxy.get("close"),
                 "chg_pct" : dxy.get("chg_pct"),
                 "ret_1m"  : dxy.get("ret_1m"),
                 "sparkline": dxy.get("sparkline_json"),
+                "text"    : dxy_text,
             },
             "sp500"      : {
                 "close"   : sp500.get("close"),
                 "chg_pct" : sp500.get("chg_pct"),
                 "ret_1y"  : sp500.get("ret_1y"),
                 "sparkline": sp500.get("sparkline_json"),
+            },
+            # ── Global Liquidity Strip (3 rows) ───────────────
+            "liq"        : {
+                # Row 1 — Central Bank Liquidity
+                "fed_walcl_t"      : liq.get("fed_walcl_t"),
+                "fed_walcl_wk_pct" : liq.get("fed_walcl_wk_pct"),
+                "fed_walcl_date"   : liq.get("fed_walcl_date"),
+                "fed_bs_text"      : fed_bs_text,
+                "rrp_b"            : liq.get("rrp_b"),
+                "rrp_date"         : liq.get("rrp_date"),
+                "tga_b"            : liq.get("tga_b"),
+                "tga_date"         : liq.get("tga_date"),
+                "ecb_assets_t"     : liq.get("ecb_assets_t"),
+                "ecb_assets_wk_pct": liq.get("ecb_assets_wk_pct"),
+                "ecb_assets_date"  : liq.get("ecb_assets_date"),
+                "ecb_bs_text"      : ecb_bs_text,
+                "us_m2_yoy"        : liq.get("us_m2_yoy"),
+                "us_m2_date"       : liq.get("us_m2_date"),
+                "us_m2_text"       : us_m2_text,
+                "eu_m3_yoy"        : liq.get("eu_m3_yoy"),
+                "eu_m3_date"       : liq.get("eu_m3_date"),
+                "eu_m3_text"       : eu_m3_text,
+                "china_m2_yoy"     : liq.get("china_m2_yoy"),
+                "china_m2_date"    : liq.get("china_m2_date"),
+                "global_cb_trend"  : liq.get("global_cb_trend"),
+                "hy_oas_us"        : liq.get("hy_oas_us"),
+                "hy_oas_us_date"   : liq.get("hy_oas_us_date"),
+                "hy_oas_us_text"   : hy_us_text,
+                "hy_oas_eu"        : liq.get("hy_oas_eu"),
+                "hy_oas_eu_date"   : liq.get("hy_oas_eu_date"),
+                "hy_oas_eu_text"   : hy_em_text,
+                # Row 2 — Yield Curves
+                "bund_10y"         : liq.get("bund_10y"),
+                "bund_2y"          : liq.get("bund_2y"),
+                "bund_spread"      : liq.get("bund_spread"),
+                "bund_signal"      : liq.get("bund_signal"),
+                "bund_date"        : liq.get("bund_date"),
+                "jgb_10y"          : liq.get("jgb_10y"),
+                "jgb_10y_date"     : liq.get("jgb_10y_date"),
+                "uk_10y"           : liq.get("uk_10y"),
+                "uk_10y_date"      : liq.get("uk_10y_date"),
+                # Row 3 — Valuation & Credit
+                "cape_us"          : liq.get("cape_us"),
+                "cape_date"        : liq.get("cape_date"),
+                "cape_text"        : cape_text,
+                "pe_eu"            : liq.get("pe_eu"),
+                "pe_jp"            : liq.get("pe_jp"),
+                "pe_em"            : liq.get("pe_em"),
+                "gold_stocks"      : liq.get("gold_stocks"),
+                "gold_text"        : gold_text,
+                "cnh_usd"          : liq.get("cnh_usd"),
+                "cnh_text"         : cnh_text,
+                # Meta
+                "ts"               : liq.get("ts"),
+                "date"             : liq.get("date"),
             },
         },
     }

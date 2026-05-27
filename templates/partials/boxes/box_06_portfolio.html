@@ -1,5 +1,13 @@
 <!-- ═══ BOX_06 — PORTFOLIO SCANNER ══════════════════════════ -->
 <!-- DATA: box_portfolio = {currency, tickers:[{ticker,nom,secteur,close,chg_pct,ret_1m,ret_3m,ret_6m,ret_1y,score,above_dma200,rvol,mfi,dma_200,sentiment_label,signal,sparkline,ts_update}], total:int} -->
+<style>
+/* ── Native currency badge — portfolio table ── */
+.cur-pill{
+  display:inline-block;font-size:7.5px;font-weight:700;
+  padding:1px 5px;border-radius:3px;letter-spacing:.2px;
+  margin-left:4px;vertical-align:middle;white-space:nowrap;
+}
+</style>
 <section class="card" id="box-portfolio">
   <div class="card-h">
     <span class="card-t" data-i18n="box_portfolio_title">{{ t.box_portfolio_title }}</span>
@@ -114,6 +122,29 @@
     if(!ts) return "—";
     const d=new Date(ts);
     return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+  }
+
+  /* ── native currency badge ──────────────────────────────── */
+  var ND_COLORS = {
+    'USD':['rgba(44,122,62,.15)','#2C7A3E'],
+    'EUR':['rgba(26,79,173,.15)','#1A4FAD'],
+    'JPY':['rgba(192,48,32,.15)','#C03020'],
+    'CHF':['rgba(139,0,0,.15)',  '#8B0000'],
+    'GBp':['rgba(0,51,153,.15)','#003399'],
+    'GBP':['rgba(0,51,153,.15)','#003399'],
+    'CNY':['rgba(204,0,0,.15)', '#CC0000'],
+    'SAR':['rgba(0,100,0,.15)', '#006400'],
+    'RUB':['rgba(80,80,100,.15)','#5A607A'],
+    'KZT':['rgba(0,128,192,.15)','#0080C0'],
+  };
+  function ndBadge(nd){
+    var c = ND_COLORS[nd] || ['rgba(100,100,100,.12)','var(--muted)'];
+    var el = document.createElement("span");
+    el.className = "cur-pill";
+    el.textContent = nd; /* show as-is: GBp stays GBp */
+    el.style.background = c[0];
+    el.style.color = c[1];
+    return el;
   }
 
   /* signal display mapping */
@@ -360,11 +391,15 @@
       /* col 1 — category */
       tr.appendChild(mk("td",null,(I18N.sectors&&I18N.sectors[p.secteur])||p.secteur||"—")).style.color="var(--muted)";
 
-      /* col 2 — ticker + name */
+      /* native devise — resolved early, used in col 2 badge and col 4 price */
+      var nd = p.native_devise || 'USD';
+
+      /* col 2 — ticker + name + native currency badge */
       var td1=tr.appendChild(mk("td"));
       td1.appendChild(mk("strong",null,p.ticker)).style.color="var(--h)";
       var sub=td1.appendChild(mk("span",null," "+(p.nom||"")));
       sub.style.cssText="font-size:10px;color:var(--muted)";
+      td1.appendChild(ndBadge(nd));
 
       /* col 3 — mini sparkline canvas */
       var td2=tr.appendChild(mk("td"));
@@ -375,7 +410,6 @@
       /* col 4 — price (converted to display currency, or native + badge if devise not in FX table) */
       var priceTd = tr.appendChild(mk("td"));
       priceTd.style.fontVariantNumeric = "tabular-nums";
-      var nd   = p.native_devise || 'USD';
       var conv = window.fxConvert(p.close, nd);
       if(conv !== null){
         priceTd.textContent = window.fxSymbol() + conv.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2});
