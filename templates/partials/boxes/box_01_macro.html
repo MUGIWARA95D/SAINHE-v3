@@ -5,17 +5,17 @@
 .region-card{
   flex:1 1 200px;min-width:175px;
   background:var(--card-alt);border-radius:7px;
-  border-left:3px solid var(--gold);
+  border-left:3px solid var(--border-lt);      /* standard grey — same as .liq-card */
   padding:14px 18px 12px;
 }
 .rc-header{
   font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;
-  color:var(--gold);padding-bottom:11px;margin-bottom:8px;
+  color:var(--muted);padding-bottom:11px;margin-bottom:8px;  /* muted, not gold */
   border-bottom:1px solid var(--border-lt)
 }
 .rc-row{
   display:flex;justify-content:space-between;align-items:center;
-  min-height:52px;                              /* lock row height across all cards */
+  min-height:52px;
   padding:8px 0;border-bottom:1px solid var(--border-lt);gap:10px
 }
 .rc-row:last-child{border-bottom:none;padding-bottom:0}
@@ -23,16 +23,19 @@
   font-size:13px;color:var(--muted);text-transform:uppercase;
   letter-spacing:.4px;line-height:1.3;flex-shrink:0
 }
-.rc-right{text-align:right;flex-shrink:0}
+.rc-right{text-align:right;min-width:0;overflow:hidden}   /* allow shrink, no overflow */
 .rc-val{
   font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;
-  line-height:1.2;display:block
+  line-height:1.2;display:block;white-space:nowrap         /* value stays on one line */
 }
 .rc-val.sig-g{color:var(--green)}
 .rc-val.sig-r{color:var(--red)}
 .rc-val.sig-y{color:var(--orange)}
 .rc-val.rc-na{color:var(--muted);opacity:.35;font-size:16px;font-weight:400}
-.rc-src{font-size:12px;color:var(--muted);opacity:.7;display:block;margin-top:2px}
+.rc-src{
+  font-size:12px;color:var(--muted);opacity:.7;display:block;margin-top:2px;
+  overflow-wrap:anywhere;word-break:break-word;white-space:normal  /* src wraps, never overflows */
+}
 .rc-note{
   font-size:12px;color:var(--muted);opacity:.7;padding:6px 16px 4px;
   font-style:italic;line-height:1.6
@@ -222,40 +225,38 @@
 
     // ── USA ────────────────────────────────────────────────────────────────
     wrap.appendChild(mkRegionCard("USA", [
-      { label:"10Y Yield", val: fmtYld(yc.us10y),    cls:"",             src:"US Treasury · yfinance" },
-      // US yield_curve = 10Y − 3M (NY Fed recession model — see note below)
-      { label:"Curve",     val: fmtSpr(yc.valeur),   cls:sprSig(yc.valeur),  src:"10Y−3M · NY Fed model" },
+      { label:"10Y Yield", val: fmtYld(yc.us10y),    cls:"",                  src:"US Treasury" },
+      { label:"Curve",     val: fmtSpr(yc.valeur),   cls:sprSig(yc.valeur),   src:"10Y−3M · NY Fed" },
       { label:"P/E",       val: fmtPE(erp.sp500_pe), cls:peSig(erp.sp500_pe), src:"S&P 500 trailing" },
       { label:"M2 YoY",    val: fmtM2(L.us_m2_yoy),  cls:m2Sig(L.us_m2_yoy),  src:"FRED M2SL"+(L.us_m2_date?" · "+asOf(L.us_m2_date):"") },
-      { label:"HY Spread", val: fmtOAS(L.hy_oas_us), cls:hySig(L.hy_oas_us),  src:"FRED ICE BofA US HY"+(L.hy_oas_us_date?" · "+asOf(L.hy_oas_us_date):"") },
+      { label:"HY Spread", val: fmtOAS(L.hy_oas_us), cls:hySig(L.hy_oas_us),  src:"ICE BofA US"+(L.hy_oas_us_date?" · "+asOf(L.hy_oas_us_date):"") },
     ]));
 
     // ── EUROPE ─────────────────────────────────────────────────────────────
     wrap.appendChild(mkRegionCard("Europe", [
-      { label:"10Y Yield", val: fmtYld(L.bund_10y),    cls:"",              src:"German Bund · stooq"+(L.bund_date?" · "+asOf(L.bund_date):"") },
-      { label:"Curve",     val: fmtSpr(L.bund_spread), cls:sprSig(L.bund_spread), src:"10Y−2Y Bund · stooq" },
-      { label:"P/E",       val: fmtPE(L.pe_eu),        cls:peSig(L.pe_eu),        src:"VGK ETF trailing · yfinance" },
-      { label:"M3 YoY",    val: fmtM2(L.eu_m3_yoy),    cls:m2Sig(L.eu_m3_yoy),   src:"ECB SDW BSI"+(L.eu_m3_date?" · "+asOf(L.eu_m3_date):"") },
-      { label:"HY Spread", val: fmtOAS(L.hy_oas_eu),   cls:hySig(L.hy_oas_eu),   src:"FRED ICE BofA Euro HY"+(L.hy_oas_eu_date?" · "+asOf(L.hy_oas_eu_date):"") },
+      { label:"10Y Yield", val: fmtYld(L.bund_10y),    cls:"",                    src:"Bund · stooq"+(L.bund_date?" · "+asOf(L.bund_date):"") },
+      { label:"Curve",     val: fmtSpr(L.bund_spread), cls:sprSig(L.bund_spread), src:"10Y−2Y · stooq" },
+      { label:"P/E",       val: fmtPE(L.pe_eu),        cls:peSig(L.pe_eu),        src:"VGK ETF" },
+      { label:"M3 YoY",    val: fmtM2(L.eu_m3_yoy),    cls:m2Sig(L.eu_m3_yoy),   src:"ECB SDW"+(L.eu_m3_date?" · "+asOf(L.eu_m3_date):"") },
+      { label:"HY Spread", val: fmtOAS(L.hy_oas_eu),   cls:hySig(L.hy_oas_eu),   src:"ICE BofA EU"+(L.hy_oas_eu_date?" · "+asOf(L.hy_oas_eu_date):"") },
     ]));
 
-    // ── ASIA ───────────────────────────────────────────────────────────────
-    // Note: Asia is Japan-centric for yields/P/E; China for M2
+    // ── ASIA — Japan for yields/P/E, China for M2 ──────────────────────────
     wrap.appendChild(mkRegionCard("Asia", [
-      { label:"10Y Yield", val: fmtYld(L.jgb_10y),      cls:"",            src:"JGB (Japan) · FRED"+(L.jgb_10y_date?" · "+asOf(L.jgb_10y_date):"")+" · monthly" },
-      { label:"Curve",     val: null,                    cls:"",            src:null },   // JGB 2Y not available free
-      { label:"P/E",       val: fmtPE(L.pe_jp),          cls:peSig(L.pe_jp), src:"EWJ ETF (Japan) · yfinance" },
-      { label:"M2 YoY",    val: fmtM2(L.china_m2_yoy),   cls:m2Sig(L.china_m2_yoy), src:"China M2 · FRED"+(L.china_m2_date?" · "+asOf(L.china_m2_date):"")+" · monthly" },
-      { label:"HY Spread", val: null,                    cls:"",            src:null },   // no free Asia HY OAS
+      { label:"10Y Yield", val: fmtYld(L.jgb_10y),    cls:"",                  src:"JGB · FRED"+(L.jgb_10y_date?" · "+asOf(L.jgb_10y_date):"") },
+      { label:"Curve",     val: null,                  cls:"",                  src:null },
+      { label:"P/E",       val: fmtPE(L.pe_jp),        cls:peSig(L.pe_jp),      src:"EWJ ETF" },
+      { label:"M2 YoY",    val: fmtM2(L.china_m2_yoy), cls:m2Sig(L.china_m2_yoy), src:"China · FRED"+(L.china_m2_date?" · "+asOf(L.china_m2_date):"") },
+      { label:"HY Spread", val: null,                  cls:"",                  src:null },
     ]));
 
     // ── EM ──────────────────────────────────────────────────────────────────
     wrap.appendChild(mkRegionCard("EM", [
-      { label:"10Y Yield", val: null,                    cls:"",            src:null },   // no free EM sovereign benchmark
-      { label:"Curve",     val: null,                    cls:"",            src:null },
-      { label:"P/E",       val: fmtPE(L.pe_em),          cls:peSig(L.pe_em), src:"EEM ETF · yfinance" },
-      { label:"M2 YoY",    val: null,                    cls:"",            src:null },   // no free EM aggregate
-      { label:"HY Spread", val: fmtOAS(L.hy_oas_em),    cls:hySig(L.hy_oas_em), src:"FRED ICE BofA EM HY"+(L.hy_oas_em_date?" · "+asOf(L.hy_oas_em_date):"") },
+      { label:"10Y Yield", val: null,                  cls:"",                  src:null },
+      { label:"Curve",     val: null,                  cls:"",                  src:null },
+      { label:"P/E",       val: fmtPE(L.pe_em),        cls:peSig(L.pe_em),      src:"EEM ETF" },
+      { label:"M2 YoY",    val: null,                  cls:"",                  src:null },
+      { label:"HY Spread", val: fmtOAS(L.hy_oas_em),  cls:hySig(L.hy_oas_em),  src:"ICE BofA EM"+(L.hy_oas_em_date?" · "+asOf(L.hy_oas_em_date):"") },
     ]));
 
     // ── Methodology footnote ────────────────────────────────────────────────
