@@ -104,25 +104,25 @@
   <!-- ── 1. Regional Macro Overview table ── -->
   <div id="region-table-wrap"></div>
 
-  <!-- ── 2. Divider before signal cards ── -->
-  <div class="liq-divider-wrap" id="div-signals" style="display:none">
-    <div class="liq-divider-line"></div>
-    <span class="liq-divider-label">Market Conditions</span>
-    <div class="liq-divider-line"></div>
-  </div>
-
-  <!-- ── 3. Signal cards (ERP, Yield Curve, VIX, DXY) ── -->
-  <div class="macro-grid" id="mgrid"></div>
-
-  <!-- ── 4. Divider before global indicators ── -->
+  <!-- ── 2. Divider before global indicators ── -->
   <div class="liq-divider-wrap" id="div-global" style="display:none">
     <div class="liq-divider-line"></div>
     <span class="liq-divider-label">Global Indicators</span>
     <div class="liq-divider-line"></div>
   </div>
 
-  <!-- ── 5. Global indicators (fourre-tout) ── -->
+  <!-- ── 3. Global indicators (fourre-tout) ── -->
   <div id="liq-strip"></div>
+
+  <!-- ── 4. Divider before US signal cards ── -->
+  <div class="liq-divider-wrap" id="div-signals" style="display:none">
+    <div class="liq-divider-line"></div>
+    <span class="liq-divider-label">US Market Signals</span>
+    <div class="liq-divider-line"></div>
+  </div>
+
+  <!-- ── 5. US signal cards (ERP, Yield Curve, VIX, DXY) ── -->
+  <div class="macro-grid" id="mgrid"></div>
 </section>
 
 <script>
@@ -273,7 +273,108 @@
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // ── SIGNAL CARDS (ERP, Yield Curve, VIX, DXY) ────────────────────────────
+  // ── GLOBAL INDICATORS — rendered first so they appear above signal cards ──
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+  const ls  = document.getElementById("liq-strip");
+  const dgl = document.getElementById("div-global");
+
+  if(ls && L && L.date){
+    if(dgl) dgl.style.display = "flex";
+    ls.textContent = "";
+
+    function fmtT(v){return v!=null ? "$"+v.toFixed(2)+"T" : "—";}
+    function fmtB(v){return v!=null ? "$"+Math.round(v).toLocaleString()+"B" : "—";}
+    function fmtPct(v,dec){dec=dec||1;return v!=null ? (v>=0?"+":"")+v.toFixed(dec)+"%" : "—";}
+
+    function wkSig(v){return v==null?"":(v>0?"sig-g":"sig-r");}
+    function trendSig(t){return t==="EXPANSION"?"sig-g":t==="CONTRACTION"?"sig-r":t==="MIXED"?"sig-y":"";}
+    function capeSig(v){return v==null?"":(v>34?"sig-r":v>24?"sig-y":"sig-g");}
+
+    function asOf2(d){
+      if(!d) return "";
+      try{
+        const dt = new Date(d.length===7 ? d+"-01" : d+"T00:00:00");
+        return "as of "+(Date.now()-dt.getTime()>45*864e5
+          ? dt.toLocaleDateString("en-US",{month:"short",year:"numeric"})
+          : dt.toLocaleDateString("en-US",{month:"short",day:"numeric"}));
+      }catch(e){return d;}
+    }
+
+    function mkCard(label,value,sig,sub,inf){
+      const isNA=(value==="—");
+      const card=document.createElement("div");
+      card.className="liq-card"+(sig&&!isNA?" "+sig:"")+(isNA?" na":"");
+      const lbl=card.appendChild(document.createElement("div"));
+      lbl.className="liq-card-label";lbl.textContent=label;
+      const val=card.appendChild(document.createElement("div"));
+      val.className="liq-card-val"+(isNA?" na":(sig?" "+sig:""));
+      val.textContent=value;
+      if(sub){const s=card.appendChild(document.createElement("div"));s.className="liq-card-sub";s.textContent=sub;}
+      if(inf){const i=card.appendChild(document.createElement("div"));i.className="liq-card-inf";i.textContent=inf;}
+      return card;
+    }
+
+    function mkSection(title,cards){
+      const sec=ls.appendChild(document.createElement("div"));
+      sec.className="liq-section";
+      const hdr=sec.appendChild(document.createElement("div"));
+      hdr.className="liq-section-title";hdr.textContent=title;
+      const row=sec.appendChild(document.createElement("div"));
+      row.className="liq-cards";
+      cards.forEach(c=>row.appendChild(c));
+    }
+
+    const fedWkTxt=L.fed_walcl_wk_pct!=null?fmtPct(L.fed_walcl_wk_pct,2)+" w/w":null;
+    const ecbWkTxt=L.ecb_assets_wk_pct!=null?fmtPct(L.ecb_assets_wk_pct,2)+" w/w":null;
+
+    mkSection("Central Banks", [
+      mkCard("Fed Balance Sheet",
+        fmtT(L.fed_walcl_t), wkSig(L.fed_walcl_wk_pct),
+        [fedWkTxt, L.fed_walcl_date?asOf2(L.fed_walcl_date):null].filter(Boolean).join(" · ")||null,
+        L.fed_bs_text||null),
+
+      mkCard("ECB Balance Sheet",
+        fmtT(L.ecb_assets_t), wkSig(L.ecb_assets_wk_pct),
+        [ecbWkTxt, L.ecb_assets_date?asOf2(L.ecb_assets_date):null].filter(Boolean).join(" · ")||null,
+        L.ecb_bs_text||null),
+
+      mkCard("CB Trend",
+        L.global_cb_trend||"—", trendSig(L.global_cb_trend), null),
+
+      mkCard("Reverse Repo (RRP)",
+        fmtB(L.rrp_b), null,
+        L.rrp_date?asOf2(L.rrp_date):null),
+
+      mkCard("Treasury Account (TGA)",
+        fmtB(L.tga_b), null,
+        L.tga_date?asOf2(L.tga_date):null),
+    ]);
+
+    mkSection("Valuation & Allocation", [
+      mkCard("Shiller CAPE — US",
+        L.cape_us!=null?L.cape_us.toFixed(1):"—", capeSig(L.cape_us),
+        L.cape_date?asOf2(L.cape_date):null,
+        L.cape_text||null),
+
+      mkCard("Gold / S&P 500 Ratio",
+        L.gold_stocks!=null?L.gold_stocks.toFixed(3)+" oz/pt":"—", null, null,
+        L.gold_text||null),
+
+      mkCard("Yuan / USD (CNH)",
+        L.cnh_usd!=null?L.cnh_usd.toFixed(4):"—",
+        (L.cnh_usd&&L.cnh_usd>7.3)?"sig-y":"", null,
+        L.cnh_text||null),
+    ]);
+
+    const ft=ls.appendChild(document.createElement("div"));
+    ft.className="liq-footer";
+    ft.textContent="Data as of "+L.date+" · FRED, ECB SDW, multpl.com, yfinance";
+  }
+  } // end global indicators block
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ── US SIGNAL CARDS (ERP, Yield Curve, VIX, DXY) ─────────────────────────
   // ═══════════════════════════════════════════════════════════════════════════
   const divSig = document.getElementById("div-signals");
   if(divSig) divSig.style.display = "flex";
@@ -339,107 +440,6 @@
     dxy.text||null,
     dxySC,dxyS,"US Dollar Index vs a basket of 6 major currencies.","dxy");
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // ── GLOBAL INDICATORS (fourre-tout) ───────────────────────────────────────
-  // ═══════════════════════════════════════════════════════════════════════════
-  const ls  = document.getElementById("liq-strip");
-  const dgl = document.getElementById("div-global");
-
-  if(ls && L && L.date){
-    if(dgl) dgl.style.display = "flex";
-    ls.textContent = "";
-
-    function fmtT(v){return v!=null ? "$"+v.toFixed(2)+"T" : "—";}
-    function fmtB(v){return v!=null ? "$"+Math.round(v).toLocaleString()+"B" : "—";}
-    function fmtPct(v,dec){dec=dec||1;return v!=null ? (v>=0?"+":"")+v.toFixed(dec)+"%" : "—";}
-
-    function wkSig(v){return v==null?"":(v>0?"sig-g":"sig-r");}
-    function trendSig(t){return t==="EXPANSION"?"sig-g":t==="CONTRACTION"?"sig-r":t==="MIXED"?"sig-y":"";}
-    function capeSig(v){return v==null?"":(v>34?"sig-r":v>24?"sig-y":"sig-g");}
-
-    function asOf2(d){
-      if(!d) return "";
-      try{
-        const dt = new Date(d.length===7 ? d+"-01" : d+"T00:00:00");
-        return "as of "+(Date.now()-dt.getTime()>45*864e5
-          ? dt.toLocaleDateString("en-US",{month:"short",year:"numeric"})
-          : dt.toLocaleDateString("en-US",{month:"short",day:"numeric"}));
-      }catch(e){return d;}
-    }
-
-    function mkCard(label,value,sig,sub,inf){
-      const isNA=(value==="—");
-      const card=document.createElement("div");
-      card.className="liq-card"+(sig&&!isNA?" "+sig:"")+(isNA?" na":"");
-      const lbl=card.appendChild(document.createElement("div"));
-      lbl.className="liq-card-label";lbl.textContent=label;
-      const val=card.appendChild(document.createElement("div"));
-      val.className="liq-card-val"+(isNA?" na":(sig?" "+sig:""));
-      val.textContent=value;
-      if(sub){const s=card.appendChild(document.createElement("div"));s.className="liq-card-sub";s.textContent=sub;}
-      if(inf){const i=card.appendChild(document.createElement("div"));i.className="liq-card-inf";i.textContent=inf;}
-      return card;
-    }
-
-    function mkSection(title,cards){
-      const sec=ls.appendChild(document.createElement("div"));
-      sec.className="liq-section";
-      const hdr=sec.appendChild(document.createElement("div"));
-      hdr.className="liq-section-title";hdr.textContent=title;
-      const row=sec.appendChild(document.createElement("div"));
-      row.className="liq-cards";
-      cards.forEach(c=>row.appendChild(c));
-    }
-
-    const fedWkTxt=L.fed_walcl_wk_pct!=null?fmtPct(L.fed_walcl_wk_pct,2)+" w/w":null;
-    const ecbWkTxt=L.ecb_assets_wk_pct!=null?fmtPct(L.ecb_assets_wk_pct,2)+" w/w":null;
-
-    // ── Central Banks ───────────────────────────────────────────────────────
-    mkSection("Central Banks", [
-      mkCard("Fed Balance Sheet",
-        fmtT(L.fed_walcl_t), wkSig(L.fed_walcl_wk_pct),
-        [fedWkTxt, L.fed_walcl_date?asOf2(L.fed_walcl_date):null].filter(Boolean).join(" · ")||null,
-        L.fed_bs_text||null),
-
-      mkCard("ECB Balance Sheet",
-        fmtT(L.ecb_assets_t), wkSig(L.ecb_assets_wk_pct),
-        [ecbWkTxt, L.ecb_assets_date?asOf2(L.ecb_assets_date):null].filter(Boolean).join(" · ")||null,
-        L.ecb_bs_text||null),
-
-      mkCard("CB Trend",
-        L.global_cb_trend||"—", trendSig(L.global_cb_trend), null),
-
-      mkCard("Reverse Repo (RRP)",
-        fmtB(L.rrp_b), null,
-        L.rrp_date?asOf2(L.rrp_date):null),
-
-      mkCard("Treasury Account (TGA)",
-        fmtB(L.tga_b), null,
-        L.tga_date?asOf2(L.tga_date):null),
-    ]);
-
-    // ── Valuation & Allocation ──────────────────────────────────────────────
-    mkSection("Valuation & Allocation", [
-      mkCard("Shiller CAPE — US",
-        L.cape_us!=null?L.cape_us.toFixed(1):"—", capeSig(L.cape_us),
-        L.cape_date?asOf2(L.cape_date):null,
-        L.cape_text||null),
-
-      mkCard("Gold / S&P 500 Ratio",
-        L.gold_stocks!=null?L.gold_stocks.toFixed(3)+" oz/pt":"—", null, null,
-        L.gold_text||null),
-
-      mkCard("Yuan / USD (CNH)",
-        L.cnh_usd!=null?L.cnh_usd.toFixed(4):"—",
-        (L.cnh_usd&&L.cnh_usd>7.3)?"sig-y":"", null,
-        L.cnh_text||null),
-    ]);
-
-    // ── Footer ──────────────────────────────────────────────────────────────
-    const ft=ls.appendChild(document.createElement("div"));
-    ft.className="liq-footer";
-    ft.textContent="Data as of "+L.date+" · FRED, ECB SDW, multpl.com, yfinance";
-  }
   }; /* end _sainheRenderMacro */
   window._sainheRenderMacro();
 })();
