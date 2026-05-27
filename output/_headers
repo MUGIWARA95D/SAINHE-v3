@@ -1,0 +1,8 @@
+/*.html
+  Cache-Control: no-cache, must-revalidate
+
+/*/*.html
+  Cache-Control: no-cache, must-revalidate
+
+/locales/*.json
+  Cache-Control: no-cache, must-revalidate
