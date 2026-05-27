@@ -1,30 +1,40 @@
 <!-- ═══ BOX_01 — MACRO HEALTH ═══════════════════════════════ -->
 <style>
-/* ── Regional Macro Table ─────────────────────────────────── */
-.rt-wrap{padding:4px 14px 10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.rt-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;table-layout:fixed}
-.rt-table th{
-  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;
-  text-align:center;padding:6px 6px 8px;border-bottom:2px solid var(--border-lt);
-  color:var(--gold);white-space:nowrap
+/* ── Region Cards (replaces old table) ───────────────────── */
+.region-cards{display:flex;flex-wrap:wrap;gap:8px;padding:4px 14px 10px}
+.region-card{
+  flex:1 1 175px;min-width:155px;
+  background:var(--card-alt);border-radius:7px;
+  border-left:3px solid var(--gold);
+  padding:10px 14px 10px;
 }
-.rt-table th:first-child{text-align:left;color:var(--muted);width:90px}
-.rt-table td{
-  padding:6px 6px;font-size:13px;font-weight:600;text-align:center;
-  border-bottom:1px solid var(--border-lt);vertical-align:top;white-space:nowrap
+.rc-header{
+  font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;
+  color:var(--gold);padding-bottom:8px;margin-bottom:6px;
+  border-bottom:1px solid var(--border-lt)
 }
-.rt-table td:first-child{
-  font-size:9px;text-transform:uppercase;letter-spacing:.5px;
-  color:var(--muted);font-weight:700;text-align:left;padding-left:2px;
-  white-space:normal;line-height:1.3
+.rc-row{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  padding:6px 0;border-bottom:1px solid var(--border-lt);gap:8px
 }
-.rt-table td.sig-g{color:var(--green)}
-.rt-table td.sig-r{color:var(--red)}
-.rt-table td.sig-y{color:var(--orange)}
-.rt-table td.rt-na{color:var(--muted);opacity:.35;font-size:11px;font-weight:400}
-.rt-src{
-  font-size:7.5px;color:var(--muted);opacity:.65;display:block;
-  font-weight:400;margin-top:1px;text-transform:none;letter-spacing:0
+.rc-row:last-child{border-bottom:none;padding-bottom:0}
+.rc-label{
+  font-size:10px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.4px;line-height:1.3;padding-top:2px;flex-shrink:0
+}
+.rc-right{text-align:right;flex-shrink:0}
+.rc-val{
+  font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;
+  line-height:1.2;display:block
+}
+.rc-val.sig-g{color:var(--green)}
+.rc-val.sig-r{color:var(--red)}
+.rc-val.sig-y{color:var(--orange)}
+.rc-val.rc-na{color:var(--muted);opacity:.35;font-size:12px;font-weight:400}
+.rc-src{font-size:8px;color:var(--muted);opacity:.6;display:block;margin-top:1px}
+.rc-note{
+  font-size:8px;color:var(--muted);opacity:.65;padding:6px 14px 2px;
+  font-style:italic;line-height:1.5
 }
 
 /* ── Section dividers ─────────────────────────────────────── */
@@ -42,8 +52,7 @@
   padding:9px 13px 8px;border-radius:7px;
   flex:1 1 180px;min-width:160px;
   border-left:3px solid var(--border-lt);
-  background:var(--card-alt);
-  transition:background .2s;
+  background:var(--card-alt);transition:background .2s;
 }
 .mc.sig-g{background:var(--green-bg);border-left-color:var(--green-border)}
 .mc.sig-r{background:var(--red-bg);border-left-color:var(--red-border)}
@@ -56,10 +65,6 @@
 
 /* ── Global indicators strip ─────────────────────────────── */
 #liq-strip{padding:10px 14px 6px}
-.liq-strip-hdr{
-  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;
-  color:var(--gold);text-align:center;padding-bottom:10px
-}
 .liq-section{margin-bottom:14px}
 .liq-section-title{
   font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;
@@ -71,15 +76,13 @@
   padding:9px 13px 8px;border-radius:7px;
   flex:1 1 130px;min-width:115px;
   border-left:3px solid var(--border-lt);
-  background:var(--card-alt);
-  transition:background .2s;
+  background:var(--card-alt);transition:background .2s;
 }
 .liq-card.na{opacity:.45;border-left-color:transparent}
 .liq-card.sig-g{background:var(--green-bg);border-left-color:var(--green-border)}
 .liq-card.sig-r{background:var(--red-bg);border-left-color:var(--red-border)}
 .liq-card.sig-y{background:var(--orange-bg);border-left-color:var(--orange-border)}
-.liq-card-label{font-size:9px;text-transform:uppercase;letter-spacing:.4px;
-  color:var(--muted);line-height:1.4}
+.liq-card-label{font-size:9px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);line-height:1.4}
 .liq-card-val{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15}
 .liq-card-val.sig-g{color:var(--green)}
 .liq-card-val.sig-r{color:var(--red)}
@@ -88,8 +91,14 @@
 .liq-card-sub{font-size:9px;color:var(--muted);line-height:1.4}
 .liq-card-inf{font-size:8.5px;color:var(--muted);line-height:1.4;margin-top:3px;font-style:italic;opacity:.82}
 .liq-footer{font-size:9px;color:var(--muted);text-align:right;padding:2px 14px 8px;opacity:.65}
-@media(max-width:700px){.mc,.liq-card{flex:1 1 calc(50% - 7px)}}
-@media(max-width:480px){.mc,.liq-card{flex:1 1 100%}}
+
+@media(max-width:700px){
+  .mc,.liq-card{flex:1 1 calc(50% - 7px)}
+  .region-card{flex:1 1 calc(50% - 8px)}
+}
+@media(max-width:480px){
+  .mc,.liq-card,.region-card{flex:1 1 100%}
+}
 </style>
 
 <section class="card" id="box-macro">
@@ -101,27 +110,23 @@
     </div>
   </div>
 
-  <!-- ── 1. Regional Macro Overview table ── -->
-  <div id="region-table-wrap"></div>
+  <!-- ── 1. Regional overview — 4 cards ── -->
+  <div id="region-cards-wrap"></div>
 
-  <!-- ── 2. Divider before global indicators ── -->
+  <!-- ── 2. Global Indicators ── -->
   <div class="liq-divider-wrap" id="div-global" style="display:none">
     <div class="liq-divider-line"></div>
     <span class="liq-divider-label">Global Indicators</span>
     <div class="liq-divider-line"></div>
   </div>
-
-  <!-- ── 3. Global indicators (fourre-tout) ── -->
   <div id="liq-strip"></div>
 
-  <!-- ── 4. Divider before US signal cards ── -->
+  <!-- ── 3. US Market Signals ── -->
   <div class="liq-divider-wrap" id="div-signals" style="display:none">
     <div class="liq-divider-line"></div>
     <span class="liq-divider-label">US Market Signals</span>
     <div class="liq-divider-line"></div>
   </div>
-
-  <!-- ── 5. US signal cards (ERP, Yield Curve, VIX, DXY) ── -->
   <div class="macro-grid" id="mgrid"></div>
 </section>
 
@@ -138,142 +143,128 @@
   function mk(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!=null)el.textContent=txt;return el;}
   function fmt(n,d){return n!=null?n.toLocaleString(LOC,{minimumFractionDigits:d||2,maximumFractionDigits:d||2}):"—";}
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // ── REGIONAL MACRO TABLE ───────────────────────────────────────────────────
-  // ═══════════════════════════════════════════════════════════════════════════
   const L   = M.liq  || {};
   const yc  = M.yield_curve || {};
   const erp = M.erp  || {};
-  const rtWrap = document.getElementById("region-table-wrap");
 
-  if(rtWrap){
-    rtWrap.textContent = "";
+  // ── Date helper ────────────────────────────────────────────────────────────
+  function asOf(d){
+    if(!d) return null;
+    try{
+      const dt  = new Date(d.length===7 ? d+"-01" : d+"T00:00:00");
+      const age = (Date.now()-dt.getTime())/864e5;
+      return age>45
+        ? dt.toLocaleDateString("en-US",{month:"short",year:"numeric"})
+        : dt.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    }catch(e){return d;}
+  }
 
-    // ── Format helpers ──────────────────────────────────────────────────────
-    function asOf(d){
-      if(!d) return "";
-      try{
-        const dt = new Date(d.length===7 ? d+"-01" : d+"T00:00:00");
-        const age = (Date.now()-dt.getTime())/864e5;
-        return age > 45
-          ? dt.toLocaleDateString("en-US",{month:"short",year:"numeric"})
-          : dt.toLocaleDateString("en-US",{month:"short",day:"numeric"});
-      }catch(e){return d;}
+  // ── Format helpers ─────────────────────────────────────────────────────────
+  function fmtYld(v){ return v!=null ? v.toFixed(2)+"%" : null; }
+  function fmtSpr(v){ return v!=null ? (v>=0?"+":"")+v.toFixed(2)+"%" : null; }
+  function fmtPE(v) { return v!=null ? "×"+v.toFixed(1) : null; }
+  function fmtM2(v) { return v!=null ? (v>=0?"+":"")+v.toFixed(1)+"%" : null; }
+  function fmtOAS(v){ return v!=null ? Math.round(v)+"bp" : null; }
+  function fmtT(v)  { return v!=null ? "$"+v.toFixed(2)+"T" : "—"; }
+  function fmtB(v)  { return v!=null ? "$"+Math.round(v).toLocaleString()+"B" : "—"; }
+  function fmtPct(v,dec){ dec=dec||1; return v!=null?(v>=0?"+":"")+v.toFixed(dec)+"%":"—"; }
+
+  // ── Signal helpers ─────────────────────────────────────────────────────────
+  // Curve spread — same 4-regime logic used across the site
+  function sprSig(v){
+    if(v==null) return "";
+    if(v>=1.0)  return "sig-g";  // steep — expansionary
+    if(v>=0.0)  return "sig-y";  // flat — neutral
+    if(v>=-0.5) return "sig-y";  // partial inversion — caution
+    return "sig-r";              // full inversion — stress
+  }
+  // P/E — long-run avg ~17 (Shiller); >28 = elevated (1.6× avg); >20 = above avg
+  function peSig(v){ return v==null?"":(v>28?"sig-r":v>20?"sig-y":"sig-g"); }
+  // M2/M3 YoY — historical avg ~5-6%; contraction = deflation risk
+  function m2Sig(v){ return v==null?"":(v>=3&&v<=10?"sig-g":v<0?"sig-r":"sig-y"); }
+  // HY OAS — ICE BofA; <350bp tight, 350-500bp normal, >500bp stress
+  function hySig(v){ return v==null?"":(v>500?"sig-r":v>350?"sig-y":"sig-g"); }
+  function wkSig(v){ return v==null?"":(v>0?"sig-g":"sig-r"); }
+  function trendSig(t){ return t==="EXPANSION"?"sig-g":t==="CONTRACTION"?"sig-r":t==="MIXED"?"sig-y":""; }
+  function capeSig(v){ return v==null?"":(v>34?"sig-r":v>24?"sig-y":"sig-g"); }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ── 1. REGIONAL CARDS ─────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  const rcWrap = document.getElementById("region-cards-wrap");
+  if(rcWrap){
+    rcWrap.textContent = "";
+
+    // Row builder: { label, val, cls, src } → null val = "—" greyed
+    function mkRcRow(label, val, cls, src){
+      const row = document.createElement("div");
+      row.className = "rc-row";
+      row.appendChild(mk("span","rc-label",label));
+      const right = row.appendChild(mk("div","rc-right"));
+      const v = right.appendChild(mk("span","rc-val"+(val?(" "+cls):" rc-na"), val||"—"));
+      if(src && val){ right.appendChild(mk("span","rc-src",src)); }
+      return row;
     }
-    function fmtYld(v){ return v!=null ? v.toFixed(2)+"%" : null; }
-    function fmtSpr(v){ return v!=null ? (v>=0?"+":"")+v.toFixed(2)+"%" : null; }
-    function fmtPE(v) { return v!=null ? "×"+v.toFixed(1) : null; }
-    function fmtM2(v) { return v!=null ? (v>=0?"+":"")+v.toFixed(1)+"%" : null; }
-    function fmtOAS(v){ return v!=null ? Math.round(v)+"bp" : null; }
 
-    // ── Signal helpers ──────────────────────────────────────────────────────
-    function sprSig(v){ // spread signal: positive = healthy, negative = stressed
-      if(v==null) return "";
-      if(v>=1.0)  return "sig-g";
-      if(v>=0.0)  return "sig-y";
-      if(v>=-0.5) return "sig-y";
-      return "sig-r";
+    // Card builder: name + array of rows
+    function mkRegionCard(name, rows){
+      const card = document.createElement("div");
+      card.className = "region-card";
+      card.appendChild(mk("div","rc-header",name));
+      rows.forEach(r => card.appendChild(mkRcRow(r.label, r.val, r.cls||"", r.src||"")));
+      return card;
     }
-    function peSig(v){ return v==null?"":(v>28?"sig-r":v>20?"sig-y":"sig-g"); }
-    function m2Sig(v){ return v==null?"":(v>=3&&v<=10?"sig-g":v<0?"sig-r":"sig-y"); }
-    function hySig(v){ return v==null?"":(v>500?"sig-r":v>350?"sig-y":"sig-g"); }
 
-    // ── Table row definitions ───────────────────────────────────────────────
-    // Each cell: { val: formatted_string|null, cls: "sig-g"|...|"", src: "source note" }
-    const NA = { val: null };
+    const wrap = rcWrap.appendChild(mk("div","region-cards"));
 
-    const tableRows = [
-      {
-        label: "10Y Yield",
-        cells: [
-          { val: fmtYld(yc.us10y),      cls: "", src: "US Treasury" },
-          { val: fmtYld(L.bund_10y),    cls: "", src: "Bund" + (L.bund_date?" · "+asOf(L.bund_date):"") },
-          { val: fmtYld(L.jgb_10y),     cls: "", src: "JGB" + (L.jgb_10y_date?" · "+asOf(L.jgb_10y_date):"") },
-          NA,
-        ],
-      },
-      {
-        label: "Curve Spread",
-        cells: [
-          { val: fmtSpr(yc.valeur),      cls: sprSig(yc.valeur),      src: "10Y−3M" },
-          { val: fmtSpr(L.bund_spread),  cls: sprSig(L.bund_spread),  src: "10Y−2Y" },
-          NA,
-          NA,
-        ],
-      },
-      {
-        label: "P / E Ratio",
-        cells: [
-          { val: fmtPE(erp.sp500_pe), cls: peSig(erp.sp500_pe), src: "S&P 500" },
-          { val: fmtPE(L.pe_eu),      cls: peSig(L.pe_eu),      src: "VGK ETF" },
-          { val: fmtPE(L.pe_jp),      cls: peSig(L.pe_jp),      src: "EWJ ETF" },
-          { val: fmtPE(L.pe_em),      cls: peSig(L.pe_em),      src: "EEM ETF" },
-        ],
-      },
-      {
-        label: "M2 / M3 YoY",
-        cells: [
-          { val: fmtM2(L.us_m2_yoy),      cls: m2Sig(L.us_m2_yoy),      src: L.us_m2_date ? asOf(L.us_m2_date) : "" },
-          { val: fmtM2(L.eu_m3_yoy),      cls: m2Sig(L.eu_m3_yoy),      src: "M3" + (L.eu_m3_date?" · "+asOf(L.eu_m3_date):"") },
-          { val: fmtM2(L.china_m2_yoy),   cls: m2Sig(L.china_m2_yoy),   src: "China" + (L.china_m2_date?" · "+asOf(L.china_m2_date):"") },
-          NA,
-        ],
-      },
-      {
-        label: "HY Spread",
-        cells: [
-          { val: fmtOAS(L.hy_oas_us), cls: hySig(L.hy_oas_us), src: L.hy_oas_us_date ? asOf(L.hy_oas_us_date) : "" },
-          { val: fmtOAS(L.hy_oas_eu), cls: hySig(L.hy_oas_eu), src: L.hy_oas_eu_date ? asOf(L.hy_oas_eu_date) : "" },
-          NA,
-          { val: fmtOAS(L.hy_oas_em), cls: hySig(L.hy_oas_em), src: L.hy_oas_em_date ? asOf(L.hy_oas_em_date) : "" },
-        ],
-      },
-    ];
+    // ── USA ────────────────────────────────────────────────────────────────
+    wrap.appendChild(mkRegionCard("USA", [
+      { label:"10Y Yield", val: fmtYld(yc.us10y),    cls:"",             src:"US Treasury · yfinance" },
+      // US yield_curve = 10Y − 3M (NY Fed recession model — see note below)
+      { label:"Curve",     val: fmtSpr(yc.valeur),   cls:sprSig(yc.valeur),  src:"10Y−3M · NY Fed model" },
+      { label:"P/E",       val: fmtPE(erp.sp500_pe), cls:peSig(erp.sp500_pe), src:"S&P 500 trailing" },
+      { label:"M2 YoY",    val: fmtM2(L.us_m2_yoy),  cls:m2Sig(L.us_m2_yoy),  src:"FRED M2SL"+(L.us_m2_date?" · "+asOf(L.us_m2_date):"") },
+      { label:"HY Spread", val: fmtOAS(L.hy_oas_us), cls:hySig(L.hy_oas_us),  src:"FRED ICE BofA US HY"+(L.hy_oas_us_date?" · "+asOf(L.hy_oas_us_date):"") },
+    ]));
 
-    const regions = ["USA", "Europe", "Asia", "EM"];
-    const hasAnyData = tableRows.some(r => r.cells.some(c => c.val != null));
+    // ── EUROPE ─────────────────────────────────────────────────────────────
+    wrap.appendChild(mkRegionCard("Europe", [
+      { label:"10Y Yield", val: fmtYld(L.bund_10y),    cls:"",              src:"German Bund · stooq"+(L.bund_date?" · "+asOf(L.bund_date):"") },
+      { label:"Curve",     val: fmtSpr(L.bund_spread), cls:sprSig(L.bund_spread), src:"10Y−2Y Bund · stooq" },
+      { label:"P/E",       val: fmtPE(L.pe_eu),        cls:peSig(L.pe_eu),        src:"VGK ETF trailing · yfinance" },
+      { label:"M3 YoY",    val: fmtM2(L.eu_m3_yoy),    cls:m2Sig(L.eu_m3_yoy),   src:"ECB SDW BSI"+(L.eu_m3_date?" · "+asOf(L.eu_m3_date):"") },
+      { label:"HY Spread", val: fmtOAS(L.hy_oas_eu),   cls:hySig(L.hy_oas_eu),   src:"FRED ICE BofA Euro HY"+(L.hy_oas_eu_date?" · "+asOf(L.hy_oas_eu_date):"") },
+    ]));
 
-    if(hasAnyData || L.date){
-      // Strip header
-      const sh = rtWrap.appendChild(mk("div","liq-strip-hdr","Regional Macro Overview"));
+    // ── ASIA ───────────────────────────────────────────────────────────────
+    // Note: Asia is Japan-centric for yields/P/E; China for M2
+    wrap.appendChild(mkRegionCard("Asia", [
+      { label:"10Y Yield", val: fmtYld(L.jgb_10y),      cls:"",            src:"JGB (Japan) · FRED"+(L.jgb_10y_date?" · "+asOf(L.jgb_10y_date):"")+" · monthly" },
+      { label:"Curve",     val: null,                    cls:"",            src:null },   // JGB 2Y not available free
+      { label:"P/E",       val: fmtPE(L.pe_jp),          cls:peSig(L.pe_jp), src:"EWJ ETF (Japan) · yfinance" },
+      { label:"M2 YoY",    val: fmtM2(L.china_m2_yoy),   cls:m2Sig(L.china_m2_yoy), src:"China M2 · FRED"+(L.china_m2_date?" · "+asOf(L.china_m2_date):"")+" · monthly" },
+      { label:"HY Spread", val: null,                    cls:"",            src:null },   // no free Asia HY OAS
+    ]));
 
-      // Table
-      const tWrap = rtWrap.appendChild(mk("div","rt-wrap"));
-      const table  = tWrap.appendChild(document.createElement("table"));
-      table.className = "rt-table";
+    // ── EM ──────────────────────────────────────────────────────────────────
+    wrap.appendChild(mkRegionCard("EM", [
+      { label:"10Y Yield", val: null,                    cls:"",            src:null },   // no free EM sovereign benchmark
+      { label:"Curve",     val: null,                    cls:"",            src:null },
+      { label:"P/E",       val: fmtPE(L.pe_em),          cls:peSig(L.pe_em), src:"EEM ETF · yfinance" },
+      { label:"M2 YoY",    val: null,                    cls:"",            src:null },   // no free EM aggregate
+      { label:"HY Spread", val: fmtOAS(L.hy_oas_em),    cls:hySig(L.hy_oas_em), src:"FRED ICE BofA EM HY"+(L.hy_oas_em_date?" · "+asOf(L.hy_oas_em_date):"") },
+    ]));
 
-      // Header row
-      const thead = table.appendChild(document.createElement("thead"));
-      const thr   = thead.appendChild(document.createElement("tr"));
-      thr.appendChild(document.createElement("th")); // empty corner
-      regions.forEach(r => { thr.appendChild(mk("th",null,r)); });
-
-      // Data rows
-      const tbody = table.appendChild(document.createElement("tbody"));
-      tableRows.forEach(rowDef => {
-        const tr = tbody.appendChild(document.createElement("tr"));
-        tr.appendChild(mk("td","rt-row-label",rowDef.label));
-        rowDef.cells.forEach(cell => {
-          const td = tr.appendChild(document.createElement("td"));
-          if(!cell.val){
-            td.className = "rt-na";
-            td.textContent = "—";
-          } else {
-            if(cell.cls) td.className = cell.cls;
-            td.textContent = cell.val;
-            if(cell.src){
-              const s = td.appendChild(document.createElement("span"));
-              s.className = "rt-src";
-              s.textContent = cell.src;
-            }
-          }
-        });
-      });
-    }
+    // ── Methodology footnote ────────────────────────────────────────────────
+    const note = rcWrap.appendChild(mk("p","rc-note",
+      "Curve spread: US uses 10Y−3M (NY Fed Estrella-Mishkin recession model, strongest empirical predictor); "+
+      "Europe uses 10Y−2Y (market convention). Harmonising to 10Y−2Y everywhere requires adding US 2Y (FRED DGS2). "+
+      "P/E values are ETF trailing P/E — not official index P/E. Asia yields and M2 are Japan/China-specific, not a pan-Asia composite."
+    ));
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // ── GLOBAL INDICATORS — rendered first so they appear above signal cards ──
+  // ── 2. GLOBAL INDICATORS ──────────────────────────────────────────────────
   // ═══════════════════════════════════════════════════════════════════════════
   {
   const ls  = document.getElementById("liq-strip");
@@ -282,14 +273,6 @@
   if(ls && L && L.date){
     if(dgl) dgl.style.display = "flex";
     ls.textContent = "";
-
-    function fmtT(v){return v!=null ? "$"+v.toFixed(2)+"T" : "—";}
-    function fmtB(v){return v!=null ? "$"+Math.round(v).toLocaleString()+"B" : "—";}
-    function fmtPct(v,dec){dec=dec||1;return v!=null ? (v>=0?"+":"")+v.toFixed(dec)+"%" : "—";}
-
-    function wkSig(v){return v==null?"":(v>0?"sig-g":"sig-r");}
-    function trendSig(t){return t==="EXPANSION"?"sig-g":t==="CONTRACTION"?"sig-r":t==="MIXED"?"sig-y":"";}
-    function capeSig(v){return v==null?"":(v>34?"sig-r":v>24?"sig-y":"sig-g");}
 
     function asOf2(d){
       if(!d) return "";
@@ -305,30 +288,26 @@
       const isNA=(value==="—");
       const card=document.createElement("div");
       card.className="liq-card"+(sig&&!isNA?" "+sig:"")+(isNA?" na":"");
-      const lbl=card.appendChild(document.createElement("div"));
-      lbl.className="liq-card-label";lbl.textContent=label;
-      const val=card.appendChild(document.createElement("div"));
-      val.className="liq-card-val"+(isNA?" na":(sig?" "+sig:""));
+      const lbl=card.appendChild(mk("div","liq-card-label",label));
+      const val=card.appendChild(mk("div","liq-card-val"+(isNA?" na":(sig?" "+sig:""))));
       val.textContent=value;
-      if(sub){const s=card.appendChild(document.createElement("div"));s.className="liq-card-sub";s.textContent=sub;}
-      if(inf){const i=card.appendChild(document.createElement("div"));i.className="liq-card-inf";i.textContent=inf;}
+      if(sub){const s=card.appendChild(mk("div","liq-card-sub"));s.textContent=sub;}
+      if(inf){const i=card.appendChild(mk("div","liq-card-inf"));i.textContent=inf;}
       return card;
     }
 
     function mkSection(title,cards){
-      const sec=ls.appendChild(document.createElement("div"));
-      sec.className="liq-section";
-      const hdr=sec.appendChild(document.createElement("div"));
-      hdr.className="liq-section-title";hdr.textContent=title;
-      const row=sec.appendChild(document.createElement("div"));
-      row.className="liq-cards";
+      const sec=ls.appendChild(mk("div","liq-section"));
+      sec.appendChild(mk("div","liq-section-title",title));
+      const row=sec.appendChild(mk("div","liq-cards"));
       cards.forEach(c=>row.appendChild(c));
     }
 
     const fedWkTxt=L.fed_walcl_wk_pct!=null?fmtPct(L.fed_walcl_wk_pct,2)+" w/w":null;
     const ecbWkTxt=L.ecb_assets_wk_pct!=null?fmtPct(L.ecb_assets_wk_pct,2)+" w/w":null;
 
-    mkSection("Central Banks", [
+    // ── Central Banks — Fed + ECB balance sheets + plumbing ────────────────
+    mkSection("Central Banks — FRED / ECB SDW", [
       mkCard("Fed Balance Sheet",
         fmtT(L.fed_walcl_t), wkSig(L.fed_walcl_wk_pct),
         [fedWkTxt, L.fed_walcl_date?asOf2(L.fed_walcl_date):null].filter(Boolean).join(" · ")||null,
@@ -340,18 +319,22 @@
         L.ecb_bs_text||null),
 
       mkCard("CB Trend",
-        L.global_cb_trend||"—", trendSig(L.global_cb_trend), null),
+        L.global_cb_trend||"—", trendSig(L.global_cb_trend),
+        "Fed + ECB direction combined"),
 
       mkCard("Reverse Repo (RRP)",
         fmtB(L.rrp_b), null,
-        L.rrp_date?asOf2(L.rrp_date):null),
+        L.rrp_date?asOf2(L.rrp_date):null,
+        "Overnight RRP usage — excess liquidity gauge"),
 
-      mkCard("Treasury Account (TGA)",
+      mkCard("Treasury Acct (TGA)",
         fmtB(L.tga_b), null,
-        L.tga_date?asOf2(L.tga_date):null),
+        L.tga_date?asOf2(L.tga_date):null,
+        "Gov cash balance — drawdown adds liquidity to system"),
     ]);
 
-    mkSection("Valuation & Allocation", [
+    // ── Valuation & Cross-Asset ─────────────────────────────────────────────
+    mkSection("Valuation & Cross-Asset — multpl.com / yfinance", [
       mkCard("Shiller CAPE — US",
         L.cape_us!=null?L.cape_us.toFixed(1):"—", capeSig(L.cape_us),
         L.cape_date?asOf2(L.cape_date):null,
@@ -367,22 +350,20 @@
         L.cnh_text||null),
     ]);
 
-    const ft=ls.appendChild(document.createElement("div"));
-    ft.className="liq-footer";
-    ft.textContent="Data as of "+L.date+" · FRED, ECB SDW, multpl.com, yfinance";
+    const ft=ls.appendChild(mk("div","liq-footer"));
+    ft.textContent="Sources: FRED API, ECB SDW, multpl.com, yfinance · as of "+L.date;
   }
-  } // end global indicators block
+  }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // ── US SIGNAL CARDS (ERP, Yield Curve, VIX, DXY) ─────────────────────────
+  // ── 3. US SIGNAL CARDS (ERP, Yield Curve, VIX, DXY) ──────────────────────
   // ═══════════════════════════════════════════════════════════════════════════
   const divSig = document.getElementById("div-signals");
   if(divSig) divSig.style.display = "flex";
 
-  // ── mc card builder ─────────────────────────────────────────────────────
   function addCard(label,value,valueColor,sub1,sub2,sigClass,sigText,tip,row){
-    const mc = grid.appendChild(mk("div","mc"));
-    const sigMap = {"law-g":"sig-g","law-r":"sig-r","law-y":"sig-y"};
+    const mc=grid.appendChild(mk("div","mc"));
+    const sigMap={"law-g":"sig-g","law-r":"sig-r","law-y":"sig-y"};
     if(sigMap[sigClass]) mc.classList.add(sigMap[sigClass]);
     const lbl=mc.appendChild(mk("div","mc-label",label));
     if(tip&&window._ci){lbl.appendChild(window._ci(tip,'macro',row));}
@@ -393,41 +374,40 @@
     if(sigText){const sig=mc.appendChild(mk("span","mc-sig",sigText));sig.className="mc-sig law-tag "+sigClass;}
   }
 
-  // ── ERP ─────────────────────────────────────────────────────────────────────
+  // ── ERP ──────────────────────────────────────────────────────────────────
   const erpV=erp.valeur;
   const erpC=erpV==null?"var(--muted)":erpV>=0.02?"var(--green)":erpV>=0.01?"var(--orange)":"var(--red)";
   const erpS=erpV==null?"N/A":erpV>=0.02?(I18N.erp_attractive||"Attractive"):erpV>=0.01?(I18N.erp_neutral||"Neutral"):(I18N.erp_expensive||"Expensive");
   const erpSC=erpV==null?"":erpV>=0.02?"law-g":erpV>=0.01?"law-y":"law-r";
   const ey=erp.sp500_pe?(100/erp.sp500_pe).toFixed(2)+"%":"—";
-  const y10v=yc.us10y;
   addCard(I18N.erp_title||"Equity Risk Premium",erpV!=null?(erpV*100).toFixed(2)+"%":"—",erpC,
-    (I18N.erp_earnings_yield||"Earnings Yield")+": "+ey+" · P/E "+(erp.sp500_pe!=null?erp.sp500_pe.toFixed(1):"—")+" · 10Y "+fmt(y10v)+"%",
-    erp.text||null,
-    erpSC,erpS,"Expected return of equities above the risk-free rate.","erp");
+    (I18N.erp_earnings_yield||"Earnings Yield")+": "+ey+" · P/E "+(erp.sp500_pe!=null?erp.sp500_pe.toFixed(1):"—")+" · 10Y "+fmt(yc.us10y)+"%",
+    erp.text||null, erpSC,erpS,
+    "Damodaran CAPM: earnings yield minus risk-free rate.","erp");
 
-  // ── Yield Curve ──────────────────────────────────────────────────────────────
+  // ── Yield Curve ───────────────────────────────────────────────────────────
   const ycV=yc.valeur;
   const YC={
-    steep:{label:I18N.yc_steep||"Steep — Expansion",cls:"law-g",color:"var(--green)",note:I18N.yc_steep_note||"Positive slope — expansionary environment"},
-    flat:{label:I18N.yc_flat||"Flat — No Signal",cls:"law-y",color:"var(--orange)",note:I18N.yc_flat_note||"Ambiguous — monitor closely, no action warranted"},
-    partial_inversion:{label:I18N.yc_partial||"Partial Inversion",cls:"law-y",color:"var(--orange)",note:I18N.yc_partial_note||"Caution · Historical false positives exist (1998, 2019)"},
-    full_inversion:{label:I18N.yc_full||"Full Inversion",cls:"law-r",color:"var(--red)",note:I18N.yc_full_note||"Recession probable, not certain · Lead time 6–24 months"},
+    steep:{label:I18N.yc_steep||"Steep — Expansion",cls:"law-g",color:"var(--green)"},
+    flat:{label:I18N.yc_flat||"Flat — No Signal",cls:"law-y",color:"var(--orange)"},
+    partial_inversion:{label:I18N.yc_partial||"Partial Inversion",cls:"law-y",color:"var(--orange)"},
+    full_inversion:{label:I18N.yc_full||"Full Inversion",cls:"law-r",color:"var(--red)"},
   };
-  const ycCfg=YC[yc.regime]||{label:"N/A",cls:"",color:"var(--muted)",note:""};
+  const ycCfg=YC[yc.regime]||{label:"N/A",cls:"",color:"var(--muted)"};
   addCard(I18N.yc_title||"Yield Curve (10Y − 3M)",ycV!=null?(ycV>=0?"+":"")+ycV.toFixed(2)+"%":"—",ycCfg.color,
-    "US 10Y: "+fmt(yc.us10y)+"% · US 3M: "+fmt(yc.us3m)+"%",yc.text||ycCfg.note,
-    ycCfg.cls,ycCfg.label,"10Y minus 3M US Treasury spread.","yc");
+    "US 10Y: "+fmt(yc.us10y)+"% · US 3M: "+fmt(yc.us3m)+"%",yc.text||null,
+    ycCfg.cls,ycCfg.label,"NY Fed model: 10Y minus 3M Treasury.","yc");
 
-  // ── VIX ──────────────────────────────────────────────────────────────────────
+  // ── VIX ──────────────────────────────────────────────────────────────────
   const vix=M.vix||{};const vixV=vix.valeur;
-  const vixC=vix.regime==="complacency"?"var(--orange)":vix.regime==="panic"?"var(--red)":vix.regime==="fear"?"var(--orange)":"var(--green)";
+  const vixC=vix.regime==="panic"?"var(--red)":vix.regime==="fear"?"var(--orange)":vix.regime==="complacency"?"var(--orange)":"var(--green)";
   const vixL={complacency:I18N.vix_complacency||"Complacency",normal:I18N.vix_normal||"Normal",fear:I18N.vix_fear||"Elevated Fear",panic:I18N.vix_panic||"Panic"}[vix.regime]||(I18N.signal_na||"N/A");
   const vixSC=vix.regime==="panic"?"law-r":vix.regime==="fear"?"law-y":vix.regime==="complacency"?"law-y":"law-g";
   addCard(I18N.vix_title||"VIX — Market Fear Index",vixV!=null?fmt(vixV):"—",vixC,
-    vix.text||null,null,
-    vixSC,vixL,"CBOE Volatility Index — implied 30-day volatility.","vix");
+    vix.text||null,null, vixSC,vixL,
+    "CBOE VIX White Paper: implied 30-day S&P 500 volatility.","vix");
 
-  // ── DXY ──────────────────────────────────────────────────────────────────────
+  // ── DXY ──────────────────────────────────────────────────────────────────
   const dxy=M.dxy||{};const dxyV=dxy.valeur;
   const dxyChg=dxy.chg_pct||0;
   const dxyC=dxyChg>0?"var(--red)":"var(--green)";
@@ -437,8 +417,8 @@
   const retM=dxy.ret_1m!=null?(dxy.ret_1m>=0?"+":"")+(dxy.ret_1m*100).toFixed(2)+"%":"—";
   addCard(I18N.dxy_title||"DXY — US Dollar Index",dxyV!=null?fmt(dxyV):"—",dxyC,
     (I18N.col_today||"Today")+": "+dxyCh+" · "+(I18N.col_1m||"1 month")+": "+retM,
-    dxy.text||null,
-    dxySC,dxyS,"US Dollar Index vs a basket of 6 major currencies.","dxy");
+    dxy.text||null, dxySC,dxyS,
+    "ICE US Dollar Index vs basket of 6 major currencies.","dxy");
 
   }; /* end _sainheRenderMacro */
   window._sainheRenderMacro();
