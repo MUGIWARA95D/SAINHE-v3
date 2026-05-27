@@ -421,7 +421,8 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
     # Liq strip — Tier 1
     cape_text   = _cape_text(liq.get("cape_us"))
     hy_us_text  = _hy_text(liq.get("hy_oas_us"), "US")
-    hy_em_text  = _hy_text(liq.get("hy_oas_eu"), "EM")
+    hy_eu_text  = _hy_text(liq.get("hy_oas_eu"), "EU")
+    hy_em_text  = _hy_text(liq.get("hy_oas_em"), "EM")
     # Liq strip — Tier 2
     us_m2_text  = _m2_text(liq.get("us_m2_yoy"), "US")
     eu_m3_text  = _m2_text(liq.get("eu_m3_yoy"), "EU")
@@ -495,7 +496,10 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
                 "hy_oas_us_text"   : hy_us_text,
                 "hy_oas_eu"        : liq.get("hy_oas_eu"),
                 "hy_oas_eu_date"   : liq.get("hy_oas_eu_date"),
-                "hy_oas_eu_text"   : hy_em_text,
+                "hy_oas_eu_text"   : hy_eu_text,
+                "hy_oas_em"        : liq.get("hy_oas_em"),
+                "hy_oas_em_date"   : liq.get("hy_oas_em_date"),
+                "hy_oas_em_text"   : hy_em_text,
                 # Row 2 — Yield Curves
                 "bund_10y"         : liq.get("bund_10y"),
                 "bund_2y"          : liq.get("bund_2y"),

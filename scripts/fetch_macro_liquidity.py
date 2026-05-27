@@ -395,14 +395,19 @@ def run():
         row["hy_oas_us"]      = round(hy_us_obs[0]["value"] * 100, 0)
         row["hy_oas_us_date"] = hy_us_obs[0]["date"]
 
-    # EU HY OAS — try multiple FRED candidates; ECB SDW when network allows
-    for _hy_eu_sid in ("BAMLHE00EHY2Y", "BAMLEMHBHYCRPIOAS", "HYENAS"):
-        _hy_eu_obs = _fred_obs(_hy_eu_sid, n=2)
-        if _hy_eu_obs:
-            row["hy_oas_eu"]      = round(_hy_eu_obs[0]["value"] * 100, 0)
-            row["hy_oas_eu_date"] = _hy_eu_obs[0]["date"]
-            print(f"[fred] EU HY OAS via {_hy_eu_sid} = {row['hy_oas_eu']}bp")
-            break
+    # EU HY OAS — ICE BofA Euro High Yield Index OAS (BAMLHE00EHY2EY, Euro-denominated)
+    hy_eu_obs = _fred_obs("BAMLHE00EHY2EY", n=2)
+    if hy_eu_obs:
+        row["hy_oas_eu"]      = round(hy_eu_obs[0]["value"] * 100, 0)
+        row["hy_oas_eu_date"] = hy_eu_obs[0]["date"]
+        print(f"[fred] EU HY OAS = {row['hy_oas_eu']}bp (BAMLHE00EHY2EY)")
+
+    # EM HY OAS — ICE BofA EM Corporate Plus HY Index OAS (BAMLEMHBHYCRPIOAS)
+    hy_em_obs = _fred_obs("BAMLEMHBHYCRPIOAS", n=2)
+    if hy_em_obs:
+        row["hy_oas_em"]      = round(hy_em_obs[0]["value"] * 100, 0)
+        row["hy_oas_em_date"] = hy_em_obs[0]["date"]
+        print(f"[fred] EM HY OAS = {row['hy_oas_em']}bp (BAMLEMHBHYCRPIOAS)")
 
     # JGB 10Y — FRED monthly (IRLTLT01JPM156N), ~1-month lag
     # Note: stooq.com now requires a paid API key — FRED is the free fallback
@@ -540,7 +545,7 @@ def _print_summary(row: dict):
     print(f"  UK 10Y:   {row.get('uk_10y','N/A')}%  (as of {row.get('uk_10y_date','?')})")
     print("\n── Valuation & Credit ───────────────────────────────")
     print(f"  CAPE US: {row.get('cape_us','N/A')}  P/E EU: {row.get('pe_eu','N/A')}  P/E JP: {row.get('pe_jp','N/A')}  P/E EM: {row.get('pe_em','N/A')}")
-    print(f"  HY OAS US: {row.get('hy_oas_us','N/A')}bp  HY OAS EU: {row.get('hy_oas_eu','N/A')}bp")
+    print(f"  HY OAS US: {row.get('hy_oas_us','N/A')}bp  HY OAS EU: {row.get('hy_oas_eu','N/A')}bp  HY OAS EM: {row.get('hy_oas_em','N/A')}bp")
     print(f"  Gold/Stocks: {row.get('gold_stocks','N/A')}  USD/CNH: {row.get('cnh_usd','N/A')}")
 
 
