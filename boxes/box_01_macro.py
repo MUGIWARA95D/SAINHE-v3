@@ -291,6 +291,54 @@ def _jpy_text(rate):
             f"Historically associated with risk-off episodes and EM capital outflows (2008, 2011, 2016).")
 
 
+def _eur_text(rate):
+    """
+    EUR/USD — ECB vs Fed policy divergence signal.
+    >1.15: USD weak / ECB hawkish; <0.95: USD very strong / EUR stress.
+    """
+    if rate is None:
+        return ""
+    if rate > 1.20:
+        return (f"{rate:.4f} EUR/USD — historically weak USD. "
+                f"Dollar weakness typical of Fed easing cycles or fiscal concerns. Positive for EM and commodities.")
+    if rate > 1.10:
+        return (f"{rate:.4f} EUR/USD — USD mild weakness. "
+                f"ECB and Fed broadly aligned; no major policy divergence signal.")
+    if rate > 1.00:
+        return (f"{rate:.4f} EUR/USD — near parity zone. "
+                f"Reflects residual USD strength vs 2010–2020 avg (~1.18). "
+                f"Fed/ECB rate differential compressing or euro area growth lagging.")
+    if rate > 0.95:
+        return (f"{rate:.4f} EUR/USD — strong USD (near 2022 parity crisis lows). "
+                f"Euro area energy shock or ECB-Fed divergence. "
+                f"Parity episodes historically brief — watch ECB response.")
+    return (f"{rate:.4f} EUR/USD — extremely strong USD. "
+            f"Below 2022 parity floor. Consistent with acute euro area stress or emergency USD demand.")
+
+
+def _aud_text(rate):
+    """
+    AUD/USD — commodity cycle and China/EM risk appetite proxy.
+    AUD is the 'risk currency': rises with global growth and China activity.
+    >0.75: risk-on / China strong; <0.60: risk-off / commodity cycle trough.
+    """
+    if rate is None:
+        return ""
+    if rate > 0.75:
+        return (f"{rate:.4f} AUD/USD — strong AUD (>0.75). "
+                f"Risk-on regime; consistent with expanding China PMI, commodity demand, and EM growth acceleration.")
+    if rate > 0.68:
+        return (f"{rate:.4f} AUD/USD — neutral-to-positive range (0.68–0.75). "
+                f"China activity broadly stable; no acute commodity cycle stress.")
+    if rate > 0.60:
+        return (f"{rate:.4f} AUD/USD — weak AUD (0.60–0.68). "
+                f"China slowdown or commodity demand concerns. "
+                f"Consistent with EM risk-off episodes and global manufacturing contraction.")
+    return (f"{rate:.4f} AUD/USD — historically weak AUD (<0.60). "
+            f"Consistent with commodity cycle troughs (GFC 2009: 0.60, COVID 2020: 0.57). "
+            f"Strong risk-off signal for EM and commodity exporters.")
+
+
 # ── Tier 2 ──────────────────────────────────────────────────────────────────
 
 def _m2_text(yoy, region="US"):
@@ -414,6 +462,22 @@ def _fetch_macro(con: sqlite3.Connection) -> dict:
     return dict(zip(cols, row))
 
 
+def _fetch_fx_pair(con: sqlite3.Connection, pair: str) -> float | None:
+    """
+    Lit le dernier taux pour une paire FX depuis fx_rates.
+    pair = 'USD_EUR' → retourne USD/EUR (e.g. 0.867)
+    Appeler 1/rate pour obtenir EUR/USD.
+    """
+    try:
+        row = con.execute(
+            "SELECT rate FROM fx_rates WHERE pair=? ORDER BY ts DESC LIMIT 1",
+            (pair,),
+        ).fetchone()
+        return row[0] if row else None
+    except Exception:
+        return None
+
+
 def _fetch_liquidity(con: sqlite3.Connection) -> dict:
     """
     Lit la dernière ligne de macro_liquidity.
@@ -481,6 +545,11 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
     sp500  = _fetch_index_snapshot(con, "^GSPC")
     dxy    = _fetch_index_snapshot(con, "DX-Y.NYB")
     liq    = _fetch_liquidity(con)
+    # FX rates from fx_rates table (inverted to get CCY/USD convention)
+    _usd_eur = _fetch_fx_pair(con, "USD_EUR")
+    _usd_aud = _fetch_fx_pair(con, "USD_AUD")
+    eur_usd  = round(1.0 / _usd_eur, 4) if _usd_eur else None
+    aud_usd  = round(1.0 / _usd_aud, 4) if _usd_aud else None
 
     # ── Régimes ─────────────────────────────────────────────
     vix_val = macro.get("vix")
@@ -526,6 +595,8 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
     copper_text = _copper_text(liq.get("copper_price"), liq.get("copper_gold_ratio"))
     cgb_text    = _cgb_text(liq.get("cgb_spread"))
     jpy_text    = _jpy_text(liq.get("jpy_usd"))
+    eur_text    = _eur_text(eur_usd)
+    aud_text    = _aud_text(aud_usd)
     # Liq strip — Tier 2
     us_m2_text  = _m2_text(liq.get("us_m2_yoy"), "US")
     eu_m3_text  = _m2_text(liq.get("eu_m3_yoy"), "EU")
@@ -645,6 +716,11 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
                 "gold_text"        : gold_text,
                 "cnh_usd"          : liq.get("cnh_usd"),
                 "cnh_text"         : cnh_text,
+                # Row 6 — Regional FX rates
+                "eur_usd"          : eur_usd,
+                "eur_text"         : eur_text,
+                "aud_usd"          : aud_usd,
+                "aud_text"         : aud_text,
                 # Meta
                 "ts"               : liq.get("ts"),
                 "date"             : liq.get("date"),

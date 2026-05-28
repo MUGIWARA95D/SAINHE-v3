@@ -177,6 +177,9 @@
   function fmtCu(v) { return v!=null ? "$"+v.toFixed(4)+"/lb" : null; }
   function fmtCuAu(v){ return v!=null ? v.toFixed(4) : null; }
   function fmtJpy(v){ return v!=null ? "¥"+v.toFixed(2) : null; }
+  function fmtEur(v){ return v!=null ? v.toFixed(4) : null; }
+  function fmtAud(v){ return v!=null ? v.toFixed(4) : null; }
+  function fmtDxy(v){ return v!=null ? v.toFixed(2) : null; }
 
   // ── Signal helpers ─────────────────────────────────────────────────────────
   // Curve spread — same 4-regime logic used across the site
@@ -202,6 +205,12 @@
   function cuAuSig(v){ return v==null?"":(v>0.35?"sig-g":v>0.25?"":v>0.18?"sig-y":"sig-r"); }
   // JPY/USD: >155 extreme carry (red), >145 BOJ risk (orange), <115 strong yen (green)
   function jpySig(v) { return v==null?"":(v>155?"sig-r":v>145?"sig-y":v>115?"":"sig-g"); }
+  // EUR/USD: <0.95 USD crisis (red), <1.00 strong USD (orange), >1.15 weak USD (green)
+  function eurSig(v) { return v==null?"":(v<0.95?"sig-r":v<1.00?"sig-y":v>1.15?"sig-g":""); }
+  // AUD/USD: >0.75 risk-on (green), >0.68 neutral, >0.60 risk-off (orange), <0.60 stress (red)
+  function audSig(v) { return v==null?"":(v>0.75?"sig-g":v>0.68?"":v>0.60?"sig-y":"sig-r"); }
+  // DXY level: >105 strong USD headwind (red), >100 above avg (orange), <95 weak USD (green)
+  function dxySig(v) { return v==null?"":(v>105?"sig-r":v>100?"sig-y":v<95?"sig-g":""); }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // ── 1. REGIONAL CARDS ─────────────────────────────────────────────────────
@@ -241,6 +250,7 @@
       { label:"P/E",       val: fmtPE(erp.sp500_pe), cls:peSig(erp.sp500_pe), src:"S&P 500 trailing" },
       { label:"M2 YoY",    val: fmtM2(L.us_m2_yoy),  cls:m2Sig(L.us_m2_yoy),  src:"FRED M2SL"+(L.us_m2_date?" · "+asOf(L.us_m2_date):"") },
       { label:"HY Spread", val: fmtOAS(L.hy_oas_us), cls:hySig(L.hy_oas_us),  src:"ICE BofA US"+(L.hy_oas_us_date?" · "+asOf(L.hy_oas_us_date):"") },
+      { label:"DXY",       val: fmtDxy(M.dxy&&M.dxy.valeur), cls:dxySig(M.dxy&&M.dxy.valeur), src:"ICE Dollar Index" },
     ]));
 
     // ── EUROPE ─────────────────────────────────────────────────────────────
@@ -250,36 +260,75 @@
       { label:"P/E",       val: fmtPE(L.pe_eu),        cls:peSig(L.pe_eu),        src:"VGK ETF" },
       { label:"M3 YoY",    val: fmtM2(L.eu_m3_yoy),    cls:m2Sig(L.eu_m3_yoy),   src:"ECB SDW"+(L.eu_m3_date?" · "+asOf(L.eu_m3_date):"") },
       { label:"HY Spread", val: fmtOAS(L.hy_oas_eu),   cls:hySig(L.hy_oas_eu),   src:"ICE BofA EU"+(L.hy_oas_eu_date?" · "+asOf(L.hy_oas_eu_date):"") },
+      { label:"EUR/USD",   val: fmtEur(L.eur_usd),      cls:eurSig(L.eur_usd),    src:"Frankfurter · ECB" },
     ]));
 
     // ── JAPAN ─────────────────────────────────────────────────────────────────
+    // HY Spread row 5: Japan HY market essentially non-existent as global benchmark
+    // (keiretsu bank financing culture). JPY/USD row 6: carry trade global risk signal.
     wrap.appendChild(mkRegionCard("Japan", [
-      { label:"JGB 10Y", val: fmtYld(L.jgb_10y),    cls:"",                    src:"MoF Japan"+(L.jgb_10y_date?" · "+asOf(L.jgb_10y_date):"") },
-      { label:"Curve",   val: fmtSpr(L.jgb_spread),  cls:sprSig(L.jgb_spread), src:"JGB 10Y−2Y · MoF" },
-      { label:"P/E",     val: fmtPE(L.pe_jp),        cls:peSig(L.pe_jp),        src:"EWJ ETF" },
-      { label:"M2 YoY",  val: null,                  cls:"",                    src:null },
-      { label:"JPY/USD", val: fmtJpy(L.jpy_usd),     cls:jpySig(L.jpy_usd),    src:"yfinance JPY=X" },
+      { label:"JGB 10Y",   val: fmtYld(L.jgb_10y),    cls:"",                    src:"MoF Japan"+(L.jgb_10y_date?" · "+asOf(L.jgb_10y_date):"") },
+      { label:"Curve",     val: fmtSpr(L.jgb_spread),  cls:sprSig(L.jgb_spread), src:"JGB 10Y−2Y · MoF" },
+      { label:"P/E",       val: fmtPE(L.pe_jp),        cls:peSig(L.pe_jp),       src:"EWJ ETF" },
+      { label:"M2 YoY",    val: null,                  cls:"",                    src:null },
+      { label:"HY Spread", val: null,                  cls:"",                    src:null },
+      { label:"JPY/USD",   val: fmtJpy(L.jpy_usd),     cls:jpySig(L.jpy_usd),    src:"yfinance JPY=X" },
     ]));
 
     // ── CHINA ─────────────────────────────────────────────────────────────────
-    // P/E row 3 is null: no reliable China ETF P/E (CSI 300 not easily accessible).
-    // CNH/USD replaces HY Spread at row 5 — key China monetary policy signal.
+    // P/E row 3: no liquid global ETF equivalent (CSI 300 not accessible).
+    // HY Spread row 5: post-Evergrande market restructured, no standard ICE BofA series.
+    // CNH/USD row 6: PBOC policy + capital controls + devaluation risk signal.
     wrap.appendChild(mkRegionCard("China", [
       { label:"CGB 10Y",   val: fmtYld(L.cgb_10y),     cls:"",                    src:"ChinaBond CCDC"+(L.cgb_date?" · "+asOf(L.cgb_date):"") },
       { label:"Curve",     val: fmtSpr(L.cgb_spread),   cls:sprSig(L.cgb_spread), src:"CGB 10Y−2Y · CCDC" },
       { label:"P/E",       val: null,                   cls:"",                    src:null },
       { label:"M2 YoY",    val: fmtM2(L.china_m2_yoy),  cls:m2Sig(L.china_m2_yoy), src:"FRED"+(L.china_m2_date?" · "+asOf(L.china_m2_date):"") },
+      { label:"HY Spread", val: null,                   cls:"",                    src:null },
       { label:"CNH/USD",   val: L.cnh_usd!=null?L.cnh_usd.toFixed(4):null, cls:(L.cnh_usd&&L.cnh_usd>7.3)?"sig-y":"", src:"yfinance CNH=X" },
     ]));
 
     // ── EM ──────────────────────────────────────────────────────────────────
+    // AUD/USD row 6: commodity cycle + China activity proxy for EM risk appetite.
     wrap.appendChild(mkRegionCard("EM", [
       { label:"10Y Yield", val: null,                  cls:"",                  src:null },
       { label:"Curve",     val: null,                  cls:"",                  src:null },
       { label:"P/E",       val: fmtPE(L.pe_em),        cls:peSig(L.pe_em),      src:"EEM ETF" },
       { label:"M2 YoY",    val: null,                  cls:"",                  src:null },
       { label:"HY Spread", val: fmtOAS(L.hy_oas_em),  cls:hySig(L.hy_oas_em),  src:"ICE BofA EM"+(L.hy_oas_em_date?" · "+asOf(L.hy_oas_em_date):"") },
+      { label:"AUD/USD",   val: fmtAud(L.aud_usd),     cls:audSig(L.aud_usd),   src:"Frankfurter · China proxy" },
     ]));
+
+    // ── Align row dividers across cards on the same visual row ─────────────
+    // Cards wrap at narrow viewports — only sync cards sharing the same top offset.
+    function _syncRegionRows(){
+      const cards = Array.from(rcWrap.querySelectorAll('.region-card'));
+      if(cards.length < 2) return;
+      // 1. Reset all min-heights to get natural heights
+      cards.forEach(c => c.querySelectorAll('.rc-header,.rc-row').forEach(r => r.style.minHeight=''));
+      // 2. Group cards sharing the same horizontal line (within 4px tolerance)
+      const groups = [];
+      cards.forEach(c => {
+        const top = c.getBoundingClientRect().top;
+        const g   = groups.find(g => Math.abs(g.top - top) < 4);
+        if(g) g.cards.push(c);
+        else  groups.push({top, cards:[c]});
+      });
+      // 3. Within each group, equalise row heights by index
+      groups.forEach(({cards: gc}) => {
+        if(gc.length < 2) return;
+        const grid = gc.map(c => Array.from(c.querySelectorAll('.rc-header,.rc-row')));
+        const n    = Math.max(...grid.map(g => g.length));
+        for(let i = 0; i < n; i++){
+          const maxH = Math.max(...grid.map(g => g[i] ? g[i].getBoundingClientRect().height : 0));
+          grid.forEach(g => { if(g[i]) g[i].style.minHeight = maxH + 'px'; });
+        }
+      });
+    }
+    // Run after layout — double rAF ensures fonts + flexbox are fully resolved
+    requestAnimationFrame(() => requestAnimationFrame(_syncRegionRows));
+    // Re-run on resize (cards may reflow to different rows)
+    window.addEventListener('resize', _syncRegionRows, {passive:true});
 
     // ── Methodology footnote ────────────────────────────────────────────────
     const note = rcWrap.appendChild(mk("p","rc-note",
@@ -287,7 +336,8 @@
       "Japan yields: MoF Japan daily CSV (primary), FRED monthly (fallback). "+
       "China yields: ChinaBond CCDC official source — may be unavailable outside China. "+
       "P/E values are ETF trailing P/E (VGK, EWJ, EEM) — not official index P/E. "+
-      "China P/E not shown (no liquid global ETF equivalent). CNH/USD shown instead of HY Spread."
+      "China P/E not shown (no liquid global ETF). Japan/China HY Spread not shown (Japan: no HY market; China: post-Evergrande restructuring). "+
+      "FX row: DXY (USA), EUR/USD (Europe), JPY/USD (Japan carry signal), CNH/USD (PBOC policy), AUD/USD (EM/China cycle proxy)."
     ));
   }
 
