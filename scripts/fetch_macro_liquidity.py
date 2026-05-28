@@ -196,6 +196,119 @@ def _yc_signal(spread: float | None) -> str | None:
     return "full_inversion"
 
 
+# ── MoF Japan — daily JGB yields (CSV, no key) ───────────────────────────────
+
+def _mof_jgb_yields(maturities=(2, 10)) -> dict:
+    """
+    Fetch daily JGB yields from Ministry of Finance Japan.
+    URL: https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/jgbcme.csv
+    CSV header: Date, 1Y, 2Y, 3Y, 4Y, 5Y, 6Y, 7Y, 8Y, 9Y, 10Y, 15Y, 20Y, 25Y, 30Y, 40Y
+    Date format: YYYY/M/D; values in % (already decimal, e.g. 0.684)
+    Returns {mat_int: {"date": "YYYY-MM-DD", "value": float}, ...}
+    """
+    url = "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/jgbcme.csv"
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
+        r.raise_for_status()
+        lines = [l.strip() for l in r.text.strip().split("\n") if l.strip()]
+
+        # Find header line (contains maturity labels)
+        header      = None
+        header_idx  = 0
+        for i, line in enumerate(lines):
+            cols = [c.strip().strip('"') for c in line.split(",")]
+            if any(c in ("2Y", "10Y", "5Y") for c in cols):
+                header      = cols
+                header_idx  = i
+                break
+        if header is None:
+            print("[mof] JGB CSV: header not found")
+            return {}
+
+        result = {}
+        for line in reversed(lines[header_idx + 1:]):
+            parts = [c.strip().strip('"') for c in line.split(",")]
+            if len(parts) < 2 or not parts[0]:
+                continue
+            # Parse date: YYYY/M/D or YYYY-MM-DD
+            date_str = parts[0]
+            try:
+                if "/" in date_str:
+                    y, m, d = date_str.split("/")
+                    date_iso = f"{int(y):04d}-{int(m):02d}-{int(d):02d}"
+                else:
+                    date_iso = date_str
+            except Exception:
+                continue
+
+            for mat in maturities:
+                if mat in result:
+                    continue
+                col_name = f"{mat}Y"
+                if col_name in header:
+                    idx = header.index(col_name)
+                    if idx < len(parts) and parts[idx] not in ("", "-", "N/A", "—"):
+                        try:
+                            val = float(parts[idx])
+                            result[mat] = {"date": date_iso, "value": val}
+                        except ValueError:
+                            pass
+            if len(result) == len(maturities):
+                break
+
+        return result
+    except Exception as e:
+        print(f"[mof] JGB CSV error: {e}")
+        return {}
+
+
+# ── ChinaBond CCDC — CGB yields (scraped, no key) ─────────────────────────────
+
+def _chinabond_yield(maturity_years: int) -> dict | None:
+    """
+    Fetch CGB yield from ChinaBond CCDC (official Chinese bond clearing house).
+    Returns {"date": "YYYY-MM-DD", "value": float} or None.
+    Falls back to a simpler JSON endpoint if HTML scrape fails.
+    """
+    today = dt.date.today()
+    start = (today - dt.timedelta(days=30)).strftime("%Y-%m-%d")
+    end   = today.strftime("%Y-%m-%d")
+
+    # Primary endpoint: CCDC history query
+    url = "https://yield.chinabond.com.cn/cbweb-pbc-web/pbc/historyQuery"
+    params = {
+        "startDate": start,
+        "endDate"  : end,
+        "gjqx"     : str(maturity_years),
+        "qxId"     : "hzsylqx",
+        "locale"   : "en_US",
+    }
+    try:
+        r = requests.get(url, params=params, headers={**HEADERS, "Referer": "https://yield.chinabond.com.cn/"}, timeout=TIMEOUT)
+        r.raise_for_status()
+        soup = BeautifulSoup(r.text, "html.parser")
+
+        # Try to find table rows with date + yield
+        for row in soup.find_all("tr"):
+            cells = row.find_all("td")
+            if len(cells) >= 2:
+                date_text = cells[0].get_text(strip=True)
+                val_text  = cells[1].get_text(strip=True)
+                try:
+                    val = float(val_text)
+                    if not (0 < val < 20):      # sanity check: yield must be 0–20%
+                        continue
+                    date_text = date_text.replace("/", "-")
+                    return {"date": date_text[:10], "value": val}
+                except ValueError:
+                    continue
+    except Exception as e:
+        print(f"[chinabond] {maturity_years}Y CGB error: {e}")
+
+    print(f"[chinabond] No data found for {maturity_years}Y CGB")
+    return None
+
+
 # ── stooq.com — free yields, no key ──────────────────────────────────────────
 
 def _stooq_yield(symbol: str, n: int = 3) -> list[dict]:
@@ -272,6 +385,21 @@ def _fast_price(ticker: str) -> float | None:
                 print(f"[yf] {ticker} fast_info error: {e}")
                 return None
     return None
+
+
+def _copper_gold() -> tuple:
+    """
+    Returns (copper_price_lbr, gold_oz, copper_gold_ratio).
+    HG=F is USD/lb (US Copper front month), GC=F is USD/oz (Gold futures front month).
+    Cu/Au ratio = (copper × 100) / gold — proxy for industrial vs safe-haven demand balance.
+    >0.35: industrial expansion; 0.25–0.35: mid-cycle; 0.18–0.25: risk-off; <0.18: cycle stress.
+    """
+    copper = _fast_price("HG=F")
+    gold   = _fast_price("GC=F")
+    if copper and gold and gold > 0:
+        ratio = round((copper * 100) / gold, 4)
+        return round(copper, 4), round(gold, 2), ratio
+    return None, None, None
 
 
 def _gold_stocks_ratio() -> float | None:
@@ -410,7 +538,7 @@ def run():
         print(f"[fred] EM HY OAS = {row['hy_oas_em']}bp (BAMLEMHBHYCRPIOAS)")
 
     # JGB 10Y — FRED monthly (IRLTLT01JPM156N), ~1-month lag
-    # Note: stooq.com now requires a paid API key — FRED is the free fallback
+    # Note: MoF Japan daily CSV is primary source (see below); FRED is the fallback
     jgb_obs = _fred_obs("IRLTLT01JPM156N", n=2)
     if jgb_obs:
         row["jgb_10y"]      = round(jgb_obs[0]["value"], 3)
@@ -421,6 +549,19 @@ def run():
     if uk_obs:
         row["uk_10y"]      = round(uk_obs[0]["value"], 3)
         row["uk_10y_date"] = uk_obs[0]["date"]
+
+    # TIPS 10Y real yield + 10Y inflation breakeven (daily, lag ~1 day)
+    tips_obs = _fred_obs("DFII10", n=2)
+    if tips_obs:
+        row["us_tips_10y"]       = round(tips_obs[0]["value"], 3)
+        row["us_tips_date"]      = tips_obs[0]["date"]
+        print(f"[fred] TIPS 10Y real = {row['us_tips_10y']}% (as of {row['us_tips_date']})")
+
+    bkeven_obs = _fred_obs("T10YIE", n=2)
+    if bkeven_obs:
+        row["us_breakeven_10y"]  = round(bkeven_obs[0]["value"], 3)
+        row["us_breakeven_date"] = bkeven_obs[0]["date"]
+        print(f"[fred] 10Y Breakeven = {row['us_breakeven_10y']}% (as of {row['us_breakeven_date']})")
 
     # ── 2. Bund yields — stooq.com primary (daily, no key, works everywhere) ──
     print("[macro_liq] Fetching Bund yields (stooq.com)...")
@@ -483,6 +624,41 @@ def run():
         row["bund_spread"] = spread
         row["bund_signal"] = _yc_signal(spread)
 
+    # ── 3b. JGB daily — MoF Japan (free CSV, daily, no key) ─────────────────
+    print("[macro_liq] Fetching JGB yields (MoF Japan daily CSV)...")
+
+    jgb_data = _mof_jgb_yields(maturities=(2, 10))
+    if jgb_data.get(10):
+        row["jgb_10y"]      = round(jgb_data[10]["value"], 3)   # override FRED monthly
+        row["jgb_10y_date"] = jgb_data[10]["date"]
+        print(f"[mof] JGB 10Y = {row['jgb_10y']}% (as of {row['jgb_10y_date']})")
+    if jgb_data.get(2):
+        row["jgb_2y"] = round(jgb_data[2]["value"], 3)
+        print(f"[mof] JGB 2Y  = {row['jgb_2y']}%")
+    if row.get("jgb_10y") is not None and row.get("jgb_2y") is not None:
+        jgb_spr          = round(row["jgb_10y"] - row["jgb_2y"], 3)
+        row["jgb_spread"] = jgb_spr
+        row["jgb_signal"] = _yc_signal(jgb_spr)
+        print(f"[mof] JGB spread 10Y-2Y = {jgb_spr:+.3f}% -> {row['jgb_signal']}")
+
+    # ── 3c. ChinaBond CCDC — CGB yields (scraped, no key) ─────────────────────
+    print("[macro_liq] Fetching CGB yields (ChinaBond CCDC)...")
+
+    cgb10 = _chinabond_yield(10)
+    cgb2  = _chinabond_yield(2)
+    if cgb10:
+        row["cgb_10y"]  = round(cgb10["value"], 3)
+        row["cgb_date"] = cgb10["date"]
+        print(f"[chinabond] CGB 10Y = {row['cgb_10y']}% (as of {row['cgb_date']})")
+    if cgb2:
+        row["cgb_2y"] = round(cgb2["value"], 3)
+        print(f"[chinabond] CGB 2Y  = {row['cgb_2y']}%")
+    if row.get("cgb_10y") is not None and row.get("cgb_2y") is not None:
+        cgb_spr           = round(row["cgb_10y"] - row["cgb_2y"], 3)
+        row["cgb_spread"] = cgb_spr
+        row["cgb_signal"] = _yc_signal(cgb_spr)
+        print(f"[chinabond] CGB spread 10Y-2Y = {cgb_spr:+.3f}% -> {row['cgb_signal']}")
+
     # ── 4. Global CB Trend ────────────────────────────────────────────────────
     cb_signals = []
     if row.get("fed_walcl_wk_pct") is not None:
@@ -494,10 +670,23 @@ def run():
         row["global_cb_trend"] = "EXPANSION" if s > 0 else ("CONTRACTION" if s < 0 else "MIXED")
 
     # ── 5. yfinance ───────────────────────────────────────────────────────────
-    print("[macro_liq] Fetching yfinance (P/E proxies + Gold/Stocks + CNH)...")
+    print("[macro_liq] Fetching yfinance (P/E proxies + Gold/Stocks + CNH + Copper + JPY)...")
     row.update(_pe_proxies())
     row["gold_stocks"] = _gold_stocks_ratio()
     row["cnh_usd"]     = _cnh_usd()
+
+    # Copper (HG=F) + Cu/Au ratio (cycle health signal)
+    copper_price, _gold_oz, cu_au_ratio = _copper_gold()
+    if copper_price:
+        row["copper_price"]      = copper_price
+        row["copper_gold_ratio"] = cu_au_ratio
+        print(f"[yf] Copper = ${copper_price:.4f}/lb  Cu/Au = {cu_au_ratio}")
+
+    # JPY/USD — yen carry trade risk indicator
+    jpy = _fast_price("JPY=X")
+    if jpy:
+        row["jpy_usd"] = round(jpy, 2)
+        print(f"[yf] JPY/USD = {row['jpy_usd']}")
 
     # ── 6. CAPE ───────────────────────────────────────────────────────────────
     print("[macro_liq] Fetching CAPE (multpl.com)...")
@@ -533,17 +722,24 @@ def run():
 
 
 def _print_summary(row: dict):
-    print("\n── Liquidity ────────────────────────────────────────")
+    print("\n── Liquidity ─────────────────────────────────────────")
     print(f"  Fed: {row.get('fed_walcl_t','N/A')}T USD  WoW: {row.get('fed_walcl_wk_pct','N/A')}%  (as of {row.get('fed_walcl_date','?')})")
     print(f"  ECB: {row.get('ecb_assets_t','N/A')}T EUR  WoW: {row.get('ecb_assets_wk_pct','N/A')}%  (as of {row.get('ecb_assets_date','?')})")
     print(f"  RRP: {row.get('rrp_b','N/A')}B   TGA: {row.get('tga_b','N/A')}B")
     print(f"  US M2 YoY: {row.get('us_m2_yoy','N/A')}%  |  China M2 YoY: {row.get('china_m2_yoy','N/A')}%")
     print(f"  CB Trend: {row.get('global_cb_trend','N/A')}")
-    print("\n── Yield Curves ─────────────────────────────────────")
-    print(f"  Bund 10Y: {row.get('bund_10y','N/A')}%  2Y: {row.get('bund_2y','N/A')}%  Spread: {row.get('bund_spread','N/A')}%  → {row.get('bund_signal','N/A')}")
-    print(f"  JGB 10Y:  {row.get('jgb_10y','N/A')}%  (as of {row.get('jgb_10y_date','?')})")
-    print(f"  UK 10Y:   {row.get('uk_10y','N/A')}%  (as of {row.get('uk_10y_date','?')})")
-    print("\n── Valuation & Credit ───────────────────────────────")
+    print("\n── Real Rates & Inflation ─────────────────────────────")
+    print(f"  TIPS 10Y real: {row.get('us_tips_10y','N/A')}%  (as of {row.get('us_tips_date','?')})")
+    print(f"  10Y Breakeven: {row.get('us_breakeven_10y','N/A')}%  (as of {row.get('us_breakeven_date','?')})")
+    print("\n── Yield Curves ──────────────────────────────────────")
+    print(f"  Bund:  10Y {row.get('bund_10y','N/A')}%  2Y {row.get('bund_2y','N/A')}%  Spread {row.get('bund_spread','N/A')}%  -> {row.get('bund_signal','N/A')}")
+    print(f"  JGB:   10Y {row.get('jgb_10y','N/A')}%  2Y {row.get('jgb_2y','N/A')}%  Spread {row.get('jgb_spread','N/A')}%  -> {row.get('jgb_signal','N/A')}")
+    print(f"  CGB:   10Y {row.get('cgb_10y','N/A')}%  2Y {row.get('cgb_2y','N/A')}%  Spread {row.get('cgb_spread','N/A')}%  -> {row.get('cgb_signal','N/A')}")
+    print(f"  UK 10Y: {row.get('uk_10y','N/A')}%  (as of {row.get('uk_10y_date','?')})")
+    print("\n── Real Economy ──────────────────────────────────────")
+    print(f"  Copper: ${row.get('copper_price','N/A')}/lb  Cu/Au ratio: {row.get('copper_gold_ratio','N/A')}")
+    print(f"  JPY/USD: ¥{row.get('jpy_usd','N/A')}")
+    print("\n── Valuation & Credit ────────────────────────────────")
     print(f"  CAPE US: {row.get('cape_us','N/A')}  P/E EU: {row.get('pe_eu','N/A')}  P/E JP: {row.get('pe_jp','N/A')}  P/E EM: {row.get('pe_em','N/A')}")
     print(f"  HY OAS US: {row.get('hy_oas_us','N/A')}bp  HY OAS EU: {row.get('hy_oas_eu','N/A')}bp  HY OAS EM: {row.get('hy_oas_em','N/A')}bp")
     print(f"  Gold/Stocks: {row.get('gold_stocks','N/A')}  USD/CNH: {row.get('cnh_usd','N/A')}")

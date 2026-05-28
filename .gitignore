@@ -8,3 +8,5 @@ output/
 .remember/
 scripts/*_tmp.json
 cache/
+.env
+workspace/

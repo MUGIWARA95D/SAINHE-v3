@@ -172,6 +172,9 @@
   function fmtT(v)  { return v!=null ? "$"+v.toFixed(2)+"T" : "—"; }
   function fmtB(v)  { return v!=null ? "$"+Math.round(v).toLocaleString()+"B" : "—"; }
   function fmtPct(v,dec){ dec=dec||1; return v!=null?(v>=0?"+":"")+v.toFixed(dec)+"%":"—"; }
+  function fmtCu(v) { return v!=null ? "$"+v.toFixed(4)+"/lb" : null; }
+  function fmtCuAu(v){ return v!=null ? v.toFixed(4) : null; }
+  function fmtJpy(v){ return v!=null ? "¥"+v.toFixed(2) : null; }
 
   // ── Signal helpers ─────────────────────────────────────────────────────────
   // Curve spread — same 4-regime logic used across the site
@@ -191,6 +194,12 @@
   function wkSig(v){ return v==null?"":(v>0?"sig-g":"sig-r"); }
   function trendSig(t){ return t==="EXPANSION"?"sig-g":t==="CONTRACTION"?"sig-r":t==="MIXED"?"sig-y":""; }
   function capeSig(v){ return v==null?"":(v>34?"sig-r":v>24?"sig-y":"sig-g"); }
+  // TIPS 10Y real rate: >2.5% restrictive (red), 0.5-2.5% elevated (orange), <0% repression (green)
+  function tipsSig(v){ return v==null?"":(v>2.5?"sig-r":v>0.5?"sig-y":v>=0?"":"sig-g"); }
+  // Cu/Au ratio: >0.35 expansion (green), 0.25-0.35 neutral, 0.18-0.25 risk-off (orange), <0.18 stress (red)
+  function cuAuSig(v){ return v==null?"":(v>0.35?"sig-g":v>0.25?"":v>0.18?"sig-y":"sig-r"); }
+  // JPY/USD: >155 extreme carry (red), >145 BOJ risk (orange), <115 strong yen (green)
+  function jpySig(v) { return v==null?"":(v>155?"sig-r":v>145?"sig-y":v>115?"":"sig-g"); }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // ── 1. REGIONAL CARDS ─────────────────────────────────────────────────────
@@ -241,13 +250,22 @@
       { label:"HY Spread", val: fmtOAS(L.hy_oas_eu),   cls:hySig(L.hy_oas_eu),   src:"ICE BofA EU"+(L.hy_oas_eu_date?" · "+asOf(L.hy_oas_eu_date):"") },
     ]));
 
-    // ── ASIA — Japan for yields/P/E, China for M2 ──────────────────────────
-    wrap.appendChild(mkRegionCard("Asia", [
-      { label:"10Y Yield", val: fmtYld(L.jgb_10y),    cls:"",                  src:"JGB · FRED"+(L.jgb_10y_date?" · "+asOf(L.jgb_10y_date):"") },
-      { label:"Curve",     val: null,                  cls:"",                  src:null },
-      { label:"P/E",       val: fmtPE(L.pe_jp),        cls:peSig(L.pe_jp),      src:"EWJ ETF" },
-      { label:"M2 YoY",    val: fmtM2(L.china_m2_yoy), cls:m2Sig(L.china_m2_yoy), src:"China · FRED"+(L.china_m2_date?" · "+asOf(L.china_m2_date):"") },
-      { label:"HY Spread", val: null,                  cls:"",                  src:null },
+    // ── JAPAN ─────────────────────────────────────────────────────────────────
+    wrap.appendChild(mkRegionCard("Japan", [
+      { label:"JGB 10Y", val: fmtYld(L.jgb_10y),    cls:"",                    src:"MoF Japan"+(L.jgb_10y_date?" · "+asOf(L.jgb_10y_date):"") },
+      { label:"Curve",   val: fmtSpr(L.jgb_spread),  cls:sprSig(L.jgb_spread), src:"JGB 10Y−2Y · MoF" },
+      { label:"P/E",     val: fmtPE(L.pe_jp),        cls:peSig(L.pe_jp),        src:"EWJ ETF" },
+      { label:"M2 YoY",  val: null,                  cls:"",                    src:null },
+      { label:"JPY/USD", val: fmtJpy(L.jpy_usd),     cls:jpySig(L.jpy_usd),    src:"yfinance JPY=X" },
+    ]));
+
+    // ── CHINA ─────────────────────────────────────────────────────────────────
+    wrap.appendChild(mkRegionCard("China", [
+      { label:"CGB 10Y",   val: fmtYld(L.cgb_10y),     cls:"",                    src:"ChinaBond CCDC"+(L.cgb_date?" · "+asOf(L.cgb_date):"") },
+      { label:"Curve",     val: fmtSpr(L.cgb_spread),   cls:sprSig(L.cgb_spread), src:"CGB 10Y−2Y · CCDC" },
+      { label:"M2 YoY",    val: fmtM2(L.china_m2_yoy),  cls:m2Sig(L.china_m2_yoy), src:"FRED"+(L.china_m2_date?" · "+asOf(L.china_m2_date):"") },
+      { label:"CNH/USD",   val: L.cnh_usd!=null?L.cnh_usd.toFixed(4):null, cls:(L.cnh_usd&&L.cnh_usd>7.3)?"sig-y":"", src:"yfinance CNH=X" },
+      { label:"HY Spread", val: null,                    cls:"",                    src:null },
     ]));
 
     // ── EM ──────────────────────────────────────────────────────────────────
@@ -261,9 +279,10 @@
 
     // ── Methodology footnote ────────────────────────────────────────────────
     const note = rcWrap.appendChild(mk("p","rc-note",
-      "Curve spread: US uses 10Y−3M (NY Fed Estrella-Mishkin recession model, strongest empirical predictor); "+
-      "Europe uses 10Y−2Y (market convention). Harmonising to 10Y−2Y everywhere requires adding US 2Y (FRED DGS2). "+
-      "P/E values are ETF trailing P/E — not official index P/E. Asia yields and M2 are Japan/China-specific, not a pan-Asia composite."
+      "Curve spread: US uses 10Y−3M (NY Fed Estrella-Mishkin recession model); EU, Japan, China use 10Y−2Y (market convention). "+
+      "Japan yields: MoF Japan daily CSV (primary), FRED monthly (fallback). "+
+      "China yields: ChinaBond CCDC official source — may be unavailable outside China. "+
+      "P/E values are ETF trailing P/E (VGK, EWJ, EEM) — not official index P/E."
     ));
   }
 
@@ -337,8 +356,68 @@
         "Gov cash balance — drawdown adds liquidity to system"),
     ]);
 
-    // ── Valuation & Cross-Asset ─────────────────────────────────────────────
-    mkSection("Valuation & Cross-Asset — multpl.com / yfinance", [
+    // ── Real Rates & Inflation — FRED ──────────────────────────────────────
+    if(L.us_tips_10y!=null || L.us_breakeven_10y!=null){
+      mkSection("Real Rates & Inflation — FRED", [
+        mkCard("TIPS 10Y Real Yield",
+          L.us_tips_10y!=null?L.us_tips_10y.toFixed(2)+"%":"—",
+          tipsSig(L.us_tips_10y),
+          L.us_tips_date?asOf2(L.us_tips_date):null,
+          L.us_tips_text||null),
+
+        mkCard("10Y Inflation Breakeven",
+          L.us_breakeven_10y!=null?L.us_breakeven_10y.toFixed(2)+"%":"—",
+          null,
+          L.us_breakeven_date?asOf2(L.us_breakeven_date):null,
+          "Market-implied 10Y avg annual CPI. Breakeven = nominal 10Y − TIPS 10Y."),
+      ]);
+    }
+
+    // ── Real Economy — yfinance ─────────────────────────────────────────────
+    if(L.copper_price!=null || L.jpy_usd!=null){
+      mkSection("Real Economy — yfinance", [
+        mkCard("Copper Price",
+          L.copper_price!=null?("$"+L.copper_price.toFixed(4)+"/lb"):"—", null,
+          "HG=F · front month futures",
+          null),
+
+        mkCard("Copper / Gold Ratio",
+          L.copper_gold_ratio!=null?L.copper_gold_ratio.toFixed(4):"—",
+          cuAuSig(L.copper_gold_ratio), null,
+          L.copper_text||null),
+
+        mkCard("JPY / USD",
+          L.jpy_usd!=null?("¥"+L.jpy_usd.toFixed(2)):"—",
+          jpySig(L.jpy_usd), null,
+          L.jpy_text||null),
+      ]);
+    }
+
+    // ── Credit Spreads — FRED / ICE BofA ───────────────────────────────────
+    if(L.hy_oas_us!=null || L.hy_oas_eu!=null || L.hy_oas_em!=null){
+      mkSection("Credit Spreads — FRED / ICE BofA", [
+        mkCard("US HY OAS",
+          L.hy_oas_us!=null?Math.round(L.hy_oas_us)+"bp":"—",
+          hySig(L.hy_oas_us),
+          L.hy_oas_us_date?asOf2(L.hy_oas_us_date):null,
+          L.hy_oas_us_text||null),
+
+        mkCard("EU HY OAS",
+          L.hy_oas_eu!=null?Math.round(L.hy_oas_eu)+"bp":"—",
+          hySig(L.hy_oas_eu),
+          L.hy_oas_eu_date?asOf2(L.hy_oas_eu_date):null,
+          L.hy_oas_eu_text||null),
+
+        mkCard("EM HY OAS",
+          L.hy_oas_em!=null?Math.round(L.hy_oas_em)+"bp":"—",
+          hySig(L.hy_oas_em),
+          L.hy_oas_em_date?asOf2(L.hy_oas_em_date):null,
+          L.hy_oas_em_text||null),
+      ]);
+    }
+
+    // ── Valuation — multpl.com / yfinance ──────────────────────────────────
+    mkSection("Valuation — multpl.com / yfinance", [
       mkCard("Shiller CAPE — US",
         L.cape_us!=null?L.cape_us.toFixed(1):"—", capeSig(L.cape_us),
         L.cape_date?asOf2(L.cape_date):null,
@@ -355,7 +434,7 @@
     ]);
 
     const ft=ls.appendChild(mk("div","liq-footer"));
-    ft.textContent="Sources: FRED API, ECB SDW, multpl.com, yfinance · as of "+L.date;
+    ft.textContent="Sources: FRED API, ECB SDW, MoF Japan, ChinaBond CCDC, multpl.com, yfinance · as of "+L.date;
   }
   }
 
@@ -423,6 +502,19 @@
     (I18N.col_today||"Today")+": "+dxyCh+" · "+(I18N.col_1m||"1 month")+": "+retM,
     dxy.text||null, dxySC,dxyS,
     "ICE US Dollar Index vs basket of 6 major currencies.","dxy");
+
+  // ── TIPS Real Rate ────────────────────────────────────────────────────────
+  const tipsV=L.us_tips_10y;
+  if(tipsV!=null){
+    const tipsC=tipsV>2.5?"var(--red)":tipsV>0.5?"var(--orange)":tipsV>=0?"var(--muted)":"var(--green)";
+    const tipsLabel=tipsV>2.5?"Restrictive":tipsV>0.5?"Elevated":tipsV>=0?"Neutral":"Repression";
+    const tipsSC=tipsV>2.5?"law-r":tipsV>0.5?"law-y":tipsV>=0?"":"law-g";
+    const bkStr=L.us_breakeven_10y!=null?" · Bkeven "+L.us_breakeven_10y.toFixed(2)+"%":"";
+    addCard("TIPS 10Y — Real Rate",tipsV.toFixed(2)+"%",tipsC,
+      "10Y real yield (inflation-adjusted)"+bkStr,
+      L.us_tips_text||null, tipsSC,tipsLabel,
+      "FRED DFII10: nominal 10Y minus inflation breakeven. Positive = rates above inflation.","tips");
+  }
 
   }; /* end _sainheRenderMacro */
   window._sainheRenderMacro();

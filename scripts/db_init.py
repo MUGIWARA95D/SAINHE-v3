@@ -252,7 +252,30 @@ CREATE TABLE IF NOT EXISTS macro_liquidity (
 
     -- ── Allocation Ratios ─────────────────────────────────────
     gold_stocks         REAL,               -- (GLD × 10) / ^GSPC — oz gold per S&P point
-    cnh_usd             REAL                -- USD/CNH — yuan stress indicator
+    cnh_usd             REAL,               -- USD/CNH — yuan stress indicator
+
+    -- ── Real Rates & Inflation ────────────────────────────────
+    us_tips_10y         REAL,               -- FRED DFII10: 10Y TIPS real yield, %
+    us_tips_date        TEXT,
+    us_breakeven_10y    REAL,               -- FRED T10YIE: 10Y inflation breakeven, %
+    us_breakeven_date   TEXT,
+
+    -- ── JGB Curve (daily — MoF Japan) ────────────────────────
+    jgb_2y              REAL,               -- MoF Japan daily JGB 2Y, %
+    jgb_spread          REAL,               -- JGB 10Y − 2Y
+    jgb_signal          TEXT,               -- steep | flat | partial_inversion | full_inversion
+
+    -- ── CGB (Chinese Government Bonds — CCDC) ─────────────────
+    cgb_10y             REAL,               -- ChinaBond CCDC 10Y yield, %
+    cgb_2y              REAL,               -- ChinaBond CCDC 2Y yield, %
+    cgb_spread          REAL,               -- CGB 10Y − 2Y (Japanification signal)
+    cgb_signal          TEXT,               -- CGB curve regime
+    cgb_date            TEXT,
+
+    -- ── Real Economy Cycle Signals ────────────────────────────
+    copper_price        REAL,               -- HG=F front month, USD/lb
+    copper_gold_ratio   REAL,               -- (copper × 100) / gold — industrial vs safe-haven
+    jpy_usd             REAL                -- JPY per USD (yfinance JPY=X) — yen carry risk
 );
 
 -- ── 10. NEWS ──────────────────────────────────────────────
@@ -432,8 +455,27 @@ def init_db():
         print(f"[db_init] {len(etf_devises)} devises etf_sector mises à jour")
 
     # ── Migrations idempotentes — ajout de colonnes manquantes ───────────────
-    _add_col_if_missing(cur, "macro_liquidity", "hy_oas_em",      "REAL")
-    _add_col_if_missing(cur, "macro_liquidity", "hy_oas_em_date", "TEXT")
+    _add_col_if_missing(cur, "macro_liquidity", "hy_oas_em",           "REAL")
+    _add_col_if_missing(cur, "macro_liquidity", "hy_oas_em_date",      "TEXT")
+    # Real rates & inflation (FRED DFII10, T10YIE)
+    _add_col_if_missing(cur, "macro_liquidity", "us_tips_10y",         "REAL")
+    _add_col_if_missing(cur, "macro_liquidity", "us_tips_date",        "TEXT")
+    _add_col_if_missing(cur, "macro_liquidity", "us_breakeven_10y",    "REAL")
+    _add_col_if_missing(cur, "macro_liquidity", "us_breakeven_date",   "TEXT")
+    # JGB daily curve (MoF Japan)
+    _add_col_if_missing(cur, "macro_liquidity", "jgb_2y",              "REAL")
+    _add_col_if_missing(cur, "macro_liquidity", "jgb_spread",          "REAL")
+    _add_col_if_missing(cur, "macro_liquidity", "jgb_signal",          "TEXT")
+    # CGB curve (ChinaBond CCDC)
+    _add_col_if_missing(cur, "macro_liquidity", "cgb_10y",             "REAL")
+    _add_col_if_missing(cur, "macro_liquidity", "cgb_2y",              "REAL")
+    _add_col_if_missing(cur, "macro_liquidity", "cgb_spread",          "REAL")
+    _add_col_if_missing(cur, "macro_liquidity", "cgb_signal",          "TEXT")
+    _add_col_if_missing(cur, "macro_liquidity", "cgb_date",            "TEXT")
+    # Real economy cycle signals (yfinance)
+    _add_col_if_missing(cur, "macro_liquidity", "copper_price",        "REAL")
+    _add_col_if_missing(cur, "macro_liquidity", "copper_gold_ratio",   "REAL")
+    _add_col_if_missing(cur, "macro_liquidity", "jpy_usd",             "REAL")
 
     con.commit()
     con.close()

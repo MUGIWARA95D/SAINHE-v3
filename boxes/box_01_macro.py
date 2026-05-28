@@ -193,6 +193,104 @@ def _hy_text(bps, variant="US"):
             f"Consistent with GFC peak (2000bps, 2008) and COVID spike (1100bps, 2020). Systemic stress signal.")
 
 
+# ── New Tier 1 — Real rates, Cu/Au, CGB, JPY (all institutional data) ───────
+
+def _tips_text(real_rate, breakeven=None):
+    """
+    FRED DFII10: 10Y TIPS real yield.
+    >2.5% restrictive; 0.5–2.5% elevated; 0–0.5% neutral; <0% financial repression.
+    """
+    if real_rate is None:
+        return ""
+    bk_str = f" Breakeven: {breakeven:.2f}%." if breakeven is not None else ""
+    if real_rate > 2.5:
+        return (f"{real_rate:.2f}% — restrictive real rates (>2.5%). "
+                f"Historically among the highest since GFC 2008. "
+                f"Strong headwind for growth equities, PE multiples, and levered assets.{bk_str}")
+    if real_rate > 0.5:
+        return (f"{real_rate:.2f}% — elevated real rates (0.5–2.5%). "
+                f"Above neutral; borrowing cost exceeds expected inflation. "
+                f"Moderately restrictive for risk assets and credit.{bk_str}")
+    if real_rate >= 0:
+        return (f"{real_rate:.2f}% — near-neutral real rate. "
+                f"Inflation broadly compensated by nominal yield. No strong directional signal.{bk_str}")
+    if real_rate > -1.0:
+        return (f"{real_rate:.2f}% — mildly negative real rate. "
+                f"Financial repression: depositors earn below inflation. "
+                f"Historically supportive for real assets (gold, real estate).{bk_str}")
+    return (f"{real_rate:.2f}% — deep financial repression (<−1%). "
+            f"Consistent with 2020–2022 QE peak (TIPS reached −1.7%, Nov 2021). "
+            f"Strong tailwind for levered assets, real estate, and speculative growth.{bk_str}")
+
+
+def _copper_text(price, cu_au_ratio):
+    """
+    Cu/Au ratio regime: >0.35 expansion, 0.25–0.35 mid-cycle, 0.18–0.25 risk-off, <0.18 stress.
+    Copper/gold ratio is the best real-time PMI proxy outside official surveys.
+    """
+    if cu_au_ratio is None:
+        return ""
+    p_str = f" Copper at ${price:.4f}/lb." if price else ""
+    if cu_au_ratio > 0.35:
+        return (f"Cu/Au ratio {cu_au_ratio:.4f} — expansion signal (>0.35). "
+                f"Copper demand dominant over safe-haven gold. "
+                f"Historically consistent with global PMI >52 and industrial cycle acceleration.{p_str}")
+    if cu_au_ratio > 0.25:
+        return (f"Cu/Au ratio {cu_au_ratio:.4f} — mid-cycle neutral (0.25–0.35). "
+                f"Industrial demand balanced against safe-haven flows. No strong directional signal.{p_str}")
+    if cu_au_ratio > 0.18:
+        return (f"Cu/Au ratio {cu_au_ratio:.4f} — risk-off territory (0.18–0.25). "
+                f"Gold outperforming copper; consistent with global slowdown concerns, PMI contraction, or EM stress.{p_str}")
+    return (f"Cu/Au ratio {cu_au_ratio:.4f} — cycle stress signal (<0.18). "
+            f"Copper severely depressed relative to gold. "
+            f"Consistent with recessionary episodes (2016 trough: ~0.16).{p_str}")
+
+
+def _cgb_text(spread):
+    """
+    CGB 10Y−2Y curve — China Japanification risk signal.
+    ≥0.5% normal; 0.1–0.5% flattening; ~0% Japanification warning; negative = strong signal.
+    """
+    if spread is None:
+        return ""
+    if spread >= 0.5:
+        return (f"CGB spread {spread:+.2f}% — normal term structure. "
+                f"Positive term premium; no deflation or Japanification risk signal.")
+    if spread >= 0.1:
+        return (f"CGB spread {spread:+.2f}% — curve flattening. "
+                f"Reduced term premium. Watch for sustained move below 10bp — consistent with China's post-2021 property crisis deleveraging.")
+    if spread >= 0.0:
+        return (f"CGB spread {spread:+.2f}% — near-zero term premium. "
+                f"Japanification signal: bond markets pricing prolonged low growth and deflation risk in China.")
+    return (f"CGB spread {spread:+.2f}% — inverted. "
+            f"Strong Japanification signal. Consistent with deflation concerns, PBOC rate cuts, or capital flight within domestic markets.")
+
+
+def _jpy_text(rate):
+    """
+    JPY per USD (yfinance JPY=X). >155: extreme carry risk; >145: BOJ intervention; <115: yen strength.
+    """
+    if rate is None:
+        return ""
+    if rate > 155:
+        return (f"¥{rate:.2f}/USD — historically weak yen (>155). "
+                f"BOJ intervention risk extreme. Yen carry trade at maximum — rapid yen strengthening triggers "
+                f"global deleveraging (Aug 2024: ¥161→¥142 in 3 weeks, −12% global equities).")
+    if rate > 145:
+        return (f"¥{rate:.2f}/USD — BOJ intervention risk elevated (>145). "
+                f"PBOC and BOJ have historically defended near this level (2019: 145, 2022: 151). "
+                f"Yen carry meaningful — monitor for sudden unwind.")
+    if rate > 130:
+        return (f"¥{rate:.2f}/USD — mildly weak yen (130–145). "
+                f"Within post-2022 BOJ YCC adjustment range. No acute carry unwind risk.")
+    if rate > 115:
+        return (f"¥{rate:.2f}/USD — moderate yen (115–130). Near pre-2022 long-run range. "
+                f"Carry trade small; limited systemic risk from potential reversal.")
+    return (f"¥{rate:.2f}/USD — strong yen (<115). "
+            f"Carry trade unwinding or BOJ hawkish pivot. "
+            f"Historically associated with risk-off episodes and EM capital outflows (2008, 2011, 2016).")
+
+
 # ── Tier 2 ──────────────────────────────────────────────────────────────────
 
 def _m2_text(yoy, region="US"):
@@ -423,6 +521,11 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
     hy_us_text  = _hy_text(liq.get("hy_oas_us"), "US")
     hy_eu_text  = _hy_text(liq.get("hy_oas_eu"), "EU")
     hy_em_text  = _hy_text(liq.get("hy_oas_em"), "EM")
+    # Liq strip — new Tier 1 (real rates, Cu/Au, CGB, JPY)
+    tips_text   = _tips_text(liq.get("us_tips_10y"), liq.get("us_breakeven_10y"))
+    copper_text = _copper_text(liq.get("copper_price"), liq.get("copper_gold_ratio"))
+    cgb_text    = _cgb_text(liq.get("cgb_spread"))
+    jpy_text    = _jpy_text(liq.get("jpy_usd"))
     # Liq strip — Tier 2
     us_m2_text  = _m2_text(liq.get("us_m2_yoy"), "US")
     eu_m3_text  = _m2_text(liq.get("eu_m3_yoy"), "EU")
@@ -508,9 +611,30 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
                 "bund_date"        : liq.get("bund_date"),
                 "jgb_10y"          : liq.get("jgb_10y"),
                 "jgb_10y_date"     : liq.get("jgb_10y_date"),
+                "jgb_2y"           : liq.get("jgb_2y"),
+                "jgb_spread"       : liq.get("jgb_spread"),
+                "jgb_signal"       : liq.get("jgb_signal"),
+                "cgb_10y"          : liq.get("cgb_10y"),
+                "cgb_2y"           : liq.get("cgb_2y"),
+                "cgb_spread"       : liq.get("cgb_spread"),
+                "cgb_signal"       : liq.get("cgb_signal"),
+                "cgb_date"         : liq.get("cgb_date"),
+                "cgb_text"         : cgb_text,
                 "uk_10y"           : liq.get("uk_10y"),
                 "uk_10y_date"      : liq.get("uk_10y_date"),
-                # Row 3 — Valuation & Credit
+                # Row 3 — Real Rates & Inflation
+                "us_tips_10y"      : liq.get("us_tips_10y"),
+                "us_tips_date"     : liq.get("us_tips_date"),
+                "us_tips_text"     : tips_text,
+                "us_breakeven_10y" : liq.get("us_breakeven_10y"),
+                "us_breakeven_date": liq.get("us_breakeven_date"),
+                # Row 4 — Real Economy
+                "copper_price"     : liq.get("copper_price"),
+                "copper_gold_ratio": liq.get("copper_gold_ratio"),
+                "copper_text"      : copper_text,
+                "jpy_usd"          : liq.get("jpy_usd"),
+                "jpy_text"         : jpy_text,
+                # Row 5 — Valuation & Cross-Asset
                 "cape_us"          : liq.get("cape_us"),
                 "cape_date"        : liq.get("cape_date"),
                 "cape_text"        : cape_text,
