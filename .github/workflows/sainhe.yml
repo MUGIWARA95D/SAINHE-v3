@@ -2,17 +2,24 @@ name: SAINHE — Data Pipeline
 
 # ┌─────────────────────────────────────────────────────────────┐
 # │  DÉCLENCHEURS                                               │
-# │  • push dev   → deploy (+ fetches optionnels via commit msg)│
-# │  • schedule 1 → news  : 4H 10H 14H 18H 22H heure Paris     │
-# │  • schedule 2 → fx    : midi + minuit heure Paris           │
-# │  • schedule 3 → full  : lun-ven minuit (prix + fx + news)   │
-# │  • workflow_dispatch  → news (déclenchement manuel GitHub)  │
+# │  • push dev          → deploy (+ fetches optionnels)        │
+# │  • schedule 1        → news  : 4H 10H 14H 18H 22H Paris    │
+# │  • schedule 2        → fx    : midi + minuit Paris          │
+# │  • schedule 3        → full  : lun-ven minuit Paris         │
+# │  • workflow_dispatch → news (déclenchement manuel GitHub)   │
+# │  • repository_dispatch event_type:                          │
+# │      "news"     → Job 1 (news + macro)                      │
+# │      "fx"       → Job 2 (fx)                                │
+# │      "pipeline" → Job 3 (full pipeline)                     │
+# │    ➜ Utilisé par cron-job.org pour contourner les délais    │
+# │      du scheduler GitHub Actions (free tier).               │
 # └─────────────────────────────────────────────────────────────┘
 #
 #  Tags commit pour fetches à la demande (Job 0) :
 #    [refresh:news]   → fetch_news uniquement
 #    [refresh:fx]     → fetch_fx uniquement
 #    [refresh:prices] → fetch_prices uniquement (lent ~30 min)
+#    [refresh:macro]  → fetch_macro_liquidity uniquement
 #    [refresh:all]    → tout fetcher (= pipeline complet)
 
 on:
@@ -29,6 +36,9 @@ on:
     - cron: "0 22 * * 1-5"
 
   workflow_dispatch:
+
+  repository_dispatch:
+    types: [news, fx, pipeline]
 
 env:
   DB_PATH: db/sainhe.db
@@ -102,6 +112,15 @@ jobs:
         run: python scripts/fetch_fundamentals.py
         continue-on-error: true
 
+      - name: "[refresh:macro] Fetch Macro Liquidity (FRED, ECB, CAPE, HY)"
+        if: |
+          contains(github.event.head_commit.message, '[refresh:macro]') ||
+          contains(github.event.head_commit.message, '[refresh:all]')
+        run: python scripts/fetch_macro_liquidity.py
+        continue-on-error: true
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+
       - name: Calculate indicators
         run: python scripts/calc.py
         continue-on-error: true
@@ -114,6 +133,7 @@ jobs:
           contains(github.event.head_commit.message, '[refresh:fx]')     ||
           contains(github.event.head_commit.message, '[refresh:news]')   ||
           contains(github.event.head_commit.message, '[refresh:prices]') ||
+          contains(github.event.head_commit.message, '[refresh:macro]')  ||
           contains(github.event.head_commit.message, '[refresh:all]')
         run: python scripts/gdrive_sync.py upload
         env:
@@ -141,7 +161,8 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'schedule' && contains(github.event.schedule, '0 2,8,12,16,20 * * *'))
+      (github.event_name == 'schedule' && contains(github.event.schedule, '0 2,8,12,16,20 * * *')) ||
+      (github.event_name == 'repository_dispatch' && github.event.action == 'news')
 
     steps:
       - uses: actions/checkout@v4
@@ -164,6 +185,12 @@ jobs:
         env:
           GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
           GDRIVE_FILE_ID: ${{ secrets.GDRIVE_FILE_ID }}
+
+      - name: Fetch Macro Liquidity (FRED, ECB, CAPE, HY)
+        run: python scripts/fetch_macro_liquidity.py
+        continue-on-error: true
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
 
       - name: Fetch News
         run: python scripts/fetch_news.py
@@ -202,8 +229,8 @@ jobs:
     name: Fetch FX
     runs-on: ubuntu-latest
     if: |
-      github.event_name == 'schedule' &&
-      contains(github.event.schedule, '0 10,21 * * *')
+      (github.event_name == 'schedule' && contains(github.event.schedule, '0 10,21 * * *')) ||
+      (github.event_name == 'repository_dispatch' && github.event.action == 'fx')
 
     steps:
       - uses: actions/checkout@v4
@@ -258,8 +285,8 @@ jobs:
     name: Full Data Pipeline
     runs-on: ubuntu-latest
     if: |
-      github.event_name == 'schedule' &&
-      contains(github.event.schedule, '0 22 * * 1-5')
+      (github.event_name == 'schedule' && contains(github.event.schedule, '0 22 * * 1-5')) ||
+      (github.event_name == 'repository_dispatch' && github.event.action == 'pipeline')
 
     steps:
       - uses: actions/checkout@v4
@@ -292,6 +319,12 @@ jobs:
       - name: Fetch Fundamentals (P/E S&P 500 → ERP)
         run: python scripts/fetch_fundamentals.py
         continue-on-error: true
+
+      - name: Fetch Macro Liquidity (FRED, ECB, CAPE, HY)
+        run: python scripts/fetch_macro_liquidity.py
+        continue-on-error: true
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
 
       - name: Fetch News
         run: python scripts/fetch_news.py
