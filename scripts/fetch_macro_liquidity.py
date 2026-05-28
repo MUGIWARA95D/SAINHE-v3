@@ -523,12 +523,13 @@ def run():
         row["hy_oas_us"]      = round(hy_us_obs[0]["value"] * 100, 0)
         row["hy_oas_us_date"] = hy_us_obs[0]["date"]
 
-    # EU HY OAS — ICE BofA Euro High Yield Index OAS (BAMLHE00EHY2EY, Euro-denominated)
-    hy_eu_obs = _fred_obs("BAMLHE00EHY2EY", n=2)
+    # EU HY OAS — ICE BofA Euro High Yield Index OAS (BAMLHE00EHYIOAS)
+    # Note: old series BAMLHE00EHY2EY was discontinued — replaced by BAMLHE00EHYIOAS
+    hy_eu_obs = _fred_obs("BAMLHE00EHYIOAS", n=2)
     if hy_eu_obs:
         row["hy_oas_eu"]      = round(hy_eu_obs[0]["value"] * 100, 0)
         row["hy_oas_eu_date"] = hy_eu_obs[0]["date"]
-        print(f"[fred] EU HY OAS = {row['hy_oas_eu']}bp (BAMLHE00EHY2EY)")
+        print(f"[fred] EU HY OAS = {row['hy_oas_eu']}bp (BAMLHE00EHYIOAS)")
 
     # EM HY OAS — ICE BofA EM Corporate Plus HY Index OAS (BAMLEMHBHYCRPIOAS)
     hy_em_obs = _fred_obs("BAMLEMHBHYCRPIOAS", n=2)
@@ -722,24 +723,24 @@ def run():
 
 
 def _print_summary(row: dict):
-    print("\n── Liquidity ─────────────────────────────────────────")
+    print("\n--- Liquidity ---")
     print(f"  Fed: {row.get('fed_walcl_t','N/A')}T USD  WoW: {row.get('fed_walcl_wk_pct','N/A')}%  (as of {row.get('fed_walcl_date','?')})")
     print(f"  ECB: {row.get('ecb_assets_t','N/A')}T EUR  WoW: {row.get('ecb_assets_wk_pct','N/A')}%  (as of {row.get('ecb_assets_date','?')})")
     print(f"  RRP: {row.get('rrp_b','N/A')}B   TGA: {row.get('tga_b','N/A')}B")
     print(f"  US M2 YoY: {row.get('us_m2_yoy','N/A')}%  |  China M2 YoY: {row.get('china_m2_yoy','N/A')}%")
     print(f"  CB Trend: {row.get('global_cb_trend','N/A')}")
-    print("\n── Real Rates & Inflation ─────────────────────────────")
+    print("\n--- Real Rates & Inflation ---")
     print(f"  TIPS 10Y real: {row.get('us_tips_10y','N/A')}%  (as of {row.get('us_tips_date','?')})")
     print(f"  10Y Breakeven: {row.get('us_breakeven_10y','N/A')}%  (as of {row.get('us_breakeven_date','?')})")
-    print("\n── Yield Curves ──────────────────────────────────────")
+    print("\n--- Yield Curves ---")
     print(f"  Bund:  10Y {row.get('bund_10y','N/A')}%  2Y {row.get('bund_2y','N/A')}%  Spread {row.get('bund_spread','N/A')}%  -> {row.get('bund_signal','N/A')}")
     print(f"  JGB:   10Y {row.get('jgb_10y','N/A')}%  2Y {row.get('jgb_2y','N/A')}%  Spread {row.get('jgb_spread','N/A')}%  -> {row.get('jgb_signal','N/A')}")
     print(f"  CGB:   10Y {row.get('cgb_10y','N/A')}%  2Y {row.get('cgb_2y','N/A')}%  Spread {row.get('cgb_spread','N/A')}%  -> {row.get('cgb_signal','N/A')}")
     print(f"  UK 10Y: {row.get('uk_10y','N/A')}%  (as of {row.get('uk_10y_date','?')})")
-    print("\n── Real Economy ──────────────────────────────────────")
+    print("\n--- Real Economy ---")
     print(f"  Copper: ${row.get('copper_price','N/A')}/lb  Cu/Au ratio: {row.get('copper_gold_ratio','N/A')}")
-    print(f"  JPY/USD: ¥{row.get('jpy_usd','N/A')}")
-    print("\n── Valuation & Credit ────────────────────────────────")
+    print(f"  JPY/USD: {row.get('jpy_usd','N/A')}")
+    print("\n--- Valuation & Credit ---")
     print(f"  CAPE US: {row.get('cape_us','N/A')}  P/E EU: {row.get('pe_eu','N/A')}  P/E JP: {row.get('pe_jp','N/A')}  P/E EM: {row.get('pe_em','N/A')}")
     print(f"  HY OAS US: {row.get('hy_oas_us','N/A')}bp  HY OAS EU: {row.get('hy_oas_eu','N/A')}bp  HY OAS EM: {row.get('hy_oas_em','N/A')}bp")
     print(f"  Gold/Stocks: {row.get('gold_stocks','N/A')}  USD/CNH: {row.get('cnh_usd','N/A')}")
