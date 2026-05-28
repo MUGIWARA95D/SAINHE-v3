@@ -262,12 +262,14 @@
     ]));
 
     // ── CHINA ─────────────────────────────────────────────────────────────────
+    // P/E row 3 is null: no reliable China ETF P/E (CSI 300 not easily accessible).
+    // CNH/USD replaces HY Spread at row 5 — key China monetary policy signal.
     wrap.appendChild(mkRegionCard("China", [
       { label:"CGB 10Y",   val: fmtYld(L.cgb_10y),     cls:"",                    src:"ChinaBond CCDC"+(L.cgb_date?" · "+asOf(L.cgb_date):"") },
       { label:"Curve",     val: fmtSpr(L.cgb_spread),   cls:sprSig(L.cgb_spread), src:"CGB 10Y−2Y · CCDC" },
+      { label:"P/E",       val: null,                   cls:"",                    src:null },
       { label:"M2 YoY",    val: fmtM2(L.china_m2_yoy),  cls:m2Sig(L.china_m2_yoy), src:"FRED"+(L.china_m2_date?" · "+asOf(L.china_m2_date):"") },
       { label:"CNH/USD",   val: L.cnh_usd!=null?L.cnh_usd.toFixed(4):null, cls:(L.cnh_usd&&L.cnh_usd>7.3)?"sig-y":"", src:"yfinance CNH=X" },
-      { label:"HY Spread", val: null,                    cls:"",                    src:null },
     ]));
 
     // ── EM ──────────────────────────────────────────────────────────────────
@@ -284,7 +286,8 @@
       "Curve spread: US uses 10Y−3M (NY Fed Estrella-Mishkin recession model); EU, Japan, China use 10Y−2Y (market convention). "+
       "Japan yields: MoF Japan daily CSV (primary), FRED monthly (fallback). "+
       "China yields: ChinaBond CCDC official source — may be unavailable outside China. "+
-      "P/E values are ETF trailing P/E (VGK, EWJ, EEM) — not official index P/E."
+      "P/E values are ETF trailing P/E (VGK, EWJ, EEM) — not official index P/E. "+
+      "China P/E not shown (no liquid global ETF equivalent). CNH/USD shown instead of HY Spread."
     ));
   }
 
