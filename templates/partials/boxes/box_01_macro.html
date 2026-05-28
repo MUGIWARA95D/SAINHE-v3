@@ -221,10 +221,22 @@
 
     // Row builder: { label, val, cls, src } → null val = "—" greyed
     // Always renders src span (even empty) so all rows share the same height
-    function mkRcRow(label, val, cls, src){
+    // Short tooltip text keyed by lrn-row target (shown on hover in the floating tooltip)
+    const RC_TIPS = {
+      '10y':   'Sovereign benchmark rate — baseline cost of money.',
+      'curve': '10Y−2Y spread: >+1% steep, 0 flat, <0 inversion.',
+      'yc':    'NY Fed 10Y−3M model: recession predictor.',
+      'pe':    'Trailing P/E via ETF proxy (VGK/EWJ/EEM).',
+      'm2':    'Money supply YoY. Negative = monetary contraction.',
+      'hy':    'ICE BofA OAS. <350bp tight · >500bp stress.',
+      'fx':    'Regional FX as macro signal. Click for details.',
+      'dxy':   'ICE Dollar Index vs 6 major currencies.',
+    };
+    function mkRcRow(label, val, cls, src, learn){
       const row = document.createElement("div");
       row.className = "rc-row";
-      row.appendChild(mk("span","rc-label",label));
+      const lbl = row.appendChild(mk("span","rc-label",label));
+      if(learn && window._ci) lbl.appendChild(window._ci(RC_TIPS[learn]||'', 'macro', learn));
       const right = row.appendChild(mk("div","rc-right"));
       right.appendChild(mk("span","rc-val"+(val?(" "+cls):" rc-na"), val||"—"));
       const srcEl = right.appendChild(mk("span","rc-src"));
@@ -232,12 +244,13 @@
       return row;
     }
 
-    // Card builder: name + array of rows
-    function mkRegionCard(name, rows){
+    // Card builder: name + array of rows + optional hdrTip for region header (i) badge
+    function mkRegionCard(name, rows, hdrTip){
       const card = document.createElement("div");
       card.className = "region-card";
-      card.appendChild(mk("div","rc-header",name));
-      rows.forEach(r => card.appendChild(mkRcRow(r.label, r.val, r.cls||"", r.src||"")));
+      const hdr = card.appendChild(mk("div","rc-header",name));
+      if(hdrTip && window._ci) hdr.appendChild(window._ci(hdrTip, 'macro', null));
+      rows.forEach(r => card.appendChild(mkRcRow(r.label, r.val, r.cls||"", r.src||"", r.learn||"")));
       return card;
     }
 
@@ -245,63 +258,59 @@
 
     // ── USA ────────────────────────────────────────────────────────────────
     wrap.appendChild(mkRegionCard("USA", [
-      { label:"10Y Yield", val: fmtYld(yc.us10y),    cls:"",                  src:"US Treasury" },
-      { label:"Curve",     val: fmtSpr(yc.valeur),   cls:sprSig(yc.valeur),   src:"10Y−3M · NY Fed" },
-      { label:"P/E",       val: fmtPE(erp.sp500_pe), cls:peSig(erp.sp500_pe), src:"S&P 500 trailing" },
-      { label:"M2 YoY",    val: fmtM2(L.us_m2_yoy),  cls:m2Sig(L.us_m2_yoy),  src:"FRED M2SL"+(L.us_m2_date?" · "+asOf(L.us_m2_date):"") },
-      { label:"HY Spread", val: fmtOAS(L.hy_oas_us), cls:hySig(L.hy_oas_us),  src:"ICE BofA US"+(L.hy_oas_us_date?" · "+asOf(L.hy_oas_us_date):"") },
-      { label:"DXY",       val: fmtDxy(M.dxy&&M.dxy.valeur), cls:dxySig(M.dxy&&M.dxy.valeur), src:"ICE Dollar Index" },
-    ]));
+      { label:"10Y Yield", val: fmtYld(yc.us10y),    cls:"",                  src:"US Treasury",      learn:"10y" },
+      { label:"Curve",     val: fmtSpr(yc.valeur),   cls:sprSig(yc.valeur),   src:"10Y−3M · NY Fed",  learn:"yc" },
+      { label:"P/E",       val: fmtPE(erp.sp500_pe), cls:peSig(erp.sp500_pe), src:"S&P 500 trailing", learn:"pe" },
+      { label:"M2 YoY",    val: fmtM2(L.us_m2_yoy),  cls:m2Sig(L.us_m2_yoy),  src:"FRED M2SL"+(L.us_m2_date?" · "+asOf(L.us_m2_date):""),  learn:"m2" },
+      { label:"HY Spread", val: fmtOAS(L.hy_oas_us), cls:hySig(L.hy_oas_us),  src:"ICE BofA US"+(L.hy_oas_us_date?" · "+asOf(L.hy_oas_us_date):""), learn:"hy" },
+      { label:"DXY",       val: fmtDxy(M.dxy&&M.dxy.valeur), cls:dxySig(M.dxy&&M.dxy.valeur), src:"ICE Dollar Index", learn:"dxy" },
+    ], "World reserve currency & largest equity market. ERP + Yield Curve + VIX + DXY all originate here."));
 
-    // ── EUROPE ─────────────────────────────────────────────────────────────
+    // ── EUROPE ─────────────────────────────────────────────────────
     wrap.appendChild(mkRegionCard("Europe", [
-      { label:"10Y Yield", val: fmtYld(L.bund_10y),    cls:"",                    src:"Bund · stooq"+(L.bund_date?" · "+asOf(L.bund_date):"") },
-      { label:"Curve",     val: fmtSpr(L.bund_spread), cls:sprSig(L.bund_spread), src:"10Y−2Y · stooq" },
-      { label:"P/E",       val: fmtPE(L.pe_eu),        cls:peSig(L.pe_eu),        src:"VGK ETF" },
-      { label:"M3 YoY",    val: fmtM2(L.eu_m3_yoy),    cls:m2Sig(L.eu_m3_yoy),   src:"ECB SDW"+(L.eu_m3_date?" · "+asOf(L.eu_m3_date):"") },
-      { label:"HY Spread", val: fmtOAS(L.hy_oas_eu),   cls:hySig(L.hy_oas_eu),   src:"ICE BofA EU"+(L.hy_oas_eu_date?" · "+asOf(L.hy_oas_eu_date):"") },
-      { label:"EUR/USD",   val: fmtEur(L.eur_usd),      cls:eurSig(L.eur_usd),    src:"Frankfurter · ECB" },
-    ]));
+      { label:"10Y Yield", val: fmtYld(L.bund_10y),    cls:"",                    src:"Bund · stooq"+(L.bund_date?" · "+asOf(L.bund_date):""),      learn:"10y" },
+      { label:"Curve",     val: fmtSpr(L.bund_spread), cls:sprSig(L.bund_spread), src:"10Y−2Y · stooq",                                           learn:"curve" },
+      { label:"P/E",       val: fmtPE(L.pe_eu),        cls:peSig(L.pe_eu),        src:"VGK ETF",                                                   learn:"pe" },
+      { label:"M3 YoY",    val: fmtM2(L.eu_m3_yoy),    cls:m2Sig(L.eu_m3_yoy),   src:"ECB SDW"+(L.eu_m3_date?" · "+asOf(L.eu_m3_date):""),         learn:"m2" },
+      { label:"HY Spread", val: fmtOAS(L.hy_oas_eu),   cls:hySig(L.hy_oas_eu),   src:"ICE BofA EU"+(L.hy_oas_eu_date?" · "+asOf(L.hy_oas_eu_date):""), learn:"hy" },
+      { label:"EUR/USD",   val: fmtEur(L.eur_usd),      cls:eurSig(L.eur_usd),    src:"Frankfurter · ECB",                                         learn:"fx" },
+    ], "Bund is the EUR risk-free benchmark. ECB/Fed divergence drives EUR/USD. M3 broader than M2."));
 
-    // ── JAPAN ─────────────────────────────────────────────────────────────────
-    // HY Spread row 5: Japan HY market essentially non-existent as global benchmark
-    // (keiretsu bank financing culture). JPY/USD row 6: carry trade global risk signal.
+    // ── JAPAN ─────────────────────────────────────────────────────
+    // HY Spread: Japan HY market non-existent (keiretsu bank culture). JPY/USD: carry trade signal.
     wrap.appendChild(mkRegionCard("Japan", [
-      { label:"JGB 10Y",   val: fmtYld(L.jgb_10y),    cls:"",                    src:"MoF Japan"+(L.jgb_10y_date?" · "+asOf(L.jgb_10y_date):"") },
-      { label:"Curve",     val: fmtSpr(L.jgb_spread),  cls:sprSig(L.jgb_spread), src:"JGB 10Y−2Y · MoF" },
-      { label:"P/E",       val: fmtPE(L.pe_jp),        cls:peSig(L.pe_jp),       src:"EWJ ETF" },
-      { label:"M2 YoY",    val: null,                  cls:"",                    src:null },
-      { label:"HY Spread", val: null,                  cls:"",                    src:null },
-      { label:"JPY/USD",   val: fmtJpy(L.jpy_usd),     cls:jpySig(L.jpy_usd),    src:"yfinance JPY=X" },
-    ]));
+      { label:"JGB 10Y",   val: fmtYld(L.jgb_10y),    cls:"",                    src:"MoF Japan"+(L.jgb_10y_date?" · "+asOf(L.jgb_10y_date):""), learn:"10y" },
+      { label:"Curve",     val: fmtSpr(L.jgb_spread),  cls:sprSig(L.jgb_spread), src:"JGB 10Y−2Y · MoF",                                        learn:"curve" },
+      { label:"P/E",       val: fmtPE(L.pe_jp),        cls:peSig(L.pe_jp),       src:"EWJ ETF",                                                  learn:"pe" },
+      { label:"M2 YoY",    val: null,                  cls:"",                    src:null,                                                        learn:"m2" },
+      { label:"HY Spread", val: null,                  cls:"",                    src:null,                                                        learn:"hy" },
+      { label:"JPY/USD",   val: fmtJpy(L.jpy_usd),     cls:jpySig(L.jpy_usd),    src:"yfinance JPY=X",                                            learn:"fx" },
+    ], "JPY is the global carry funding currency. JGB near BOJ YCC limits. Carry unwind = global risk-off."));
 
-    // ── CHINA ─────────────────────────────────────────────────────────────────
-    // P/E row 3: no liquid global ETF equivalent (CSI 300 not accessible).
-    // HY Spread row 5: post-Evergrande market restructured, no standard ICE BofA series.
-    // CNH/USD row 6: PBOC policy + capital controls + devaluation risk signal.
+    // ── CHINA ─────────────────────────────────────────────────────
+    // P/E: no liquid global ETF for A-shares. HY Spread: post-Evergrande restructuring.
+    // CNH/USD: PBOC managed float, capital controls, devaluation risk signal.
     wrap.appendChild(mkRegionCard("China", [
-      { label:"CGB 10Y",   val: fmtYld(L.cgb_10y),     cls:"",                    src:"ChinaBond CCDC"+(L.cgb_date?" · "+asOf(L.cgb_date):"") },
-      { label:"Curve",     val: fmtSpr(L.cgb_spread),   cls:sprSig(L.cgb_spread), src:"CGB 10Y−2Y · CCDC" },
-      { label:"P/E",       val: null,                   cls:"",                    src:null },
-      { label:"M2 YoY",    val: fmtM2(L.china_m2_yoy),  cls:m2Sig(L.china_m2_yoy), src:"FRED"+(L.china_m2_date?" · "+asOf(L.china_m2_date):"") },
-      { label:"HY Spread", val: null,                   cls:"",                    src:null },
-      { label:"CNH/USD",   val: L.cnh_usd!=null?L.cnh_usd.toFixed(4):null, cls:(L.cnh_usd&&L.cnh_usd>7.3)?"sig-y":"", src:"yfinance CNH=X" },
-    ]));
+      { label:"CGB 10Y",   val: fmtYld(L.cgb_10y),     cls:"",                    src:"ChinaBond CCDC"+(L.cgb_date?" · "+asOf(L.cgb_date):""), learn:"10y" },
+      { label:"Curve",     val: fmtSpr(L.cgb_spread),   cls:sprSig(L.cgb_spread), src:"CGB 10Y−2Y · CCDC",                                      learn:"curve" },
+      { label:"P/E",       val: null,                   cls:"",                    src:null,                                                       learn:"pe" },
+      { label:"M2 YoY",    val: fmtM2(L.china_m2_yoy),  cls:m2Sig(L.china_m2_yoy), src:"FRED"+(L.china_m2_date?" · "+asOf(L.china_m2_date):""),  learn:"m2" },
+      { label:"HY Spread", val: null,                   cls:"",                    src:null,                                                       learn:"hy" },
+      { label:"CNH/USD",   val: L.cnh_usd!=null?L.cnh_usd.toFixed(4):null, cls:(L.cnh_usd&&L.cnh_usd>7.3)?"sig-y":"", src:"yfinance CNH=X",   learn:"fx" },
+    ], "PBOC-managed rates & capital controls. CNH/USD above 7.3 = depreciation policy signal."));
 
-    // ── EM ──────────────────────────────────────────────────────────────────
-    // AUD/USD row 6: commodity cycle + China activity proxy for EM risk appetite.
+    // ── EM ───────────────────────────────────────────────────────────
+    // AUD/USD: commodity cycle + China activity proxy for EM risk appetite.
     wrap.appendChild(mkRegionCard("EM", [
-      { label:"10Y Yield", val: null,                  cls:"",                  src:null },
-      { label:"Curve",     val: null,                  cls:"",                  src:null },
-      { label:"P/E",       val: fmtPE(L.pe_em),        cls:peSig(L.pe_em),      src:"EEM ETF" },
-      { label:"M2 YoY",    val: null,                  cls:"",                  src:null },
-      { label:"HY Spread", val: fmtOAS(L.hy_oas_em),  cls:hySig(L.hy_oas_em),  src:"ICE BofA EM"+(L.hy_oas_em_date?" · "+asOf(L.hy_oas_em_date):"") },
-      { label:"AUD/USD",   val: fmtAud(L.aud_usd),     cls:audSig(L.aud_usd),   src:"Frankfurter · China proxy" },
-    ]));
+      { label:"10Y Yield", val: null,                  cls:"",                  src:null,                                                          learn:"10y" },
+      { label:"Curve",     val: null,                  cls:"",                  src:null,                                                          learn:"curve" },
+      { label:"P/E",       val: fmtPE(L.pe_em),        cls:peSig(L.pe_em),      src:"EEM ETF",                                                    learn:"pe" },
+      { label:"M2 YoY",    val: null,                  cls:"",                  src:null,                                                          learn:"m2" },
+      { label:"HY Spread", val: fmtOAS(L.hy_oas_em),  cls:hySig(L.hy_oas_em),  src:"ICE BofA EM"+(L.hy_oas_em_date?" · "+asOf(L.hy_oas_em_date):""), learn:"hy" },
+      { label:"AUD/USD",   val: fmtAud(L.aud_usd),     cls:audSig(L.aud_usd),   src:"Frankfurter · China proxy",                                learn:"fx" },
+    ], "No single benchmark. EM HY OAS + AUD/USD serve as composite risk appetite proxies."));
 
-    // ── Align row dividers across cards on the same visual row ─────────────
-    // Cards wrap at narrow viewports — only sync cards sharing the same top offset.
-    function _syncRegionRows(){
+        function _syncRegionRows(){
       const cards = Array.from(rcWrap.querySelectorAll('.region-card'));
       if(cards.length < 2) return;
       // 1. Reset all min-heights to get natural heights
@@ -362,15 +371,23 @@
       }catch(e){return d;}
     }
 
-    function mkCard(label,value,sig,sub,inf){
+    const LIQ_TIPS = {
+      'cb':        'Fed/ECB balance sheets — systemic liquidity proxy.',
+      'realrates': 'TIPS real yield + breakeven: inflation expectations.',
+      'realeco':   'Copper, Cu/Au ratio, JPY: real-economy stress gauges.',
+      'credit':    'HY OAS (US/EU/EM): credit stress & risk appetite.',
+      'val':       'CAPE, Gold/S&P, CNH/USD: cross-asset valuation.',
+    };
+    function mkCard(label,value,sig,sub,learnRow){
       const isNA=(value==="—");
       const card=document.createElement("div");
       card.className="liq-card"+(sig&&!isNA?" "+sig:"")+(isNA?" na":"");
       const lbl=card.appendChild(mk("div","liq-card-label",label));
+      if(learnRow && window._ci) lbl.appendChild(window._ci(LIQ_TIPS[learnRow]||'', 'macro', learnRow));
       const val=card.appendChild(mk("div","liq-card-val"+(isNA?" na":(sig?" "+sig:""))));
       val.textContent=value;
       if(sub){const s=card.appendChild(mk("div","liq-card-sub"));s.textContent=sub;}
-      if(inf){const i=card.appendChild(mk("div","liq-card-inf"));i.textContent=inf;}
+      // inf (explanatory text) removed → moved to Learn page
       return card;
     }
 
@@ -389,26 +406,26 @@
       mkCard("Fed Balance Sheet",
         fmtT(L.fed_walcl_t), wkSig(L.fed_walcl_wk_pct),
         [fedWkTxt, L.fed_walcl_date?asOf2(L.fed_walcl_date):null].filter(Boolean).join(" · ")||null,
-        L.fed_bs_text||null),
+        "cb"),
 
       mkCard("ECB Balance Sheet",
         fmtT(L.ecb_assets_t), wkSig(L.ecb_assets_wk_pct),
         [ecbWkTxt, L.ecb_assets_date?asOf2(L.ecb_assets_date):null].filter(Boolean).join(" · ")||null,
-        L.ecb_bs_text||null),
+        "cb"),
 
       mkCard("CB Trend",
         L.global_cb_trend||"—", trendSig(L.global_cb_trend),
-        "Fed + ECB direction combined"),
+        "Fed + ECB direction combined", "cb"),
 
       mkCard("Reverse Repo (RRP)",
         fmtB(L.rrp_b), null,
         L.rrp_date?asOf2(L.rrp_date):null,
-        "Overnight RRP usage — excess liquidity gauge"),
+        "cb"),
 
       mkCard("Treasury Acct (TGA)",
         fmtB(L.tga_b), null,
         L.tga_date?asOf2(L.tga_date):null,
-        "Gov cash balance — drawdown adds liquidity to system"),
+        "cb"),
     ]);
 
     // ── Real Rates & Inflation — FRED ──────────────────────────────────────
@@ -418,13 +435,13 @@
           L.us_tips_10y!=null?L.us_tips_10y.toFixed(2)+"%":"—",
           tipsSig(L.us_tips_10y),
           L.us_tips_date?asOf2(L.us_tips_date):null,
-          L.us_tips_text||null),
+          "realrates"),
 
         mkCard("10Y Inflation Breakeven",
           L.us_breakeven_10y!=null?L.us_breakeven_10y.toFixed(2)+"%":"—",
           null,
           L.us_breakeven_date?asOf2(L.us_breakeven_date):null,
-          "Market-implied 10Y avg annual CPI. Breakeven = nominal 10Y − TIPS 10Y."),
+          "realrates"),
       ]);
     }
 
@@ -434,17 +451,17 @@
         mkCard("Copper Price",
           L.copper_price!=null?("$"+L.copper_price.toFixed(4)+"/lb"):"—", null,
           "HG=F · front month futures",
-          null),
+          "realeco"),
 
         mkCard("Copper / Gold Ratio",
           L.copper_gold_ratio!=null?L.copper_gold_ratio.toFixed(4):"—",
           cuAuSig(L.copper_gold_ratio), null,
-          L.copper_text||null),
+          "realeco"),
 
         mkCard("JPY / USD",
           L.jpy_usd!=null?("¥"+L.jpy_usd.toFixed(2)):"—",
           jpySig(L.jpy_usd), null,
-          L.jpy_text||null),
+          "realeco"),
       ]);
     }
 
@@ -455,19 +472,19 @@
           L.hy_oas_us!=null?Math.round(L.hy_oas_us)+"bp":"—",
           hySig(L.hy_oas_us),
           L.hy_oas_us_date?asOf2(L.hy_oas_us_date):null,
-          L.hy_oas_us_text||null),
+          "credit"),
 
         mkCard("EU HY OAS",
           L.hy_oas_eu!=null?Math.round(L.hy_oas_eu)+"bp":"—",
           hySig(L.hy_oas_eu),
           L.hy_oas_eu_date?asOf2(L.hy_oas_eu_date):null,
-          L.hy_oas_eu_text||null),
+          "credit"),
 
         mkCard("EM HY OAS",
           L.hy_oas_em!=null?Math.round(L.hy_oas_em)+"bp":"—",
           hySig(L.hy_oas_em),
           L.hy_oas_em_date?asOf2(L.hy_oas_em_date):null,
-          L.hy_oas_em_text||null),
+          "credit"),
       ]);
     }
 
@@ -476,16 +493,16 @@
       mkCard("Shiller CAPE — US",
         L.cape_us!=null?L.cape_us.toFixed(1):"—", capeSig(L.cape_us),
         L.cape_date?asOf2(L.cape_date):null,
-        L.cape_text||null),
+        "val"),
 
       mkCard("Gold / S&P 500 Ratio",
         L.gold_stocks!=null?L.gold_stocks.toFixed(3)+" oz/pt":"—", null, null,
-        L.gold_text||null),
+        "val"),
 
       mkCard("Yuan / USD (CNH)",
         L.cnh_usd!=null?L.cnh_usd.toFixed(4):"—",
         (L.cnh_usd&&L.cnh_usd>7.3)?"sig-y":"", null,
-        L.cnh_text||null),
+        "val"),
     ]);
 
     const ft=ls.appendChild(mk("div","liq-footer"));
@@ -520,7 +537,7 @@
   const ey=erp.sp500_pe?(100/erp.sp500_pe).toFixed(2)+"%":"—";
   addCard(I18N.erp_title||"Equity Risk Premium",erpV!=null?(erpV*100).toFixed(2)+"%":"—",erpC,
     (I18N.erp_earnings_yield||"Earnings Yield")+": "+ey+" · P/E "+(erp.sp500_pe!=null?erp.sp500_pe.toFixed(1):"—")+" · 10Y "+fmt(yc.us10y)+"%",
-    erp.text||null, erpSC,erpS,
+    null, erpSC,erpS,
     "Damodaran CAPM: earnings yield minus risk-free rate.","erp");
 
   // ── Yield Curve ───────────────────────────────────────────────────────────
@@ -533,7 +550,7 @@
   };
   const ycCfg=YC[yc.regime]||{label:"N/A",cls:"",color:"var(--muted)"};
   addCard(I18N.yc_title||"Yield Curve (10Y − 3M)",ycV!=null?(ycV>=0?"+":"")+ycV.toFixed(2)+"%":"—",ycCfg.color,
-    "US 10Y: "+fmt(yc.us10y)+"% · US 3M: "+fmt(yc.us3m)+"%",yc.text||null,
+    "US 10Y: "+fmt(yc.us10y)+"% · US 3M: "+fmt(yc.us3m)+"%",null,
     ycCfg.cls,ycCfg.label,"NY Fed model: 10Y minus 3M Treasury.","yc");
 
   // ── VIX ──────────────────────────────────────────────────────────────────
@@ -542,7 +559,7 @@
   const vixL={complacency:I18N.vix_complacency||"Complacency",normal:I18N.vix_normal||"Normal",fear:I18N.vix_fear||"Elevated Fear",panic:I18N.vix_panic||"Panic"}[vix.regime]||(I18N.signal_na||"N/A");
   const vixSC=vix.regime==="panic"?"law-r":vix.regime==="fear"?"law-y":vix.regime==="complacency"?"law-y":"law-g";
   addCard(I18N.vix_title||"VIX — Market Fear Index",vixV!=null?fmt(vixV):"—",vixC,
-    vix.text||null,null, vixSC,vixL,
+    null,null, vixSC,vixL,
     "CBOE VIX White Paper: implied 30-day S&P 500 volatility.","vix");
 
   // ── DXY ──────────────────────────────────────────────────────────────────
@@ -555,7 +572,7 @@
   const retM=dxy.ret_1m!=null?(dxy.ret_1m>=0?"+":"")+(dxy.ret_1m*100).toFixed(2)+"%":"—";
   addCard(I18N.dxy_title||"DXY — US Dollar Index",dxyV!=null?fmt(dxyV):"—",dxyC,
     (I18N.col_today||"Today")+": "+dxyCh+" · "+(I18N.col_1m||"1 month")+": "+retM,
-    dxy.text||null, dxySC,dxyS,
+    null, dxySC,dxyS,
     "ICE US Dollar Index vs basket of 6 major currencies.","dxy");
 
   // ── TIPS Real Rate ────────────────────────────────────────────────────────
@@ -567,8 +584,8 @@
     const bkStr=L.us_breakeven_10y!=null?" · Bkeven "+L.us_breakeven_10y.toFixed(2)+"%":"";
     addCard("TIPS 10Y — Real Rate",tipsV.toFixed(2)+"%",tipsC,
       "10Y real yield (inflation-adjusted)"+bkStr,
-      L.us_tips_text||null, tipsSC,tipsLabel,
-      "FRED DFII10: nominal 10Y minus inflation breakeven. Positive = rates above inflation.","tips");
+      null, tipsSC,tipsLabel,
+      "FRED DFII10: nominal 10Y minus inflation breakeven. Positive = rates above inflation.","realrates");
   }
 
   }; /* end _sainheRenderMacro */

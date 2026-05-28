@@ -735,6 +735,37 @@ a.news-hl:hover{color:var(--gold)}
   .lrn-metric{grid-template-columns:1fr}
   .lrn-metric-label{border-right:none;border-bottom:1px solid rgba(196,149,90,.18)}
 }
+/* ── Learn panel section sub-header ─────────────────────── */
+.lrn-panel-subhdr{
+  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;
+  color:rgba(196,149,90,.55);padding:6px 0 4px;margin-top:6px;
+  border-top:1px solid rgba(196,149,90,.12);display:flex;align-items:center;gap:8px}
+.lrn-panel-subhdr::after{content:"";flex:1;height:1px;background:rgba(196,149,90,.1)}
+/* ── CI system callout in Learn ─────────────────────────── */
+.lrn-ci-callout{
+  display:flex;flex-direction:column;gap:10px;
+  padding:14px 16px;border-radius:8px;
+  border:1px solid rgba(196,149,90,.2);background:rgba(196,149,90,.05);
+  margin-bottom:6px}
+.lrn-ci-callout-hdr{font-size:11px;font-weight:700;color:rgba(196,149,90,.8);
+  text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:8px}
+.lrn-ci-callout-body{font-size:12px;color:rgba(245,232,208,.55);line-height:1.65}
+.lrn-ci-callout-body strong{color:rgba(245,232,208,.82)}
+.lrn-ci-callout-body code{font-family:'SF Mono',Consolas,monospace;font-size:10.5px;
+  color:#C4955A;background:rgba(196,149,90,.12);padding:1px 5px;border-radius:3px}
+/* Mini demo card inside callout */
+.lrn-ci-demo{display:inline-flex;align-items:flex-start;gap:12px;margin-top:8px;flex-wrap:wrap}
+.lrn-ci-demo-card{
+  padding:10px 14px;border-radius:6px;background:var(--card-alt,#1a1a1a);
+  border-left:3px solid rgba(196,149,90,.3);min-width:160px;display:flex;flex-direction:column;gap:4px}
+.lrn-ci-demo-lbl{font-size:11px;color:rgba(245,232,208,.45);text-transform:uppercase;
+  letter-spacing:.4px;display:flex;align-items:center;gap:4px}
+.lrn-ci-demo-val{font-size:18px;font-weight:700;color:rgba(76,170,96,1)}
+.lrn-ci-demo-sig{font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;
+  background:rgba(76,170,96,.15);color:rgba(76,170,96,.9);text-transform:uppercase;
+  letter-spacing:.5px;align-self:flex-start}
+.lrn-ci-demo-note{font-size:11px;color:rgba(245,232,208,.4);line-height:1.55;
+  max-width:200px;padding-top:2px}
 /* ── sec-creme overrides for lrn-panel classes ─────────── */
 .sec-creme .lrn-panel-row{border-color:rgba(62,32,12,.12)}
 .sec-creme .lrn-panel-row-lbl{background:rgba(62,32,12,.06);border-right-color:rgba(62,32,12,.1);color:rgba(62,32,12,.55)}
