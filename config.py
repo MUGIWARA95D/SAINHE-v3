@@ -12,7 +12,7 @@ from pathlib import Path
 #  1. CHEMINS
 # ============================================================
 BASE_DIR     = Path(__file__).resolve().parent
-DB_PATH      = Path(os.environ.get("DB_PATH", r"G:\Mon Drive\PROJET SAINHE\SAINHE\SAINHE v2\db\sainhe.db"))
+DB_PATH      = Path(os.environ.get("DB_PATH", str(BASE_DIR / "db" / "sainhe.db")))
 CACHE_DIR    = BASE_DIR / "cache"
 CACHE_NEWS   = BASE_DIR / "cache"  / "news"
 OUTPUT_DIR   = BASE_DIR / "output"
@@ -209,25 +209,8 @@ RSS_SOURCES = {
     6: {"url": "https://www.ft.com/rss/home/international",              "region": "EU",     "lang": "EN"},
 }
 
-# Rotation horaire (Reuters #1 toujours inclus)
-RSS_ROTATION = {
-     8: [2, 4],  9: [3, 6], 10: [2, 5], 11: [3, 7],
-    12: [2, 6], 13: [3, 4], 14: [2, 5], 15: [3, 6],
-    16: [2, 7], 17: [3, 4], 18: [2, 6], 19: [3, 5],
-    20: [2, 4], 21: [3, 6], 22: [2, 5], 23: [3, 4],
-}
-
 NEWS_RETENTION_DAYS  = 3     # purge auto — keep last 3 days
 LOG_RETENTION_DAYS   = 90    # logs fetch conservés N jours
-
-# Sources calendrier macro (scraping 08h00)
-CALENDAR_SOURCES = {
-    "macro"   : "https://www.marketwatch.com/economy-politics/calendar",
-    "earnings": "https://stockanalysis.com/earnings-calendar/",
-    "fed"     : "https://www.federalreserve.gov/feeds/press_all.xml",
-    "bls"     : "https://www.bls.gov/feed/eag.rss",
-    "ecb"     : "https://www.ecb.europa.eu/rss/press.html",
-}
 
 # ============================================================
 #  7. TAUX DE CHANGE — fetch_fx.py (Frankfurter/yfinance)

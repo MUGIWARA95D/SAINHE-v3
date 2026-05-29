@@ -42,6 +42,21 @@ log = logging.getLogger(__name__)
 
 
 # ============================================================
+#  HELPERS
+# ============================================================
+
+def _f(x) -> float | None:
+    """Convertit en float Python, None si NaN/Inf."""
+    if x is None:
+        return None
+    try:
+        v = float(x)
+        return v if np.isfinite(v) else None
+    except (TypeError, ValueError):
+        return None
+
+
+# ============================================================
 #  LOAD PRICES FROM DB
 # ============================================================
 
@@ -474,21 +489,6 @@ def update_macro_bandeau(con: sqlite3.Connection):
         vix or 0, us10y or 0, us3m or 0, dxy or 0,
         f"{yield_curve:+.4f}" if yield_curve is not None else "N/A",
     )
-
-
-# ============================================================
-#  HELPERS
-# ============================================================
-
-def _f(x) -> float | None:
-    """Convertit en float Python, None si NaN/Inf."""
-    if x is None:
-        return None
-    try:
-        v = float(x)
-        return v if np.isfinite(v) else None
-    except (TypeError, ValueError):
-        return None
 
 
 # ============================================================

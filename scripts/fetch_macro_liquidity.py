@@ -70,7 +70,7 @@ FRED_SERIES = {
     "M2SL"           : "US M2 Money Stock (B USD, monthly)",
     "MYAGM2CNM189N"  : "China M2 Money Stock (B CNY, monthly)",
     "BAMLH0A0HYM2"    : "US HY OAS — ICE BofA (%, daily)",
-    "BAMLHE00EHY2EY"  : "EU HY OAS — ICE BofA Euro (%, daily)",
+    "BAMLHE00EHYIOAS" : "EU HY OAS — ICE BofA Euro (%, daily)",     # BAMLHE00EHY2EY discontinued
     "IRLTLT01JPM156N": "JGB 10Y Yield (%, monthly)",
     "IRLTLT01GBM156N": "UK Gilt 10Y Yield (%, monthly)",
 }

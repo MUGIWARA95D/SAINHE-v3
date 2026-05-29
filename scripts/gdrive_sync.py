@@ -29,21 +29,27 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-SCOPES   = ["https://www.googleapis.com/auth/drive"]
-FILE_ID  = os.environ["GDRIVE_FILE_ID"].strip().lstrip("﻿")
+SCOPES   = ["https://www.googleapis.com/auth/drive.file"]
 DB_PATH  = Path(os.environ.get("DB_PATH", "db/sainhe.db"))
 
 
 def _service():
-    sa_info = json.loads(os.environ["GDRIVE_SA_KEY"].lstrip("﻿"))
+    file_id = os.environ.get("GDRIVE_FILE_ID", "").strip().lstrip("﻿")
+    if not file_id:
+        raise RuntimeError("GDRIVE_FILE_ID env var is not set")
+    sa_raw = os.environ.get("GDRIVE_SA_KEY", "")
+    if not sa_raw:
+        raise RuntimeError("GDRIVE_SA_KEY env var is not set")
+    sa_info = json.loads(sa_raw.lstrip("﻿"))
     creds   = service_account.Credentials.from_service_account_info(sa_info, scopes=SCOPES)
-    return build("drive", "v3", credentials=creds)
+    svc     = build("drive", "v3", credentials=creds)
+    return svc, file_id
 
 
 def download():
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    svc     = _service()
-    request = svc.files().get_media(fileId=FILE_ID)
+    svc, file_id = _service()
+    request = svc.files().get_media(fileId=file_id)
     with open(DB_PATH, "wb") as fh:
         dl = MediaIoBaseDownload(fh, request)
         done = False
@@ -54,9 +60,9 @@ def download():
 
 
 def upload():
-    svc   = _service()
+    svc, file_id = _service()
     media = MediaFileUpload(str(DB_PATH), mimetype="application/x-sqlite3", resumable=True)
-    svc.files().update(fileId=FILE_ID, media_body=media).execute()
+    svc.files().update(fileId=file_id, media_body=media).execute()
     size_mb = DB_PATH.stat().st_size / 1_048_576
     log.info("DB uploadée → Drive (%.2f MB)", size_mb)
 
