@@ -358,7 +358,7 @@ def _yf_info(ticker: str) -> dict:
 
 def _pe_proxies() -> dict:
     """P/E ratios from ETF proxies via yfinance .info."""
-    proxies = {"pe_eu": "VGK", "pe_jp": "EWJ", "pe_em": "EEM"}
+    proxies = {"pe_eu": "VGK", "pe_jp": "EWJ", "pe_em": "EEM", "pe_cn": "MCHI"}
     result  = {}
     for col, ticker in proxies.items():
         info = _yf_info(ticker)
@@ -517,6 +517,13 @@ def run():
         row["china_m2_date"] = cn_m2_obs[0]["date"]
         print(f"[fred] China M2 YoY = {row['china_m2_yoy']}% (as of {row['china_m2_date']})")
 
+    # Japan M2 — FRED MYAGM2JPM189N (billions JPY, monthly, ~2-month lag)
+    jp_m2_obs = _fred_obs("MYAGM2JPM189N", n=14, lookback_years=3)
+    if len(jp_m2_obs) >= 13:
+        row["japan_m2_yoy"]  = _yoy(jp_m2_obs)
+        row["japan_m2_date"] = jp_m2_obs[0]["date"]
+        print(f"[fred] Japan M2 YoY = {row['japan_m2_yoy']}% (as of {row['japan_m2_date']})")
+
     # HY OAS: FRED returns decimal (3.12 = 312 bps) — multiply by 100
     hy_us_obs = _fred_obs("BAMLH0A0HYM2", n=2)
     if hy_us_obs:
@@ -587,11 +594,11 @@ def run():
         row["ecb_assets_t"]      = round(ecb_assets_obs[0]["value"] / 1_000_000, 3)
         row["ecb_assets_wk_pct"] = _wkchg(ecb_assets_obs)
         row["ecb_assets_date"]   = ecb_assets_obs[0]["date"]
-    # FRED fallback for ECB total assets (ECBASSETS = millions EUR)
+    # FRED fallback for ECB total assets (ECBASSETS = billions EUR, NOT millions)
     if row.get("ecb_assets_t") is None:
         ecb_fred = _fred_obs("ECBASSETS", n=5)
         if ecb_fred:
-            row["ecb_assets_t"]      = round(ecb_fred[0]["value"] / 1_000_000, 3)  # millions → trillions
+            row["ecb_assets_t"]      = round(ecb_fred[0]["value"] / 1_000, 3)  # billions → trillions
             row["ecb_assets_wk_pct"] = _wkchg(ecb_fred)
             row["ecb_assets_date"]   = ecb_fred[0]["date"]
             print(f"[fred] ECB assets fallback = {row['ecb_assets_t']}T (as of {row['ecb_assets_date']})")
@@ -643,7 +650,9 @@ def run():
         print(f"[mof] JGB spread 10Y-2Y = {jgb_spr:+.3f}% -> {row['jgb_signal']}")
 
     # ── 3c. ChinaBond CCDC — CGB yields (scraped, no key) ─────────────────────
-    print("[macro_liq] Fetching CGB yields (ChinaBond CCDC)...")
+    # Primary: ChinaBond CCDC (geo-blocked on GitHub Actions — fails silently)
+    # Fallback: FRED IRLTLT01CNM156N (OECD China 10Y, monthly, ~1-month lag)
+    print("[macro_liq] Fetching CGB yields (ChinaBond CCDC → FRED fallback)...")
 
     cgb10 = _chinabond_yield(10)
     cgb2  = _chinabond_yield(2)
@@ -654,11 +663,20 @@ def run():
     if cgb2:
         row["cgb_2y"] = round(cgb2["value"], 3)
         print(f"[chinabond] CGB 2Y  = {row['cgb_2y']}%")
+
+    # FRED fallback for CGB 10Y (monthly, but stable and reliable)
+    if row.get("cgb_10y") is None:
+        cgb_fred = _fred_obs("IRLTLT01CNM156N", n=3, lookback_years=2)
+        if cgb_fred:
+            row["cgb_10y"]  = round(cgb_fred[0]["value"], 3)
+            row["cgb_date"] = cgb_fred[0]["date"]
+            print(f"[fred] CGB 10Y fallback = {row['cgb_10y']}% (as of {row['cgb_date']})")
+
     if row.get("cgb_10y") is not None and row.get("cgb_2y") is not None:
         cgb_spr           = round(row["cgb_10y"] - row["cgb_2y"], 3)
         row["cgb_spread"] = cgb_spr
         row["cgb_signal"] = _yc_signal(cgb_spr)
-        print(f"[chinabond] CGB spread 10Y-2Y = {cgb_spr:+.3f}% -> {row['cgb_signal']}")
+        print(f"[cgb] spread 10Y-2Y = {cgb_spr:+.3f}% -> {row['cgb_signal']}")
 
     # ── 4. Global CB Trend ────────────────────────────────────────────────────
     cb_signals = []
