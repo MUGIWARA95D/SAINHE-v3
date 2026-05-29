@@ -249,6 +249,11 @@ CREATE TABLE IF NOT EXISTS macro_liquidity (
     pe_eu               REAL,               -- P/E EU proxy via VGK ETF
     pe_jp               REAL,               -- P/E JP proxy via EWJ ETF
     pe_em               REAL,               -- P/E EM proxy via EEM ETF
+    pe_cn               REAL,               -- P/E China proxy via MCHI ETF
+
+    -- ── M2 Japan ─────────────────────────────────────────────
+    japan_m2_yoy        REAL,               -- Japan M2 YoY % (FRED MYAGM2JPM189N)
+    japan_m2_date       TEXT,
 
     -- ── Allocation Ratios ─────────────────────────────────────
     gold_stocks         REAL,               -- (GLD × 10) / ^GSPC — oz gold per S&P point
@@ -476,6 +481,10 @@ def init_db():
     _add_col_if_missing(cur, "macro_liquidity", "copper_price",        "REAL")
     _add_col_if_missing(cur, "macro_liquidity", "copper_gold_ratio",   "REAL")
     _add_col_if_missing(cur, "macro_liquidity", "jpy_usd",             "REAL")
+    # China P/E proxy (MCHI ETF) + Japan M2
+    _add_col_if_missing(cur, "macro_liquidity", "pe_cn",               "REAL")
+    _add_col_if_missing(cur, "macro_liquidity", "japan_m2_yoy",        "REAL")
+    _add_col_if_missing(cur, "macro_liquidity", "japan_m2_date",       "TEXT")
 
     con.commit()
     con.close()

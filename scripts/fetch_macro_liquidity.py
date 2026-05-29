@@ -664,14 +664,6 @@ def run():
         row["cgb_2y"] = round(cgb2["value"], 3)
         print(f"[chinabond] CGB 2Y  = {row['cgb_2y']}%")
 
-    # FRED fallback for CGB 10Y (monthly, but stable and reliable)
-    if row.get("cgb_10y") is None:
-        cgb_fred = _fred_obs("IRLTLT01CNM156N", n=3, lookback_years=2)
-        if cgb_fred:
-            row["cgb_10y"]  = round(cgb_fred[0]["value"], 3)
-            row["cgb_date"] = cgb_fred[0]["date"]
-            print(f"[fred] CGB 10Y fallback = {row['cgb_10y']}% (as of {row['cgb_date']})")
-
     if row.get("cgb_10y") is not None and row.get("cgb_2y") is not None:
         cgb_spr           = round(row["cgb_10y"] - row["cgb_2y"], 3)
         row["cgb_spread"] = cgb_spr
