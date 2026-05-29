@@ -29,7 +29,7 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-SCOPES   = ["https://www.googleapis.com/auth/drive.file"]
+SCOPES   = ["https://www.googleapis.com/auth/drive"]
 DB_PATH  = Path(os.environ.get("DB_PATH", "db/sainhe.db"))
 
 
