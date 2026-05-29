@@ -1,6 +1,6 @@
 """
 fetch_news.py — Scrape les flux RSS et stocke dans news (dédupliqué par hash MD5).
-Reuters (#1) toujours inclus. Les autres sources tournent selon RSS_ROTATION.
+Toutes les sources actives (RSS_SOURCES) sont fetched à chaque run.
 Purge automatique des articles > NEWS_RETENTION_DAYS.
 
 Lancement :
@@ -23,7 +23,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from config import (
     DB_PATH,
     RSS_SOURCES,
-    RSS_ROTATION,
     NEWS_RETENTION_DAYS,
     CACHE_NEWS,
 )
