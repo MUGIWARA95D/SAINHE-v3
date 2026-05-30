@@ -75,14 +75,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Init DB (idempotent)
-        run: python scripts/db_init.py
-
       - name: Download DB from Google Drive
         run: python scripts/gdrive_sync.py download
         env:
           GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
           GDRIVE_FILE_ID: ${{ secrets.GDRIVE_FILE_ID }}
+
+      - name: Migrate DB (idempotent)
+        run: python scripts/db_init.py
 
       - name: "[refresh:fx] Fetch FX rates"
         if: |
@@ -145,6 +145,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          wranglerVersion: "3.99.0"
           command: pages deploy output --project-name=sainhe --branch=main
 
   # ════════════════════════════════════════════════════════════
@@ -174,14 +175,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Init DB (idempotent)
-        run: python scripts/db_init.py
-
       - name: Download DB from Google Drive
         run: python scripts/gdrive_sync.py download
         env:
           GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
           GDRIVE_FILE_ID: ${{ secrets.GDRIVE_FILE_ID }}
+
+      - name: Migrate DB (idempotent)
+        run: python scripts/db_init.py
 
       - name: Fetch Macro Liquidity (FRED, ECB, CAPE, HY)
         run: python scripts/fetch_macro_liquidity.py
@@ -209,6 +210,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          wranglerVersion: "3.99.0"
           command: pages deploy output --project-name=sainhe --branch=main
 
   # ════════════════════════════════════════════════════════════
@@ -239,14 +241,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Init DB (idempotent)
-        run: python scripts/db_init.py
-
       - name: Download DB from Google Drive
         run: python scripts/gdrive_sync.py download
         env:
           GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
           GDRIVE_FILE_ID: ${{ secrets.GDRIVE_FILE_ID }}
+
+      - name: Migrate DB (idempotent)
+        run: python scripts/db_init.py
 
       - name: Fetch FX rates
         run: python scripts/fetch_fx.py
@@ -265,6 +267,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          wranglerVersion: "3.99.0"
           command: pages deploy output --project-name=sainhe --branch=main
 
   # ════════════════════════════════════════════════════════════
@@ -292,14 +295,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Init DB (idempotent)
-        run: python scripts/db_init.py
-
       - name: Download DB from Google Drive
         run: python scripts/gdrive_sync.py download
         env:
           GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
           GDRIVE_FILE_ID: ${{ secrets.GDRIVE_FILE_ID }}
+
+      - name: Migrate DB (idempotent)
+        run: python scripts/db_init.py
 
       - name: Fetch FX rates
         run: python scripts/fetch_fx.py
@@ -337,4 +340,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          wranglerVersion: "3.99.0"
           command: pages deploy output --project-name=sainhe --branch=main
