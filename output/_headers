@@ -1,5 +1,0 @@
-/*.html
-  Cache-Control: no-cache, must-revalidate
-
-/data/*.json
-  Cache-Control: no-cache, must-revalidate
