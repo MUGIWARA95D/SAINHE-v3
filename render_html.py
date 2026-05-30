@@ -179,6 +179,18 @@ def _dig(d: dict, path: tuple):
     return cur
 
 
+def _round_floats(obj, ndigits: int = 6):
+    """Recursively round floats to kill float32 storage noise (15.7399997 -> 15.74).
+    bool is left untouched (it's an int subclass)."""
+    if isinstance(obj, float):
+        return round(obj, ndigits)
+    if isinstance(obj, dict):
+        return {k: _round_floats(v, ndigits) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_round_floats(v, ndigits) for v in obj]
+    return obj
+
+
 def _build_macro_dataset(macro_data: dict, ts_render: str) -> dict:
     """Rich per-field macro dataset: each metric carries value, unit, thresholds, regime."""
     fields = {}
@@ -232,6 +244,7 @@ def write_data_layer(boxes_by_id: dict, ts_render: str) -> list[dict]:
 
     manifest_entries = []
     for name, payload in datasets.items():
+        payload = _round_floats(payload)
         out = data_dir / f"{name}.json"
         out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
         manifest_entries.append({
