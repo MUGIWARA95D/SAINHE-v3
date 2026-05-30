@@ -121,8 +121,8 @@
         const st = staleInfo(x.ts_update);
         h += `<tr>
           <td>
-            <strong style="color:var(--h)">${esc(x.nom)}</strong><br>
-            <span style="font-size:10px;color:var(--muted)">${esc(x.ticker)}</span><br>
+            <strong style="color:var(--h)" translate="no">${esc(x.nom)}</strong><br>
+            <span style="font-size:10px;color:var(--muted)" translate="no">${esc(x.ticker)}</span><br>
             <span class="ts-wrap ${st.cls}"><span class="ts-dot"></span><span class="ts-age">${st.label}</span></span>
           </td>
           <td><canvas class="idx-spark" id="isp_${esc(uid)}" width="56" height="22"></canvas></td>

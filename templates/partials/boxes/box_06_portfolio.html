@@ -287,7 +287,7 @@
     alerts.slice(0,5).forEach(function(a){
       var row=el.appendChild(document.createElement("div"));
       row.className="pt-alert "+a.cls;
-      var tick=row.appendChild(mk("span","pt-alert-ticker",a.ticker));
+      var tick=row.appendChild(mk("span","pt-alert-ticker",a.ticker)); tick.translate=false;
       tick.style.color=a.cls==="al-green"?"var(--green)":a.cls==="al-red"?"var(--red)":"var(--gold)";
       row.appendChild(mk("span","pt-alert-msg","— "+a.msg));
       row.appendChild(mk("span","pt-alert-time",a.hhmm));
@@ -394,10 +394,11 @@
       /* native devise — resolved early, used in col 2 badge and col 4 price */
       var nd = p.native_devise || 'USD';
 
-      /* col 2 — ticker + name + native currency badge */
+      /* col 2 — ticker + name + native currency badge (proper nouns: never translate) */
       var td1=tr.appendChild(mk("td"));
-      td1.appendChild(mk("strong",null,p.ticker)).style.color="var(--h)";
-      var sub=td1.appendChild(mk("span",null," "+(p.nom||"")));
+      var tkEl=mk("strong",null,p.ticker); tkEl.translate=false;
+      td1.appendChild(tkEl).style.color="var(--h)";
+      var sub=td1.appendChild(mk("span",null," "+(p.nom||""))); sub.translate=false;
       sub.style.cssText="font-size:10px;color:var(--muted)";
       td1.appendChild(ndBadge(nd));
 

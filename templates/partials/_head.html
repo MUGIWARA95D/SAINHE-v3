@@ -963,7 +963,7 @@ a.news-hl:hover{color:var(--gold)}
     catch(e){document.documentElement.dataset.ci='on';}
     window._ci=function(tip,tab,row){
       var el=document.createElement('span');
-      el.className='ci'; el.dataset.tip=tip; el.textContent='i';
+      el.className='ci'; el.dataset.tip=tip; el.textContent='i'; el.translate=false;
       if(tab) el.dataset.tab=tab;
       if(row) el.dataset.row=row;
       return el;
