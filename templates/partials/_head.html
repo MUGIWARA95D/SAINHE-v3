@@ -2,6 +2,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>{{ site_name }}</title>
+  <meta name="description" content="{{ site_name }} — {{ site_slogan }}. Macro signals, global indices, sector rotation, sentiment.">
+
+  <!-- JSON-LD: machine-readable dataset catalog for AI agents & crawlers -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": "{{ site_name }} financial data",
+    "description": "{{ site_slogan }} — macro signals, global indices, sector rotation, sentiment, watchlist scan.",
+    "creator": {"@type": "Organization", "name": "{{ site_name }}"},
+    "isAccessibleForFree": true,
+    "distribution": [
+      {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": "/data/index.json", "name": "Dataset manifest"},
+      {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": "/data/macro.json", "name": "Macro indicators"}
+    ]
+  }
+  </script>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <style>{% raw %}
 /* ═══════════════════ DESIGN TOKENS ═══════════════════ */

@@ -1,13 +1,17 @@
 """
-render_html.py — Single EN build. Translations handled client-side via localStorage.
+render_html.py — Single EN build (static site) + agent-facing JSON data layer.
 
-Génère 4 pages HTML (EN) + copie locales/*.json → output/locales/
-Les traductions sont chargées côté client au runtime (voir _head.html i18n system).
+Generates:
+  - 4 HTML pages (EN): index, stock-analysis, learn, contact
+  - output/data/*.json   : machine-readable data layer for AI agents
+  - output/data/index.json : discovery manifest
+  - output/llms.txt      : agent entry point
 
-Lancement :
+Run:
     python render_html.py
 """
 
+import json
 import sqlite3
 import importlib
 import logging
@@ -29,6 +33,7 @@ from config import (
     SITE_SLOGAN,
     COLORS,
 )
+import schema
 
 logging.basicConfig(
     level=logging.INFO,
@@ -161,6 +166,133 @@ def build_page_navs() -> dict:
 
 
 # ============================================================
+#  DATA LAYER — agent-facing JSON (/data/*.json)
+# ============================================================
+
+def _dig(d: dict, path: tuple):
+    """Safely walk a nested dict by a tuple path; return None if any hop missing."""
+    cur = d
+    for k in path:
+        if not isinstance(cur, dict):
+            return None
+        cur = cur.get(k)
+    return cur
+
+
+def _build_macro_dataset(macro_data: dict, ts_render: str) -> dict:
+    """Rich per-field macro dataset: each metric carries value, unit, thresholds, regime."""
+    fields = {}
+    for m in schema.MACRO_METRICS:
+        obj = {"value": _dig(macro_data, m["path"]), "unit": m["unit"]}
+        if m.get("thresholds"):
+            obj["thresholds"] = m["thresholds"]
+        regime_path = schema.MACRO_REGIME_PATHS.get(m["key"])
+        if regime_path:
+            reg = _dig(macro_data, regime_path)
+            if reg is not None:
+                obj["regime"] = reg
+        fields[m["key"]] = obj
+    return {
+        "dataset": "macro",
+        "as_of":   macro_data.get("ts") or ts_render,
+        "source":  schema.SOURCES["macro"],
+        "data":    fields,
+    }
+
+
+def _envelope(name: str, box_data: dict, units: dict, ts_render: str) -> dict:
+    """Collection dataset: flat records + a field→unit map (token-efficient)."""
+    return {
+        "dataset": name,
+        "as_of":   ts_render,
+        "source":  schema.SOURCES.get(name, ""),
+        "units":   units,
+        "data":    box_data,
+    }
+
+
+def write_data_layer(boxes_by_id: dict, ts_render: str) -> list[dict]:
+    """
+    Writes output/data/*.json + index.json manifest.
+    Returns the manifest entries (for llms.txt / logging).
+    """
+    data_dir = OUTPUT_DIR / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    def _data(bid): return boxes_by_id.get(bid, {}).get("data", {})
+
+    datasets = {
+        "macro":     _build_macro_dataset(_data("box_01_macro"), ts_render),
+        "indices":   _envelope("indices",   _data("box_02_indices"),   schema.INDICES_UNITS,   ts_render),
+        "news":      _envelope("news",       _data("box_03_news"),      {},                     ts_render),
+        "sectors":   _envelope("sectors",    _data("box_04_sectors"),   schema.SECTORS_UNITS,   ts_render),
+        "sentiment": _envelope("sentiment",  _data("box_05_sentiment"), schema.SENTIMENT_UNITS, ts_render),
+        "portfolio": _envelope("portfolio",  _data("box_06_portfolio"), schema.PORTFOLIO_UNITS, ts_render),
+    }
+
+    manifest_entries = []
+    for name, payload in datasets.items():
+        out = data_dir / f"{name}.json"
+        out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        manifest_entries.append({
+            "dataset": name,
+            "url":     f"/data/{name}.json",
+            "as_of":   payload.get("as_of"),
+            "source":  payload.get("source"),
+        })
+        log.info("Data → %s (%d octets)", out, out.stat().st_size)
+
+    # Discovery manifest
+    manifest = {
+        "site":      SITE_NAME,
+        "generated": ts_render,
+        "datasets":  manifest_entries,
+        "units_legend": {
+            "index": "index level", "pct": "percent", "pct_points": "percentage points",
+            "bps": "basis points", "ratio": "dimensionless ratio", "fx_per_usd": "units per 1 USD",
+            "trillion_usd": "trillions USD", "trillion_eur": "trillions EUR",
+            "billion_usd": "billions USD", "category": "categorical label",
+            "native_ccy": "value in the instrument's native currency",
+            "score_-1_to_1": "score from -1 to +1", "index_0_100": "index 0-100",
+            "composite": "composite momentum score", "direction": "-1/0/+1",
+        },
+    }
+    (data_dir / "index.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    log.info("Data → %s/index.json (manifest, %d datasets)", data_dir, len(manifest_entries))
+
+    # llms.txt — agent entry point
+    lines = [
+        f"# {SITE_NAME} — {SITE_SLOGAN}",
+        "",
+        "> Independent financial intelligence platform. Macro signals, global indices,",
+        "> sector rotation, sentiment, and a personal watchlist scan. All values in USD",
+        "> unless a native_ccy unit is given.",
+        "",
+        "## Machine-readable data",
+        "",
+        f"All data is exposed as JSON. Start with the manifest: /data/index.json",
+        "",
+    ]
+    for e in manifest_entries:
+        lines.append(f"- [{e['dataset']}]({e['url']}): {e['source']}")
+    lines += [
+        "",
+        "## Notes for agents",
+        "",
+        "- macro.json is rich per-field: each metric has value, unit, thresholds, regime.",
+        "- Collection datasets (indices, sectors, sentiment, portfolio) use a top-level",
+        "  units map; records are flat. Missing values are null (never \"-\" or \"N/A\").",
+        "- Dates are ISO 8601. Refresh cadence: news 5x/day, fx 2x/day, full pipeline nightly.",
+        "",
+    ]
+    (OUTPUT_DIR / "llms.txt").write_text("\n".join(lines), encoding="utf-8")
+    log.info("llms.txt written")
+
+    return manifest_entries
+
+
+# ============================================================
 #  RENDER
 # ============================================================
 
@@ -196,6 +328,9 @@ def render(currency: str = DEFAULT_CURRENCY):
     boxes_by_id = {b["meta"]["id"]: b for b in boxes}
     def _data(bid): return boxes_by_id.get(bid, {}).get("data", {})
     def _meta(bid): return boxes_by_id.get(bid, {}).get("meta", {})
+
+    # ── Agent-facing JSON data layer (/data/*.json + llms.txt) ──
+    write_data_layer(boxes_by_id, ts_render)
 
     # Shared base context (EN-only build)
     base_ctx = {
@@ -257,7 +392,7 @@ def render(currency: str = DEFAULT_CURRENCY):
     })
 
     con.close()
-    log.info("Render complet — 4 pages (EN)")
+    log.info("Render complet — 4 pages (EN) + data layer (6 datasets + manifest)")
 
 
 # ============================================================
