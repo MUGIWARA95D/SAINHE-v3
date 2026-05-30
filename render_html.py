@@ -179,15 +179,16 @@ def _dig(d: dict, path: tuple):
     return cur
 
 
-def _round_floats(obj, ndigits: int = 6):
-    """Recursively round floats to kill float32 storage noise (15.7399997 -> 15.74).
-    bool is left untouched (it's an int subclass)."""
+def _round_floats(obj):
+    """Recursively round floats to kill float32 storage noise (99.01999664 -> 99.02).
+    Magnitude-aware: 4 decimals for |x|>=1 (rates, indices, P/E), 6 for |x|<1
+    (small ratios like ERP). bool is left untouched (it's an int subclass)."""
     if isinstance(obj, float):
-        return round(obj, ndigits)
+        return round(obj, 4 if abs(obj) >= 1 else 6)
     if isinstance(obj, dict):
-        return {k: _round_floats(v, ndigits) for k, v in obj.items()}
+        return {k: _round_floats(v) for k, v in obj.items()}
     if isinstance(obj, list):
-        return [_round_floats(v, ndigits) for v in obj]
+        return [_round_floats(v) for v in obj]
     return obj
 
 
