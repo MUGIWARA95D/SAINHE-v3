@@ -1,10 +1,21 @@
-# SAINHE — Fundamental Intelligence
+<p align="center">
+  <img src="assets/sainhe-banner.svg" alt="SAINHE — Fundamental Intelligence" width="100%">
+</p>
 
-An independent financial-intelligence platform that aggregates macro signals,
-decodes market structure, and explains it in plain language — so you can think
-for yourself and act with conviction.
+<p align="center">
+  <a href="https://sainhe.pages.dev"><img src="https://img.shields.io/badge/live-sainhe.pages.dev-9E7A2E?style=flat-square&labelColor=2C2C2C" alt="Live site"></a>
+  <img src="https://img.shields.io/badge/Python-3.11-9E7A2E?style=flat-square&labelColor=2C2C2C" alt="Python 3.11">
+  <img src="https://img.shields.io/badge/hosting-Cloudflare%20Pages-C9A84C?style=flat-square&labelColor=2C2C2C" alt="Cloudflare Pages">
+  <img src="https://img.shields.io/badge/CI-GitHub%20Actions-C9A84C?style=flat-square&labelColor=2C2C2C" alt="GitHub Actions">
+</p>
 
-🔗 **Live:** [sainhe.pages.dev](https://sainhe.pages.dev)
+<p align="center">
+  <em>An independent financial-intelligence platform that aggregates macro signals,<br>
+  decodes market structure, and explains it in plain language —<br>
+  so you can think for yourself and act with conviction.</em>
+</p>
+
+<p align="center"><a href="https://sainhe.pages.dev"><b>→ Open the live dashboard</b></a></p>
 
 ---
 
@@ -113,3 +124,12 @@ Standalone work kept alongside the platform:
 predict U.S. equity volatility (VIX)? Daily FRED data, OLS with HAC standard
 errors, interaction/quadratic terms, and a PE test selecting a log-linear
 specification. → [paper + code](./projects/oil-vix-volatility/)
+
+---
+
+## About
+
+- 📄 **CV** — see [`cv/`](./cv/)
+- 📎 **Attachments** (certificates, transcripts, decks) — see [`attachments/`](./attachments/)
+
+<sub>Built with care · timeless, warm, legible.</sub>

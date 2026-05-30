@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-label="SAINHE — Fundamental Intelligence">
+  <!-- warm cream background -->
+  <rect width="1200" height="360" rx="12" fill="#FAF7F2"/>
+  <!-- classic thin gold frame -->
+  <rect x="22" y="22" width="1156" height="316" rx="7" fill="none" stroke="#C9A84C" stroke-width="1.5"/>
+  <rect x="30" y="30" width="1140" height="300" rx="5" fill="none" stroke="#C9A84C" stroke-width="0.75" opacity="0.55"/>
+
+  <!-- top eyebrow label -->
+  <g font-family="Georgia, 'Times New Roman', serif" text-anchor="middle">
+    <circle cx="455" cy="95" r="4" fill="#9E7A2E"/>
+    <text x="475" y="101" fill="#9E7A2E" font-size="20" letter-spacing="6" dominant-baseline="middle">FINANCIAL INTELLIGENCE PLATFORM</text>
+  </g>
+
+  <!-- wordmark -->
+  <text x="600" y="205" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="104" letter-spacing="20" fill="#1C1710">SAINHE</text>
+
+  <!-- gold rule -->
+  <line x1="500" y1="240" x2="700" y2="240" stroke="#C9A84C" stroke-width="1.5"/>
+
+  <!-- tagline -->
+  <text x="600" y="292" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="30" font-style="italic" fill="#9E7A2E">Fundamental Intelligence</text>
+</svg>
