@@ -957,7 +957,7 @@ a.news-hl:hover{color:var(--gold)}
 
   <!-- FX / Currency System — injected at render time, applied client-side -->
   <script>
-  window.SAINHE_FX  = {"AUD": 1.4025, "CAD": 1.3834, "CHF": 0.78654, "CNY": 6.7821, "EUR": 0.85933, "GBP": 0.74433, "HKD": 7.8348, "ILS": 2.8571, "INR": 95.69, "JPY": 159.42, "SAR": 3.7525, "USD": 1.0};
+  window.SAINHE_FX  = {"EUR": 0.86768, "HKD": 7.8373, "USD": 1.0};
   window.SAINHE_CUR = localStorage.getItem('sainhe_currency') || 'USD';
 
   /* Convert amount from native_devise → current display currency.
@@ -1042,11 +1042,6 @@ a.news-hl:hover{color:var(--gold)}
   });
   </script>
 
-  <!-- SSG lang URLs: populated by Jinja2 for pages with per-language HTML -->
-  <script>
-  window.SAINHE_LANG_URLS = {"de": "/de/learn.html", "en": "/learn.html", "es": "/es/learn.html", "fr": "/fr/learn.html", "ja": "/ja/learn.html", "ru": "/ru/learn.html", "zh": "/zh/learn.html"};
-  </script>
-
   <!-- miniChart — shared sparkline helper (used by box_02, box_03, box_06) -->
   <script>
   function miniChart(cv, data, color, fill){
@@ -1063,106 +1058,10 @@ a.news-hl:hover{color:var(--gold)}
   }
   </script>
 
-  <!-- i18n CLIENT-SIDE SYSTEM -->
+  <!-- Locale constants (EN-only build; box JS reads these for number formatting) -->
   <script>
-  /* == 1. Synchronous init == */
-  (function(){
-    var LOCALES={en:'en-US',fr:'fr-FR',de:'de-DE',es:'es-ES',zh:'zh-CN',ru:'ru-RU',ja:'ja-JP'};
-    var lang='en';
-    try{var s=localStorage.getItem('sainhe_lang');if(s&&LOCALES[s])lang=s;}catch(e){}
-    window.SAINHE_LANG  =lang;
-    window.SAINHE_LOCALE=LOCALES[lang]||'en-US';
-    window.SAINHE_I18N  ={};
-    /* == version check: bust stale locale caches on new deploy == */
-    var _iver='2026-05-28 16:17';
-    try{
-      if(localStorage.getItem('sainhe_i18n_ver')!==_iver){
-        Object.keys(localStorage).filter(function(k){return k.indexOf('sainhe_i18n_')===0&&k!=='sainhe_i18n_ver';})
-          .forEach(function(k){localStorage.removeItem(k);});
-        localStorage.setItem('sainhe_i18n_ver',_iver);
-      }
-    }catch(e){}
-    window.SAINHE_I18N_VER=_iver;
-    if(lang!=='en'){
-      try{var raw=localStorage.getItem('sainhe_i18n_'+lang);if(raw)window.SAINHE_I18N=JSON.parse(raw);}catch(e){}
-    }
-    document.documentElement.lang=lang;
-  })();
-
-  /* == 2. translatePage == */
-  function translatePage(){
-    var I18N=window.SAINHE_I18N||{};
-    if(!Object.keys(I18N).length)return;
-    document.querySelectorAll('[data-i18n]').forEach(function(el){
-      var k=el.getAttribute('data-i18n');if(I18N[k])el.textContent=I18N[k];
-    });
-    document.querySelectorAll('[data-i18n-title]').forEach(function(el){
-      var k=el.getAttribute('data-i18n-title');if(I18N[k])el.title=I18N[k];
-    });
-    document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
-      var k=el.getAttribute('data-i18n-aria');if(I18N[k])el.setAttribute('aria-label',I18N[k]);
-    });
-    /* update lang button + active marker */
-    var btn=document.getElementById('dd-lang-btn');
-    if(btn){var t=btn.childNodes[0];if(t&&t.nodeType===3)t.nodeValue=window.SAINHE_LANG.toUpperCase();}
-    document.querySelectorAll('#dd-lang .hdr-dd-item').forEach(function(el){
-      el.classList.toggle('active',el.dataset.lang===window.SAINHE_LANG);
-    });
-  }
-
-  /* == 3. setLang == */
-  function setLang(code){
-    var LOCALES={en:'en-US',fr:'fr-FR',de:'de-DE',es:'es-ES',zh:'zh-CN',ru:'ru-RU',ja:'ja-JP'};
-    if(!LOCALES[code])return;
-    try{localStorage.setItem('sainhe_lang',code);}catch(e){}
-    /* SSG pages: navigate to the pre-built language version */
-    var ssgUrl = (window.SAINHE_LANG_URLS||{})[code];
-    if(ssgUrl){
-      try{localStorage.setItem('sainhe_lang',code);}catch(e){}
-      location.href = ssgUrl;
-      return;
-    }
-    if(code==='en'){location.reload();return;}
-    var cached=null;
-    try{cached=localStorage.getItem('sainhe_i18n_'+code);}catch(e){}
-    if(cached){location.reload();}
-    else{
-      fetch('/locales/'+code+'.json')
-        .then(function(r){return r.json();})
-        .then(function(data){
-          try{localStorage.setItem('sainhe_i18n_'+code,JSON.stringify(data));}catch(e){}
-          location.reload();
-        })
-        .catch(function(){location.reload();});
-    }
-  }
-
-  /* == 4. DOMContentLoaded == */
-  document.addEventListener('DOMContentLoaded',function(){
-    /* SSG redirect on load: if lang is non-EN and this page has a pre-built version, go there */
-    var _curLang = window.SAINHE_LANG;
-    if(_curLang && _curLang !== 'en'){
-      var _ssgUrl = (window.SAINHE_LANG_URLS||{})[_curLang];
-      if(_ssgUrl && !window.location.pathname.startsWith('/'+_curLang+'/')){
-        location.replace(_ssgUrl);
-        return;
-      }
-    }
-    translatePage();
-    /* cache-miss: non-EN but no cached translations yet */
-    if(window.SAINHE_LANG!=='en'&&!Object.keys(window.SAINHE_I18N).length){
-      fetch('/locales/'+window.SAINHE_LANG+'.json')
-        .then(function(r){return r.json();})
-        .then(function(data){
-          window.SAINHE_I18N=data;
-          try{localStorage.setItem('sainhe_i18n_'+window.SAINHE_LANG,JSON.stringify(data));}catch(e){}
-          translatePage();
-          ['_sainheRenderMacro','_sainheRenderIndices','_sainheRenderPortfolio',
-           '_sainheRenderSentiment','_sainheRenderSectors','_sainheRenderNews']
-            .forEach(function(fn){window[fn]&&window[fn]();});
-        });
-    }
-  });
+  window.SAINHE_LANG='en'; window.SAINHE_LOCALE='en-US'; window.SAINHE_I18N={};
+  document.documentElement.lang='en';
   </script>
 </head>
 <body>
@@ -1316,54 +1215,18 @@ a.news-hl:hover{color:var(--gold)}
     }
   })()" style="cursor:pointer">SAINHE</span>
   <nav class="hdr-nav">
-    <a href="#hero" class="hdr-nav-menu" data-i18n="nav_menu">Menu</a>
+    <a href="#hero" class="hdr-nav-menu">Menu</a>
     
-    <a href="#learn-whyfinance" data-i18n="nav_why_finance">Why Finance</a>
+    <a href="#learn-whyfinance">Why Finance</a>
     
-    <a href="#learn-mindmap" data-i18n="nav_mindmap">Mindmap</a>
+    <a href="#learn-mindmap">Mindmap</a>
     
-    <a href="#learn-dashboard" data-i18n="nav_dashboard">Dashboard</a>
+    <a href="#learn-dashboard">Dashboard</a>
     
-    <a href="#learn-stockanalysis" data-i18n="nav_stock_analysis">Stock Analysis</a>
+    <a href="#learn-stockanalysis">Stock Analysis</a>
     
   </nav>
   <div class="spacer"></div>
-  <!-- Language dropdown -->
-  <div class="hdr-dd" id="dd-lang">
-    <button class="hdr-dd-btn" id="dd-lang-btn">EN</button>
-    <div class="hdr-dd-menu">
-      
-      <div class="hdr-dd-item"
-           data-lang="en"
-           onclick="setLang('en')">EN</div>
-      
-      <div class="hdr-dd-item"
-           data-lang="fr"
-           onclick="setLang('fr')">FR</div>
-      
-      <div class="hdr-dd-item"
-           data-lang="de"
-           onclick="setLang('de')">DE</div>
-      
-      <div class="hdr-dd-item"
-           data-lang="es"
-           onclick="setLang('es')">ES</div>
-      
-      <div class="hdr-dd-item"
-           data-lang="zh"
-           onclick="setLang('zh')">ZH</div>
-      
-      <div class="hdr-dd-item"
-           data-lang="ru"
-           onclick="setLang('ru')">RU</div>
-      
-      <div class="hdr-dd-item"
-           data-lang="ja"
-           onclick="setLang('ja')">JA</div>
-      
-    </div>
-  </div>
-
   <!-- Currency dropdown -->
   <div class="hdr-dd" id="dd-cur">
     <button class="hdr-dd-btn" id="dd-cur-btn">USD</button>
@@ -1407,30 +1270,30 @@ a.news-hl:hover{color:var(--gold)}
   <div class="hero-inner">
     <div class="hero-eyebrow">
       <span class="hero-dot"></span>
-      <span><span data-i18n="hero_platform">Financial Intelligence Platform</span> &middot; 2026-05-28 16:17 UTC</span>
+      <span><span>Financial Intelligence Platform</span> &middot; 2026-05-30 13:53 UTC</span>
     </div>
     <h1 class="hero-title">
-      <span data-i18n="hero_title_1">Financial intelligence,</span><br>
-      <em data-i18n="hero_title_2">made legible.</em>
+      <span>Financial intelligence,</span><br>
+      <em>made legible.</em>
     </h1>
-    <p class="hero-lede" data-i18n="hero_lede">SAINHE is an independent financial intelligence platform. It aggregates macro signals, decodes SEC filings, prices assets, and explains market structure — so you think for yourself and act with conviction.</p>
+    <p class="hero-lede">SAINHE is an independent financial intelligence platform. It aggregates macro signals, decodes SEC filings, prices assets, and explains market structure — so you think for yourself and act with conviction.</p>
   </div>
   <div class="hero-chips">
     <a class="hero-chip"
-       href="/index.html" data-i18n="nav_dashboard">Dashboard</a>
+       href="/index.html">Dashboard</a>
     <a class="hero-chip"
-       href="/stock-analysis.html" data-i18n="nav_stock_analysis">Stock Analysis</a>
+       href="/stock-analysis.html">Stock Analysis</a>
     <a class="hero-chip hero-chip-active"
-       href="/learn.html" data-i18n="nav_learn">Learn</a>
+       href="/learn.html">Learn</a>
     <a class="hero-chip"
-       href="/contact.html" data-i18n="nav_contact">Get in Touch</a>
+       href="/contact.html">Get in Touch</a>
   </div>
 </section>
 
   <!-- ═══ STATEMENT BAR ═══════════════════════════════════════ -->
   <div class="statement-bar">
-    <span class="sb-label" data-i18n="learn_sb_label">Learn ·</span>
-    <span class="sb-body" data-i18n="learn_sb_body">Understand what every signal means, how to read each section, and how to act with conviction.</span>
+    <span class="sb-label">Learn ·</span>
+    <span class="sb-body">Understand what every signal means, how to read each section, and how to act with conviction.</span>
   </div>
 
 
@@ -2623,7 +2486,7 @@ window.addEventListener('resize', function() {
 </main>
 
 <footer id="foot">
-  SAINHE Daily Intelligence &middot; <span data-i18n="footer_credit">Data: Yahoo Finance / ECB</span> &middot; 2026-05-28 16:17 UTC
+  SAINHE Daily Intelligence &middot; <span>Data: Yahoo Finance / ECB</span> &middot; 2026-05-30 13:53 UTC
 </footer>
 
 <!-- ═══ SHARED JS HELPERS ══════════════════════════════════ -->

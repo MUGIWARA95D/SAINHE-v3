@@ -8,8 +8,6 @@ Lancement :
     python render_html.py
 """
 
-import json
-import shutil
 import sqlite3
 import importlib
 import logging
@@ -25,8 +23,6 @@ from config import (
     OUTPUT_DIR,
     TEMPLATE_DIR,
     BOX_REGISTRY,
-    LANGUAGES,
-    DEFAULT_LANGUAGE,
     CURRENCIES,
     DEFAULT_CURRENCY,
     SITE_NAME,
@@ -41,42 +37,7 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-LOCALES_DIR = Path(__file__).resolve().parent / "locales"
-
 MONTH_ABBR = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-
-
-# ============================================================
-#  TRANSLATIONS
-# ============================================================
-
-# Pages rendered once per language (SSG) vs client-side i18n
-SSG_PAGES = {"learn"}  # pages that get a separate HTML per language
-
-def load_translations(lang: str = "en") -> dict:
-    """Charge locales/<lang>.json. Falls back to empty dict if missing."""
-    path = LOCALES_DIR / f"{lang}.json"
-    if not path.exists():
-        return {}
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
-
-def merged_translations(lang: str) -> dict:
-    """EN as base, overlaid with lang-specific translations (fallback to EN for missing keys)."""
-    en = load_translations("en")
-    if lang == "en":
-        return en
-    return {**en, **load_translations(lang)}
-
-# Per-language URLs for SSG pages (used by language switcher)
-def ssg_lang_urls(page: str) -> dict:
-    """Returns {lang_code: url} mapping for a given SSG page."""
-    urls = {"en": f"/{page}.html"}
-    for lang in LANGUAGES:
-        code = lang.lower()
-        if code != "en":
-            urls[code] = f"/{code}/{page}.html"
-    return urls
 
 
 # ============================================================
@@ -168,33 +129,33 @@ def _box_timestamps(con: sqlite3.Connection) -> dict:
     }
 
 
-def build_page_navs(t: dict) -> dict:
-    """Nav links with i18n key + EN label fallback."""
+def build_page_navs() -> dict:
+    """Nav links (href + EN label) per page."""
     return {
         "dashboard": [
-            {"href": "#nav-macro",     "key": "nav_macro",      "label": t.get("nav_macro",      "Macro")},
-            {"href": "#nav-indices",   "key": "nav_indices",    "label": t.get("nav_indices",    "Indices")},
-            {"href": "#nav-news",      "key": "nav_news",       "label": t.get("nav_news",       "News")},
-            {"href": "#nav-sectors",   "key": "nav_sectors",    "label": t.get("nav_sectors",    "Sectors")},
-            {"href": "#nav-sentiment", "key": "nav_sentiment",  "label": t.get("nav_sentiment",  "Sentiment")},
-            {"href": "#nav-portfolio", "key": "nav_portfolio",  "label": t.get("nav_portfolio",  "Portfolio")},
+            {"href": "#nav-macro",     "label": "Macro"},
+            {"href": "#nav-indices",   "label": "Indices"},
+            {"href": "#nav-news",      "label": "News"},
+            {"href": "#nav-sectors",   "label": "Sectors"},
+            {"href": "#nav-sentiment", "label": "Sentiment"},
+            {"href": "#nav-portfolio", "label": "Portfolio"},
         ],
         "stock-analysis": [
-            {"href": "#oracle",        "key": "nav_the_oracle",    "label": t.get("nav_the_oracle",    "The Oracle")},
-            {"href": "#forge",         "key": "nav_the_forge",     "label": t.get("nav_the_forge",     "The Forge")},
-            {"href": "#discernement",  "key": "nav_discernment",   "label": t.get("nav_discernment",   "Discernment")},
-            {"href": "#equilibre",     "key": "nav_the_balance",   "label": t.get("nav_the_balance",   "The Balance")},
-            {"href": "#marees",        "key": "nav_the_tides",     "label": t.get("nav_the_tides",     "The Tides")},
-            {"href": "#comparaison",   "key": "nav_comparison",    "label": t.get("nav_comparison",    "Comparison")},
+            {"href": "#oracle",       "label": "The Oracle"},
+            {"href": "#forge",        "label": "The Forge"},
+            {"href": "#discernement", "label": "Discernment"},
+            {"href": "#equilibre",    "label": "The Balance"},
+            {"href": "#marees",       "label": "The Tides"},
+            {"href": "#comparaison",  "label": "Comparison"},
         ],
         "learn": [
-            {"href": "#learn-whyfinance",    "key": "nav_why_finance",    "label": t.get("nav_why_finance",    "Why Finance")},
-            {"href": "#learn-mindmap",       "key": "nav_mindmap",        "label": t.get("nav_mindmap",        "Mindmap")},
-            {"href": "#learn-dashboard",     "key": "nav_dashboard",      "label": t.get("nav_dashboard",      "Dashboard")},
-            {"href": "#learn-stockanalysis", "key": "nav_stock_analysis", "label": t.get("nav_stock_analysis", "Stock Analysis")},
+            {"href": "#learn-whyfinance",    "label": "Why Finance"},
+            {"href": "#learn-mindmap",       "label": "Mindmap"},
+            {"href": "#learn-dashboard",     "label": "Dashboard"},
+            {"href": "#learn-stockanalysis", "label": "Stock Analysis"},
         ],
         "contact": [
-            {"href": "#contact-form", "key": "nav_contact", "label": t.get("nav_contact", "Get in Touch")},
+            {"href": "#contact-form", "label": "Get in Touch"},
         ],
     }
 
@@ -213,33 +174,22 @@ def _render_page(env: Environment, template_name: str, out_path: Path, ctx: dict
 def render(currency: str = DEFAULT_CURRENCY):
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    # ── Copy locales → output/locales/ ──────────────────────
-    out_locales = OUTPUT_DIR / "locales"
-    out_locales.mkdir(exist_ok=True)
-    locale_files = list(LOCALES_DIR.glob("*.json"))
-    for f in locale_files:
-        shutil.copy2(f, out_locales / f.name)
-    log.info("Locales → output/locales/ (%d fichiers)", len(locale_files))
-
     # ── Write _headers (Cloudflare Pages cache policy) ───────
     headers_content = (
         "/*.html\n"
         "  Cache-Control: no-cache, must-revalidate\n\n"
-        "/*/*.html\n"
-        "  Cache-Control: no-cache, must-revalidate\n\n"
-        "/locales/*.json\n"
+        "/data/*.json\n"
         "  Cache-Control: no-cache, must-revalidate\n"
     )
     (OUTPUT_DIR / "_headers").write_text(headers_content, encoding="utf-8")
     log.info("_headers written")
 
     con       = sqlite3.connect(DB_PATH, timeout=30)
-    t_en      = load_translations("en")
     boxes     = load_boxes(con, currency)
     fx_rates  = _get_fx_rates(con)
     ts_map    = _box_timestamps(con)
     ts_render = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    page_navs = build_page_navs(t_en)
+    page_navs = build_page_navs()
 
     env = Environment(loader=FileSystemLoader(str(TEMPLATE_DIR)), autoescape=True)
 
@@ -247,20 +197,16 @@ def render(currency: str = DEFAULT_CURRENCY):
     def _data(bid): return boxes_by_id.get(bid, {}).get("data", {})
     def _meta(bid): return boxes_by_id.get(bid, {}).get("meta", {})
 
-    # Shared base context (client-side i18n for non-SSG pages)
+    # Shared base context (EN-only build)
     base_ctx = {
         "site_name"   : SITE_NAME,
         "site_slogan" : SITE_SLOGAN,
         "colors"      : COLORS,
         "lang"        : "en",
         "currency"    : currency,
-        "languages"   : LANGUAGES,
         "currencies"  : CURRENCIES,
         "ts_render"   : ts_render,
-        "i18n_ver"    : ts_render[:16],   # YYYY-MM-DDTHH:MM — busts localStorage locale cache on new deploy
         "fx_rates_js" : fx_rates,
-        "t"           : t_en,
-        "lang_urls"   : {},  # empty = client-side reload behavior
     }
 
     # ── 1. Dashboard ────────────────────────────────────────
@@ -296,26 +242,12 @@ def render(currency: str = DEFAULT_CURRENCY):
         "page_nav"     : page_navs["stock-analysis"],
     })
 
-    # ── 3. Learn — SSG: one page per language ────────────────
-    learn_lang_urls = ssg_lang_urls("learn")
-    for lang_entry in LANGUAGES:
-        lang_code = lang_entry.lower()
-        t_lang    = merged_translations(lang_code)
-        lang_navs = build_page_navs(t_lang)
-        if lang_code == "en":
-            out_path = OUTPUT_DIR / "learn.html"
-        else:
-            lang_dir = OUTPUT_DIR / lang_code
-            lang_dir.mkdir(exist_ok=True)
-            out_path = lang_dir / "learn.html"
-        _render_page(env, "learn.html", out_path, {
-            **base_ctx,
-            "lang"         : lang_code,
-            "t"            : t_lang,
-            "current_page" : "learn",
-            "page_nav"     : lang_navs["learn"],
-            "lang_urls"    : learn_lang_urls,
-        })
+    # ── 3. Learn ─────────────────────────────────────────────
+    _render_page(env, "learn.html", OUTPUT_DIR / "learn.html", {
+        **base_ctx,
+        "current_page" : "learn",
+        "page_nav"     : page_navs["learn"],
+    })
 
     # ── 4. Contact ───────────────────────────────────────────
     _render_page(env, "contact.html", OUTPUT_DIR / "contact.html", {
@@ -325,8 +257,7 @@ def render(currency: str = DEFAULT_CURRENCY):
     })
 
     con.close()
-    n_learn = len(LANGUAGES)
-    log.info("Render complet — 4 pages + %d Learn SSG + %d locales", n_learn, len(locale_files))
+    log.info("Render complet — 4 pages (EN)")
 
 
 # ============================================================

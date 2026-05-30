@@ -238,11 +238,8 @@ FX_SOURCES = {
 }
 
 # ============================================================
-#  8. LANGUES & DEVISES
+#  8. DEVISES
 # ============================================================
-LANGUAGES        = ["EN", "FR", "DE", "ES", "ZH", "RU", "JA"]
-DEFAULT_LANGUAGE = "EN"
-
 CURRENCIES       = ["USD", "EUR", "HKD"]
 DEFAULT_CURRENCY = "USD"
 # Règle : tout stocké en USD — conversion à l'affichage uniquement

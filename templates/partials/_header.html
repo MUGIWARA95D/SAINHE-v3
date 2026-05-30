@@ -10,24 +10,12 @@
     }
   })()" style="cursor:pointer">{{ site_name }}</span>
   <nav class="hdr-nav">
-    <a href="#hero" class="hdr-nav-menu" data-i18n="nav_menu">{{ t.nav_menu }}</a>
+    <a href="#hero" class="hdr-nav-menu">Menu</a>
     {% for link in page_nav %}
-    <a href="{{ link.href }}" data-i18n="{{ link.key }}">{{ link.label }}</a>
+    <a href="{{ link.href }}">{{ link.label }}</a>
     {% endfor %}
   </nav>
   <div class="spacer"></div>
-  <!-- Language dropdown -->
-  <div class="hdr-dd" id="dd-lang">
-    <button class="hdr-dd-btn" id="dd-lang-btn">EN</button>
-    <div class="hdr-dd-menu">
-      {% for code in languages %}
-      <div class="hdr-dd-item"
-           data-lang="{{ code.lower() }}"
-           onclick="setLang('{{ code.lower() }}')">{{ code }}</div>
-      {% endfor %}
-    </div>
-  </div>
-
   <!-- Currency dropdown -->
   <div class="hdr-dd" id="dd-cur">
     <button class="hdr-dd-btn" id="dd-cur-btn">{{ currency }}</button>
@@ -46,7 +34,7 @@
   </button>
 
   <!-- Dark mode pill -->
-  <button class="thm-pill" id="thm" title="{{ t.toggle_theme }}" aria-label="{{ t.toggle_dark_mode }}">
+  <button class="thm-pill" id="thm" title="Toggle theme" aria-label="Toggle dark mode">
     <span class="tp-sun">&#9728;</span>
     <span class="tp-moon">&#9790;</span>
   </button>

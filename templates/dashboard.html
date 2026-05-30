@@ -43,8 +43,8 @@
 
   <!-- ═══ STATEMENT BAR ═══════════════════════════════════════ -->
   <div class="statement-bar">
-    <span class="sb-label" data-i18n="dash_sb_label">{{ t.dash_sb_label }}</span>
-    <span class="sb-body" data-i18n="dash_sb_body">{{ t.dash_sb_body }}</span>
+    <span class="sb-label">Read today ·</span>
+    <span class="sb-body">Smart money bias, rotation tape, law-weighted sentiment, and the macro health of the engine room.</span>
   </div>
 
   <!-- ─── 01 · MACRO ──────────────────────────────────────── -->
@@ -57,7 +57,7 @@
       </div>
     </div>
     <div class="section-lbl" id="nav-macro">
-      <h2 data-i18n="sec_macro_title">{{ t.sec_macro_title }}</h2><em data-i18n="sec_macro_sub">{{ t.sec_macro_sub }}</em>
+      <h2>Macro</h2><em>Economic Health Signals</em>
     </div>
     {% include "partials/boxes/box_01_macro.html" %}
   </div>
@@ -72,7 +72,7 @@
       </div>
     </div>
     <div class="section-lbl" id="nav-indices">
-      <h2 data-i18n="sec_indices_title">{{ t.sec_indices_title }}</h2><em data-i18n="sec_indices_sub">{{ t.sec_indices_sub }}</em>
+      <h2>Indices</h2><em>Global Market Pulse</em>
     </div>
     {% include "partials/boxes/box_02_indices.html" %}
   </div>
@@ -87,7 +87,7 @@
       </div>
     </div>
     <div class="section-lbl" id="nav-news">
-      <h2 data-i18n="sec_news_title">{{ t.sec_news_title }}</h2><em data-i18n="sec_news_sub">{{ t.sec_news_sub }}</em>
+      <h2>News</h2><em>Live Market Intelligence</em>
     </div>
     {% include "partials/boxes/box_03_news.html" %}
   </div>
@@ -102,7 +102,7 @@
       </div>
     </div>
     <div class="section-lbl" id="nav-sectors">
-      <h2 data-i18n="sec_sectors_title">{{ t.sec_sectors_title }}</h2><em data-i18n="sec_sectors_sub">{{ t.sec_sectors_sub }}</em>
+      <h2>Sectors</h2><em>Industry Rotation View</em>
     </div>
     {% include "partials/boxes/box_04_sectors.html" %}
   </div>
@@ -117,7 +117,7 @@
       </div>
     </div>
     <div class="section-lbl" id="nav-sentiment">
-      <h2 data-i18n="sec_sentiment_title">{{ t.sec_sentiment_title }}</h2><em data-i18n="sec_sentiment_sub">{{ t.sec_sentiment_sub }}</em>
+      <h2>Sentiment</h2><em>Bias Reality Laws</em>
     </div>
     {% include "partials/boxes/box_05_sentiment.html" %}
   </div>
@@ -132,19 +132,19 @@
       </div>
     </div>
     <div class="section-lbl" id="nav-portfolio">
-      <h2 data-i18n="sec_portfolio_title">{{ t.sec_portfolio_title }}</h2><em data-i18n="sec_portfolio_sub">{{ t.sec_portfolio_sub }}</em>
+      <h2>Portfolio</h2><em>Holdings Score Tracker</em>
     </div>
     {% include "partials/boxes/box_06_portfolio.html" %}
   </div>
 
   <!-- ═══ PIPELINE STRIP ══════════════════════════════════════ -->
   <div class="pipeline">
-    <span data-i18n="pipeline_label">{{ t.pipeline_label }}</span>
+    <span>SAINHE pipeline</span>
     <span class="pl-dot"></span>
-    <span data-i18n="pipeline_fetch">{{ t.pipeline_fetch }}</span><span class="pl-arr">→</span>
-    <span data-i18n="pipeline_compute">{{ t.pipeline_compute }}</span><span class="pl-arr">→</span>
-    <span data-i18n="pipeline_render">{{ t.pipeline_render }}</span><span class="pl-arr">→</span>
-    <span data-i18n="pipeline_read">{{ t.pipeline_read }}</span>
+    <span>Fetch</span><span class="pl-arr">→</span>
+    <span>Compute</span><span class="pl-arr">→</span>
+    <span>Render</span><span class="pl-arr">→</span>
+    <span>Read</span>
   </div>
 
 </main>
@@ -377,16 +377,6 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
     a.addEventListener("click", function(){
       setActive(this.getAttribute("href").slice(1));
     });
-  });
-})();
-
-/* ── Localize bip-link hrefs for non-EN languages ── */
-(function(){
-  var lang = window.SAINHE_LANG || 'en';
-  if(lang === 'en') return;
-  var base = '/' + lang + '/learn.html';
-  document.querySelectorAll('a.bip-link[href^="/learn.html"]').forEach(function(a){
-    a.href = a.href.replace(/\/learn\.html/, base);
   });
 })();
 </script>
