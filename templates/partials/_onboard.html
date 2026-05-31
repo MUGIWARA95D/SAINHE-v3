@@ -114,14 +114,30 @@
   var tip = document.getElementById("onb-tip");
   if(!bar || !ov) return;
 
-  // ── Tour steps — selectors resolved at runtime; missing targets are skipped ──
+  // ── Tour steps — each step accepts a list of selector fallbacks. The first
+  //    one that resolves to a VISIBLE element (non-zero box) is used. This way
+  //    a step never highlights "nothing" when its primary target is hidden
+  //    (e.g. .hdr-nav is display:none on mobile -> fall back to the Menu button).
   var STEPS = [
-    {sel:"#dd-cur",            title:"Display currency",  body:"Switch prices between USD, EUR and HKD here. Everything is stored in USD and converted on the fly."},
-    {sel:".ci",               title:"The (i) marks",     body:"Spot an italic (i) next to a metric? Click it to jump to the Learn page, right at the explanation for that exact signal."},
-    {sel:".hdr-nav",          title:"Four areas",        body:"Dashboard, Stock Analysis, Learn and Get in Touch. The menu is always here at the top."},
-    {sel:'a[href="/learn.html"]', title:"Start with Learn", body:"New to markets? Learn explains every concept on the site in plain language — look for the “read more” links."},
-    {sel:"#onb-help",         title:"Replay anytime",    body:"Click the ? button up here whenever you want to take this tour again."}
+    {sels:["#dd-cur"],                                title:"Display currency",  body:"Switch prices between USD, EUR and HKD here. Everything is stored in USD and converted on the fly."},
+    {sels:[".ci",".bib-wrap",".box-info-btn"],       title:"The (i) marks",     body:"Spot an italic (i) next to a metric? Click it to jump to the Learn page, right at the explanation for that exact signal."},
+    {sels:[".hdr-nav",".hdr-nav-menu"],              title:"Four areas",        body:"Dashboard, Stock Analysis, Learn and Get in Touch. Use the menu at the top to move between them."},
+    {sels:['a.bip-link[href="/learn.html"]','a[href="/learn.html"]','.hero-cta-row a[href*="learn"]'], title:"Start with Learn", body:"New to markets? Learn explains every concept on the site in plain language — look for the “read more” links."},
+    {sels:["#onb-help"],                              title:"Replay anytime",    body:"Click the ? button up here whenever you want to take this tour again."}
   ];
+
+  // ── Pick the first selector that resolves to a *visible* element ──────────
+  function firstVisible(sels){
+    for(var i=0;i<sels.length;i++){
+      var nodes = document.querySelectorAll(sels[i]);
+      for(var j=0;j<nodes.length;j++){
+        var n = nodes[j];
+        var r = n.getBoundingClientRect();
+        if(r.width > 0 && r.height > 0) return n;
+      }
+    }
+    return null;
+  }
 
   var idx = 0, active = [];
 
@@ -144,7 +160,8 @@
 
   // ── Layer 2: spotlight tour ────────────────────────────
   function startTour(){
-    active = STEPS.filter(function(s){ return document.querySelector(s.sel); });
+    // Keep only steps whose target is *visible* in the current viewport/layout.
+    active = STEPS.filter(function(s){ return firstVisible(s.sels) !== null; });
     if(!active.length) return;
     idx = 0;
     ov.classList.add("on"); ov.setAttribute("aria-hidden","false");
@@ -171,17 +188,25 @@
   }
   function showStep(){
     var step = active[idx];
-    var el = document.querySelector(step.sel);
+    var el = firstVisible(step.sels);
+    // Element became hidden between filter and display (e.g. resize): skip
     if(!el){ next(); return; }
+    // Hide the spotlight rectangle while we (re)measure — never highlight (0,0,0,0)
+    hole.style.opacity = "0";
     el.scrollIntoView({block:"center", behavior:"smooth"});
-    // measure after scroll settles
-    setTimeout(function(){
+
+    function paint(){
       var r = el.getBoundingClientRect();
+      if(r.width <= 0 || r.height <= 0){
+        // Target collapsed; skip rather than highlight empty space
+        hole.style.opacity = "0"; next(); return;
+      }
       var pad = 6;
       hole.style.top    = (r.top - pad) + "px";
       hole.style.left   = (r.left - pad) + "px";
       hole.style.width  = (r.width + pad*2) + "px";
       hole.style.height = (r.height + pad*2) + "px";
+      hole.style.opacity = "1";
 
       document.getElementById("onb-step").textContent = "Step " + (idx+1) + " of " + active.length;
       document.getElementById("onb-title").textContent = step.title;
@@ -190,8 +215,8 @@
       document.getElementById("onb-next").textContent = idx===active.length-1 ? "Done" : "Next";
       renderDots();
 
-      // position tooltip below target if room, else above (desktop; mobile uses CSS bottom sheet)
-      if(window.innerWidth > 560){
+      // position tooltip below target if room, else above (desktop; mobile uses CSS bottom sheet at <=700)
+      if(window.innerWidth > 700){
         var th = tip.offsetHeight || 170, tw = tip.offsetWidth || 320;
         var below = r.bottom + 14;
         var top = (below + th < window.innerHeight) ? below : Math.max(14, r.top - th - 14);
@@ -199,14 +224,33 @@
         tip.style.top = top + "px";
         tip.style.left = left + "px";
       }
-    }, 260);
+    }
+
+    // Measure twice: once after the smooth-scroll, once a tick later in case
+    // a header animation or layout pass shifted things.
+    setTimeout(paint, 280);
+    setTimeout(paint, 600);
   }
   function next(){ if(idx >= active.length-1){ endTour(); } else { idx++; showStep(); } }
   function prev(){ if(idx > 0){ idx--; showStep(); } }
   document.getElementById("onb-next").addEventListener("click", next);
   document.getElementById("onb-back").addEventListener("click", prev);
   ov.addEventListener("click", function(e){ if(e.target === ov) endTour(); });
-  window.addEventListener("resize", function(){ if(ov.classList.contains("on")) showStep(); });
+  // On resize during the tour: re-filter visible steps (CSS breakpoints may have
+  // switched which targets are rendered) and re-paint the current step.
+  var _rzt;
+  window.addEventListener("resize", function(){
+    if(!ov.classList.contains("on")) return;
+    clearTimeout(_rzt);
+    _rzt = setTimeout(function(){
+      var currentTitle = active[idx] && active[idx].title;
+      active = STEPS.filter(function(s){ return firstVisible(s.sels) !== null; });
+      if(!active.length){ endTour(); return; }
+      var newIdx = active.findIndex(function(s){ return s.title === currentTitle; });
+      idx = newIdx >= 0 ? newIdx : Math.min(idx, active.length - 1);
+      showStep();
+    }, 180);
+  });
 
   // ── First-visit trigger: after the intro splash has faded (~1.1s) ──
   if(isNew()){
