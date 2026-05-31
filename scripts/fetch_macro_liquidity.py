@@ -94,33 +94,37 @@ def _fred_obs(series_id: str, n: int = 14, lookback_years: int = 4) -> list[dict
     Returns last n observations [{date, value}] sorted newest first.
     Uses observation_start — works on all FRED series (no sort_order issues).
     lookback_years: increase for monthly series with long publication lags (e.g. China M2).
+    Retries with backoff on 429 (FRED rate-limits per IP, and GitHub Actions runners share IPs).
     """
     if not FRED_KEY:
         print(f"[fred] No FRED_API_KEY — skipping {series_id}")
         return []
     obs_start = (dt.date.today() - dt.timedelta(days=lookback_years * 365)).isoformat()
-    try:
-        r = requests.get(
-            FRED_BASE,
-            params={
-                "series_id"        : series_id,
-                "api_key"          : FRED_KEY,
-                "file_type"        : "json",
-                "observation_start": obs_start,
-            },
-            headers=HEADERS,
-            timeout=TIMEOUT,
-        )
-        r.raise_for_status()
-        raw = r.json().get("observations", [])
-        clean = [
-            {"date": o["date"], "value": float(o["value"])}
-            for o in raw
-            if o.get("value") not in (".", None, "")
-        ]
-        return sorted(clean, key=lambda x: x["date"], reverse=True)[:n]
-    except Exception as e:
-        print(f"[fred] {series_id} error: {e}")
+    params = {
+        "series_id"        : series_id,
+        "api_key"          : FRED_KEY,
+        "file_type"        : "json",
+        "observation_start": obs_start,
+    }
+    backoffs = [5, 15, 30]   # seconds; 3 retries on 429
+    for attempt, wait in enumerate([0] + backoffs):
+        if wait: time.sleep(wait)
+        try:
+            r = requests.get(FRED_BASE, params=params, headers=HEADERS, timeout=TIMEOUT)
+            if r.status_code == 429 and attempt < len(backoffs):
+                print(f"[fred] {series_id} 429 rate-limited, retry in {backoffs[attempt]}s ({attempt+1}/{len(backoffs)})")
+                continue
+            r.raise_for_status()
+            raw = r.json().get("observations", [])
+            clean = [
+                {"date": o["date"], "value": float(o["value"])}
+                for o in raw
+                if o.get("value") not in (".", None, "")
+            ]
+            return sorted(clean, key=lambda x: x["date"], reverse=True)[:n]
+        except Exception as e:
+            if attempt == len(backoffs):
+                print(f"[fred] {series_id} error after retries: {e}")
         return []
 
 
