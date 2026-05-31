@@ -313,7 +313,8 @@ var svgEl = document.getElementById('mm-svg');
 var wrap  = document.getElementById('mm-wrap');
 var tipEl = document.getElementById('mm-tip');
 
-var MM_COARSE = !!(window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
+/* "compact" = touch device OR narrow viewport — both crowd the graph and need bigger tap targets */
+var MM_COARSE = !!(window.matchMedia && (window.matchMedia('(pointer:coarse)').matches || window.matchMedia('(max-width:560px)').matches));
 var W = wrap.clientWidth || 820;
 var H = MM_COARSE ? 620 : 540;   /* taller on touch so bigger nodes have room */
 svgEl.style.height = H + 'px';
