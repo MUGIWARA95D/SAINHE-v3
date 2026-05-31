@@ -889,6 +889,16 @@ a.news-hl:hover{color:var(--gold)}
   background:rgba(122,92,26,.08);border:1px solid rgba(122,92,26,.25);
   transition:all .15s}
 .mm-tip-wiki:hover{background:rgba(122,92,26,.16);border-color:rgba(122,92,26,.5)}
+/* mobile: tooltip becomes a bottom sheet so node info + Read more are always reachable */
+@media(max-width:560px){
+  #mm-tip{position:fixed;left:10px;right:10px;bottom:10px;top:auto!important;
+    max-width:none;width:auto;padding:16px 16px 15px;z-index:9600;
+    box-shadow:0 -6px 30px rgba(62,32,12,.26)}
+  .mm-tip-label{font-size:1.05rem}
+  .mm-tip-desc{font-size:.85rem}
+  .mm-tip-wiki{font-size:.92rem;padding:.55rem 1.05rem;margin-top:2px}
+  .mm-tip-close{font-size:1.5rem;padding:6px 11px;top:8px;right:10px}
+}
 /* ── Box Info Button (ⓘ — coin haut-droit du band) ─────── */
 .bib-wrap{position:absolute;top:20px;right:20px;z-index:100}
 .box-info-btn{background:none;border:1.5px solid rgba(196,149,90,.5);cursor:pointer;font-size:11px;

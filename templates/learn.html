@@ -313,17 +313,18 @@ var svgEl = document.getElementById('mm-svg');
 var wrap  = document.getElementById('mm-wrap');
 var tipEl = document.getElementById('mm-tip');
 
+var MM_COARSE = !!(window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
 var W = wrap.clientWidth || 820;
-var H = 540;
+var H = MM_COARSE ? 620 : 540;   /* taller on touch so bigger nodes have room */
 svgEl.style.height = H + 'px';
 
 // ── Colours & sizes ─────────────────────────────────────────
 var COL = {Root:'#1A0800', Category:'#5A3D1A', Concept:'#7B2D2D', Formula:'#7A5C1A', Notion:'#3D5C35'};
 function nodeColor(d) { return COL[d.type] || '#999'; }
 function nodeR(d) {
-  if(d.type==='Root')     return 18;
-  if(d.type==='Category') return 11;
-  return 5.75;
+  if(d.type==='Root')     return MM_COARSE ? 22 : 18;
+  if(d.type==='Category') return MM_COARSE ? 15 : 11;
+  return MM_COARSE ? 10 : 5.75;   /* leaf nodes: finger-friendly tap target on touch */
 }
 function truncLabel(s, n) { return s.length > n ? s.slice(0,n)+'\u2026' : s; }
 
@@ -557,6 +558,7 @@ function unpinTip() {
 }
 
 function posTip(ev) {
+  if(window.matchMedia && window.matchMedia('(max-width:560px)').matches) return; /* mobile: CSS bottom-sheet positions it */
   var r = wrap.getBoundingClientRect();
   var x = ev.clientX - r.left + 16;
   var y = ev.clientY - r.top  - 16;
