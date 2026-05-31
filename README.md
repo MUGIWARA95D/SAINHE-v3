@@ -97,7 +97,6 @@ render_html.py       Jinja2 render + JSON data layer
 boxes/               one module per dashboard box
 scripts/             fetchers, calc, DB init, Google Drive sync
 templates/           HTML/CSS/JS (Jinja2)
-projects/            academic / side projects (see below)
 .github/workflows/   the automation pipeline
 ```
 
@@ -114,22 +113,5 @@ python serve.py               # serve output/ at http://localhost:7723
 > (gitignored). See [`.env.example`](./.env.example).
 
 ---
-
-## Projects
-
-Standalone work kept alongside the platform:
-
-### [Oil Market Volatility → U.S. Financial Market Volatility](./projects/oil-vix-volatility/)
-*Financial Econometrics — semester project.* Does oil-market volatility (OVX)
-predict U.S. equity volatility (VIX)? Daily FRED data, OLS with HAC standard
-errors, interaction/quadratic terms, and a PE test selecting a log-linear
-specification. → [paper + code](./projects/oil-vix-volatility/)
-
----
-
-## About
-
-- 📄 **CV** — see [`cv/`](./cv/)
-- 📎 **Attachments** (certificates, transcripts, decks) — see [`attachments/`](./attachments/)
 
 <sub>Built with care · timeless, warm, legible.</sub>
