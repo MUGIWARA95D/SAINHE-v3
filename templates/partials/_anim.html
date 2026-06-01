@@ -3,9 +3,9 @@
 <!-- Respects prefers-reduced-motion. GPU-only (opacity/transform/filter).     -->
 <style>
 .anim-init{opacity:0;transform:translateY(18px);filter:blur(2px);
-  transition:opacity .65s cubic-bezier(.2,.6,.2,1),
-             transform .65s cubic-bezier(.2,.6,.2,1),
-             filter .55s ease-out;
+  transition:opacity .98s cubic-bezier(.2,.6,.2,1),
+             transform .98s cubic-bezier(.2,.6,.2,1),
+             filter .82s ease-out;
   will-change:opacity,transform,filter}
 .anim-in{opacity:1;transform:none;filter:none}
 @media(prefers-reduced-motion:reduce){
@@ -18,8 +18,8 @@
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(e, idx){
       if(!e.isIntersecting) return;
-      /* stagger within the batch: 60ms between siblings entering together */
-      e.target.style.transitionDelay = (idx * 60) + 'ms';
+      /* stagger within the batch: 90ms between siblings entering together */
+      e.target.style.transitionDelay = (idx * 90) + 'ms';
       e.target.classList.add('anim-in');
       io.unobserve(e.target);
     });
