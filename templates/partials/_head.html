@@ -178,7 +178,10 @@ body{padding-top:84px}
 /* ═══════════════════ CARD ═══════════════════ */
 .card{background:var(--card);border:1px solid var(--border-lt);border-radius:20px;
   box-shadow:var(--shadow);transition:background .3s,border .3s,box-shadow .25s ease;margin-bottom:0;
-  position:relative}
+  position:relative;
+  /* anchor jumps land below the fixed pill header instead of behind it */
+  scroll-margin-top:96px}
+@media(max-width:700px){.card{scroll-margin-top:78px}}
 .card:hover{box-shadow:var(--shadow-md)}
 .card-h{display:flex;align-items:center;justify-content:space-between;
   padding:22px 28px;border-bottom:1px solid var(--border-lt)}
@@ -435,11 +438,17 @@ a.news-hl:hover{color:var(--gold)}
 [data-theme="dark"] .sb-body{color:var(--h)}
 
 /* ══════ SECTION LABELS — numbered ════════════════════════════ */
-.section-lbl{padding:64px 0 28px;display:flex;align-items:center;gap:18px;
-  scroll-margin-top:72px;position:relative}
-.section-lbl::before{content:"";position:absolute;top:32px;left:0;right:0;height:1px;
+/* More breathing room between boxes + anchor offset that clears the pill header */
+.section-lbl{padding:88px 0 36px;display:flex;align-items:center;gap:18px;
+  scroll-margin-top:96px;position:relative}
+.section-lbl::before{content:"";position:absolute;top:44px;left:0;right:0;height:1px;
   background:linear-gradient(90deg,var(--border) 0%,transparent 55%)}
-.section-lbl:first-of-type{padding-top:48px}
+.section-lbl:first-of-type{padding-top:64px}
+@media(max-width:700px){
+  .section-lbl{padding:64px 0 28px;scroll-margin-top:78px}
+  .section-lbl::before{top:32px}
+  .section-lbl:first-of-type{padding-top:44px}
+}
 .section-lbl:first-of-type::before{display:none}
 .section-num{font-family:var(--serif);font-size:11px;font-variant-numeric:tabular-nums;
   color:var(--gold-deep);background:var(--gold-bg);
@@ -498,7 +507,8 @@ a.news-hl:hover{color:var(--gold)}
 /* ══════════════════════════════════════════════════════════════ */
 
 /* Band base */
-.sec-band{ margin:0; padding:0; scroll-margin-top:72px; position:relative; }
+.sec-band{ margin:0; padding:0; scroll-margin-top:96px; position:relative; }
+@media(max-width:700px){.sec-band{scroll-margin-top:78px}}
 
 /* ── CHOCOLAT AU LAIT — rectangle flottant, cards claires à l'intérieur ── */
 .sec-choc{
