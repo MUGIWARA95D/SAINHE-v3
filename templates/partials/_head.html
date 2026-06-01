@@ -445,22 +445,18 @@ a.news-hl:hover{color:var(--gold)}
 [data-theme="dark"] .sb-body{color:var(--h)}
 
 /* ══════ SECTION LABELS — numbered ════════════════════════════ */
-/* Two independent spaces around the label:
- *   margin-top  = INTERBOX (air between the previous box and this section)
- *   padding-top = INTRABOX (air between the top of the section and the title)
- * scroll-margin-top:8 puts the TOP of the label right under the pill on
- * anchor jumps; the margin-top above is consumed first, so the previous
- * box's bottom slides off-viewport (hidden behind the pill). */
-.section-lbl{margin-top:32px;padding:88px 0 36px;
-  display:flex;align-items:center;gap:18px;
-  scroll-margin-top:8px;position:relative}
+/* The label lives INSIDE its colored .sec-band (chocolate or cream).
+ * padding-top is the air between the band top and the title (INTRABOX).
+ * Inter-band air goes on .sec-band itself (see below) — not here. */
+.section-lbl{padding:88px 0 36px;display:flex;align-items:center;gap:18px;
+  scroll-margin-top:96px;position:relative}
 .section-lbl::before{content:"";position:absolute;top:44px;left:0;right:0;height:1px;
   background:linear-gradient(90deg,var(--border) 0%,transparent 55%)}
-.section-lbl:first-of-type{margin-top:0;padding-top:64px}
+.section-lbl:first-of-type{padding-top:64px}
 @media(max-width:900px){
-  .section-lbl{margin-top:24px;padding:64px 0 28px;scroll-margin-top:8px}
+  .section-lbl{padding:64px 0 28px;scroll-margin-top:78px}
   .section-lbl::before{top:32px}
-  .section-lbl:first-of-type{margin-top:0;padding-top:44px}
+  .section-lbl:first-of-type{padding-top:48px}
 }
 .section-lbl:first-of-type::before{display:none}
 .section-num{font-family:var(--serif);font-size:11px;font-variant-numeric:tabular-nums;
@@ -520,8 +516,14 @@ a.news-hl:hover{color:var(--gold)}
 /* ══════════════════════════════════════════════════════════════ */
 
 /* Band base */
-.sec-band{ margin:0; padding:0; scroll-margin-top:96px; position:relative; }
-@media(max-width:700px){.sec-band{scroll-margin-top:78px}}
+/* INTERBOX — air between successive colored sections (the gap of body bg
+ * the user wants to see between e.g. chocolate Macro and cream Indices) */
+.sec-band{ margin:32px 0 0; padding:0; scroll-margin-top:96px; position:relative; }
+.sec-band:first-of-type{margin-top:0}
+@media(max-width:700px){
+  .sec-band{ margin-top:24px; scroll-margin-top:78px }
+  .sec-band:first-of-type{margin-top:0}
+}
 
 /* ── CHOCOLAT AU LAIT — rectangle flottant, cards claires à l'intérieur ── */
 .sec-choc{
