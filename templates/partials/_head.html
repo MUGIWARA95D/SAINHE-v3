@@ -60,11 +60,28 @@ h1,h2,h3,h4{font-family:var(--serif);color:var(--h);font-weight:400}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
 /* ═══════════════════ HEADER ═══════════════════ */
-#hdr{position:sticky;top:0;z-index:100;
-  background:rgba(253,250,244,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  height:48px;display:flex;align-items:center;padding:0 20px;gap:12px;transition:background .3s;
-  border-bottom:1px solid rgba(221,213,196,.5)}
-[data-theme="dark"] #hdr{background:rgba(22,18,14,.92);border-bottom:1px solid rgba(66,56,40,.5)}
+/* Floating pill — page content scrolls underneath it */
+#hdr{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:100;
+  width:calc(100% - 32px);max-width:1180px;height:56px;
+  padding:0 22px;display:flex;align-items:center;gap:12px;
+  background:rgba(253,250,244,.78);
+  backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);
+  border:1px solid rgba(221,213,196,.6);
+  border-radius:999px;
+  box-shadow:0 4px 20px rgba(60,40,15,.06),0 1px 3px rgba(60,40,15,.04);
+  transition:background .25s,box-shadow .25s,border-color .25s,top .25s,height .25s}
+#hdr.scrolled{background:rgba(253,250,244,.92);
+  box-shadow:0 8px 28px rgba(60,40,15,.10),0 2px 6px rgba(60,40,15,.06);
+  top:10px;height:52px}
+[data-theme="dark"] #hdr{background:rgba(22,18,14,.72);border-color:rgba(66,56,40,.6)}
+[data-theme="dark"] #hdr.scrolled{background:rgba(22,18,14,.92)}
+/* compensate fixed header so the page hero isn't covered */
+body{padding-top:84px}
+@media(max-width:700px){
+  #hdr{width:calc(100% - 18px);height:52px;padding:0 14px;top:10px}
+  #hdr.scrolled{top:8px;height:48px}
+  body{padding-top:74px}
+}
 .logo{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--gold);letter-spacing:4px}
 .logo-sub{font-size:9.5px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
 .hdr-nav{display:flex;gap:4px;position:absolute;left:50%;transform:translateX(-50%)}

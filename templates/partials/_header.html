@@ -42,3 +42,13 @@
     <span class="tp-moon">&#9790;</span>
   </button>
 </header>
+<script>
+/* Pill header: lift-on-scroll (tighter shadow + stronger blur once you start scrolling) */
+(function(){
+  var h = document.getElementById('hdr');
+  if(!h) return;
+  function upd(){ h.classList.toggle('scrolled', window.scrollY > 8); }
+  upd();
+  window.addEventListener('scroll', upd, {passive:true});
+})();
+</script>
