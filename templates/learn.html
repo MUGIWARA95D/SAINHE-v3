@@ -429,7 +429,12 @@ var nodeSel = g.append('g')
   .attr('stroke', function(d) { return (d.type==='Root'||d.type==='Category') ? 'rgba(255,255,255,0.25)' : 'none'; })
   .attr('stroke-width', 1.5)
   .style('cursor', 'pointer')
+  /* clickDistance(12): a finger tap rarely lands perfectly still — without
+     this, the slightest tremor turns the tap into a drag and the click
+     handler never fires (= tooltip never opens, Read more unreachable).
+     On touch we also widen the threshold further. */
   .call(d3.drag()
+    .clickDistance(MM_COARSE ? 18 : 12)
     .on('start', function(ev,d) {
       if(!ev.active) sim.alphaTarget(0.3).restart();
       d.fx=d.x; d.fy=d.y; svgEl.style.cursor='grabbing';
