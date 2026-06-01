@@ -10,8 +10,8 @@
     }
   })()" style="cursor:pointer">{{ site_name }}</span>
   <nav class="hdr-nav">
-    <a href="#" class="hdr-nav-menu"
-       onclick="window.scrollTo({top:0,behavior:'smooth'});history.replaceState(null,'',location.pathname);return false;">Menu</a>
+    <a href="#top" class="hdr-nav-menu"
+       onclick="event.preventDefault();event.stopPropagation();window.scrollTo({top:0,behavior:'smooth'});history.replaceState(null,'',location.pathname);">Menu</a>
     {% for link in page_nav %}
     <a href="{{ link.href }}">{{ link.label }}</a>
     {% endfor %}
