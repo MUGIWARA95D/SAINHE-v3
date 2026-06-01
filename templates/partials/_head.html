@@ -105,6 +105,9 @@ body{padding-top:84px}
 #scroll-prog{position:fixed;top:0;left:0;height:2px;width:0%;z-index:200;
   background:var(--gold);box-shadow:0 0 6px var(--gold);transition:width .1s linear;
   pointer-events:none}
+/* Hide on phone — the pill floats centered with side margins, so the
+   full-width bar appeared to 'float in the void' next to the pill. */
+@media(max-width:700px){#scroll-prog{display:none}}
 
 /* ══ INTRO OVERLAY ════════════════════════════════════ */
 #intro-ov{position:fixed;inset:0;z-index:9000;background:var(--bg);
