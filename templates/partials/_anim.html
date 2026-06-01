@@ -15,6 +15,16 @@
 <script>
 (function(){
   if(!('IntersectionObserver' in window)) return;
+  /* On phone/tablet, sections are large relative to the viewport — the desktop
+   * settings (threshold 0.12 + negative rootMargin) made users scroll past the
+   * top of a section before the animation fired. On compact viewports we use
+   * threshold 0 + positive bottom rootMargin so the fade-in begins BEFORE the
+   * element enters the viewport, and the user sees it already in place. */
+  var COMPACT = window.matchMedia('(max-width:900px)').matches
+             || window.matchMedia('(pointer:coarse)').matches;
+  var TH = COMPACT ? 0    : 0.12;
+  var RM = COMPACT ? '0px 0px 15% 0px' : '0px 0px -8% 0px';
+
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(e, idx){
       if(!e.isIntersecting) return;
@@ -23,7 +33,7 @@
       e.target.classList.add('anim-in');
       io.unobserve(e.target);
     });
-  }, {threshold: 0.12, rootMargin: '0px 0px -8% 0px'});
+  }, {threshold: TH, rootMargin: RM});
 
   document.querySelectorAll('.card, .sec-band').forEach(function(el){
     el.classList.add('anim-init');
