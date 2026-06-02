@@ -13,16 +13,16 @@ from boxes._base import get_fx_rates
 META = {
     "id"         : "box_04_sectors",
     "titre"      : {
-        "EN": "Sector Rotation",
-        "FR": "Rotation Sectorielle",
-        "DE": "Sektorrotation",
-        "ES": "Rotación Sectorial",
-        "ZH": "板块轮动",
-        "RU": "Ротация секторов",
-        "JA": "セクターローテーション",
+        "EN": "Valuation",
+        "FR": "Valorisation",
+        "DE": "Bewertung",
+        "ES": "Valoración",
+        "ZH": "估值",
+        "RU": "Оценка",
+        "JA": "バリュエーション",
     },
-    "description": "Momentum scores and relative performance across 16 sectors × 4 regions.",
-    "icone"      : "🔄",
+    "description": "Price-driven sector view — momentum scores, relative performance and trend across 16 sectors × 4 regions.",
+    "icone"      : "💰",
     "largeur"    : "full",
 }
 

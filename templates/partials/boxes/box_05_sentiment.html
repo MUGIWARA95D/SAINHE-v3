@@ -64,17 +64,21 @@
   background:repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(0,0,0,.06) 6px, rgba(0,0,0,.06) 11px)!important;
 }
 
-/* ── Cell recto: name + alpha / score / 3 sigs ──────────────── */
+/* ── Cell recto: name + score / ALPHA-big / 3 sigs (D↑ M● O→) ── */
 .sm-c-top   {display:flex;justify-content:space-between;align-items:flex-start;gap:6px;min-width:0}
 .sm-c-name  {font-family:var(--serif);font-size:12px;font-weight:600;color:var(--h);line-height:1.15;min-width:0;
              overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.sm-c-alpha {font-size:13.5px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap}
-.sm-c-mid   {flex:1;display:flex;align-items:center;justify-content:center}
-.sm-c-score {font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-.02em}
+.sm-c-score-small {font-size:10.5px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;
+             white-space:nowrap;color:var(--muted);padding:2px 5px;border-radius:3px;background:rgba(0,0,0,.04)}
+[data-theme="dark"] .sm-c-score-small{background:rgba(255,255,255,.06)}
+.sm-c-mid   {flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center}
+.sm-c-alpha-big{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-.02em}
+.sm-c-tf-lbl{font-size:8.5px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase}
 .sm-c-bot   {display:flex;justify-content:center;align-items:center;gap:4px}
 .sm-sig{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:18px;height:18px;border-radius:4px;font-size:10px;font-weight:700;font-family:var(--sans);line-height:1;
+  display:inline-flex;align-items:center;justify-content:center;gap:1px;
+  min-width:26px;height:20px;padding:0 5px;border-radius:4px;
+  font-size:10.5px;font-weight:700;font-family:var(--sans);line-height:1;
   background:rgba(255,255,255,.55);border:1px solid rgba(0,0,0,.06);
 }
 [data-theme="dark"] .sm-sig{background:rgba(0,0,0,.22);border-color:rgba(255,255,255,.08)}
@@ -82,6 +86,8 @@
 .sm-sig.dn   {color:var(--red)}
 .sm-sig.warn {color:var(--orange)}
 .sm-sig.nu   {color:var(--muted)}
+.sm-sig .lt {font-weight:800;letter-spacing:.5px}
+.sm-sig .ar {font-size:11.5px;line-height:1}
 
 /* ── Zoom (1×1 → 3×3 in place) ──────────────────────────────── */
 #sm-grid.has-zoomed .sm-cell:not(.zoomed){
@@ -150,9 +156,11 @@
   #sm-grid{gap:6px;max-width:none}
   .sm-cell{padding:6px 7px;border-radius:6px}
   .sm-c-name{font-size:10.5px;-webkit-line-clamp:2}
-  .sm-c-alpha{font-size:11px}
-  .sm-c-score{font-size:20px}
-  .sm-sig{width:15px;height:15px;font-size:8.5px}
+  .sm-c-score-small{font-size:9px;padding:1px 3px}
+  .sm-c-alpha-big{font-size:18px}
+  .sm-c-tf-lbl{font-size:7px}
+  .sm-sig{min-width:22px;height:17px;font-size:9px;padding:0 3px;gap:0}
+  .sm-sig .ar{font-size:9.5px}
   .sm-c-bot{gap:3px}
   .sm-cell.zoomed{padding:10px 12px}
   .sm-v-name{font-size:14px}
@@ -165,7 +173,7 @@
 
 <section class="card" id="box-sentiment">
   <div class="card-h">
-    <span class="card-t">Sector Map — Rotation & Breadth</span>
+    <span class="card-t">Rotation — Volume Flow &amp; Breadth</span>
     <div style="display:flex;align-items:center;gap:10px">
       <span class="box-ts"><span>Updated</span> {{ ts_sentiment }}</span>
       <span class="badge badge-gold">DMA · MFI · OBV · Breadth · Regime</span>
@@ -283,24 +291,32 @@
     rSub.textContent = parts.join(" · ");
   }
 
-  // ── Sigs trio (recto compact) ────────────────────────────────────
+  // ── Sigs trio (recto compact, letter + arrow) ────────────────────
+  // Each sigs is "X↑" (rising), "X↓" (falling), "X→" (neutral/sideways),
+  // "X●" (extreme / warning), color-coded by intent.
   function buildSigsTrio(cell){
     const wrap = el("div", "sm-c-bot");
-    function s(ch, klass, title){
-      const sp = el("div", "sm-sig " + klass, ch);
+    function s(letter, arrow, klass, title){
+      const sp = el("div", "sm-sig " + klass);
+      const lt = el("span", "lt", letter);
+      const ar = el("span", "ar", arrow);
+      sp.appendChild(lt); sp.appendChild(ar);
       sp.title = title; return sp;
     }
-    if(cell.dma_signal === "above")           wrap.appendChild(s("D", "up",   "DMA200 above — long-term uptrend"));
-    else if(cell.dma_signal === "below")      wrap.appendChild(s("D", "dn",   "DMA200 below — long-term downtrend"));
-    else                                       wrap.appendChild(s("D", "nu",   "DMA200 n/a"));
-    if(cell.mfi_signal === "overbought")      wrap.appendChild(s("M", "warn", "MFI overbought >70"));
-    else if(cell.mfi_signal === "oversold")   wrap.appendChild(s("M", "up",   "MFI oversold <30 — contrarian opportunity"));
-    else if(cell.mfi_signal === "neutral")    wrap.appendChild(s("M", "nu",   "MFI neutral 30-70"));
-    else                                       wrap.appendChild(s("M", "nu",   "MFI n/a"));
-    if(cell.obv_signal === "accumulation")    wrap.appendChild(s("O", "up",   "OBV accumulation — money in"));
-    else if(cell.obv_signal === "distribution") wrap.appendChild(s("O", "dn", "OBV distribution — money out"));
-    else if(cell.obv_signal === "neutral")    wrap.appendChild(s("O", "nu",   "OBV neutral"));
-    else                                       wrap.appendChild(s("O", "nu",   "OBV n/a"));
+    // DMA: above → ↑ green; below → ↓ red
+    if(cell.dma_signal === "above")           wrap.appendChild(s("D", "↑", "up", "DMA200: ABOVE — long-term uptrend"));
+    else if(cell.dma_signal === "below")      wrap.appendChild(s("D", "↓", "dn", "DMA200: BELOW — long-term downtrend"));
+    else                                       wrap.appendChild(s("D", "→", "nu", "DMA200 n/a"));
+    // MFI: overbought → ● orange (warning); oversold → ↑ green (contrarian buy); neutral → → grey
+    if(cell.mfi_signal === "overbought")      wrap.appendChild(s("M", "●", "warn", "MFI >70 — overbought, don't add"));
+    else if(cell.mfi_signal === "oversold")   wrap.appendChild(s("M", "↑", "up",   "MFI <30 — oversold, contrarian buy"));
+    else if(cell.mfi_signal === "neutral")    wrap.appendChild(s("M", "→", "nu",   "MFI 30-70 — neutral"));
+    else                                       wrap.appendChild(s("M", "→", "nu",   "MFI n/a"));
+    // OBV: accumulation → ↑ green; distribution → ↓ red; neutral → → grey
+    if(cell.obv_signal === "accumulation")    wrap.appendChild(s("O", "↑", "up", "OBV: ACCUMULATION — smart money in"));
+    else if(cell.obv_signal === "distribution") wrap.appendChild(s("O", "↓", "dn", "OBV: DISTRIBUTION — smart money out"));
+    else if(cell.obv_signal === "neutral")    wrap.appendChild(s("O", "→", "nu", "OBV: NEUTRAL"));
+    else                                       wrap.appendChild(s("O", "→", "nu", "OBV n/a"));
     return wrap;
   }
 
@@ -376,18 +392,62 @@
     const bias = buildBias(cell);
     if(bias) v.appendChild(el("div", "sm-v-bias", bias));
 
+    // Regime narrative — conditional: "in current regime, historical leaders are..."
+    const rNarr = regimeNarrative(DATA.regime && DATA.regime.label);
+    if(rNarr){
+      const rb = el("div", "sm-v-regime-narr");
+      rb.textContent = rNarr;
+      rb.style.cssText = "font-size:10.5px;color:var(--muted);font-style:italic;line-height:1.5;"
+        + "padding:7px 10px;background:var(--card-alt);border-radius:5px;border:1px solid var(--border-lt)";
+      v.appendChild(rb);
+    }
+
     return v;
   }
 
   function buildBias(c){
-    if(c.dma_signal === "above" && c.score != null && c.score >= 0.4) return "Trend + accumulation. Hold; scale in on pullbacks. Watch euphoria above +0.6.";
-    if(c.dma_signal === "below" && c.score != null && c.score <= -0.4) return "Trend down + distribution. Avoid adding. Wait for break above DMA200.";
-    if(c.dma_signal === "above" && c.mfi_signal === "overbought") return "Healthy trend, short-term overbought. Don't chase — wait for pullback.";
-    if(c.dma_signal === "below" && c.mfi_signal === "oversold")   return "Weak trend but capitulation flagged. Contrarian — small size only.";
-    if(c.dma_signal === "above" && c.obv_signal === "distribution") return "Uptrend but smart money rotating out. Tight stops.";
-    if(c.dma_signal === "above") return "Long-term uptrend intact. Patience on mixed short-term signals.";
-    if(c.dma_signal === "below") return "Long-term downtrend. Default stance: avoid until trend repairs.";
-    return null;
+    const above   = c.dma_signal === "above";
+    const below   = c.dma_signal === "below";
+    const accum   = c.obv_signal === "accumulation";
+    const distrib = c.obv_signal === "distribution";
+    const overb   = c.mfi_signal === "overbought";
+    const overs   = c.mfi_signal === "oversold";
+    const s = c.score;
+
+    // Extreme zones (priority: score-driven)
+    if(s != null && s >= 0.7)  return "Euphoria zone (score >+0.7). Historical 1Y forward returns negative on average (Damodaran). Trim, don't add — book some profit.";
+    if(s != null && s <= -0.7) return "Capitulation zone (score <−0.7). Historical 1Y forward returns +8% to +12% on average. Contrarian buy — scale in, small size.";
+
+    // Confluence / divergence cases
+    if(above && accum && overb)  return "Trend + smart-money in + overbought. Strong but stretched. Don't chase, wait for pullback to add.";
+    if(above && accum)            return "Trend confirmed + accumulation. Hold; scale in on pullbacks. Watch for euphoria above +0.6.";
+    if(above && distrib)          return "Uptrend but smart money rotating OUT. Divergence — tight stops, watch for follow-through.";
+    if(above && overb)            return "Healthy trend, short-term overbought (MFI >70). Don't chase — wait for the natural pullback.";
+    if(above && overs)            return "Uptrend with short-term oversold. Strong tactical setup — add into the dip.";
+    if(above)                     return "Long-term uptrend intact. Patience on mixed short-term signals.";
+
+    if(below && distrib && overs) return "Downtrend + smart money out + oversold. Bottom-fishing tempting but trend rules — avoid.";
+    if(below && distrib)          return "Downtrend confirmed + distribution. Avoid adding. Wait for break and hold above DMA200.";
+    if(below && accum)            return "Downtrend but smart money quietly accumulating. Watch for trend reversal — early signal.";
+    if(below && overs)            return "Downtrend but capitulation flagged (MFI <30). Contrarian — small position only, wait for confirmation.";
+    if(below)                     return "Long-term downtrend. Default stance: avoid until trend repairs above DMA200.";
+
+    return "Mixed signals — no clear edge. Default: stay aligned with longer-term trend or wait.";
+  }
+
+  // Historical regime → top performer sectors (Damodaran 1990-2024 dataset, US)
+  const REGIME_TOPS = {
+    "RISK-ON":  ["Tech & Semis", "EV & Clean Energy", "Finance & Transac.", "Luxury"],
+    "NEUTRAL":  ["Industrials", "Healthcare & Pharma", "Consumer Staples"],
+    "RISK-OFF": ["Consumer Staples", "Healthcare & Pharma", "Strategic Materials"]
+  };
+  function regimeNarrative(regimeLabel){
+    if(!regimeLabel || !REGIME_TOPS[regimeLabel]) return null;
+    const top = REGIME_TOPS[regimeLabel];
+    const tag = regimeLabel === "RISK-ON" ? "In risk-on regimes (1990-2024, Damodaran), historical winners:"
+              : regimeLabel === "RISK-OFF" ? "In risk-off regimes (1990-2024, Damodaran), defensive leaders:"
+              : "In neutral regimes (1990-2024, Damodaran), broad balance:";
+    return tag + " " + top.join(", ") + ".";
   }
 
   // ── Cell build (recto) ──────────────────────────────────────────
@@ -422,7 +482,7 @@
     const bg = cellBg(v, isDark);
     if(bg) c.style.setProperty("--cell-bg", bg);
 
-    // RECTO
+    // RECTO — name + score pill (top), big alpha at active TF (middle), 3 sigs (bottom)
     const recto = el("div", "sm-c-recto");
     recto.style.display = "flex";
     recto.style.flexDirection = "column";
@@ -431,22 +491,35 @@
 
     const top = el("div", "sm-c-top");
     top.appendChild(el("div", "sm-c-name", sectorShortName(sector)));
-    const aEl = el("div", "sm-c-alpha", v == null ? "—" : fmtPct(v));
-    aEl.style.color = alphaTextColor(v);
-    top.appendChild(aEl);
+    // Score in small pill (top-right) — tells you the composite
+    const scPill = el("div", "sm-c-score-small", cell.score != null ? fmtScore(cell.score) : "—");
+    scPill.style.color = alphaTextColor(cell.score);
+    scPill.title = "Composite score (DMA + MFI + OBV), -1 to +1";
+    top.appendChild(scPill);
     recto.appendChild(top);
 
+    // Big alpha at active TF + TF label
     const mid = el("div", "sm-c-mid");
-    const sc = el("div", "sm-c-score", cell.score != null ? fmtScore(cell.score) : "—");
-    sc.style.color = alphaTextColor(cell.score);
-    mid.appendChild(sc);
+    const alphaBig = el("div", "sm-c-alpha-big", v == null ? "—" : fmtPct(v));
+    alphaBig.style.color = alphaTextColor(v);
+    mid.appendChild(alphaBig);
+    const tfLbl = el("div", "sm-c-tf-lbl",
+      TF === "chg_pct" ? "TODAY" :
+      ((REGION === "MONDE" ? "RET " : "ALPHA ") + TF.toUpperCase())
+    );
+    mid.appendChild(tfLbl);
     recto.appendChild(mid);
 
     recto.appendChild(buildSigsTrio(cell));
     c.appendChild(recto);
 
     // VERSO (built on demand)
-    c.addEventListener("click", () => zoomIn(c, sector, cell));
+    c.addEventListener("click", (ev) => {
+      // If this cell is already zoomed, ANY click on it closes the zoom.
+      // (The × button has its own handler with stopPropagation already.)
+      if(c.classList.contains("zoomed")){ zoomOut(); return; }
+      zoomIn(c, sector, cell);
+    });
 
     return c;
   }

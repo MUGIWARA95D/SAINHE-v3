@@ -29,15 +29,15 @@ from config import SECTOR_TICKERS
 META = {
     "id"         : "box_05_sentiment",   # ID kept for BOX_REGISTRY stability
     "titre"      : {
-        "EN": "Sector Map",
-        "FR": "Carte des Secteurs",
-        "DE": "Sektorkarte",
-        "ES": "Mapa de Sectores",
-        "ZH": "板块图",
-        "RU": "Карта секторов",
-        "JA": "セクターマップ",
+        "EN": "Rotation",
+        "FR": "Rotation",
+        "DE": "Rotation",
+        "ES": "Rotación",
+        "ZH": "板块轮动",
+        "RU": "Ротация",
+        "JA": "ローテーション",
     },
-    "description": "16 sectors × 4 regions rotation matrix with breadth and regime overlay.",
+    "description": "Volume-driven sector rotation — DMA · MFI · OBV signals across 16 sectors × 4 regions.",
     "icone"      : "🗺️",
     "largeur"    : "full",
 }
