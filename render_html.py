@@ -141,8 +141,8 @@ def build_page_navs() -> dict:
             {"href": "#nav-macro",     "label": "Macro"},
             {"href": "#nav-indices",   "label": "Indices"},
             {"href": "#nav-news",      "label": "News"},
-            {"href": "#nav-sectors",   "label": "Sectors"},
-            {"href": "#nav-sentiment", "label": "Sentiment"},
+            {"href": "#nav-sectors",   "label": "Valuation"},
+            {"href": "#nav-sentiment", "label": "Rotation"},
             {"href": "#nav-portfolio", "label": "Portfolio"},
         ],
         "stock-analysis": [
