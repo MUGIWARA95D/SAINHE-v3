@@ -70,12 +70,41 @@ SECTOR_ABBREV = {
 # 1. Sector grid — snapshot JOIN ticker_info for every (sector, region)
 # ══════════════════════════════════════════════════════════════
 
+def _fetch_rperf_latest(con: sqlite3.Connection) -> dict:
+    """
+    Returns {(secteur, region): {rperf_1m, rperf_3m, rperf_6m, rperf_1y}}
+    for the LATEST row per (secteur, region) in the rperf table.
+
+    rperf is computed by calc.calc_rperf_for_sector and written to its own
+    table by upsert_rperf — the snapshot table's rperf_* columns are NOT
+    populated by calc.py's main loop, so reading rperf here is mandatory.
+    Note: MONDE is the benchmark itself, so no row exists for it (its
+    'alpha' is 0 by definition — kept as null and shown as neutral cream).
+    """
+    rows = con.execute(
+        """
+        SELECT secteur, region, rperf_1m, rperf_3m, rperf_6m, rperf_1y
+        FROM (
+            SELECT *,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY secteur, region
+                       ORDER BY date DESC
+                   ) AS rn
+            FROM rperf
+        )
+        WHERE rn = 1
+        """
+    ).fetchall()
+    return {(r[0], r[1]): {"1m": r[2], "3m": r[3], "6m": r[4], "1y": r[5]} for r in rows}
+
+
 def _fetch_grid(con: sqlite3.Connection) -> dict:
     """
     Returns {region: {sector: cell_dict}}. Cells with no ETF coverage (e.g.
     Industrials/EU, Chemicals/MONDE) carry coverage=False; the template renders
     them as muted, non-clickable cells.
     """
+    rperf_map = _fetch_rperf_latest(con)
     rows = con.execute("""
         SELECT ti.ticker, ti.secteur, ti.region, ti.nom,
                s.sentiment_score, s.sentiment_label,
@@ -140,15 +169,19 @@ def _fetch_grid(con: sqlite3.Connection) -> dict:
             else:
                 obv_sig = "na"
 
+            # Alpha vs MONDE comes from the dedicated rperf table (snapshot's
+            # rperf_* columns are not populated by calc.main). For MONDE itself
+            # the benchmark is itself, so no rperf row exists — keep nulls.
+            rp = rperf_map.get((sector, region), {})
             grid[region][sector] = {
                 "coverage": True,
                 "ticker"  : ticker,
                 "nom"     : snap.get("nom") or ticker,
                 # Relative alpha vs MONDE benchmark at 4 timeframes (decimals)
-                "alpha_1m": snap.get("rperf_1m"),
-                "alpha_3m": snap.get("rperf_3m"),
-                "alpha_6m": snap.get("rperf_6m"),
-                "alpha_1y": snap.get("rperf_1y"),
+                "alpha_1m": rp.get("1m"),
+                "alpha_3m": rp.get("3m"),
+                "alpha_6m": rp.get("6m"),
+                "alpha_1y": rp.get("1y"),
                 # Absolute returns for the verso table
                 "ret_1m"  : snap.get("ret_1m"),
                 "ret_3m"  : snap.get("ret_3m"),
