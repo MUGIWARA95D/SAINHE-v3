@@ -1,167 +1,279 @@
 """
-box_05_sentiment.py — Sentiment par secteur (MFI + OBV + DMA200).
+box_05_sentiment.py — Sector Map: 16 sectors × 4 regions rotation matrix.
+
+Replaces the previous single-region Sentiment Analysis box with a richer,
+decision-oriented heatmap. Per cell:
+  - Color = relative alpha vs MONDE benchmark at the selected timeframe
+  - 3 micro signals: DMA200, MFI, OBV
+  - Click-to-zoom reveals the full detail view (12 points)
+
+Two overlays on top of the matrix:
+  - Market Breadth: % of sector ETFs above DMA200 (Healthy/Narrowing/Risk-off)
+  - Macro Regime: classified from VIX + yield curve + HY OAS (Risk-on/Neutral/Risk-off)
+
+All data is read from existing tables (snapshot, macro_bandeau, macro_liquidity).
+No new fetcher required.
 """
 
 import sqlite3
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from config import SECTOR_TICKERS
+
 
 # ══════════════════════════════════════════════════════════════
-# ── 1. META
+# META
 # ══════════════════════════════════════════════════════════════
 META = {
-    "id"         : "box_05_sentiment",
+    "id"         : "box_05_sentiment",   # ID kept for BOX_REGISTRY stability
     "titre"      : {
-        "EN": "Sentiment Analysis",
-        "FR": "Analyse du Sentiment",
-        "DE": "Stimmungsanalyse",
-        "ES": "Análisis de Sentimiento",
-        "ZH": "情绪分析",
-        "RU": "Анализ настроений",
-        "JA": "センチメント分析",
+        "EN": "Sector Map",
+        "FR": "Carte des Secteurs",
+        "DE": "Sektorkarte",
+        "ES": "Mapa de Sectores",
+        "ZH": "板块图",
+        "RU": "Карта секторов",
+        "JA": "セクターマップ",
     },
-    "description": "Composite sentiment score per sector (MFI 40% + OBV 30% + DMA200 30%).",
-    "icone"      : "🧭",
+    "description": "16 sectors × 4 regions rotation matrix with breadth and regime overlay.",
+    "icone"      : "🗺️",
     "largeur"    : "full",
 }
 
-# Filtre de région pour le sentiment affiché par défaut
-# Modifie pour changer la région de référence (MONDE = benchmark global)
-REGION_DEFAUT = "MONDE"
+REGIONS = ["MONDE", "USA", "EU", "ASIE"]
+SECTORS = list(SECTOR_TICKERS.keys())  # 16 sectors, fixed order from config
 
-# Labels sentiment par score (doit correspondre à SENTIMENT_THRESHOLDS dans config.py)
-LABELS_COLOR = {
-    "Euphoric"     : "#C62828",   # rouge — surchauffe
-    "Accumulation" : "#2E7D32",   # vert
-    "Neutral"      : "#9E9E9E",   # gris
-    "Caution"      : "#F57C00",   # orange
-    "Bearish"      : "#C62828",   # rouge
-    "Extreme Fear" : "#7B1FA2",   # violet
+# Compact labels for the 1×1 recto (4–7 chars max)
+SECTOR_ABBREV = {
+    "Tech & Semis"        : "Tech",
+    "Robotics & MedTech"  : "Robot",
+    "Healthcare & Pharma" : "Health",
+    "Finance & Transac."  : "Finance",
+    "Strategic Materials" : "Mater",
+    "Energy"              : "Energy",
+    "Defense & Aerospace" : "Defens",
+    "EV & Clean Energy"   : "Clean",
+    "Space"               : "Space",
+    "Luxury"              : "Luxury",
+    "Agriculture"         : "Agri",
+    "Infra & Water"       : "Infra",
+    "Consumer Staples"    : "Staple",
+    "Digital Assets"      : "Crypto",
+    "Industrials"         : "Indus",
+    "Chemicals"           : "Chem",
 }
 
 
 # ══════════════════════════════════════════════════════════════
-# ── 2. QUERY
+# 1. Sector grid — snapshot JOIN ticker_info for every (sector, region)
 # ══════════════════════════════════════════════════════════════
 
-def _fetch_sentiment(con: sqlite3.Connection, region: str) -> list[dict]:
+def _fetch_grid(con: sqlite3.Connection) -> dict:
     """
-    Lit le sentiment pour tous les ETFs de la région donnée.
-    Modifie `region` ou enlève le filtre WHERE pour changer la sélection.
-    Modifie les colonnes SELECT pour ajouter MFI brut, OBV_dir, etc.
+    Returns {region: {sector: cell_dict}}. Cells with no ETF coverage (e.g.
+    Industrials/EU, Chemicals/MONDE) carry coverage=False; the template renders
+    them as muted, non-clickable cells.
     """
-    rows = con.execute(
-        """
+    rows = con.execute("""
+        SELECT ti.ticker, ti.secteur, ti.region, ti.nom,
+               s.sentiment_score, s.sentiment_label,
+               s.mfi, s.obv_dir, s.above_dma200,
+               s.dma_50, s.dma_200, s.close, s.chg_pct,
+               s.ret_1m, s.ret_3m, s.ret_6m, s.ret_1y,
+               s.rperf_1m, s.rperf_3m, s.rperf_6m, s.rperf_1y,
+               s.ts_update
+        FROM snapshot s
+        JOIN ticker_info ti ON ti.ticker = s.ticker
+        WHERE ti.type = 'etf_sector' AND ti.actif = 1
+    """).fetchall()
+
+    cols = ["ticker", "secteur", "region", "nom",
+            "sentiment_score", "sentiment_label",
+            "mfi", "obv_dir", "above_dma200",
+            "dma_50", "dma_200", "close", "chg_pct",
+            "ret_1m", "ret_3m", "ret_6m", "ret_1y",
+            "rperf_1m", "rperf_3m", "rperf_6m", "rperf_1y",
+            "ts_update"]
+    snap_by_ticker = {r[0]: dict(zip(cols, r)) for r in rows}
+
+    grid = {r: {} for r in REGIONS}
+    for sector in SECTORS:
+        for region in REGIONS:
+            ticker = SECTOR_TICKERS[sector].get(region)
+            if not ticker:
+                grid[region][sector] = {"coverage": False, "ticker": None}
+                continue
+            snap = snap_by_ticker.get(ticker)
+            if not snap:
+                grid[region][sector] = {"coverage": False, "ticker": ticker}
+                continue
+
+            # DMA200 signal (long-term trend)
+            if snap.get("above_dma200") == 1:
+                dma_sig = "above"
+            elif snap.get("above_dma200") == 0:
+                dma_sig = "below"
+            else:
+                dma_sig = "na"
+
+            # MFI signal (momentum extremes)
+            mfi = snap.get("mfi")
+            if mfi is None:
+                mfi_sig = "na"
+            elif mfi >= 70:
+                mfi_sig = "overbought"
+            elif mfi <= 30:
+                mfi_sig = "oversold"
+            else:
+                mfi_sig = "neutral"
+
+            # OBV signal (smart money flow)
+            obv_d = snap.get("obv_dir")
+            if obv_d == 1:
+                obv_sig = "accumulation"
+            elif obv_d == -1:
+                obv_sig = "distribution"
+            elif obv_d == 0:
+                obv_sig = "neutral"
+            else:
+                obv_sig = "na"
+
+            grid[region][sector] = {
+                "coverage": True,
+                "ticker"  : ticker,
+                "nom"     : snap.get("nom") or ticker,
+                # Relative alpha vs MONDE benchmark at 4 timeframes (decimals)
+                "alpha_1m": snap.get("rperf_1m"),
+                "alpha_3m": snap.get("rperf_3m"),
+                "alpha_6m": snap.get("rperf_6m"),
+                "alpha_1y": snap.get("rperf_1y"),
+                # Absolute returns for the verso table
+                "ret_1m"  : snap.get("ret_1m"),
+                "ret_3m"  : snap.get("ret_3m"),
+                "ret_6m"  : snap.get("ret_6m"),
+                "ret_1y"  : snap.get("ret_1y"),
+                # Composite score + label
+                "score"   : snap.get("sentiment_score"),
+                "label"   : snap.get("sentiment_label"),
+                # Three independent signals
+                "dma_signal" : dma_sig,
+                "mfi_value"  : mfi,
+                "mfi_signal" : mfi_sig,
+                "obv_signal" : obv_sig,
+                # Price context for the verso
+                "close"  : snap.get("close"),
+                "chg_pct": snap.get("chg_pct"),
+                "dma_50" : snap.get("dma_50"),
+                "dma_200": snap.get("dma_200"),
+                "ts_update": snap.get("ts_update"),
+            }
+    return grid
+
+
+# ══════════════════════════════════════════════════════════════
+# 2. Market breadth — % of sector ETFs above DMA200
+# ══════════════════════════════════════════════════════════════
+
+def _fetch_breadth(con: sqlite3.Connection) -> dict:
+    """
+    Breadth = the share of all active sector ETFs (across regions) trading
+    above their 200-day moving average. Classic participation indicator —
+    when it falls below 50% during a rally, it typically warns of a top.
+    """
+    row = con.execute("""
         SELECT
-            ti.secteur,
-            ti.ticker,
-            ti.region,
-            s.sentiment_score,
-            s.sentiment_label,
-            s.mfi,
-            s.obv_dir,
-            s.above_dma200,
-            s.rvol,
-            s.chg_pct,
-            s.ts_update
+          SUM(CASE WHEN s.above_dma200 = 1 THEN 1 ELSE 0 END) AS count_above,
+          SUM(CASE WHEN s.above_dma200 IS NOT NULL THEN 1 ELSE 0 END) AS count_total
         FROM snapshot s
         JOIN ticker_info ti ON ti.ticker = s.ticker
-        WHERE ti.type    = 'etf_sector'
-          AND ti.actif   = 1
-          AND ti.region  = ?
-        ORDER BY s.sentiment_score DESC NULLS LAST
-        """,
-        (region,),
-    ).fetchall()
+        WHERE ti.type = 'etf_sector' AND ti.actif = 1
+    """).fetchone()
 
-    cols = [
-        "secteur", "ticker", "region",
-        "sentiment_score", "sentiment_label",
-        "mfi", "obv_dir", "above_dma200",
-        "rvol", "chg_pct", "ts_update",
-    ]
-    return [dict(zip(cols, r)) for r in rows]
+    count_above = int(row[0]) if row and row[0] is not None else 0
+    count_total = int(row[1]) if row and row[1] is not None else 0
+    pct = (count_above / count_total * 100) if count_total else None
 
+    if pct is None:
+        label = "n/a"
+    elif pct >= 60:
+        label = "Healthy"
+    elif pct >= 40:
+        label = "Narrowing"
+    else:
+        label = "Risk-off"
 
-def _fetch_global_avg(con: sqlite3.Connection) -> float | None:
-    """
-    Moyenne du sentiment sur tous les ETFs MONDE → baromètre global.
-    Modifie le filtre WHERE pour changer le périmètre du baromètre.
-    """
-    row = con.execute(
-        """
-        SELECT AVG(s.sentiment_score)
-        FROM snapshot s
-        JOIN ticker_info ti ON ti.ticker = s.ticker
-        WHERE ti.type   = 'etf_sector'
-          AND ti.region = 'MONDE'
-          AND s.sentiment_score IS NOT NULL
-        """,
-    ).fetchone()
-    return round(row[0], 4) if row and row[0] is not None else None
+    return {
+        "count_above": count_above,
+        "count_total": count_total,
+        "pct"        : round(pct, 1) if pct is not None else None,
+        "label"      : label,
+    }
 
 
 # ══════════════════════════════════════════════════════════════
-# ── 3. FORMAT
+# 3. Macro regime — VIX + yield curve + HY OAS classification
+# ══════════════════════════════════════════════════════════════
+
+def _fetch_regime(con: sqlite3.Connection) -> dict:
+    """
+    Three-bucket classification:
+      RISK-ON  : VIX<20 AND curve>0 AND HY OAS<400 bps
+      RISK-OFF : VIX>30 OR HY OAS>600 bps
+      NEUTRAL  : everything else
+    """
+    bandeau = con.execute("""
+        SELECT vix, yield_curve
+        FROM macro_bandeau
+        ORDER BY ts DESC
+        LIMIT 1
+    """).fetchone()
+    liq = con.execute("""
+        SELECT hy_oas_us
+        FROM macro_liquidity
+        ORDER BY date DESC
+        LIMIT 1
+    """).fetchone()
+
+    vix   = bandeau[0] if bandeau else None
+    curve = bandeau[1] if bandeau else None
+    hy    = liq[0]     if liq     else None
+
+    label = "NEUTRAL"
+    if vix is not None and curve is not None and hy is not None:
+        if vix < 20 and curve > 0 and hy < 400:
+            label = "RISK-ON"
+        elif vix > 30 or hy > 600:
+            label = "RISK-OFF"
+        else:
+            label = "NEUTRAL"
+
+    return {
+        "label" : label,
+        "vix"   : round(vix, 2)   if vix   is not None else None,
+        "curve" : round(curve, 2) if curve is not None else None,
+        "hy_oas": round(hy, 0)    if hy    is not None else None,
+    }
+
+
+# ══════════════════════════════════════════════════════════════
+# render
 # ══════════════════════════════════════════════════════════════
 
 def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> dict:
-    """
-    Retourne :
-    {
-      "meta": META,
-      "data": {
-        "region"        : "MONDE",
-        "global_avg"    : float (-1 à +1),
-        "global_label"  : str,
-        "secteurs"      : [
-          {
-            secteur, ticker, region,
-            sentiment_score, sentiment_label, couleur,
-            mfi, obv_dir, above_dma200,
-            rvol, chg_pct
-          },
-          ...  (trié par score DESC)
-        ]
-      }
-    }
-    """
-    region   = REGION_DEFAUT
-    items    = _fetch_sentiment(con, region)
-    avg      = _fetch_global_avg(con)
-
-    # Label global basé sur la moyenne
-    global_label = _score_to_label(avg) if avg is not None else "N/A"
-
-    secteurs_out = []
-    for item in items:
-        secteurs_out.append({
-            "secteur"        : item["secteur"],
-            "ticker"         : item["ticker"],
-            "region"         : item["region"],
-            "sentiment_score": item["sentiment_score"],
-            "sentiment_label": item["sentiment_label"] or "N/A",
-            "couleur"        : LABELS_COLOR.get(item["sentiment_label"], "#9E9E9E"),
-            "mfi"            : item["mfi"],
-            "obv_dir"        : item["obv_dir"],
-            "above_dma200"   : item["above_dma200"],
-            "rvol"           : item["rvol"],
-            "chg_pct"        : item["chg_pct"],
-        })
+    grid    = _fetch_grid(con)
+    breadth = _fetch_breadth(con)
+    regime  = _fetch_regime(con)
 
     return {
         "meta": {**META, "titre": META["titre"].get(lang, META["titre"]["EN"])},
         "data": {
-            "region"      : region,
-            "global_avg"  : avg,
-            "global_label": global_label,
-            "secteurs"    : secteurs_out,
+            "regions": REGIONS,
+            "sectors": SECTORS,
+            "abbrevs": SECTOR_ABBREV,
+            "grid"   : grid,
+            "breadth": breadth,
+            "regime" : regime,
         },
     }
-
-
-def _score_to_label(score: float) -> str:
-    if score >= 0.6:  return "Euphoric"
-    if score >= 0.1:  return "Accumulation"
-    if score >= 0.0:  return "Neutral"
-    if score >= -0.1: return "Caution"
-    if score >= -0.6: return "Bearish"
-    return "Extreme Fear"

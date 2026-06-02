@@ -1,204 +1,570 @@
-<!-- ═══ BOX_05 — SENTIMENT ANALYSIS ════════════════════════ -->
+<!-- ═══ BOX_05 — SECTOR MAP ════════════════════════════════════════ -->
+<!-- 16 sectors × 4 regions rotation matrix.                          -->
+<!-- Recto (1×1): color = alpha vs MONDE at active timeframe + 3 micro -->
+<!--   signals (DMA200 / MFI / OBV). Click → zoom 3×3 with full detail. -->
 <style>
-/* ── Sentiment cards — same visual language as macro liq-cards ─── */
-.sc{
-  background:var(--card-alt);
-  border:1px solid var(--border-lt);
-  border-left:3px solid var(--border-lt);
-  border-radius:7px;
-  padding:12px 14px 10px;
-  transition:background .2s, border-color .15s;
+/* ── Hero strip ─────────────────────────────────────────────── */
+#sm-hero{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:14px 22px;border-bottom:1px solid var(--border-lt);flex-wrap:wrap;
 }
-.sc:hover{border-color:var(--gold);box-shadow:var(--shadow)}
-.sc.sig-g{background:var(--green-bg);border-left-color:var(--green-border)}
-.sc.sig-r{background:var(--red-bg);border-left-color:var(--red-border)}
-.sc.sig-y{background:var(--orange-bg);border-left-color:var(--orange-border)}
+.sm-hero-block{display:flex;align-items:center;gap:10px;font-family:var(--sans)}
+.sm-hero-label{font-size:10.5px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted);font-weight:700}
+.sm-hero-value{font-size:18px;font-weight:700;color:var(--h);font-variant-numeric:tabular-nums}
+.sm-hero-sub{font-size:11.5px;color:var(--muted)}
+.sm-hero-chip{
+  display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.6px;
+  padding:4px 10px;border-radius:999px;text-transform:uppercase;
+}
+.sm-hero-chip.healthy  {background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.sm-hero-chip.narrow   {background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border)}
+.sm-hero-chip.riskoff  {background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.sm-hero-chip.riskon   {background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.sm-hero-chip.neutral  {background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-border)}
+.sm-hero-chip.na       {background:var(--card-alt);color:var(--muted);border:1px solid var(--border-lt)}
 
-/* Legend badge pill */
-.sc-lbl-badge{
-  display:inline-block;font-size:9px;font-weight:700;
-  padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:.5px;
-  margin-top:4px;
+/* ── Grid container — 2×2 quadrants with gold cross ─────────── */
+#sm-grid-wrap{
+  position:relative;padding:18px 22px 8px;
+  /* visible overflow so the zoom can spill into neighboring quadrants */
+  overflow:visible;
 }
-/* Score bar container — tighter spacing */
-.sc-score-row{display:flex;align-items:baseline;gap:6px;margin-bottom:6px}
-.sc-score-num{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.sm-quadrants{
+  position:relative;display:grid;
+  grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+  gap:0;  /* no gap — the cross is drawn by pseudo elements */
+}
+/* Central cross (gold) */
+.sm-quadrants::before{
+  content:"";position:absolute;left:0;right:0;top:50%;height:2px;
+  background:linear-gradient(90deg, transparent 0%, var(--gold-border) 18%, var(--gold) 50%, var(--gold-border) 82%, transparent 100%);
+  pointer-events:none;z-index:2;transform:translateY(-1px);
+}
+.sm-quadrants::after{
+  content:"";position:absolute;top:0;bottom:0;left:50%;width:2px;
+  background:linear-gradient(180deg, transparent 0%, var(--gold-border) 18%, var(--gold) 50%, var(--gold-border) 82%, transparent 100%);
+  pointer-events:none;z-index:2;transform:translateX(-1px);
+}
+.sm-quadrant{padding:12px 14px}
+.sm-quadrant-hdr{
+  font-family:var(--serif);font-size:13px;font-weight:700;
+  letter-spacing:2px;color:var(--gold);
+  padding-bottom:8px;margin-bottom:10px;text-align:center;
+  border-bottom:1px solid var(--border-lt);
+}
+
+/* ── Mini-grid 4×4 ──────────────────────────────────────────── */
+.sm-cells{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.sm-cell{
+  position:relative;aspect-ratio:1/1;border-radius:7px;
+  background:var(--cell-bg, var(--card-alt));
+  border:1px solid var(--border-lt);
+  cursor:pointer;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;
+  padding:6px 5px 5px;
+  transition:transform .15s, border-color .15s, box-shadow .15s;
+}
+.sm-cell:hover{border-color:var(--gold);box-shadow:var(--shadow);transform:translateY(-1px)}
+.sm-cell.null{
+  cursor:default;opacity:.32;
+  background:repeating-linear-gradient(45deg, var(--card-alt), var(--card-alt) 6px, transparent 6px, transparent 12px);
+}
+.sm-cell.null:hover{transform:none;border-color:var(--border-lt);box-shadow:none}
+.sm-cell-name{
+  font-family:var(--serif);font-size:11px;font-weight:600;color:var(--h);
+  letter-spacing:.2px;line-height:1.1;text-align:center;word-break:break-word;
+}
+.sm-cell-alpha{
+  font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;
+  text-align:center;color:var(--alpha-color, var(--h));
+}
+.sm-cell-sigs{display:flex;justify-content:center;gap:3px;font-size:9.5px;line-height:1}
+.sm-cell-sigs span{display:inline-flex;align-items:center;justify-content:center;
+  width:13px;height:13px;border-radius:3px;font-weight:700;font-family:var(--sans)}
+.sig-up{background:var(--green-bg);color:var(--green)}
+.sig-dn{background:var(--red-bg);color:var(--red)}
+.sig-nu{background:var(--card-alt);color:var(--muted);border:1px solid var(--border-lt)}
+
+/* Cell color shading (set inline via JS via CSS vars) */
+.sm-cell{
+  /* default neutral — overridden by JS per-cell */
+  --cell-bg: var(--card-alt);
+  --alpha-color: var(--h);
+}
+
+/* ── Zoom clone (3× the original cell) ──────────────────────── */
+.sm-zoom-clone{
+  position:absolute;z-index:50;border-radius:12px;
+  background:var(--card);border:1px solid var(--gold-border);
+  box-shadow:0 12px 40px rgba(60,40,15,.22),0 4px 12px rgba(60,40,15,.10);
+  padding:18px 20px;overflow:hidden;
+  display:flex;flex-direction:column;gap:10px;
+  transition:top .32s cubic-bezier(.2,.6,.2,1),
+             left .32s cubic-bezier(.2,.6,.2,1),
+             width .32s cubic-bezier(.2,.6,.2,1),
+             height .32s cubic-bezier(.2,.6,.2,1),
+             opacity .25s;
+}
+.sm-zoom-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.sm-zoom-title{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--h);line-height:1.2}
+.sm-zoom-sub{font-size:11.5px;color:var(--muted);letter-spacing:.4px;margin-top:2px}
+.sm-zoom-close{
+  background:none;border:none;font-size:20px;color:var(--muted);
+  cursor:pointer;padding:2px 8px;line-height:1;border-radius:5px;flex-shrink:0;
+}
+.sm-zoom-close:hover{background:var(--hover);color:var(--h)}
+.sm-zoom-score-row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.sm-zoom-score{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.sm-zoom-label{font-size:11px;font-weight:700;letter-spacing:.8px;padding:4px 10px;border-radius:4px;text-transform:uppercase}
+.sm-zoom-section{margin-top:6px}
+.sm-zoom-section-title{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.sm-zoom-alpha-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-family:var(--sans)}
+.sm-zoom-alpha-cell{background:var(--card-alt);border-radius:6px;padding:8px 6px;text-align:center}
+.sm-zoom-alpha-tf{font-size:9.5px;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;font-weight:700}
+.sm-zoom-alpha-val{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+.sm-zoom-signals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sm-zoom-sig{background:var(--card-alt);border-radius:6px;padding:8px;text-align:center;border-left:3px solid var(--border-lt)}
+.sm-zoom-sig.up   {border-left-color:var(--green-border);background:var(--green-bg)}
+.sm-zoom-sig.down {border-left-color:var(--red-border);background:var(--red-bg)}
+.sm-zoom-sig.warn {border-left-color:var(--orange-border);background:var(--orange-bg)}
+.sm-zoom-sig-tag{font-size:9.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.sm-zoom-sig-val{font-size:12.5px;font-weight:700;color:var(--h);margin-top:3px}
+.sm-zoom-sig-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.sm-zoom-bias{
+  font-size:11.5px;color:var(--p);line-height:1.5;
+  padding:10px 12px;background:var(--card-alt);border-left:3px solid var(--gold);
+  border-radius:6px;margin-top:4px;font-style:italic;
+}
+
+/* Backdrop blur — when a cell is zoomed, others fade & blur */
+.sm-quadrants.is-zooming .sm-cell:not(.zoomed-source){
+  filter:blur(2px) opacity(.45);transition:filter .25s;pointer-events:none;
+}
+.sm-cell.zoomed-source{visibility:hidden}
+
+/* ── Footer: timeframe toggle ───────────────────────────────── */
+#sm-footer{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 22px 14px;border-top:1px solid var(--border-lt);flex-wrap:wrap;
+}
+.sm-tf-label{font-size:10px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);margin-right:8px}
+.sm-tf-btn{
+  background:var(--card-alt);border:1px solid var(--border-lt);
+  color:var(--p);font-family:var(--sans);font-size:11.5px;font-weight:600;
+  padding:6px 14px;border-radius:5px;cursor:pointer;transition:all .15s;
+  letter-spacing:.3px;
+}
+.sm-tf-btn:hover{border-color:var(--gold);color:var(--h)}
+.sm-tf-btn.active{background:var(--gold);border-color:var(--gold);color:#fff}
+
+/* ── Responsive: mobile → 1×4 stacked quadrants ─────────────── */
+@media(max-width:700px){
+  .sm-quadrants{grid-template-columns:1fr;grid-template-rows:repeat(4,auto)}
+  /* Hide the cross on mobile (no quadrant separation visually needed) */
+  .sm-quadrants::before,.sm-quadrants::after{display:none}
+  .sm-quadrant{padding:10px 8px;border-bottom:1px solid var(--border-lt)}
+  .sm-quadrant:last-child{border-bottom:none}
+  .sm-cell-name{font-size:10px}
+  .sm-cell-alpha{font-size:11px}
+  .sm-cell-sigs{gap:2px}
+  .sm-cell-sigs span{width:11px;height:11px;font-size:8.5px}
+  #sm-hero{padding:12px 14px;gap:10px}
+  .sm-hero-value{font-size:15px}
+  #sm-footer{padding:10px 14px}
+  .sm-zoom-score{font-size:24px}
+  .sm-zoom-alpha-val{font-size:12.5px}
+}
 </style>
 
 <section class="card" id="box-sentiment">
   <div class="card-h">
-    <span class="card-t">Sector Analysis — Sentiment &amp; Reality Check</span>
+    <span class="card-t">Sector Map — Multi-Region Rotation</span>
     <div style="display:flex;align-items:center;gap:10px">
       <span class="box-ts"><span>Updated</span> {{ ts_sentiment }}</span>
-      <span class="badge badge-gold">3 Laws · Anti-Bias</span>
+      <span class="badge badge-gold">16 × 4 · DMA · MFI · OBV</span>
     </div>
   </div>
-  <div class="sc-legend" id="sc-legend"></div>
-  <div class="sector-grid" id="scgrid"></div>
+
+  <!-- Hero strip: breadth + regime -->
+  <div id="sm-hero">
+    <div class="sm-hero-block">
+      <span class="sm-hero-label">Breadth</span>
+      <span class="sm-hero-value" id="sm-breadth-val">—</span>
+      <span class="sm-hero-chip na" id="sm-breadth-chip">—</span>
+    </div>
+    <div class="sm-hero-block">
+      <span class="sm-hero-label">Regime</span>
+      <span class="sm-hero-chip na" id="sm-regime-chip">—</span>
+      <span class="sm-hero-sub" id="sm-regime-sub">—</span>
+    </div>
+  </div>
+
+  <!-- Grid (rendered by JS from box_sentiment data) -->
+  <div id="sm-grid-wrap">
+    <div class="sm-quadrants" id="sm-quadrants"></div>
+  </div>
+
+  <!-- Footer: timeframe toggle -->
+  <div id="sm-footer">
+    <span class="sm-tf-label">Alpha vs MONDE</span>
+    <button class="sm-tf-btn" data-tf="1m">1M</button>
+    <button class="sm-tf-btn active" data-tf="3m">3M</button>
+    <button class="sm-tf-btn" data-tf="6m">6M</button>
+    <button class="sm-tf-btn" data-tf="1y">1Y</button>
+  </div>
 </section>
 
 <script>
 (function(){
-  const ANA  = {{ box_sentiment.secteurs | tojson }};
-  const grid = document.getElementById("scgrid");
+  const DATA = {{ box_sentiment | tojson }};
+  const wrap = document.getElementById("sm-quadrants");
+  if(!wrap) return;
 
-  function mk(tag, cls, txt){ const el=document.createElement(tag); if(cls)el.className=cls; if(txt!=null)el.textContent=txt; return el; }
-  function lawTag(cls, txt){ return mk("span","law-tag "+cls, txt); }
+  // Active timeframe (with localStorage memory)
+  let TF = "3m";
+  try { const s = localStorage.getItem("sm_tf"); if(s && /^(1m|3m|6m|1y)$/.test(s)) TF = s; } catch(e){}
 
-  // ── Signal mapping — CSS variables, consistent with box_01 macro ────────────
-  // GREEN  = positive momentum (Accumulation)
-  // ORANGE = caution zone (Euphoric = overbought warning, Caution = weakening)
-  // RED    = negative momentum (Bearish, Extreme Fear)
-  // Neutral = no background tint
-  function sentSig(label){
-    switch(label){
-      case "Accumulation": return {cls:"sig-g", lawCls:"law-g", text:"var(--green)",  gaugeColor:"var(--green)"};
-      case "Euphoric":     return {cls:"sig-y", lawCls:"law-y", text:"var(--orange)", gaugeColor:"var(--orange)"};
-      case "Caution":      return {cls:"sig-y", lawCls:"law-y", text:"var(--orange)", gaugeColor:"var(--orange)"};
-      case "Bearish":      return {cls:"sig-r", lawCls:"law-r", text:"var(--red)",    gaugeColor:"var(--red)"};
-      case "Extreme Fear": return {cls:"sig-r", lawCls:"law-r", text:"var(--red)",    gaugeColor:"var(--red)"};
-      default:             return {cls:"",      lawCls:"law-y", text:"var(--muted)",  gaugeColor:"var(--gold)"};
+  // Helpers
+  function el(tag, cls, txt){ const e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
+  function fmtPct(v){ if(v==null||!isFinite(v)) return "—"; const pct = v*100; return (pct>=0?"+":"") + pct.toFixed(1) + "%"; }
+  function fmtBps(v){ if(v==null||!isFinite(v)) return "—"; const bps = v*10000; return (bps>=0?"+":"") + Math.round(bps); }
+  function fmtNum(v, d){ if(v==null||!isFinite(v)) return "—"; return Number(v).toFixed(d||2); }
+
+  // ── Color scale: continuous interpolation alpha → HSL ────────────────
+  // Negative alpha → red, near zero → neutral cream, positive → green.
+  // Cap at ±0.05 (= ±500 bps) for full saturation. Stays in SAINHE palette.
+  function alphaToBg(alpha){
+    if(alpha==null||!isFinite(alpha)) return "var(--card-alt)";
+    const a = Math.max(-0.05, Math.min(0.05, alpha));
+    const t = a / 0.05;  // -1 .. +1
+    if(t >= 0){
+      // green: hsl(135, S%, L%) varying with magnitude
+      const sat = 28 + 32*t;       // 28→60%
+      const light = 92 - 18*t;     // 92→74%
+      return `hsl(135, ${sat}%, ${light}%)`;
+    } else {
+      const u = -t;
+      const sat = 28 + 38*u;
+      const light = 92 - 20*u;
+      return `hsl(10, ${sat}%, ${light}%)`;
     }
   }
-
-  function renderLegend(){
-    const I18N = window.SAINHE_I18N || {};
-    const leg = document.getElementById("sc-legend");
-    if(!leg) return;
-    leg.textContent = "";
-
-    /* Score scale −1 → +1 */
-    const scaleWrap = leg.appendChild(mk("span","sc-legend-scale"));
-    scaleWrap.appendChild(mk("span",null,"−1")).style.cssText="color:var(--red);font-weight:600";
-    scaleWrap.appendChild(mk("span","sc-legend-track"));
-    scaleWrap.appendChild(mk("span",null,"+1")).style.cssText="color:var(--green);font-weight:600";
-
-    const sep = leg.appendChild(mk("span",null,"·"));
-    sep.style.color = "var(--faint)";
-
-    /* Signal chips — matching sentSig colors */
-    const chips = leg.appendChild(mk("span","sc-legend-chips"));
-    [
-      ["var(--green)",  I18N.sent_legend_bullish||"Accumulation",  "≥ +0.1"],
-      ["var(--gold)",   I18N.sent_legend_neutral||"Neutral",        "0 → +0.1"],
-      ["var(--orange)", I18N.sent_caution||"Caution",               "−0.1 → 0"],
-      ["var(--red)",    I18N.sent_legend_bearish||"Bearish",        "< −0.1"],
-    ].forEach(function(item){
-      const chip = chips.appendChild(mk("span","sc-legend-chip"));
-      const dot = chip.appendChild(mk("span","sc-legend-dot"));
-      dot.style.background = item[0];
-      chip.appendChild(mk("span",null,item[1])).style.color = "var(--p)";
-      chip.appendChild(mk("span",null," "+item[2])).style.cssText = "color:var(--faint);font-size:9px";
-    });
-
-    /* Formula */
-    const formula = leg.appendChild(mk("span","sc-legend-formula"));
-    formula.appendChild(mk("b",null,I18N.col_score||"Score"));
-    formula.appendChild(document.createTextNode(I18N.sent_formula||" = MFI×40% + OBV×30% + DMA200×30%"));
-
-    /* Learn link */
-    const lang = window.SAINHE_LANG||'en';
-    const lnk = leg.appendChild(mk("a","sc-legend-link",I18N.sent_legend_learn||"→ Learn more"));
-    lnk.href = (lang!=='en'?'/'+lang:'')+'/learn.html#lrn-sentiment';
+  function alphaToText(alpha){
+    if(alpha==null||!isFinite(alpha)) return "var(--muted)";
+    if(alpha > 0.005) return "var(--green)";
+    if(alpha < -0.005) return "var(--red)";
+    return "var(--p)";
   }
 
-  function renderSentiment(){
-    const I18N = window.SAINHE_I18N || {};
-    renderLegend();
-    grid.textContent = "";
+  // ── Signal icon helpers ───────────────────────────────────────────────
+  function dmaIcon(sig){
+    if(sig === "above") return ["▲","sig-up","Above DMA200"];
+    if(sig === "below") return ["▼","sig-dn","Below DMA200"];
+    return ["·","sig-nu","DMA200 n/a"];
+  }
+  function mfiIcon(sig){
+    if(sig === "overbought") return ["●","sig-dn","Overbought (>70)"];  // hot color = warning
+    if(sig === "oversold")   return ["●","sig-up","Oversold (<30)"];    // cold color = opportunity
+    if(sig === "neutral")    return ["○","sig-nu","Neutral"];
+    return ["·","sig-nu","MFI n/a"];
+  }
+  function obvIcon(sig){
+    if(sig === "accumulation") return ["↑","sig-up","Accumulation"];
+    if(sig === "distribution") return ["↓","sig-dn","Distribution"];
+    if(sig === "neutral")      return ["→","sig-nu","Neutral"];
+    return ["·","sig-nu","OBV n/a"];
+  }
 
-    ANA.forEach(function(a){
-      const secName = (I18N.sectors && I18N.sectors[a.secteur]) || a.secteur;
-      const sc      = a.sentiment_score != null ? a.sentiment_score : 0;
-      const pct     = Math.round((sc + 1) / 2 * 100);
-      const label   = a.sentiment_label || "Neutral";
-      const sig     = sentSig(label);
-      const chg     = a.chg_pct != null ? (a.chg_pct>=0?"+":"") + (a.chg_pct*100).toFixed(2) + "%" : "—";
+  // ── Hero strip render ─────────────────────────────────────────────────
+  function renderHero(){
+    const b = DATA.breadth || {};
+    const r = DATA.regime || {};
+    const bVal = document.getElementById("sm-breadth-val");
+    const bChip = document.getElementById("sm-breadth-chip");
+    if(b.count_total){
+      bVal.textContent = `${b.count_above}/${b.count_total} above DMA200 · ${b.pct}%`;
+    } else {
+      bVal.textContent = "n/a";
+    }
+    bChip.textContent = b.label || "—";
+    bChip.className = "sm-hero-chip " + (
+      b.label === "Healthy"   ? "healthy" :
+      b.label === "Narrowing" ? "narrow"  :
+      b.label === "Risk-off"  ? "riskoff" : "na");
 
-      // ── Signal classes for OBV, MFI, DMA ─────────────────────────────────
-      const obvC = a.obv_dir==="up"   ? "law-g" : a.obv_dir==="down" ? "law-r" : "law-y";
-      const obvL = a.obv_dir==="up"   ? (I18N.sent_accumulation||"ACCUMULATION")
-                 : a.obv_dir==="down" ? (I18N.sent_distribution||"DISTRIBUTION")
-                 :                      (I18N.sent_neutral||"NEUTRAL");
+    const rChip = document.getElementById("sm-regime-chip");
+    const rSub  = document.getElementById("sm-regime-sub");
+    rChip.textContent = r.label || "—";
+    rChip.className = "sm-hero-chip " + (
+      r.label === "RISK-ON"  ? "riskon"  :
+      r.label === "RISK-OFF" ? "riskoff" :
+      r.label === "NEUTRAL"  ? "neutral" : "na");
+    const parts = [];
+    if(r.vix    != null) parts.push(`VIX ${r.vix}`);
+    if(r.curve  != null) parts.push(`Curve ${r.curve >= 0 ? "+" : ""}${r.curve}%`);
+    if(r.hy_oas != null) parts.push(`HY ${r.hy_oas}bps`);
+    rSub.textContent = parts.join(" · ");
+  }
 
-      const mfiC = a.mfi!=null ? (a.mfi>70?"law-g":a.mfi<30?"law-r":"law-y") : "law-y";
-      const mfiL = a.mfi!=null ? (a.mfi>70?(I18N.sent_overbought||"OVERBOUGHT")
-                                 :a.mfi<30?(I18N.sent_oversold||"OVERSOLD")
-                                 :         (I18N.sent_neutral||"NEUTRAL"))
-                               : (I18N.signal_na||"N/A");
-
-      const dmaC = a.above_dma200 ? "law-g" : "law-r";
-      const dmaL = a.above_dma200 ? (I18N.sent_above_dma||"ABOVE DMA200")
-                                  : (I18N.sent_below_dma||"BELOW DMA200");
-
-      // ── Card ───────────────────────────────────────────────────────────────
-      const card = mk("div","sc"+(sig.cls?" "+sig.cls:""));
-
-      // Header row: sector name + score + info tooltip
-      const hdr = card.appendChild(mk("div","sc-hdr"));
-      hdr.appendChild(mk("span","sc-name",secName));
-
-      const infoWrap = hdr.appendChild(mk("span","sc-info"));
-      const sc_el = infoWrap.appendChild(mk("span","sc-score-num",(sc>=0?"+":"")+sc.toFixed(2)));
-      sc_el.style.color = sig.text;
-      infoWrap.appendChild(mk("span","sc-info-btn","i"));
-
-      // Methodology tooltip
-      const tip = infoWrap.appendChild(mk("span","sc-tip"));
-      tip.appendChild(mk("div","sc-tip-title", I18N.sent_methodology||"Methodology"));
-      [
-        [I18N.sent_obv_direction||"OBV direction", I18N.sent_obv_window||"20d window"],
-        [I18N.sent_mfi||"MFI",                     I18N.sent_mfi_window||"14d window"],
-        [I18N.sent_dma||"DMA",                     I18N.sent_dma_period||"200-day"],
-        [I18N.sent_rvol_baseline||"RVOL baseline",  I18N.sent_rvol_window||"20d avg"],
-      ].forEach(function(pair){
-        const row = tip.appendChild(mk("div","sc-tip-row"));
-        row.appendChild(mk("span",null,pair[0]));
-        row.appendChild(mk("span",null,pair[1]));
+  // ── Build a single cell (recto) ───────────────────────────────────────
+  function buildCell(region, sector){
+    const cell = DATA.grid?.[region]?.[sector] || {coverage:false};
+    const div = el("div", "sm-cell" + (cell.coverage ? "" : " null"));
+    div.dataset.region = region;
+    div.dataset.sector = sector;
+    if(cell.coverage){
+      ["1m","3m","6m","1y"].forEach(k => {
+        div.dataset["alpha"+k] = cell["alpha_"+k] != null ? cell["alpha_"+k] : "";
       });
-      tip.appendChild(mk("div","sc-tip-div"));
-      const tipFormula = tip.appendChild(mk("div","sc-tip-formula"));
-      tipFormula.appendChild(mk("b",null,I18N.col_score||"Score"));
-      tipFormula.appendChild(document.createTextNode(I18N.sent_formula||" = MFI×40% + OBV×30% + DMA200×30%"));
-
-      // Sentiment label badge (like law-tag in macro)
-      const badge = card.appendChild(mk("span","sc-lbl-badge law-tag "+sig.lawCls, label));
-
-      // Gauge bar
-      const gauge = card.appendChild(mk("div","gauge"));
-      gauge.style.marginTop = "8px";
-      const fill  = gauge.appendChild(mk("div","gauge-fill"));
-      fill.style.cssText = "width:"+pct+"%;background:"+sig.gaugeColor;
-      const dot   = gauge.appendChild(mk("div","gauge-dot"));
-      dot.style.cssText  = "left:calc("+pct+"% - 5px);background:"+sig.gaugeColor;
-
-      // Signal rows (OBV / MFI / DMA) — same law-tag style as macro badges
-      const laws = card.appendChild(mk("div","laws"));
-      laws.style.marginTop = "8px";
-      function addLaw(tagCls, tagTxt, labelTxt){
-        const row = laws.appendChild(mk("div","law"));
-        row.appendChild(lawTag(tagCls, tagTxt));
-        row.appendChild(document.createTextNode(" "+labelTxt));
-      }
-      addLaw(obvC, obvL, I18N.sent_obv_direction_label||"OBV Direction");
-      addLaw(mfiC, (I18N.sent_mfi||"MFI")+" "+(a.mfi!=null?Math.round(a.mfi):"—"), mfiL);
-      addLaw(dmaC, dmaL, I18N.sent_vs_dma||"vs DMA200");
-
-      // Footer
-      card.appendChild(mk("div","sc-foot",
-        (I18N.col_today||"Today")+": "+chg+" · "+(I18N.col_rvol||"RVOL")+": "+(a.rvol!=null?a.rvol.toFixed(2):"—")));
-
-      grid.appendChild(card);
-    });
-
-    if(!ANA.length){
-      const empty = grid.appendChild(mk("div"));
-      empty.style.cssText = "padding:30px;color:var(--muted);text-align:center;grid-column:1/-1";
-      empty.textContent = I18N.no_data_sentiment||"No sentiment data";
     }
+    // Name
+    const name = el("div", "sm-cell-name", (DATA.abbrevs && DATA.abbrevs[sector]) || sector);
+    div.appendChild(name);
+
+    // Alpha number
+    const alphaEl = el("div", "sm-cell-alpha", "—");
+    div.appendChild(alphaEl);
+
+    // Three signals (only on covered cells)
+    if(cell.coverage){
+      const sigs = el("div", "sm-cell-sigs");
+      [dmaIcon(cell.dma_signal), mfiIcon(cell.mfi_signal), obvIcon(cell.obv_signal)].forEach(([ch, cls, title]) => {
+        const s = el("span", cls, ch);
+        s.title = title;
+        sigs.appendChild(s);
+      });
+      div.appendChild(sigs);
+    }
+
+    if(cell.coverage){
+      div.addEventListener("click", () => openZoom(div, region, sector, cell));
+    }
+    return div;
   }
 
-  window._sainheRenderSentiment = renderSentiment;
-  renderSentiment();
+  // ── Build the 4 quadrants ─────────────────────────────────────────────
+  function renderGrid(){
+    wrap.textContent = "";
+    DATA.regions.forEach(region => {
+      const q = el("div", "sm-quadrant");
+      q.appendChild(el("div", "sm-quadrant-hdr", region));
+      const cells = el("div", "sm-cells");
+      DATA.sectors.forEach(sector => cells.appendChild(buildCell(region, sector)));
+      q.appendChild(cells);
+      wrap.appendChild(q);
+    });
+    applyTfColors();
+  }
+
+  // ── Apply timeframe colors to all cells (no re-render) ────────────────
+  function applyTfColors(){
+    document.querySelectorAll("#sm-quadrants .sm-cell").forEach(cell => {
+      if(cell.classList.contains("null")) return;
+      const aStr = cell.dataset["alpha"+TF];
+      const a = aStr === "" || aStr == null ? null : parseFloat(aStr);
+      cell.style.setProperty("--cell-bg", alphaToBg(a));
+      cell.style.setProperty("--alpha-color", alphaToText(a));
+      const alphaEl = cell.querySelector(".sm-cell-alpha");
+      if(alphaEl){
+        alphaEl.textContent = (a == null || !isFinite(a)) ? "—" : (a>=0?"+":"") + (a*100).toFixed(1) + "%";
+      }
+    });
+  }
+
+  // ── Timeframe toggle ──────────────────────────────────────────────────
+  document.querySelectorAll("#sm-footer .sm-tf-btn").forEach(btn => {
+    if(btn.dataset.tf === TF) btn.classList.add("active");
+    btn.addEventListener("click", () => {
+      TF = btn.dataset.tf;
+      try { localStorage.setItem("sm_tf", TF); } catch(e){}
+      document.querySelectorAll("#sm-footer .sm-tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === TF));
+      applyTfColors();
+    });
+  });
+
+  // ── ZOOM: clone the cell, expand to 3× size within the grid wrapper ──
+  let currentZoom = null;
+
+  function buildZoomContent(region, sector, cell){
+    const node = el("div", "sm-zoom-clone");
+    // Header
+    const hdr = el("div", "sm-zoom-hdr");
+    const titleBox = el("div");
+    titleBox.appendChild(el("div", "sm-zoom-title", sector + " · " + region));
+    titleBox.appendChild(el("div", "sm-zoom-sub", (cell.ticker || "") + (cell.nom && cell.nom !== cell.ticker ? " — " + cell.nom : "")));
+    hdr.appendChild(titleBox);
+    const closeBtn = el("button", "sm-zoom-close", "×");
+    closeBtn.title = "Close (Esc)";
+    closeBtn.addEventListener("click", e => { e.stopPropagation(); closeZoom(); });
+    hdr.appendChild(closeBtn);
+    node.appendChild(hdr);
+
+    // Score row
+    if(cell.score != null){
+      const row = el("div", "sm-zoom-score-row");
+      const sc = el("span", "sm-zoom-score", (cell.score >= 0 ? "+" : "") + cell.score.toFixed(2));
+      sc.style.color = cell.score >= 0.1 ? "var(--green)" : cell.score <= -0.1 ? "var(--red)" : "var(--p)";
+      row.appendChild(sc);
+      if(cell.label){
+        const lbl = el("span", "sm-zoom-label", cell.label);
+        lbl.style.background = cell.score >= 0.1 ? "var(--green-bg)" :
+                               cell.score <= -0.1 ? "var(--red-bg)" : "var(--gold-bg)";
+        lbl.style.color = cell.score >= 0.1 ? "var(--green)" :
+                          cell.score <= -0.1 ? "var(--red)" : "var(--gold)";
+        row.appendChild(lbl);
+      }
+      node.appendChild(row);
+    }
+
+    // Alpha multi-timeframe
+    const sec1 = el("div", "sm-zoom-section");
+    sec1.appendChild(el("div", "sm-zoom-section-title", "Alpha vs MONDE benchmark"));
+    const arow = el("div", "sm-zoom-alpha-row");
+    [["1m","1M"],["3m","3M"],["6m","6M"],["1y","1Y"]].forEach(([k,lbl]) => {
+      const a = cell["alpha_"+k];
+      const c = el("div", "sm-zoom-alpha-cell");
+      c.appendChild(el("div", "sm-zoom-alpha-tf", lbl));
+      const v = el("div", "sm-zoom-alpha-val", a == null ? "—" : (a>=0?"+":"") + (a*100).toFixed(1) + "%");
+      v.style.color = a == null ? "var(--muted)" : a > 0.005 ? "var(--green)" : a < -0.005 ? "var(--red)" : "var(--p)";
+      c.appendChild(v);
+      arow.appendChild(c);
+    });
+    sec1.appendChild(arow);
+    node.appendChild(sec1);
+
+    // Three signals
+    const sec2 = el("div", "sm-zoom-section");
+    sec2.appendChild(el("div", "sm-zoom-section-title", "Triangulation — DMA · MFI · OBV"));
+    const srow = el("div", "sm-zoom-signals");
+    function sigBox(tag, valTxt, subTxt, kind){
+      const b = el("div", "sm-zoom-sig " + (kind || ""));
+      b.appendChild(el("div", "sm-zoom-sig-tag", tag));
+      b.appendChild(el("div", "sm-zoom-sig-val", valTxt));
+      if(subTxt) b.appendChild(el("div", "sm-zoom-sig-sub", subTxt));
+      return b;
+    }
+    // DMA200
+    const dmaKind = cell.dma_signal === "above" ? "up" : cell.dma_signal === "below" ? "down" : "";
+    const dmaVal  = cell.dma_signal === "above" ? "ABOVE" : cell.dma_signal === "below" ? "BELOW" : "N/A";
+    const dmaSub  = cell.close != null && cell.dma_200 != null ? `${fmtNum(cell.close)} vs ${fmtNum(cell.dma_200)}` : "long-term trend";
+    srow.appendChild(sigBox("DMA200", dmaVal, dmaSub, dmaKind));
+    // MFI
+    const mfiKind = cell.mfi_signal === "overbought" ? "warn" :
+                    cell.mfi_signal === "oversold"   ? "up"   : "";
+    const mfiVal  = cell.mfi_value != null ? "MFI " + Math.round(cell.mfi_value) : "MFI —";
+    const mfiSub  = cell.mfi_signal === "overbought" ? "Overbought (>70)" :
+                    cell.mfi_signal === "oversold"   ? "Oversold (<30)"   :
+                    cell.mfi_signal === "neutral"    ? "Neutral" : "n/a";
+    srow.appendChild(sigBox("MFI 14d", mfiVal, mfiSub, mfiKind));
+    // OBV
+    const obvKind = cell.obv_signal === "accumulation" ? "up" :
+                    cell.obv_signal === "distribution" ? "down" : "";
+    const obvVal  = cell.obv_signal === "accumulation" ? "ACCUM" :
+                    cell.obv_signal === "distribution" ? "DISTRIB" :
+                    cell.obv_signal === "neutral"      ? "NEUTRAL" : "N/A";
+    srow.appendChild(sigBox("OBV", obvVal, "smart money flow", obvKind));
+    sec2.appendChild(srow);
+    node.appendChild(sec2);
+
+    // Bias-guard text (simple, regime-aware)
+    const dma = cell.dma_signal, score = cell.score;
+    let bias = null;
+    if(dma === "above" && score != null && score >= 0.4)      bias = "Trend confirmed + accumulation. Hold, scale in on pullbacks. Watch for euphoria above +0.6.";
+    else if(dma === "below" && score != null && score <= -0.4) bias = "Trend down + distribution. Avoid adding. Wait for stabilization above DMA200 before re-entry.";
+    else if(dma === "above" && cell.mfi_signal === "overbought") bias = "Trend healthy but short-term overbought (MFI >70). Don't chase — wait for a normal pullback.";
+    else if(dma === "below" && cell.mfi_signal === "oversold")   bias = "Trend weak but capitulation flagged (MFI <30). Contrarian opportunity — small position only.";
+    else if(dma === "above") bias = "Long-term uptrend intact. Sentiment mixed short-term — patience.";
+    else if(dma === "below") bias = "Long-term downtrend. Default stance: avoid until trend repairs.";
+    if(bias){
+      const bb = el("div", "sm-zoom-bias", bias);
+      node.appendChild(bb);
+    }
+    return node;
+  }
+
+  function openZoom(sourceCell, region, sector, cellData){
+    if(currentZoom) closeZoom();
+    const wrapEl = document.getElementById("sm-grid-wrap");
+    const grid = wrap;  // .sm-quadrants
+    const srcRect = sourceCell.getBoundingClientRect();
+    const wrapRect = wrapEl.getBoundingClientRect();
+
+    const initTop  = srcRect.top  - wrapRect.top;
+    const initLeft = srcRect.left - wrapRect.left;
+    const initW    = srcRect.width;
+    const initH    = srcRect.height;
+
+    // Final size: 3× the original, clamped to wrapEl bounds
+    let targetW = initW * 3, targetH = initH * 3;
+    // On mobile, cells are smaller — bump target up
+    const isMobile = window.matchMedia("(max-width:700px)").matches;
+    if(isMobile){
+      targetW = Math.min(wrapEl.offsetWidth - 16, Math.max(targetW, 280));
+      targetH = Math.max(targetH, 340);
+    }
+
+    const centerX = initLeft + initW/2;
+    const centerY = initTop  + initH/2;
+    let finalLeft = centerX - targetW/2;
+    let finalTop  = centerY - targetH/2;
+    // Clamp inside wrap
+    finalLeft = Math.max(8, Math.min(finalLeft, wrapEl.offsetWidth  - targetW - 8));
+    finalTop  = Math.max(8, Math.min(finalTop,  wrapEl.offsetHeight - targetH - 8));
+
+    const clone = buildZoomContent(region, sector, cellData);
+    clone.style.top    = initTop  + "px";
+    clone.style.left   = initLeft + "px";
+    clone.style.width  = initW    + "px";
+    clone.style.height = initH    + "px";
+    clone.style.opacity = "0";
+    wrapEl.appendChild(clone);
+
+    sourceCell.classList.add("zoomed-source");
+    grid.classList.add("is-zooming");
+
+    requestAnimationFrame(() => {
+      clone.style.top    = finalTop  + "px";
+      clone.style.left   = finalLeft + "px";
+      clone.style.width  = targetW   + "px";
+      clone.style.height = targetH   + "px";
+      clone.style.opacity = "1";
+    });
+
+    currentZoom = { clone, sourceCell, initTop, initLeft, initW, initH };
+
+    // Outside click closes
+    const outsideHandler = (e) => {
+      if(currentZoom && !clone.contains(e.target) && e.target !== clone) closeZoom();
+    };
+    setTimeout(() => document.addEventListener("click", outsideHandler), 100);
+    currentZoom.outsideHandler = outsideHandler;
+  }
+
+  function closeZoom(){
+    if(!currentZoom) return;
+    const { clone, sourceCell, initTop, initLeft, initW, initH, outsideHandler } = currentZoom;
+    document.removeEventListener("click", outsideHandler);
+    clone.style.top    = initTop  + "px";
+    clone.style.left   = initLeft + "px";
+    clone.style.width  = initW    + "px";
+    clone.style.height = initH    + "px";
+    clone.style.opacity = "0";
+    sourceCell.classList.remove("zoomed-source");
+    wrap.classList.remove("is-zooming");
+    setTimeout(() => { if(clone.parentNode) clone.parentNode.removeChild(clone); }, 360);
+    currentZoom = null;
+  }
+
+  document.addEventListener("keydown", e => {
+    if(e.key === "Escape" && currentZoom) closeZoom();
+  });
+
+  // ── Re-position zoom on resize ───────────────────────────────────────
+  window.addEventListener("resize", () => { if(currentZoom) closeZoom(); });
+
+  // ── Boot ──────────────────────────────────────────────────────────────
+  renderHero();
+  renderGrid();
+  window._sainheRenderSentiment = function(){ renderHero(); renderGrid(); };
 })();
 </script>
