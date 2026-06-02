@@ -1,7 +1,6 @@
-<!-- ═══ BOX_05 — SECTOR MAP ════════════════════════════════════════ -->
-<!-- 16 sectors × 4 regions rotation matrix.                          -->
-<!-- Recto (1×1): color = alpha vs MONDE at active timeframe + 3 micro -->
-<!--   signals (DMA200 / MFI / OBV). Click → zoom 3×3 with full detail. -->
+<!-- ═══ BOX_05 — SECTOR MAP ══════════════════════════════════════════ -->
+<!-- Inspired by box_04 layout: region tabs → list → timeframe tabs.    -->
+<!-- Click on a row expands it inline ('3×3 zoom') with the 12 details. -->
 <style>
 /* ── Hero strip ─────────────────────────────────────────────── */
 #sm-hero{
@@ -10,178 +9,138 @@
 }
 .sm-hero-block{display:flex;align-items:center;gap:10px;font-family:var(--sans)}
 .sm-hero-label{font-size:10.5px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted);font-weight:700}
-.sm-hero-value{font-size:18px;font-weight:700;color:var(--h);font-variant-numeric:tabular-nums}
+.sm-hero-value{font-size:16px;font-weight:700;color:var(--h);font-variant-numeric:tabular-nums}
 .sm-hero-sub{font-size:11.5px;color:var(--muted)}
 .sm-hero-chip{
   display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.6px;
   padding:4px 10px;border-radius:999px;text-transform:uppercase;
 }
-.sm-hero-chip.healthy  {background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
-.sm-hero-chip.narrow   {background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border)}
-.sm-hero-chip.riskoff  {background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
-.sm-hero-chip.riskon   {background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
-.sm-hero-chip.neutral  {background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-border)}
-.sm-hero-chip.na       {background:var(--card-alt);color:var(--muted);border:1px solid var(--border-lt)}
+.sm-hero-chip.healthy {background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.sm-hero-chip.narrow  {background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border)}
+.sm-hero-chip.riskoff {background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.sm-hero-chip.riskon  {background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.sm-hero-chip.neutral {background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-border)}
+.sm-hero-chip.na      {background:var(--card-alt);color:var(--muted);border:1px solid var(--border-lt)}
 
-/* ── Grid container — 2×2 quadrants with gold cross ─────────── */
-#sm-grid-wrap{
-  position:relative;padding:18px 22px 8px;
-  /* visible overflow so the zoom can spill into neighboring quadrants */
-  overflow:visible;
+/* ── List columns ───────────────────────────────────────────── */
+#sm-list-wrap{position:relative}
+.sm-list-hdr{
+  display:grid;
+  grid-template-columns:minmax(150px,1.8fr) 70px 78px minmax(110px,1.2fr) 90px 110px;
+  gap:14px;align-items:center;padding:10px 22px;
+  font-size:9.5px;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--muted);font-weight:700;border-bottom:1px solid var(--border-lt);
+  background:var(--card-alt);
 }
-.sm-quadrants{
-  position:relative;display:grid;
-  grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
-  gap:0;  /* no gap — the cross is drawn by pseudo elements */
+.sm-row{
+  display:grid;
+  grid-template-columns:minmax(150px,1.8fr) 70px 78px minmax(110px,1.2fr) 90px 110px;
+  gap:14px;align-items:center;padding:12px 22px;
+  border-bottom:1px solid var(--border-lt);cursor:pointer;
+  transition:background .15s, border-color .15s;
+  position:relative;
 }
-/* Central cross (gold) */
-.sm-quadrants::before{
-  content:"";position:absolute;left:0;right:0;top:50%;height:2px;
-  background:linear-gradient(90deg, transparent 0%, var(--gold-border) 18%, var(--gold) 50%, var(--gold-border) 82%, transparent 100%);
-  pointer-events:none;z-index:2;transform:translateY(-1px);
-}
-.sm-quadrants::after{
-  content:"";position:absolute;top:0;bottom:0;left:50%;width:2px;
-  background:linear-gradient(180deg, transparent 0%, var(--gold-border) 18%, var(--gold) 50%, var(--gold-border) 82%, transparent 100%);
-  pointer-events:none;z-index:2;transform:translateX(-1px);
-}
-.sm-quadrant{padding:12px 14px}
-.sm-quadrant-hdr{
-  font-family:var(--serif);font-size:13px;font-weight:700;
-  letter-spacing:2px;color:var(--gold);
-  padding-bottom:8px;margin-bottom:10px;text-align:center;
-  border-bottom:1px solid var(--border-lt);
-}
+.sm-row:hover{background:var(--hover)}
+.sm-row.null{opacity:.4;cursor:default;background:repeating-linear-gradient(45deg, transparent, transparent 8px, var(--card-alt) 8px, var(--card-alt) 14px)}
+.sm-row.null:hover{background:repeating-linear-gradient(45deg, transparent, transparent 8px, var(--card-alt) 8px, var(--card-alt) 14px)}
+.sm-row.expanded{background:var(--card-alt)!important;border-left:3px solid var(--gold);padding-left:19px}
 
-/* ── Mini-grid 4×4 ──────────────────────────────────────────── */
-.sm-cells{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
-.sm-cell{
-  position:relative;aspect-ratio:1/1;border-radius:7px;
-  background:var(--cell-bg, var(--card-alt));
-  border:1px solid var(--border-lt);
-  cursor:pointer;overflow:hidden;
-  display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;
-  padding:6px 5px 5px;
-  transition:transform .15s, border-color .15s, box-shadow .15s;
-}
-.sm-cell:hover{border-color:var(--gold);box-shadow:var(--shadow);transform:translateY(-1px)}
-.sm-cell.null{
-  cursor:default;opacity:.32;
-  background:repeating-linear-gradient(45deg, var(--card-alt), var(--card-alt) 6px, transparent 6px, transparent 12px);
-}
-.sm-cell.null:hover{transform:none;border-color:var(--border-lt);box-shadow:none}
-.sm-cell-name{
-  font-family:var(--serif);font-size:11px;font-weight:600;color:var(--h);
-  letter-spacing:.2px;line-height:1.1;text-align:center;word-break:break-word;
-}
-.sm-cell-alpha{
-  font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;
-  text-align:center;color:var(--alpha-color, var(--h));
-}
-.sm-cell-sigs{display:flex;justify-content:center;gap:3px;font-size:9.5px;line-height:1}
-.sm-cell-sigs span{display:inline-flex;align-items:center;justify-content:center;
-  width:13px;height:13px;border-radius:3px;font-weight:700;font-family:var(--sans)}
-.sig-up{background:var(--green-bg);color:var(--green)}
-.sig-dn{background:var(--red-bg);color:var(--red)}
-.sig-nu{background:var(--card-alt);color:var(--muted);border:1px solid var(--border-lt)}
+/* Cell 1: sector + ticker */
+.sm-c-name{display:flex;flex-direction:column;gap:2px;min-width:0}
+.sm-c-sector{font-family:var(--serif);font-size:13.5px;color:var(--h);font-weight:600;line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sm-c-ticker{font-size:10px;color:var(--muted);letter-spacing:.4px;font-variant-numeric:tabular-nums}
 
-/* Cell color shading (set inline via JS via CSS vars) */
-.sm-cell{
-  /* default neutral — overridden by JS per-cell */
-  --cell-bg: var(--card-alt);
-  --alpha-color: var(--h);
+/* Cell 2: sparkline */
+.sm-c-spark{display:flex;align-items:center;justify-content:center}
+.sm-c-spark canvas{display:block}
+
+/* Cell 3: score badge */
+.sm-c-score{
+  font-family:var(--sans);font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;
+  text-align:center;padding:5px 8px;border-radius:5px;background:var(--card-alt);
 }
 
-/* ── Zoom clone (3× the original cell) ──────────────────────── */
-.sm-zoom-clone{
-  position:absolute;z-index:50;border-radius:12px;
-  background:var(--card);border:1px solid var(--gold-border);
-  box-shadow:0 12px 40px rgba(60,40,15,.22),0 4px 12px rgba(60,40,15,.10);
-  padding:18px 20px;overflow:hidden;
-  display:flex;flex-direction:column;gap:10px;
-  transition:top .32s cubic-bezier(.2,.6,.2,1),
-             left .32s cubic-bezier(.2,.6,.2,1),
-             width .32s cubic-bezier(.2,.6,.2,1),
-             height .32s cubic-bezier(.2,.6,.2,1),
-             opacity .25s;
-}
-.sm-zoom-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.sm-zoom-title{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--h);line-height:1.2}
-.sm-zoom-sub{font-size:11.5px;color:var(--muted);letter-spacing:.4px;margin-top:2px}
-.sm-zoom-close{
-  background:none;border:none;font-size:20px;color:var(--muted);
-  cursor:pointer;padding:2px 8px;line-height:1;border-radius:5px;flex-shrink:0;
-}
-.sm-zoom-close:hover{background:var(--hover);color:var(--h)}
-.sm-zoom-score-row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-.sm-zoom-score{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
-.sm-zoom-label{font-size:11px;font-weight:700;letter-spacing:.8px;padding:4px 10px;border-radius:4px;text-transform:uppercase}
-.sm-zoom-section{margin-top:6px}
-.sm-zoom-section-title{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-.sm-zoom-alpha-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-family:var(--sans)}
-.sm-zoom-alpha-cell{background:var(--card-alt);border-radius:6px;padding:8px 6px;text-align:center}
-.sm-zoom-alpha-tf{font-size:9.5px;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;font-weight:700}
-.sm-zoom-alpha-val{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
-.sm-zoom-signals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.sm-zoom-sig{background:var(--card-alt);border-radius:6px;padding:8px;text-align:center;border-left:3px solid var(--border-lt)}
-.sm-zoom-sig.up   {border-left-color:var(--green-border);background:var(--green-bg)}
-.sm-zoom-sig.down {border-left-color:var(--red-border);background:var(--red-bg)}
-.sm-zoom-sig.warn {border-left-color:var(--orange-border);background:var(--orange-bg)}
-.sm-zoom-sig-tag{font-size:9.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
-.sm-zoom-sig-val{font-size:12.5px;font-weight:700;color:var(--h);margin-top:3px}
-.sm-zoom-sig-sub{font-size:10px;color:var(--muted);margin-top:2px}
-.sm-zoom-bias{
-  font-size:11.5px;color:var(--p);line-height:1.5;
-  padding:10px 12px;background:var(--card-alt);border-left:3px solid var(--gold);
-  border-radius:6px;margin-top:4px;font-style:italic;
-}
+/* Cell 4: alpha bar (color-coded) */
+.sm-c-alpha{display:flex;flex-direction:column;gap:3px}
+.sm-c-alpha-val{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.sm-c-alpha-bar{height:4px;background:var(--card-alt);border-radius:2px;overflow:hidden;position:relative}
+.sm-c-alpha-fill{position:absolute;top:0;bottom:0;background:var(--alpha-fill-color, var(--gold));transition:all .25s}
 
-/* Backdrop blur — when a cell is zoomed, others fade & blur */
-.sm-quadrants.is-zooming .sm-cell:not(.zoomed-source){
-  filter:blur(2px) opacity(.45);transition:filter .25s;pointer-events:none;
-}
-.sm-cell.zoomed-source{visibility:hidden}
+/* Cell 5: 3 micro signals */
+.sm-c-sigs{display:flex;justify-content:center;gap:5px}
+.sm-c-sigs span{display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:4px;font-size:11px;font-weight:700;font-family:var(--sans);line-height:1}
+.sm-sig-up   {background:var(--green-bg);color:var(--green)}
+.sm-sig-dn   {background:var(--red-bg);  color:var(--red)}
+.sm-sig-warn {background:var(--orange-bg);color:var(--orange)}
+.sm-sig-nu   {background:var(--card-alt);color:var(--muted);border:1px solid var(--border-lt)}
 
-/* ── Footer: timeframe toggle ───────────────────────────────── */
-#sm-footer{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  padding:12px 22px 14px;border-top:1px solid var(--border-lt);flex-wrap:wrap;
+/* Cell 6: label badge */
+.sm-c-label{
+  font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  padding:4px 8px;border-radius:4px;text-align:center;white-space:nowrap;
 }
-.sm-tf-label{font-size:10px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);margin-right:8px}
-.sm-tf-btn{
-  background:var(--card-alt);border:1px solid var(--border-lt);
-  color:var(--p);font-family:var(--sans);font-size:11.5px;font-weight:600;
-  padding:6px 14px;border-radius:5px;cursor:pointer;transition:all .15s;
-  letter-spacing:.3px;
-}
-.sm-tf-btn:hover{border-color:var(--gold);color:var(--h)}
-.sm-tf-btn.active{background:var(--gold);border-color:var(--gold);color:#fff}
+.sm-c-label.lbl-bullish {background:var(--green-bg);color:var(--green)}
+.sm-c-label.lbl-warn    {background:var(--orange-bg);color:var(--orange)}
+.sm-c-label.lbl-bearish {background:var(--red-bg);color:var(--red)}
+.sm-c-label.lbl-neutral {background:var(--card-alt);color:var(--muted)}
 
-/* ── Responsive: mobile → 1×4 stacked quadrants ─────────────── */
+/* ── Expanded row: detail panel ─────────────────────────────── */
+.sm-detail{
+  grid-column:1 / -1;
+  padding:18px 4px 6px;
+  display:grid;grid-template-columns:1.4fr 1fr;gap:18px;
+  border-top:1px dashed var(--border);margin-top:8px;
+  animation:smReveal .3s cubic-bezier(.2,.6,.2,1);
+}
+@keyframes smReveal{
+  from{opacity:0;transform:translateY(-6px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+.sm-detail-sec{display:flex;flex-direction:column;gap:8px}
+.sm-detail-sec-title{font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+.sm-detail-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sm-detail-cell{background:var(--card);border:1px solid var(--border-lt);border-radius:6px;padding:8px 6px;text-align:center}
+.sm-detail-cell.active{border-color:var(--gold);background:var(--gold-bg)}
+.sm-detail-tf  {font-size:9.5px;color:var(--muted);font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.sm-detail-val {font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+.sm-detail-sig {background:var(--card);border:1px solid var(--border-lt);border-radius:6px;padding:9px 11px;display:flex;flex-direction:column;gap:3px;border-left:3px solid var(--border-lt)}
+.sm-detail-sig.up   {border-left-color:var(--green-border);background:var(--green-bg)}
+.sm-detail-sig.down {border-left-color:var(--red-border);  background:var(--red-bg)}
+.sm-detail-sig.warn {border-left-color:var(--orange-border);background:var(--orange-bg)}
+.sm-detail-sig-tag {font-size:9.5px;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;font-weight:700}
+.sm-detail-sig-val {font-size:13px;font-weight:700;color:var(--h)}
+.sm-detail-sig-sub {font-size:10px;color:var(--muted)}
+.sm-detail-bias{
+  font-size:11.5px;color:var(--p);line-height:1.55;font-style:italic;
+  padding:10px 14px;background:var(--gold-bg);border-left:3px solid var(--gold);border-radius:6px;
+}
+.sm-detail-meta{display:flex;flex-wrap:wrap;gap:14px;font-size:10.5px;color:var(--muted)}
+.sm-detail-meta b{color:var(--p);font-weight:600}
+
+/* ── Responsive: mobile compresses the row ─────────────────── */
 @media(max-width:700px){
-  .sm-quadrants{grid-template-columns:1fr;grid-template-rows:repeat(4,auto)}
-  /* Hide the cross on mobile (no quadrant separation visually needed) */
-  .sm-quadrants::before,.sm-quadrants::after{display:none}
-  .sm-quadrant{padding:10px 8px;border-bottom:1px solid var(--border-lt)}
-  .sm-quadrant:last-child{border-bottom:none}
-  .sm-cell-name{font-size:10px}
-  .sm-cell-alpha{font-size:11px}
-  .sm-cell-sigs{gap:2px}
-  .sm-cell-sigs span{width:11px;height:11px;font-size:8.5px}
-  #sm-hero{padding:12px 14px;gap:10px}
-  .sm-hero-value{font-size:15px}
-  #sm-footer{padding:10px 14px}
-  .sm-zoom-score{font-size:24px}
-  .sm-zoom-alpha-val{font-size:12.5px}
+  .sm-list-hdr, .sm-row{
+    grid-template-columns:minmax(110px,1.5fr) 78px 80px;
+    gap:8px;padding:10px 14px;
+  }
+  /* hide spark, score badge, and label badge on mobile — keep name + alpha + sigs */
+  .sm-list-hdr .sm-h-spark, .sm-list-hdr .sm-h-score, .sm-list-hdr .sm-h-label,
+  .sm-row .sm-c-spark, .sm-row .sm-c-score, .sm-row .sm-c-label{display:none}
+  .sm-c-sector{font-size:12.5px}
+  .sm-detail{grid-template-columns:1fr}
+  #sm-hero{padding:12px 14px;gap:8px}
+  .sm-hero-value{font-size:14px}
 }
 </style>
 
 <section class="card" id="box-sentiment">
   <div class="card-h">
-    <span class="card-t">Sector Map — Multi-Region Rotation</span>
+    <span class="card-t">Sector Map — Rotation & Breadth</span>
     <div style="display:flex;align-items:center;gap:10px">
       <span class="box-ts"><span>Updated</span> {{ ts_sentiment }}</span>
-      <span class="badge badge-gold">16 × 4 · DMA · MFI · OBV</span>
+      <span class="badge badge-gold">DMA · MFI · OBV · Breadth · Regime</span>
     </div>
   </div>
 
@@ -199,83 +158,88 @@
     </div>
   </div>
 
-  <!-- Grid (rendered by JS from box_sentiment data) -->
-  <div id="sm-grid-wrap">
-    <div class="sm-quadrants" id="sm-quadrants"></div>
+  <!-- Region tabs (top, full width like box_04) -->
+  <div class="tabs" id="sm-ztabs">
+    <button class="tab active" data-z="MONDE">World</button>
+    <button class="tab" data-z="USA">USA</button>
+    <button class="tab" data-z="EU">Europe</button>
+    <button class="tab" data-z="ASIE">Asia</button>
   </div>
 
-  <!-- Footer: timeframe toggle -->
-  <div id="sm-footer">
-    <span class="sm-tf-label">Alpha vs MONDE</span>
-    <button class="sm-tf-btn" data-tf="1m">1M</button>
-    <button class="sm-tf-btn active" data-tf="3m">3M</button>
-    <button class="sm-tf-btn" data-tf="6m">6M</button>
-    <button class="sm-tf-btn" data-tf="1y">1Y</button>
+  <!-- Column headers -->
+  <div class="sm-list-hdr">
+    <span>Sector</span>
+    <span class="sm-h-spark" style="text-align:center">7d</span>
+    <span class="sm-h-score" style="text-align:center">Score</span>
+    <span id="sm-h-perf">Alpha 3M</span>
+    <span style="text-align:center">DMA · MFI · OBV</span>
+    <span class="sm-h-label" style="text-align:center">Label</span>
+  </div>
+
+  <!-- Sector rows (rendered by JS) -->
+  <div id="sm-list-wrap"><div id="sm-list"></div></div>
+
+  <!-- Timeframe tabs (bottom, full width) -->
+  <div class="ptabs" id="sm-ptabs">
+    <button class="ptab" data-tf="chg_pct">Today</button>
+    <button class="ptab" data-tf="1m">1M</button>
+    <button class="ptab active" data-tf="3m">3M</button>
+    <button class="ptab" data-tf="6m">6M</button>
+    <button class="ptab" data-tf="1y">1Y</button>
   </div>
 </section>
 
 <script>
 (function(){
   const DATA = {{ box_sentiment | tojson }};
-  const wrap = document.getElementById("sm-quadrants");
-  if(!wrap) return;
+  const list = document.getElementById("sm-list");
+  if(!list) return;
 
-  // Active timeframe (with localStorage memory)
+  // Active state
+  let REGION = "MONDE";
   let TF = "3m";
-  try { const s = localStorage.getItem("sm_tf"); if(s && /^(1m|3m|6m|1y)$/.test(s)) TF = s; } catch(e){}
+  try {
+    const sZ = localStorage.getItem("sm_region"); if(sZ && /^(MONDE|USA|EU|ASIE)$/.test(sZ)) REGION = sZ;
+    const sT = localStorage.getItem("sm_tf");     if(sT && /^(chg_pct|1m|3m|6m|1y)$/.test(sT)) TF = sT;
+  } catch(e){}
 
-  // Helpers
+  let expandedKey = null;
+
+  // ── Helpers ──────────────────────────────────────────────────────────
   function el(tag, cls, txt){ const e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
-  function fmtPct(v){ if(v==null||!isFinite(v)) return "—"; const pct = v*100; return (pct>=0?"+":"") + pct.toFixed(1) + "%"; }
-  function fmtBps(v){ if(v==null||!isFinite(v)) return "—"; const bps = v*10000; return (bps>=0?"+":"") + Math.round(bps); }
-  function fmtNum(v, d){ if(v==null||!isFinite(v)) return "—"; return Number(v).toFixed(d||2); }
+  function fmtPct(v, d){ if(v==null||!isFinite(v)) return "—"; const p = v*100; return (p>=0?"+":"") + p.toFixed(d==null?1:d) + "%"; }
+  function fmtScore(v){ if(v==null||!isFinite(v)) return "—"; return (v>=0?"+":"") + v.toFixed(2); }
+  function fmtNum(v, d){ if(v==null||!isFinite(v)) return "—"; return Number(v).toFixed(d==null?2:d); }
 
-  // ── Color scale: continuous interpolation alpha → HSL ────────────────
-  // Negative alpha → red, near zero → neutral cream, positive → green.
-  // Cap at ±0.05 (= ±500 bps) for full saturation. Stays in SAINHE palette.
-  function alphaToBg(alpha){
-    if(alpha==null||!isFinite(alpha)) return "var(--card-alt)";
-    const a = Math.max(-0.05, Math.min(0.05, alpha));
-    const t = a / 0.05;  // -1 .. +1
-    if(t >= 0){
-      // green: hsl(135, S%, L%) varying with magnitude
-      const sat = 28 + 32*t;       // 28→60%
-      const light = 92 - 18*t;     // 92→74%
-      return `hsl(135, ${sat}%, ${light}%)`;
-    } else {
-      const u = -t;
-      const sat = 28 + 38*u;
-      const light = 92 - 20*u;
-      return `hsl(10, ${sat}%, ${light}%)`;
-    }
+  // The metric used for cell color & alpha column depends on the region:
+  //   MONDE  = absolute return (the benchmark itself — alphas vs itself = 0)
+  //   USA/EU/ASIE = relative alpha vs MONDE benchmark
+  function metricKeyFor(region, tf){
+    if(tf === "chg_pct") return "chg_pct";
+    return region === "MONDE" ? ("ret_" + tf) : ("alpha_" + tf);
   }
-  function alphaToText(alpha){
-    if(alpha==null||!isFinite(alpha)) return "var(--muted)";
-    if(alpha > 0.005) return "var(--green)";
-    if(alpha < -0.005) return "var(--red)";
-    return "var(--p)";
+  function metricLabel(){
+    if(TF === "chg_pct") return "Today";
+    const tf = TF.toUpperCase();
+    return (REGION === "MONDE" ? "Return " : "Alpha ") + tf;
   }
 
-  // ── Signal icon helpers ───────────────────────────────────────────────
-  function dmaIcon(sig){
-    if(sig === "above") return ["▲","sig-up","Above DMA200"];
-    if(sig === "below") return ["▼","sig-dn","Below DMA200"];
-    return ["·","sig-nu","DMA200 n/a"];
+  // ── Coloring scale ───────────────────────────────────────────────────
+  function colorFor(v){
+    if(v == null || !isFinite(v)) return { text: "var(--muted)", fill: "var(--card-alt)" };
+    const cap = 0.05;
+    const t = Math.max(-1, Math.min(1, v / cap));
+    if(t >= 0)  return { text: t > 0.05 ? "var(--green)" : "var(--p)", fill: `hsl(135, ${Math.round(40 + 30*t)}%, ${Math.round(85 - 15*t)}%)` };
+    const u = -t;
+    return { text: u > 0.05 ? "var(--red)" : "var(--p)", fill: `hsl(10, ${Math.round(45 + 35*u)}%, ${Math.round(85 - 15*u)}%)` };
   }
-  function mfiIcon(sig){
-    if(sig === "overbought") return ["●","sig-dn","Overbought (>70)"];  // hot color = warning
-    if(sig === "oversold")   return ["●","sig-up","Oversold (<30)"];    // cold color = opportunity
-    if(sig === "neutral")    return ["○","sig-nu","Neutral"];
-    return ["·","sig-nu","MFI n/a"];
+  function alphaBarPct(v){
+    if(v == null || !isFinite(v)) return 0;
+    return Math.min(100, Math.abs(v) / 0.05 * 50);  // 50% bar at ±500bps
   }
-  function obvIcon(sig){
-    if(sig === "accumulation") return ["↑","sig-up","Accumulation"];
-    if(sig === "distribution") return ["↓","sig-dn","Distribution"];
-    if(sig === "neutral")      return ["→","sig-nu","Neutral"];
-    return ["·","sig-nu","OBV n/a"];
-  }
+  function alphaBarSide(v){ return v >= 0 ? "right" : "left"; }
 
-  // ── Hero strip render ─────────────────────────────────────────────────
+  // ── Hero strip render ────────────────────────────────────────────────
   function renderHero(){
     const b = DATA.breadth || {};
     const r = DATA.regime || {};
@@ -306,265 +270,284 @@
     rSub.textContent = parts.join(" · ");
   }
 
-  // ── Build a single cell (recto) ───────────────────────────────────────
-  function buildCell(region, sector){
-    const cell = DATA.grid?.[region]?.[sector] || {coverage:false};
-    const div = el("div", "sm-cell" + (cell.coverage ? "" : " null"));
-    div.dataset.region = region;
-    div.dataset.sector = sector;
-    if(cell.coverage){
-      ["1m","3m","6m","1y"].forEach(k => {
-        div.dataset["alpha"+k] = cell["alpha_"+k] != null ? cell["alpha_"+k] : "";
-      });
+  // ── Build the icons trio (DMA / MFI / OBV) ───────────────────────────
+  function buildSigsTrio(cell){
+    const wrap = el("div", "sm-c-sigs");
+    function pill(ch, klass, title){
+      const s = el("span", klass, ch); s.title = title; return s;
     }
-    // Name
-    const name = el("div", "sm-cell-name", (DATA.abbrevs && DATA.abbrevs[sector]) || sector);
-    div.appendChild(name);
-
-    // Alpha number
-    const alphaEl = el("div", "sm-cell-alpha", "—");
-    div.appendChild(alphaEl);
-
-    // Three signals (only on covered cells)
-    if(cell.coverage){
-      const sigs = el("div", "sm-cell-sigs");
-      [dmaIcon(cell.dma_signal), mfiIcon(cell.mfi_signal), obvIcon(cell.obv_signal)].forEach(([ch, cls, title]) => {
-        const s = el("span", cls, ch);
-        s.title = title;
-        sigs.appendChild(s);
-      });
-      div.appendChild(sigs);
-    }
-
-    if(cell.coverage){
-      div.addEventListener("click", () => openZoom(div, region, sector, cell));
-    }
-    return div;
+    // DMA200
+    if(cell.dma_signal === "above")      wrap.appendChild(pill("▲", "sm-sig-up",   "Above DMA200 — long-term uptrend"));
+    else if(cell.dma_signal === "below") wrap.appendChild(pill("▼", "sm-sig-dn",   "Below DMA200 — long-term downtrend"));
+    else                                  wrap.appendChild(pill("·", "sm-sig-nu",   "DMA200 n/a"));
+    // MFI
+    if(cell.mfi_signal === "overbought")     wrap.appendChild(pill("●", "sm-sig-warn", "MFI overbought (>70)"));
+    else if(cell.mfi_signal === "oversold")  wrap.appendChild(pill("●", "sm-sig-up",   "MFI oversold (<30) — contrarian opportunity"));
+    else if(cell.mfi_signal === "neutral")   wrap.appendChild(pill("○", "sm-sig-nu",   "MFI neutral"));
+    else                                      wrap.appendChild(pill("·", "sm-sig-nu",   "MFI n/a"));
+    // OBV
+    if(cell.obv_signal === "accumulation")     wrap.appendChild(pill("↑", "sm-sig-up",   "OBV accumulation — money flowing in"));
+    else if(cell.obv_signal === "distribution") wrap.appendChild(pill("↓", "sm-sig-dn",   "OBV distribution — money flowing out"));
+    else if(cell.obv_signal === "neutral")     wrap.appendChild(pill("→", "sm-sig-nu",   "OBV neutral"));
+    else                                        wrap.appendChild(pill("·", "sm-sig-nu",   "OBV n/a"));
+    return wrap;
   }
 
-  // ── Build the 4 quadrants ─────────────────────────────────────────────
-  function renderGrid(){
-    wrap.textContent = "";
-    DATA.regions.forEach(region => {
-      const q = el("div", "sm-quadrant");
-      q.appendChild(el("div", "sm-quadrant-hdr", region));
-      const cells = el("div", "sm-cells");
-      DATA.sectors.forEach(sector => cells.appendChild(buildCell(region, sector)));
-      q.appendChild(cells);
-      wrap.appendChild(q);
+  function labelClass(label){
+    if(!label) return "lbl-neutral";
+    if(label === "Accumulation")  return "lbl-bullish";
+    if(label === "Euphoric")      return "lbl-warn";
+    if(label === "Caution")       return "lbl-warn";
+    if(label === "Bearish")       return "lbl-bearish";
+    if(label === "Extreme Fear")  return "lbl-bearish";
+    return "lbl-neutral";
+  }
+
+  // ── Sparkline 7d ─────────────────────────────────────────────────────
+  function drawSparkline(canvas, jsonStr){
+    if(!canvas || !jsonStr) return;
+    let pts;
+    try { pts = JSON.parse(jsonStr); } catch(e){ return; }
+    if(!Array.isArray(pts) || pts.length < 2) return;
+    const cv = canvas, ctx = cv.getContext("2d");
+    const W = cv.width, H = cv.height;
+    const min = Math.min(...pts), max = Math.max(...pts);
+    const rng = max - min || 1;
+    const last = pts[pts.length-1], first = pts[0];
+    const trend = last >= first;
+    const color = trend ? getComputedStyle(document.documentElement).getPropertyValue("--green").trim() || "#2C7A3E"
+                        : getComputedStyle(document.documentElement).getPropertyValue("--red").trim()   || "#A03020";
+    ctx.clearRect(0,0,W,H);
+    ctx.beginPath();
+    pts.forEach((p,i) => {
+      const x = (i/(pts.length-1)) * (W-2) + 1;
+      const y = H - ((p-min)/rng) * (H-2) - 1;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
     });
-    applyTfColors();
+    ctx.strokeStyle = color; ctx.lineWidth = 1.4; ctx.lineJoin = "round"; ctx.stroke();
   }
 
-  // ── Apply timeframe colors to all cells (no re-render) ────────────────
-  function applyTfColors(){
-    document.querySelectorAll("#sm-quadrants .sm-cell").forEach(cell => {
-      if(cell.classList.contains("null")) return;
-      const aStr = cell.dataset["alpha"+TF];
-      const a = aStr === "" || aStr == null ? null : parseFloat(aStr);
-      cell.style.setProperty("--cell-bg", alphaToBg(a));
-      cell.style.setProperty("--alpha-color", alphaToText(a));
-      const alphaEl = cell.querySelector(".sm-cell-alpha");
-      if(alphaEl){
-        alphaEl.textContent = (a == null || !isFinite(a)) ? "—" : (a>=0?"+":"") + (a*100).toFixed(1) + "%";
+  // ── Detail panel (expanded row content — the "12 points") ────────────
+  function buildDetail(cell, region, sector){
+    const det = el("div", "sm-detail");
+
+    // LEFT column: alpha 4-TF + meta
+    const left = el("div", "sm-detail-sec");
+    const t1 = el("div", "sm-detail-sec-title", region === "MONDE" ? "Return at each timeframe" : "Alpha vs MONDE benchmark");
+    left.appendChild(t1);
+    const grid4 = el("div", "sm-detail-grid4");
+    [["1m","1M"],["3m","3M"],["6m","6M"],["1y","1Y"]].forEach(([k,lbl]) => {
+      const c = el("div", "sm-detail-cell" + (TF === k ? " active" : ""));
+      c.appendChild(el("div", "sm-detail-tf", lbl));
+      const v = region === "MONDE" ? cell["ret_" + k] : cell["alpha_" + k];
+      const vEl = el("div", "sm-detail-val", v == null ? "—" : fmtPct(v));
+      const col = colorFor(v);
+      vEl.style.color = col.text;
+      c.appendChild(vEl);
+      grid4.appendChild(c);
+    });
+    left.appendChild(grid4);
+
+    // Meta line
+    const meta = el("div", "sm-detail-meta");
+    meta.style.marginTop = "6px";
+    if(cell.close != null){
+      const m1 = el("span"); m1.innerHTML = `Close <b>${fmtNum(cell.close)}</b>`; meta.appendChild(m1);
+    }
+    if(cell.chg_pct != null){
+      const m2 = el("span"); m2.innerHTML = `Today <b>${fmtPct(cell.chg_pct)}</b>`; meta.appendChild(m2);
+    }
+    if(cell.dma_200 != null){
+      const m3 = el("span"); m3.innerHTML = `DMA200 <b>${fmtNum(cell.dma_200)}</b>`; meta.appendChild(m3);
+    }
+    if(DATA.regime && DATA.regime.label){
+      const m4 = el("span"); m4.innerHTML = `Regime <b>${DATA.regime.label}</b>`; meta.appendChild(m4);
+    }
+    left.appendChild(meta);
+    det.appendChild(left);
+
+    // RIGHT column: 3 signals + bias guard
+    const right = el("div", "sm-detail-sec");
+    right.appendChild(el("div", "sm-detail-sec-title", "Triangulation — DMA · MFI · OBV"));
+    function sigBox(tag, valTxt, subTxt, kind){
+      const b = el("div", "sm-detail-sig " + (kind || ""));
+      b.appendChild(el("div", "sm-detail-sig-tag", tag));
+      b.appendChild(el("div", "sm-detail-sig-val", valTxt));
+      if(subTxt) b.appendChild(el("div", "sm-detail-sig-sub", subTxt));
+      return b;
+    }
+    const dmaKind = cell.dma_signal === "above" ? "up" : cell.dma_signal === "below" ? "down" : "";
+    right.appendChild(sigBox("DMA200",
+      cell.dma_signal === "above" ? "ABOVE" : cell.dma_signal === "below" ? "BELOW" : "N/A",
+      cell.close != null && cell.dma_200 != null ? `${fmtNum(cell.close)} vs ${fmtNum(cell.dma_200)}` : "long-term trend (200 days)",
+      dmaKind));
+    const mfiKind = cell.mfi_signal === "overbought" ? "warn" : cell.mfi_signal === "oversold" ? "up" : "";
+    right.appendChild(sigBox("MFI 14d",
+      cell.mfi_value != null ? "MFI " + Math.round(cell.mfi_value) : "MFI —",
+      cell.mfi_signal === "overbought" ? "Overbought >70 — pause before adding" :
+      cell.mfi_signal === "oversold"   ? "Oversold <30 — contrarian opportunity" :
+      cell.mfi_signal === "neutral"    ? "Neutral 30-70" : "n/a",
+      mfiKind));
+    const obvKind = cell.obv_signal === "accumulation" ? "up" : cell.obv_signal === "distribution" ? "down" : "";
+    right.appendChild(sigBox("OBV (20d)",
+      cell.obv_signal === "accumulation" ? "ACCUMULATION" :
+      cell.obv_signal === "distribution" ? "DISTRIBUTION" :
+      cell.obv_signal === "neutral"      ? "NEUTRAL" : "N/A",
+      "smart money flow direction",
+      obvKind));
+
+    // Bias-guard message
+    const bias = buildBias(cell);
+    if(bias){
+      right.appendChild(el("div", "sm-detail-bias", bias));
+    }
+    det.appendChild(right);
+
+    return det;
+  }
+
+  // Bias guard rules — short, regime-aware sentences
+  function buildBias(c){
+    if(c.dma_signal === "above" && c.score != null && c.score >= 0.4) return "Trend confirmed + accumulation. Hold; scale in on pullbacks. Watch for euphoria above +0.6.";
+    if(c.dma_signal === "below" && c.score != null && c.score <= -0.4) return "Trend down + distribution. Avoid adding. Wait for stabilization above DMA200 before re-entry.";
+    if(c.dma_signal === "above" && c.mfi_signal === "overbought") return "Trend healthy but short-term overbought (MFI >70). Don't chase — wait for a normal pullback.";
+    if(c.dma_signal === "below" && c.mfi_signal === "oversold")   return "Trend weak but capitulation flagged (MFI <30). Contrarian — small position only.";
+    if(c.dma_signal === "above" && c.obv_signal === "distribution") return "Long-term uptrend but smart money rotating out. Tight stops, watch for follow-through.";
+    if(c.dma_signal === "above") return "Long-term uptrend intact. Sentiment mixed short-term — patience.";
+    if(c.dma_signal === "below") return "Long-term downtrend. Default stance: avoid until trend repairs.";
+    return null;
+  }
+
+  // ── Row build ────────────────────────────────────────────────────────
+  function buildRow(sector){
+    const cell = DATA.grid?.[REGION]?.[sector] || {coverage: false};
+    const row = el("div", "sm-row" + (cell.coverage ? "" : " null"));
+    const key = REGION + "|" + sector;
+    row.dataset.key = key;
+
+    // Cell 1 — name + ticker
+    const nameWrap = el("div", "sm-c-name");
+    nameWrap.appendChild(el("div", "sm-c-sector", sector));
+    if(cell.coverage && cell.ticker){
+      const t = el("div", "sm-c-ticker", cell.ticker);
+      nameWrap.appendChild(t);
+    } else if(!cell.coverage){
+      nameWrap.appendChild(el("div", "sm-c-ticker", "no ETF in region"));
+    }
+    row.appendChild(nameWrap);
+
+    // Cell 2 — sparkline
+    const sparkWrap = el("div", "sm-c-spark");
+    if(cell.coverage && cell.sparkline){
+      const cv = document.createElement("canvas");
+      cv.width = 58; cv.height = 22;
+      sparkWrap.appendChild(cv);
+      requestAnimationFrame(() => drawSparkline(cv, cell.sparkline));
+    }
+    row.appendChild(sparkWrap);
+
+    // Cell 3 — score badge
+    const scWrap = el("div", "sm-c-score");
+    if(cell.coverage && cell.score != null){
+      scWrap.textContent = fmtScore(cell.score);
+      const col = colorFor(cell.score);
+      scWrap.style.color = col.text;
+    } else {
+      scWrap.textContent = "—";
+      scWrap.style.color = "var(--muted)";
+    }
+    row.appendChild(scWrap);
+
+    // Cell 4 — alpha (or return for MONDE) with mini bar
+    const alphaWrap = el("div", "sm-c-alpha");
+    const key4 = metricKeyFor(REGION, TF);
+    const v = cell.coverage ? cell[key4] : null;
+    const valEl = el("div", "sm-c-alpha-val", v == null ? "—" : fmtPct(v));
+    const col = colorFor(v);
+    valEl.style.color = col.text;
+    alphaWrap.appendChild(valEl);
+    if(cell.coverage && v != null){
+      const bar = el("div", "sm-c-alpha-bar");
+      const fill = el("div", "sm-c-alpha-fill");
+      const w = alphaBarPct(v);
+      fill.style.width = w + "%";
+      if(v >= 0){
+        fill.style.left  = "50%";
+        fill.style.background = "var(--green)";
+      } else {
+        fill.style.right = "50%";
+        fill.style.background = "var(--red)";
       }
-    });
+      bar.appendChild(fill);
+      alphaWrap.appendChild(bar);
+    }
+    row.appendChild(alphaWrap);
+
+    // Cell 5 — 3 micro signals
+    if(cell.coverage){
+      row.appendChild(buildSigsTrio(cell));
+    } else {
+      row.appendChild(el("div"));
+    }
+
+    // Cell 6 — label badge
+    const lbl = el("div", "sm-c-label " + labelClass(cell.label));
+    lbl.textContent = cell.coverage && cell.label ? cell.label : "—";
+    row.appendChild(lbl);
+
+    // Click → toggle expand
+    if(cell.coverage){
+      row.addEventListener("click", () => toggleExpand(row, sector, cell));
+    }
+    return row;
   }
 
-  // ── Timeframe toggle ──────────────────────────────────────────────────
-  document.querySelectorAll("#sm-footer .sm-tf-btn").forEach(btn => {
+  function toggleExpand(row, sector, cell){
+    const key = REGION + "|" + sector;
+    // close existing detail
+    document.querySelectorAll(".sm-detail").forEach(d => d.remove());
+    document.querySelectorAll(".sm-row.expanded").forEach(r => r.classList.remove("expanded"));
+    if(expandedKey === key){ expandedKey = null; return; }
+    row.classList.add("expanded");
+    row.appendChild(buildDetail(cell, REGION, sector));
+    expandedKey = key;
+  }
+
+  // ── Render list ──────────────────────────────────────────────────────
+  function renderList(){
+    list.textContent = "";
+    expandedKey = null;
+    DATA.sectors.forEach(sector => list.appendChild(buildRow(sector)));
+    // Update header label
+    const hdr = document.getElementById("sm-h-perf");
+    if(hdr) hdr.textContent = metricLabel();
+  }
+
+  // ── Tab wiring ───────────────────────────────────────────────────────
+  document.querySelectorAll("#sm-ztabs .tab").forEach(btn => {
+    if(btn.dataset.z === REGION) btn.classList.add("active");
+    else btn.classList.remove("active");
+    btn.addEventListener("click", () => {
+      REGION = btn.dataset.z;
+      try { localStorage.setItem("sm_region", REGION); } catch(e){}
+      document.querySelectorAll("#sm-ztabs .tab").forEach(b => b.classList.toggle("active", b.dataset.z === REGION));
+      renderList();
+    });
+  });
+  document.querySelectorAll("#sm-ptabs .ptab").forEach(btn => {
     if(btn.dataset.tf === TF) btn.classList.add("active");
+    else btn.classList.remove("active");
     btn.addEventListener("click", () => {
       TF = btn.dataset.tf;
       try { localStorage.setItem("sm_tf", TF); } catch(e){}
-      document.querySelectorAll("#sm-footer .sm-tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === TF));
-      applyTfColors();
+      document.querySelectorAll("#sm-ptabs .ptab").forEach(b => b.classList.toggle("active", b.dataset.tf === TF));
+      renderList();
     });
   });
 
-  // ── ZOOM: clone the cell, expand to 3× size within the grid wrapper ──
-  let currentZoom = null;
-
-  function buildZoomContent(region, sector, cell){
-    const node = el("div", "sm-zoom-clone");
-    // Header
-    const hdr = el("div", "sm-zoom-hdr");
-    const titleBox = el("div");
-    titleBox.appendChild(el("div", "sm-zoom-title", sector + " · " + region));
-    titleBox.appendChild(el("div", "sm-zoom-sub", (cell.ticker || "") + (cell.nom && cell.nom !== cell.ticker ? " — " + cell.nom : "")));
-    hdr.appendChild(titleBox);
-    const closeBtn = el("button", "sm-zoom-close", "×");
-    closeBtn.title = "Close (Esc)";
-    closeBtn.addEventListener("click", e => { e.stopPropagation(); closeZoom(); });
-    hdr.appendChild(closeBtn);
-    node.appendChild(hdr);
-
-    // Score row
-    if(cell.score != null){
-      const row = el("div", "sm-zoom-score-row");
-      const sc = el("span", "sm-zoom-score", (cell.score >= 0 ? "+" : "") + cell.score.toFixed(2));
-      sc.style.color = cell.score >= 0.1 ? "var(--green)" : cell.score <= -0.1 ? "var(--red)" : "var(--p)";
-      row.appendChild(sc);
-      if(cell.label){
-        const lbl = el("span", "sm-zoom-label", cell.label);
-        lbl.style.background = cell.score >= 0.1 ? "var(--green-bg)" :
-                               cell.score <= -0.1 ? "var(--red-bg)" : "var(--gold-bg)";
-        lbl.style.color = cell.score >= 0.1 ? "var(--green)" :
-                          cell.score <= -0.1 ? "var(--red)" : "var(--gold)";
-        row.appendChild(lbl);
-      }
-      node.appendChild(row);
-    }
-
-    // Alpha multi-timeframe
-    const sec1 = el("div", "sm-zoom-section");
-    sec1.appendChild(el("div", "sm-zoom-section-title", "Alpha vs MONDE benchmark"));
-    const arow = el("div", "sm-zoom-alpha-row");
-    [["1m","1M"],["3m","3M"],["6m","6M"],["1y","1Y"]].forEach(([k,lbl]) => {
-      const a = cell["alpha_"+k];
-      const c = el("div", "sm-zoom-alpha-cell");
-      c.appendChild(el("div", "sm-zoom-alpha-tf", lbl));
-      const v = el("div", "sm-zoom-alpha-val", a == null ? "—" : (a>=0?"+":"") + (a*100).toFixed(1) + "%");
-      v.style.color = a == null ? "var(--muted)" : a > 0.005 ? "var(--green)" : a < -0.005 ? "var(--red)" : "var(--p)";
-      c.appendChild(v);
-      arow.appendChild(c);
-    });
-    sec1.appendChild(arow);
-    node.appendChild(sec1);
-
-    // Three signals
-    const sec2 = el("div", "sm-zoom-section");
-    sec2.appendChild(el("div", "sm-zoom-section-title", "Triangulation — DMA · MFI · OBV"));
-    const srow = el("div", "sm-zoom-signals");
-    function sigBox(tag, valTxt, subTxt, kind){
-      const b = el("div", "sm-zoom-sig " + (kind || ""));
-      b.appendChild(el("div", "sm-zoom-sig-tag", tag));
-      b.appendChild(el("div", "sm-zoom-sig-val", valTxt));
-      if(subTxt) b.appendChild(el("div", "sm-zoom-sig-sub", subTxt));
-      return b;
-    }
-    // DMA200
-    const dmaKind = cell.dma_signal === "above" ? "up" : cell.dma_signal === "below" ? "down" : "";
-    const dmaVal  = cell.dma_signal === "above" ? "ABOVE" : cell.dma_signal === "below" ? "BELOW" : "N/A";
-    const dmaSub  = cell.close != null && cell.dma_200 != null ? `${fmtNum(cell.close)} vs ${fmtNum(cell.dma_200)}` : "long-term trend";
-    srow.appendChild(sigBox("DMA200", dmaVal, dmaSub, dmaKind));
-    // MFI
-    const mfiKind = cell.mfi_signal === "overbought" ? "warn" :
-                    cell.mfi_signal === "oversold"   ? "up"   : "";
-    const mfiVal  = cell.mfi_value != null ? "MFI " + Math.round(cell.mfi_value) : "MFI —";
-    const mfiSub  = cell.mfi_signal === "overbought" ? "Overbought (>70)" :
-                    cell.mfi_signal === "oversold"   ? "Oversold (<30)"   :
-                    cell.mfi_signal === "neutral"    ? "Neutral" : "n/a";
-    srow.appendChild(sigBox("MFI 14d", mfiVal, mfiSub, mfiKind));
-    // OBV
-    const obvKind = cell.obv_signal === "accumulation" ? "up" :
-                    cell.obv_signal === "distribution" ? "down" : "";
-    const obvVal  = cell.obv_signal === "accumulation" ? "ACCUM" :
-                    cell.obv_signal === "distribution" ? "DISTRIB" :
-                    cell.obv_signal === "neutral"      ? "NEUTRAL" : "N/A";
-    srow.appendChild(sigBox("OBV", obvVal, "smart money flow", obvKind));
-    sec2.appendChild(srow);
-    node.appendChild(sec2);
-
-    // Bias-guard text (simple, regime-aware)
-    const dma = cell.dma_signal, score = cell.score;
-    let bias = null;
-    if(dma === "above" && score != null && score >= 0.4)      bias = "Trend confirmed + accumulation. Hold, scale in on pullbacks. Watch for euphoria above +0.6.";
-    else if(dma === "below" && score != null && score <= -0.4) bias = "Trend down + distribution. Avoid adding. Wait for stabilization above DMA200 before re-entry.";
-    else if(dma === "above" && cell.mfi_signal === "overbought") bias = "Trend healthy but short-term overbought (MFI >70). Don't chase — wait for a normal pullback.";
-    else if(dma === "below" && cell.mfi_signal === "oversold")   bias = "Trend weak but capitulation flagged (MFI <30). Contrarian opportunity — small position only.";
-    else if(dma === "above") bias = "Long-term uptrend intact. Sentiment mixed short-term — patience.";
-    else if(dma === "below") bias = "Long-term downtrend. Default stance: avoid until trend repairs.";
-    if(bias){
-      const bb = el("div", "sm-zoom-bias", bias);
-      node.appendChild(bb);
-    }
-    return node;
-  }
-
-  function openZoom(sourceCell, region, sector, cellData){
-    if(currentZoom) closeZoom();
-    const wrapEl = document.getElementById("sm-grid-wrap");
-    const grid = wrap;  // .sm-quadrants
-    const srcRect = sourceCell.getBoundingClientRect();
-    const wrapRect = wrapEl.getBoundingClientRect();
-
-    const initTop  = srcRect.top  - wrapRect.top;
-    const initLeft = srcRect.left - wrapRect.left;
-    const initW    = srcRect.width;
-    const initH    = srcRect.height;
-
-    // Final size: 3× the original, clamped to wrapEl bounds
-    let targetW = initW * 3, targetH = initH * 3;
-    // On mobile, cells are smaller — bump target up
-    const isMobile = window.matchMedia("(max-width:700px)").matches;
-    if(isMobile){
-      targetW = Math.min(wrapEl.offsetWidth - 16, Math.max(targetW, 280));
-      targetH = Math.max(targetH, 340);
-    }
-
-    const centerX = initLeft + initW/2;
-    const centerY = initTop  + initH/2;
-    let finalLeft = centerX - targetW/2;
-    let finalTop  = centerY - targetH/2;
-    // Clamp inside wrap
-    finalLeft = Math.max(8, Math.min(finalLeft, wrapEl.offsetWidth  - targetW - 8));
-    finalTop  = Math.max(8, Math.min(finalTop,  wrapEl.offsetHeight - targetH - 8));
-
-    const clone = buildZoomContent(region, sector, cellData);
-    clone.style.top    = initTop  + "px";
-    clone.style.left   = initLeft + "px";
-    clone.style.width  = initW    + "px";
-    clone.style.height = initH    + "px";
-    clone.style.opacity = "0";
-    wrapEl.appendChild(clone);
-
-    sourceCell.classList.add("zoomed-source");
-    grid.classList.add("is-zooming");
-
-    requestAnimationFrame(() => {
-      clone.style.top    = finalTop  + "px";
-      clone.style.left   = finalLeft + "px";
-      clone.style.width  = targetW   + "px";
-      clone.style.height = targetH   + "px";
-      clone.style.opacity = "1";
-    });
-
-    currentZoom = { clone, sourceCell, initTop, initLeft, initW, initH };
-
-    // Outside click closes
-    const outsideHandler = (e) => {
-      if(currentZoom && !clone.contains(e.target) && e.target !== clone) closeZoom();
-    };
-    setTimeout(() => document.addEventListener("click", outsideHandler), 100);
-    currentZoom.outsideHandler = outsideHandler;
-  }
-
-  function closeZoom(){
-    if(!currentZoom) return;
-    const { clone, sourceCell, initTop, initLeft, initW, initH, outsideHandler } = currentZoom;
-    document.removeEventListener("click", outsideHandler);
-    clone.style.top    = initTop  + "px";
-    clone.style.left   = initLeft + "px";
-    clone.style.width  = initW    + "px";
-    clone.style.height = initH    + "px";
-    clone.style.opacity = "0";
-    sourceCell.classList.remove("zoomed-source");
-    wrap.classList.remove("is-zooming");
-    setTimeout(() => { if(clone.parentNode) clone.parentNode.removeChild(clone); }, 360);
-    currentZoom = null;
-  }
-
-  document.addEventListener("keydown", e => {
-    if(e.key === "Escape" && currentZoom) closeZoom();
-  });
-
-  // ── Re-position zoom on resize ───────────────────────────────────────
-  window.addEventListener("resize", () => { if(currentZoom) closeZoom(); });
-
-  // ── Boot ──────────────────────────────────────────────────────────────
+  // ── Boot ─────────────────────────────────────────────────────────────
   renderHero();
-  renderGrid();
-  window._sainheRenderSentiment = function(){ renderHero(); renderGrid(); };
+  renderList();
+  window._sainheRenderSentiment = function(){ renderHero(); renderList(); };
 })();
 </script>
