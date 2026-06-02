@@ -1,6 +1,7 @@
 <!-- ═══ BOX_05 — SECTOR MAP ══════════════════════════════════════════ -->
-<!-- Inspired by box_04 layout: region tabs → list → timeframe tabs.    -->
-<!-- Click on a row expands it inline ('3×3 zoom') with the 12 details. -->
+<!-- Region tabs on top, 16 sector rows (fixed order for cross-region    -->
+<!-- comparison), timeframe tabs on bottom. Click expands the row in a   -->
+<!-- '3×3' inline panel — neighboring rows are dimmed behind.            -->
 <style>
 /* ── Hero strip ─────────────────────────────────────────────── */
 #sm-hero{
@@ -22,116 +23,148 @@
 .sm-hero-chip.neutral {background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-border)}
 .sm-hero-chip.na      {background:var(--card-alt);color:var(--muted);border:1px solid var(--border-lt)}
 
-/* ── List columns ───────────────────────────────────────────── */
-#sm-list-wrap{position:relative}
+/* ── Column headers ─────────────────────────────────────────── */
 .sm-list-hdr{
   display:grid;
-  grid-template-columns:minmax(150px,1.8fr) 70px 78px minmax(110px,1.2fr) 90px 110px;
-  gap:14px;align-items:center;padding:10px 22px;
+  grid-template-columns:minmax(160px,2fr) 88px minmax(140px,1.4fr) 110px;
+  gap:14px;align-items:center;padding:9px 22px;
   font-size:9.5px;letter-spacing:1.4px;text-transform:uppercase;
   color:var(--muted);font-weight:700;border-bottom:1px solid var(--border-lt);
   background:var(--card-alt);
 }
+
+/* ── List wrap + rows ──────────────────────────────────────── */
+#sm-list-wrap{position:relative;overflow:visible}
+#sm-list{display:flex;flex-direction:column}
+
 .sm-row{
   display:grid;
-  grid-template-columns:minmax(150px,1.8fr) 70px 78px minmax(110px,1.2fr) 90px 110px;
-  gap:14px;align-items:center;padding:12px 22px;
+  grid-template-columns:minmax(160px,2fr) 88px minmax(140px,1.4fr) 110px;
+  gap:14px;align-items:center;padding:14px 22px;
   border-bottom:1px solid var(--border-lt);cursor:pointer;
-  transition:background .15s, border-color .15s;
   position:relative;
+  /* Default subtle background — overridden by --row-bg + border per row */
+  background:var(--card);
+  border-left:4px solid transparent;
+  transition:filter .25s ease, opacity .25s ease, background .15s, padding .15s;
 }
-.sm-row:hover{background:var(--hover)}
-.sm-row.null{opacity:.4;cursor:default;background:repeating-linear-gradient(45deg, transparent, transparent 8px, var(--card-alt) 8px, var(--card-alt) 14px)}
-.sm-row.null:hover{background:repeating-linear-gradient(45deg, transparent, transparent 8px, var(--card-alt) 8px, var(--card-alt) 14px)}
-.sm-row.expanded{background:var(--card-alt)!important;border-left:3px solid var(--gold);padding-left:19px}
+.sm-row.alpha-pos{background:var(--row-bg, var(--green-bg)); border-left-color:var(--green-border)}
+.sm-row.alpha-neg{background:var(--row-bg, var(--red-bg));   border-left-color:var(--red-border)}
+.sm-row.alpha-nu {background:var(--card-alt);                 border-left-color:var(--border-lt)}
+.sm-row:hover:not(.expanded):not(.null){filter:brightness(1.02)}
+.sm-row.null{
+  opacity:.45;cursor:default;
+  background:repeating-linear-gradient(45deg, transparent, transparent 8px, var(--card-alt) 8px, var(--card-alt) 14px)!important;
+  border-left-color:var(--border-lt)!important;
+}
 
-/* Cell 1: sector + ticker */
+/* "3×3 zoom" effect: neighbors fade & blur behind, expanded row pops */
+#sm-list.has-expanded .sm-row:not(.expanded){
+  filter:blur(1.4px) saturate(.7);opacity:.45;pointer-events:none;
+}
+.sm-row.expanded{
+  z-index:5;position:relative;
+  padding-top:18px;padding-bottom:20px;
+  box-shadow:0 8px 28px rgba(60,40,15,.10), 0 2px 6px rgba(60,40,15,.06);
+  border-color:var(--gold-border)!important;
+}
+
+/* ── Cells (recto compact) ─────────────────────────────────── */
 .sm-c-name{display:flex;flex-direction:column;gap:2px;min-width:0}
-.sm-c-sector{font-family:var(--serif);font-size:13.5px;color:var(--h);font-weight:600;line-height:1.2;
+.sm-c-sector{font-family:var(--serif);font-size:14px;color:var(--h);font-weight:600;line-height:1.2;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sm-c-ticker{font-size:10px;color:var(--muted);letter-spacing:.4px;font-variant-numeric:tabular-nums}
 
-/* Cell 2: sparkline */
-.sm-c-spark{display:flex;align-items:center;justify-content:center}
-.sm-c-spark canvas{display:block}
-
-/* Cell 3: score badge */
 .sm-c-score{
-  font-family:var(--sans);font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;
-  text-align:center;padding:5px 8px;border-radius:5px;background:var(--card-alt);
+  font-family:var(--sans);font-size:13.5px;font-weight:700;font-variant-numeric:tabular-nums;
+  text-align:center;padding:5px 8px;border-radius:5px;background:rgba(255,255,255,.55);
 }
+[data-theme="dark"] .sm-c-score{background:rgba(0,0,0,.25)}
 
-/* Cell 4: alpha bar (color-coded) */
-.sm-c-alpha{display:flex;flex-direction:column;gap:3px}
-.sm-c-alpha-val{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
-.sm-c-alpha-bar{height:4px;background:var(--card-alt);border-radius:2px;overflow:hidden;position:relative}
-.sm-c-alpha-fill{position:absolute;top:0;bottom:0;background:var(--alpha-fill-color, var(--gold));transition:all .25s}
+.sm-c-alpha{display:flex;flex-direction:column;gap:4px}
+.sm-c-alpha-val{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.sm-c-alpha-bar{height:3px;background:rgba(0,0,0,.08);border-radius:2px;overflow:hidden;position:relative}
+[data-theme="dark"] .sm-c-alpha-bar{background:rgba(255,255,255,.10)}
+.sm-c-alpha-fill{position:absolute;top:0;bottom:0;background:var(--alpha-fill, var(--gold));transition:all .25s}
 
-/* Cell 5: 3 micro signals */
-.sm-c-sigs{display:flex;justify-content:center;gap:5px}
-.sm-c-sigs span{display:inline-flex;align-items:center;justify-content:center;
-  width:18px;height:18px;border-radius:4px;font-size:11px;font-weight:700;font-family:var(--sans);line-height:1}
-.sm-sig-up   {background:var(--green-bg);color:var(--green)}
-.sm-sig-dn   {background:var(--red-bg);  color:var(--red)}
-.sm-sig-warn {background:var(--orange-bg);color:var(--orange)}
-.sm-sig-nu   {background:var(--card-alt);color:var(--muted);border:1px solid var(--border-lt)}
-
-/* Cell 6: label badge */
-.sm-c-label{
-  font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
-  padding:4px 8px;border-radius:4px;text-align:center;white-space:nowrap;
+.sm-c-sigs{display:flex;justify-content:center;align-items:center;gap:6px}
+.sm-sig{
+  display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+  width:24px;height:24px;border-radius:5px;font-size:11px;font-weight:700;font-family:var(--sans);
+  line-height:1;background:rgba(255,255,255,.55);border:1px solid rgba(0,0,0,.06);
 }
-.sm-c-label.lbl-bullish {background:var(--green-bg);color:var(--green)}
-.sm-c-label.lbl-warn    {background:var(--orange-bg);color:var(--orange)}
-.sm-c-label.lbl-bearish {background:var(--red-bg);color:var(--red)}
-.sm-c-label.lbl-neutral {background:var(--card-alt);color:var(--muted)}
+[data-theme="dark"] .sm-sig{background:rgba(0,0,0,.25);border-color:rgba(255,255,255,.08)}
+.sm-sig .lab{display:none}   /* tiny label hidden on recto, shown on verso via .sm-detail */
+.sm-sig.up   {color:var(--green)}
+.sm-sig.dn   {color:var(--red)}
+.sm-sig.warn {color:var(--orange)}
+.sm-sig.nu   {color:var(--muted)}
 
-/* ── Expanded row: detail panel ─────────────────────────────── */
+/* ── Expanded "verso" panel (the 12 raw fields) ──────────── */
 .sm-detail{
   grid-column:1 / -1;
-  padding:18px 4px 6px;
-  display:grid;grid-template-columns:1.4fr 1fr;gap:18px;
-  border-top:1px dashed var(--border);margin-top:8px;
+  padding:18px 0 4px;margin-top:12px;
+  border-top:1px dashed var(--border);
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;
   animation:smReveal .3s cubic-bezier(.2,.6,.2,1);
 }
 @keyframes smReveal{
   from{opacity:0;transform:translateY(-6px)}
   to  {opacity:1;transform:translateY(0)}
 }
-.sm-detail-sec{display:flex;flex-direction:column;gap:8px}
-.sm-detail-sec-title{font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
-.sm-detail-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.sm-detail-cell{background:var(--card);border:1px solid var(--border-lt);border-radius:6px;padding:8px 6px;text-align:center}
+.sm-detail-col{display:flex;flex-direction:column;gap:10px}
+.sm-detail-tit{font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+.sm-detail-block{
+  background:rgba(255,255,255,.55);border:1px solid rgba(0,0,0,.06);border-radius:6px;
+  padding:9px 11px;display:flex;flex-direction:column;gap:3px;
+}
+[data-theme="dark"] .sm-detail-block{background:rgba(0,0,0,.22);border-color:rgba(255,255,255,.08)}
+.sm-detail-block.up{border-left:3px solid var(--green-border)}
+.sm-detail-block.dn{border-left:3px solid var(--red-border)}
+.sm-detail-block.warn{border-left:3px solid var(--orange-border)}
+.sm-detail-tag{font-size:9.5px;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;font-weight:700}
+.sm-detail-val{font-size:14px;font-weight:700;color:var(--h);font-variant-numeric:tabular-nums;line-height:1.2}
+.sm-detail-sub{font-size:10.5px;color:var(--muted);line-height:1.45}
+
+.sm-detail-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sm-detail-cell{
+  background:rgba(255,255,255,.55);border:1px solid rgba(0,0,0,.06);border-radius:5px;
+  padding:6px 4px;text-align:center;
+}
+[data-theme="dark"] .sm-detail-cell{background:rgba(0,0,0,.22);border-color:rgba(255,255,255,.08)}
 .sm-detail-cell.active{border-color:var(--gold);background:var(--gold-bg)}
-.sm-detail-tf  {font-size:9.5px;color:var(--muted);font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-.sm-detail-val {font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
-.sm-detail-sig {background:var(--card);border:1px solid var(--border-lt);border-radius:6px;padding:9px 11px;display:flex;flex-direction:column;gap:3px;border-left:3px solid var(--border-lt)}
-.sm-detail-sig.up   {border-left-color:var(--green-border);background:var(--green-bg)}
-.sm-detail-sig.down {border-left-color:var(--red-border);  background:var(--red-bg)}
-.sm-detail-sig.warn {border-left-color:var(--orange-border);background:var(--orange-bg)}
-.sm-detail-sig-tag {font-size:9.5px;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;font-weight:700}
-.sm-detail-sig-val {font-size:13px;font-weight:700;color:var(--h)}
-.sm-detail-sig-sub {font-size:10px;color:var(--muted)}
+.sm-detail-cell .tf  {font-size:9px;color:var(--muted);font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.sm-detail-cell .vv  {font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:1px}
+
+.sm-detail-meta{display:flex;flex-wrap:wrap;gap:10px 16px;font-size:10.5px;color:var(--muted)}
+.sm-detail-meta b{color:var(--p);font-weight:600;font-variant-numeric:tabular-nums}
+
 .sm-detail-bias{
   font-size:11.5px;color:var(--p);line-height:1.55;font-style:italic;
-  padding:10px 14px;background:var(--gold-bg);border-left:3px solid var(--gold);border-radius:6px;
+  padding:9px 12px;background:var(--gold-bg);border-left:3px solid var(--gold);border-radius:5px;
 }
-.sm-detail-meta{display:flex;flex-wrap:wrap;gap:14px;font-size:10.5px;color:var(--muted)}
-.sm-detail-meta b{color:var(--p);font-weight:600}
 
-/* ── Responsive: mobile compresses the row ─────────────────── */
+.sm-detail-close{
+  position:absolute;top:10px;right:14px;
+  background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;line-height:1;
+  padding:4px 8px;border-radius:4px;font-weight:700;
+}
+.sm-detail-close:hover{color:var(--h);background:rgba(0,0,0,.05)}
+
+/* ── Responsive ─────────────────────────────────────────── */
 @media(max-width:700px){
-  .sm-list-hdr, .sm-row{
-    grid-template-columns:minmax(110px,1.5fr) 78px 80px;
-    gap:8px;padding:10px 14px;
-  }
-  /* hide spark, score badge, and label badge on mobile — keep name + alpha + sigs */
-  .sm-list-hdr .sm-h-spark, .sm-list-hdr .sm-h-score, .sm-list-hdr .sm-h-label,
-  .sm-row .sm-c-spark, .sm-row .sm-c-score, .sm-row .sm-c-label{display:none}
-  .sm-c-sector{font-size:12.5px}
-  .sm-detail{grid-template-columns:1fr}
   #sm-hero{padding:12px 14px;gap:8px}
   .sm-hero-value{font-size:14px}
+  /* On mobile: drop the score column to free width for alpha + signals */
+  .sm-list-hdr, .sm-row{
+    grid-template-columns:minmax(110px,1.6fr) minmax(80px,1fr) 80px;
+    gap:8px;padding:11px 14px;
+  }
+  .sm-list-hdr .sm-h-score, .sm-row .sm-c-score{display:none}
+  .sm-c-sector{font-size:12.5px}
+  .sm-c-alpha-val{font-size:14px}
+  .sm-sig{width:22px;height:22px;font-size:10.5px}
+  .sm-detail{grid-template-columns:1fr;gap:10px;padding-top:14px}
 }
 </style>
 
@@ -158,7 +191,7 @@
     </div>
   </div>
 
-  <!-- Region tabs (top, full width like box_04) -->
+  <!-- Region tabs (top) -->
   <div class="tabs" id="sm-ztabs">
     <button class="tab active" data-z="MONDE">World</button>
     <button class="tab" data-z="USA">USA</button>
@@ -169,17 +202,15 @@
   <!-- Column headers -->
   <div class="sm-list-hdr">
     <span>Sector</span>
-    <span class="sm-h-spark" style="text-align:center">7d</span>
     <span class="sm-h-score" style="text-align:center">Score</span>
     <span id="sm-h-perf">Alpha 3M</span>
     <span style="text-align:center">DMA · MFI · OBV</span>
-    <span class="sm-h-label" style="text-align:center">Label</span>
   </div>
 
   <!-- Sector rows (rendered by JS) -->
   <div id="sm-list-wrap"><div id="sm-list"></div></div>
 
-  <!-- Timeframe tabs (bottom, full width) -->
+  <!-- Timeframe tabs (bottom) -->
   <div class="ptabs" id="sm-ptabs">
     <button class="ptab" data-tf="chg_pct">Today</button>
     <button class="ptab" data-tf="1m">1M</button>
@@ -195,7 +226,6 @@
   const list = document.getElementById("sm-list");
   if(!list) return;
 
-  // Active state
   let REGION = "MONDE";
   let TF = "3m";
   try {
@@ -205,51 +235,60 @@
 
   let expandedKey = null;
 
-  // ── Helpers ──────────────────────────────────────────────────────────
   function el(tag, cls, txt){ const e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
   function fmtPct(v, d){ if(v==null||!isFinite(v)) return "—"; const p = v*100; return (p>=0?"+":"") + p.toFixed(d==null?1:d) + "%"; }
   function fmtScore(v){ if(v==null||!isFinite(v)) return "—"; return (v>=0?"+":"") + v.toFixed(2); }
   function fmtNum(v, d){ if(v==null||!isFinite(v)) return "—"; return Number(v).toFixed(d==null?2:d); }
 
-  // The metric used for cell color & alpha column depends on the region:
-  //   MONDE  = absolute return (the benchmark itself — alphas vs itself = 0)
-  //   USA/EU/ASIE = relative alpha vs MONDE benchmark
   function metricKeyFor(region, tf){
     if(tf === "chg_pct") return "chg_pct";
     return region === "MONDE" ? ("ret_" + tf) : ("alpha_" + tf);
   }
-  function metricLabel(){
+  function metricHeader(){
     if(TF === "chg_pct") return "Today";
     const tf = TF.toUpperCase();
     return (REGION === "MONDE" ? "Return " : "Alpha ") + tf;
   }
 
-  // ── Coloring scale ───────────────────────────────────────────────────
-  function colorFor(v){
-    if(v == null || !isFinite(v)) return { text: "var(--muted)", fill: "var(--card-alt)" };
-    const cap = 0.05;
-    const t = Math.max(-1, Math.min(1, v / cap));
-    if(t >= 0)  return { text: t > 0.05 ? "var(--green)" : "var(--p)", fill: `hsl(135, ${Math.round(40 + 30*t)}%, ${Math.round(85 - 15*t)}%)` };
-    const u = -t;
-    return { text: u > 0.05 ? "var(--red)" : "var(--p)", fill: `hsl(10, ${Math.round(45 + 35*u)}%, ${Math.round(85 - 15*u)}%)` };
+  // Magnitude cap for color saturation (5% = full saturation)
+  const ALPHA_CAP = 0.05;
+  function colorClass(v){
+    if(v == null || !isFinite(v)) return "alpha-nu";
+    if(Math.abs(v) < 0.001) return "alpha-nu";
+    return v >= 0 ? "alpha-pos" : "alpha-neg";
+  }
+  function rowBgFor(v){
+    // Subtle HSL background; opacity ramps with |v|
+    if(v == null || !isFinite(v)) return null;
+    const t = Math.min(1, Math.abs(v) / ALPHA_CAP);
+    const hue = v >= 0 ? 135 : 10;
+    const sat = Math.round(45 + 25 * t);
+    const light = Math.round(94 - 9 * t);
+    return `hsl(${hue}, ${sat}%, ${light}%)`;
+  }
+  function rowBgForDark(v){
+    if(v == null || !isFinite(v)) return null;
+    const t = Math.min(1, Math.abs(v) / ALPHA_CAP);
+    const hue = v >= 0 ? 135 : 10;
+    return `hsla(${hue}, 55%, 38%, ${0.12 + 0.18*t})`;
+  }
+  function alphaTextColor(v){
+    if(v == null || !isFinite(v)) return "var(--muted)";
+    if(Math.abs(v) < 0.001) return "var(--p)";
+    return v >= 0 ? "var(--green)" : "var(--red)";
   }
   function alphaBarPct(v){
     if(v == null || !isFinite(v)) return 0;
-    return Math.min(100, Math.abs(v) / 0.05 * 50);  // 50% bar at ±500bps
+    return Math.min(100, Math.abs(v) / ALPHA_CAP * 50);
   }
-  function alphaBarSide(v){ return v >= 0 ? "right" : "left"; }
 
-  // ── Hero strip render ────────────────────────────────────────────────
+  // ── Hero ──────────────────────────────────────────────────────────
   function renderHero(){
     const b = DATA.breadth || {};
     const r = DATA.regime || {};
     const bVal = document.getElementById("sm-breadth-val");
     const bChip = document.getElementById("sm-breadth-chip");
-    if(b.count_total){
-      bVal.textContent = `${b.count_above}/${b.count_total} above DMA200 · ${b.pct}%`;
-    } else {
-      bVal.textContent = "n/a";
-    }
+    bVal.textContent = b.count_total ? `${b.count_above}/${b.count_total} above DMA200 · ${b.pct}%` : "n/a";
     bChip.textContent = b.label || "—";
     bChip.className = "sm-hero-chip " + (
       b.label === "Healthy"   ? "healthy" :
@@ -270,143 +309,130 @@
     rSub.textContent = parts.join(" · ");
   }
 
-  // ── Build the icons trio (DMA / MFI / OBV) ───────────────────────────
+  // ── Signals trio (recto compact) ─────────────────────────────────
   function buildSigsTrio(cell){
     const wrap = el("div", "sm-c-sigs");
-    function pill(ch, klass, title){
-      const s = el("span", klass, ch); s.title = title; return s;
+    function s(ch, klass, title){
+      const sp = el("div", "sm-sig " + klass, ch);
+      sp.title = title; return sp;
     }
-    // DMA200
-    if(cell.dma_signal === "above")      wrap.appendChild(pill("▲", "sm-sig-up",   "Above DMA200 — long-term uptrend"));
-    else if(cell.dma_signal === "below") wrap.appendChild(pill("▼", "sm-sig-dn",   "Below DMA200 — long-term downtrend"));
-    else                                  wrap.appendChild(pill("·", "sm-sig-nu",   "DMA200 n/a"));
+    // DMA
+    if(cell.dma_signal === "above")      wrap.appendChild(s("D", "up",   "DMA200 above — long-term uptrend"));
+    else if(cell.dma_signal === "below") wrap.appendChild(s("D", "dn",   "DMA200 below — long-term downtrend"));
+    else                                  wrap.appendChild(s("D", "nu",   "DMA200 n/a"));
     // MFI
-    if(cell.mfi_signal === "overbought")     wrap.appendChild(pill("●", "sm-sig-warn", "MFI overbought (>70)"));
-    else if(cell.mfi_signal === "oversold")  wrap.appendChild(pill("●", "sm-sig-up",   "MFI oversold (<30) — contrarian opportunity"));
-    else if(cell.mfi_signal === "neutral")   wrap.appendChild(pill("○", "sm-sig-nu",   "MFI neutral"));
-    else                                      wrap.appendChild(pill("·", "sm-sig-nu",   "MFI n/a"));
+    if(cell.mfi_signal === "overbought")     wrap.appendChild(s("M", "warn", "MFI overbought >70"));
+    else if(cell.mfi_signal === "oversold")  wrap.appendChild(s("M", "up",   "MFI oversold <30 — contrarian opportunity"));
+    else if(cell.mfi_signal === "neutral")   wrap.appendChild(s("M", "nu",   "MFI neutral 30-70"));
+    else                                      wrap.appendChild(s("M", "nu",   "MFI n/a"));
     // OBV
-    if(cell.obv_signal === "accumulation")     wrap.appendChild(pill("↑", "sm-sig-up",   "OBV accumulation — money flowing in"));
-    else if(cell.obv_signal === "distribution") wrap.appendChild(pill("↓", "sm-sig-dn",   "OBV distribution — money flowing out"));
-    else if(cell.obv_signal === "neutral")     wrap.appendChild(pill("→", "sm-sig-nu",   "OBV neutral"));
-    else                                        wrap.appendChild(pill("·", "sm-sig-nu",   "OBV n/a"));
+    if(cell.obv_signal === "accumulation")     wrap.appendChild(s("O", "up",   "OBV accumulation — money in"));
+    else if(cell.obv_signal === "distribution") wrap.appendChild(s("O", "dn",   "OBV distribution — money out"));
+    else if(cell.obv_signal === "neutral")     wrap.appendChild(s("O", "nu",   "OBV neutral"));
+    else                                        wrap.appendChild(s("O", "nu",   "OBV n/a"));
     return wrap;
   }
 
-  function labelClass(label){
-    if(!label) return "lbl-neutral";
-    if(label === "Accumulation")  return "lbl-bullish";
-    if(label === "Euphoric")      return "lbl-warn";
-    if(label === "Caution")       return "lbl-warn";
-    if(label === "Bearish")       return "lbl-bearish";
-    if(label === "Extreme Fear")  return "lbl-bearish";
-    return "lbl-neutral";
-  }
-
-  // ── Sparkline 7d ─────────────────────────────────────────────────────
-  function drawSparkline(canvas, jsonStr){
-    if(!canvas || !jsonStr) return;
-    let pts;
-    try { pts = JSON.parse(jsonStr); } catch(e){ return; }
-    if(!Array.isArray(pts) || pts.length < 2) return;
-    const cv = canvas, ctx = cv.getContext("2d");
-    const W = cv.width, H = cv.height;
-    const min = Math.min(...pts), max = Math.max(...pts);
-    const rng = max - min || 1;
-    const last = pts[pts.length-1], first = pts[0];
-    const trend = last >= first;
-    const color = trend ? getComputedStyle(document.documentElement).getPropertyValue("--green").trim() || "#2C7A3E"
-                        : getComputedStyle(document.documentElement).getPropertyValue("--red").trim()   || "#A03020";
-    ctx.clearRect(0,0,W,H);
-    ctx.beginPath();
-    pts.forEach((p,i) => {
-      const x = (i/(pts.length-1)) * (W-2) + 1;
-      const y = H - ((p-min)/rng) * (H-2) - 1;
-      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-    });
-    ctx.strokeStyle = color; ctx.lineWidth = 1.4; ctx.lineJoin = "round"; ctx.stroke();
-  }
-
-  // ── Detail panel (expanded row content — the "12 points") ────────────
+  // ── Detail panel (verso, the "12 raw points") ────────────────────
   function buildDetail(cell, region, sector){
     const det = el("div", "sm-detail");
 
-    // LEFT column: alpha 4-TF + meta
-    const left = el("div", "sm-detail-sec");
-    const t1 = el("div", "sm-detail-sec-title", region === "MONDE" ? "Return at each timeframe" : "Alpha vs MONDE benchmark");
-    left.appendChild(t1);
+    // CLOSE button
+    const closeBtn = el("button", "sm-detail-close", "×");
+    closeBtn.title = "Close (Esc)";
+    closeBtn.addEventListener("click", (ev) => { ev.stopPropagation(); collapseAll(); });
+    det.appendChild(closeBtn);
+
+    // COL 1 — Alphas 4-TF + Meta
+    const col1 = el("div", "sm-detail-col");
+    col1.appendChild(el("div", "sm-detail-tit", region === "MONDE" ? "Return at each timeframe" : "Alpha vs MONDE benchmark"));
     const grid4 = el("div", "sm-detail-grid4");
-    [["1m","1M"],["3m","3M"],["6m","6M"],["1y","1Y"]].forEach(([k,lbl]) => {
+    [["1m","1M"],["3m","3M"],["6m","6M"],["1y","1Y"]].forEach(([k, lbl]) => {
       const c = el("div", "sm-detail-cell" + (TF === k ? " active" : ""));
-      c.appendChild(el("div", "sm-detail-tf", lbl));
+      c.appendChild(el("div", "tf", lbl));
       const v = region === "MONDE" ? cell["ret_" + k] : cell["alpha_" + k];
-      const vEl = el("div", "sm-detail-val", v == null ? "—" : fmtPct(v));
-      const col = colorFor(v);
-      vEl.style.color = col.text;
+      const vEl = el("div", "vv", v == null ? "—" : fmtPct(v));
+      vEl.style.color = alphaTextColor(v);
       c.appendChild(vEl);
       grid4.appendChild(c);
     });
-    left.appendChild(grid4);
+    col1.appendChild(grid4);
 
     // Meta line
     const meta = el("div", "sm-detail-meta");
-    meta.style.marginTop = "6px";
-    if(cell.close != null){
-      const m1 = el("span"); m1.innerHTML = `Close <b>${fmtNum(cell.close)}</b>`; meta.appendChild(m1);
-    }
-    if(cell.chg_pct != null){
-      const m2 = el("span"); m2.innerHTML = `Today <b>${fmtPct(cell.chg_pct)}</b>`; meta.appendChild(m2);
-    }
-    if(cell.dma_200 != null){
-      const m3 = el("span"); m3.innerHTML = `DMA200 <b>${fmtNum(cell.dma_200)}</b>`; meta.appendChild(m3);
-    }
-    if(DATA.regime && DATA.regime.label){
-      const m4 = el("span"); m4.innerHTML = `Regime <b>${DATA.regime.label}</b>`; meta.appendChild(m4);
-    }
-    left.appendChild(meta);
-    det.appendChild(left);
+    if(cell.close   != null){ const m = el("span"); m.innerHTML = `Close <b>${fmtNum(cell.close)}</b>`; meta.appendChild(m); }
+    if(cell.chg_pct != null){ const m = el("span"); m.innerHTML = `Today <b>${fmtPct(cell.chg_pct)}</b>`; meta.appendChild(m); }
+    if(cell.dma_200 != null){ const m = el("span"); m.innerHTML = `DMA200 <b>${fmtNum(cell.dma_200)}</b>`; meta.appendChild(m); }
+    if(cell.dma_50  != null){ const m = el("span"); m.innerHTML = `DMA50 <b>${fmtNum(cell.dma_50)}</b>`; meta.appendChild(m); }
+    if(cell.score   != null){ const m = el("span"); m.innerHTML = `Score <b>${fmtScore(cell.score)}</b>`; meta.appendChild(m); }
+    if(cell.label){            const m = el("span"); m.innerHTML = `Label <b>${cell.label}</b>`; meta.appendChild(m); }
+    col1.appendChild(meta);
+    det.appendChild(col1);
 
-    // RIGHT column: 3 signals + bias guard
-    const right = el("div", "sm-detail-sec");
-    right.appendChild(el("div", "sm-detail-sec-title", "Triangulation — DMA · MFI · OBV"));
-    function sigBox(tag, valTxt, subTxt, kind){
-      const b = el("div", "sm-detail-sig " + (kind || ""));
-      b.appendChild(el("div", "sm-detail-sig-tag", tag));
-      b.appendChild(el("div", "sm-detail-sig-val", valTxt));
-      if(subTxt) b.appendChild(el("div", "sm-detail-sig-sub", subTxt));
+    // COL 2 — 3 signals detailed
+    const col2 = el("div", "sm-detail-col");
+    col2.appendChild(el("div", "sm-detail-tit", "Triangulation — DMA · MFI · OBV"));
+    function block(tag, val, sub, kind){
+      const b = el("div", "sm-detail-block " + (kind || ""));
+      b.appendChild(el("div", "sm-detail-tag", tag));
+      b.appendChild(el("div", "sm-detail-val", val));
+      if(sub) b.appendChild(el("div", "sm-detail-sub", sub));
       return b;
     }
-    const dmaKind = cell.dma_signal === "above" ? "up" : cell.dma_signal === "below" ? "down" : "";
-    right.appendChild(sigBox("DMA200",
-      cell.dma_signal === "above" ? "ABOVE" : cell.dma_signal === "below" ? "BELOW" : "N/A",
-      cell.close != null && cell.dma_200 != null ? `${fmtNum(cell.close)} vs ${fmtNum(cell.dma_200)}` : "long-term trend (200 days)",
+    const dmaKind = cell.dma_signal === "above" ? "up" : cell.dma_signal === "below" ? "dn" : "";
+    col2.appendChild(block("DMA200 — long-term trend",
+      cell.dma_signal === "above" ? "ABOVE DMA200" : cell.dma_signal === "below" ? "BELOW DMA200" : "N/A",
+      cell.close != null && cell.dma_200 != null ? `close ${fmtNum(cell.close)} vs DMA200 ${fmtNum(cell.dma_200)}` : "200-day moving average position",
       dmaKind));
+
     const mfiKind = cell.mfi_signal === "overbought" ? "warn" : cell.mfi_signal === "oversold" ? "up" : "";
-    right.appendChild(sigBox("MFI 14d",
+    col2.appendChild(block("MFI 14d — short-term flow intensity",
       cell.mfi_value != null ? "MFI " + Math.round(cell.mfi_value) : "MFI —",
-      cell.mfi_signal === "overbought" ? "Overbought >70 — pause before adding" :
+      cell.mfi_signal === "overbought" ? "Overbought >70 — pause, don't add" :
       cell.mfi_signal === "oversold"   ? "Oversold <30 — contrarian opportunity" :
-      cell.mfi_signal === "neutral"    ? "Neutral 30-70" : "n/a",
+      cell.mfi_signal === "neutral"    ? "Neutral 30-70 — no extreme" : "n/a",
       mfiKind));
-    const obvKind = cell.obv_signal === "accumulation" ? "up" : cell.obv_signal === "distribution" ? "down" : "";
-    right.appendChild(sigBox("OBV (20d)",
+
+    const obvKind = cell.obv_signal === "accumulation" ? "up" : cell.obv_signal === "distribution" ? "dn" : "";
+    col2.appendChild(block("OBV 20d — smart money flow",
       cell.obv_signal === "accumulation" ? "ACCUMULATION" :
       cell.obv_signal === "distribution" ? "DISTRIBUTION" :
       cell.obv_signal === "neutral"      ? "NEUTRAL" : "N/A",
-      "smart money flow direction",
+      "On-balance volume direction (Granville 1963)",
       obvKind));
+    det.appendChild(col2);
 
-    // Bias-guard message
+    // COL 3 — Bias guard + regime
+    const col3 = el("div", "sm-detail-col");
+    col3.appendChild(el("div", "sm-detail-tit", "Read & act"));
     const bias = buildBias(cell);
     if(bias){
-      right.appendChild(el("div", "sm-detail-bias", bias));
+      col3.appendChild(el("div", "sm-detail-bias", bias));
     }
-    det.appendChild(right);
+    // Regime mini-context
+    if(DATA.regime){
+      const rb = el("div", "sm-detail-block");
+      rb.appendChild(el("div", "sm-detail-tag", "Ambient regime"));
+      rb.appendChild(el("div", "sm-detail-val", DATA.regime.label || "—"));
+      const sub = [];
+      if(DATA.regime.vix    != null) sub.push(`VIX ${DATA.regime.vix}`);
+      if(DATA.regime.curve  != null) sub.push(`Curve ${DATA.regime.curve >= 0 ? "+" : ""}${DATA.regime.curve}%`);
+      if(DATA.regime.hy_oas != null) sub.push(`HY OAS ${DATA.regime.hy_oas}bps`);
+      if(sub.length) rb.appendChild(el("div", "sm-detail-sub", sub.join(" · ")));
+      col3.appendChild(rb);
+    }
+    if(cell.ticker){
+      const tb = el("div", "sm-detail-block");
+      tb.appendChild(el("div", "sm-detail-tag", "Ticker"));
+      tb.appendChild(el("div", "sm-detail-val", cell.ticker));
+      tb.appendChild(el("div", "sm-detail-sub", region));
+      col3.appendChild(tb);
+    }
+    det.appendChild(col3);
 
     return det;
   }
 
-  // Bias guard rules — short, regime-aware sentences
   function buildBias(c){
     if(c.dma_signal === "above" && c.score != null && c.score >= 0.4) return "Trend confirmed + accumulation. Hold; scale in on pullbacks. Watch for euphoria above +0.6.";
     if(c.dma_signal === "below" && c.score != null && c.score <= -0.4) return "Trend down + distribution. Avoid adding. Wait for stabilization above DMA200 before re-entry.";
@@ -418,115 +444,101 @@
     return null;
   }
 
-  // ── Row build ────────────────────────────────────────────────────────
+  // ── Row build ────────────────────────────────────────────────────
   function buildRow(sector){
     const cell = DATA.grid?.[REGION]?.[sector] || {coverage: false};
-    const row = el("div", "sm-row" + (cell.coverage ? "" : " null"));
+    const row = el("div", "sm-row");
     const key = REGION + "|" + sector;
     row.dataset.key = key;
+
+    if(!cell.coverage){
+      row.classList.add("null");
+      const nameWrap = el("div", "sm-c-name");
+      nameWrap.appendChild(el("div", "sm-c-sector", sector));
+      nameWrap.appendChild(el("div", "sm-c-ticker", "no ETF in region"));
+      row.appendChild(nameWrap);
+      row.appendChild(el("div"));   // score placeholder
+      row.appendChild(el("div"));   // alpha placeholder
+      row.appendChild(el("div"));   // sigs placeholder
+      return row;
+    }
+
+    const v = cell[metricKeyFor(REGION, TF)];
+    row.classList.add(colorClass(v));
+    // Apply continuous background via custom property
+    const isDark = (document.documentElement.dataset.theme === "dark");
+    const bg = isDark ? rowBgForDark(v) : rowBgFor(v);
+    if(bg) row.style.setProperty("--row-bg", bg);
 
     // Cell 1 — name + ticker
     const nameWrap = el("div", "sm-c-name");
     nameWrap.appendChild(el("div", "sm-c-sector", sector));
-    if(cell.coverage && cell.ticker){
-      const t = el("div", "sm-c-ticker", cell.ticker);
-      nameWrap.appendChild(t);
-    } else if(!cell.coverage){
-      nameWrap.appendChild(el("div", "sm-c-ticker", "no ETF in region"));
-    }
+    nameWrap.appendChild(el("div", "sm-c-ticker", cell.ticker || ""));
     row.appendChild(nameWrap);
 
-    // Cell 2 — sparkline
-    const sparkWrap = el("div", "sm-c-spark");
-    if(cell.coverage && cell.sparkline){
-      const cv = document.createElement("canvas");
-      cv.width = 58; cv.height = 22;
-      sparkWrap.appendChild(cv);
-      requestAnimationFrame(() => drawSparkline(cv, cell.sparkline));
-    }
-    row.appendChild(sparkWrap);
+    // Cell 2 — score badge
+    const sc = el("div", "sm-c-score");
+    sc.textContent = cell.score != null ? fmtScore(cell.score) : "—";
+    sc.style.color = alphaTextColor(cell.score);
+    row.appendChild(sc);
 
-    // Cell 3 — score badge
-    const scWrap = el("div", "sm-c-score");
-    if(cell.coverage && cell.score != null){
-      scWrap.textContent = fmtScore(cell.score);
-      const col = colorFor(cell.score);
-      scWrap.style.color = col.text;
-    } else {
-      scWrap.textContent = "—";
-      scWrap.style.color = "var(--muted)";
-    }
-    row.appendChild(scWrap);
-
-    // Cell 4 — alpha (or return for MONDE) with mini bar
+    // Cell 3 — alpha value + bar
     const alphaWrap = el("div", "sm-c-alpha");
-    const key4 = metricKeyFor(REGION, TF);
-    const v = cell.coverage ? cell[key4] : null;
     const valEl = el("div", "sm-c-alpha-val", v == null ? "—" : fmtPct(v));
-    const col = colorFor(v);
-    valEl.style.color = col.text;
+    valEl.style.color = alphaTextColor(v);
     alphaWrap.appendChild(valEl);
-    if(cell.coverage && v != null){
+    if(v != null){
       const bar = el("div", "sm-c-alpha-bar");
       const fill = el("div", "sm-c-alpha-fill");
-      const w = alphaBarPct(v);
-      fill.style.width = w + "%";
-      if(v >= 0){
-        fill.style.left  = "50%";
-        fill.style.background = "var(--green)";
-      } else {
-        fill.style.right = "50%";
-        fill.style.background = "var(--red)";
-      }
+      fill.style.width = alphaBarPct(v) + "%";
+      if(v >= 0){ fill.style.left = "50%"; fill.style.background = "var(--green)"; }
+      else      { fill.style.right = "50%"; fill.style.background = "var(--red)"; }
       bar.appendChild(fill);
       alphaWrap.appendChild(bar);
     }
     row.appendChild(alphaWrap);
 
-    // Cell 5 — 3 micro signals
-    if(cell.coverage){
-      row.appendChild(buildSigsTrio(cell));
-    } else {
-      row.appendChild(el("div"));
-    }
-
-    // Cell 6 — label badge
-    const lbl = el("div", "sm-c-label " + labelClass(cell.label));
-    lbl.textContent = cell.coverage && cell.label ? cell.label : "—";
-    row.appendChild(lbl);
+    // Cell 4 — signals trio
+    row.appendChild(buildSigsTrio(cell));
 
     // Click → toggle expand
-    if(cell.coverage){
-      row.addEventListener("click", () => toggleExpand(row, sector, cell));
-    }
+    row.addEventListener("click", (ev) => {
+      if(ev.target.closest(".sm-detail-close")) return;
+      toggleExpand(row, sector, cell);
+    });
     return row;
+  }
+
+  function collapseAll(){
+    document.querySelectorAll(".sm-detail").forEach(d => d.remove());
+    document.querySelectorAll(".sm-row.expanded").forEach(r => r.classList.remove("expanded"));
+    list.classList.remove("has-expanded");
+    expandedKey = null;
   }
 
   function toggleExpand(row, sector, cell){
     const key = REGION + "|" + sector;
-    // close existing detail
-    document.querySelectorAll(".sm-detail").forEach(d => d.remove());
-    document.querySelectorAll(".sm-row.expanded").forEach(r => r.classList.remove("expanded"));
-    if(expandedKey === key){ expandedKey = null; return; }
+    if(expandedKey === key){ collapseAll(); return; }
+    collapseAll();
     row.classList.add("expanded");
     row.appendChild(buildDetail(cell, REGION, sector));
+    list.classList.add("has-expanded");
     expandedKey = key;
   }
 
-  // ── Render list ──────────────────────────────────────────────────────
+  // ── List render ──────────────────────────────────────────────────
   function renderList(){
-    list.textContent = "";
     expandedKey = null;
+    list.classList.remove("has-expanded");
+    list.textContent = "";
     DATA.sectors.forEach(sector => list.appendChild(buildRow(sector)));
-    // Update header label
     const hdr = document.getElementById("sm-h-perf");
-    if(hdr) hdr.textContent = metricLabel();
+    if(hdr) hdr.textContent = metricHeader();
   }
 
-  // ── Tab wiring ───────────────────────────────────────────────────────
+  // ── Tab wiring ───────────────────────────────────────────────────
   document.querySelectorAll("#sm-ztabs .tab").forEach(btn => {
-    if(btn.dataset.z === REGION) btn.classList.add("active");
-    else btn.classList.remove("active");
+    btn.classList.toggle("active", btn.dataset.z === REGION);
     btn.addEventListener("click", () => {
       REGION = btn.dataset.z;
       try { localStorage.setItem("sm_region", REGION); } catch(e){}
@@ -535,8 +547,7 @@
     });
   });
   document.querySelectorAll("#sm-ptabs .ptab").forEach(btn => {
-    if(btn.dataset.tf === TF) btn.classList.add("active");
-    else btn.classList.remove("active");
+    btn.classList.toggle("active", btn.dataset.tf === TF);
     btn.addEventListener("click", () => {
       TF = btn.dataset.tf;
       try { localStorage.setItem("sm_tf", TF); } catch(e){}
@@ -545,7 +556,10 @@
     });
   });
 
-  // ── Boot ─────────────────────────────────────────────────────────────
+  // ESC to close expanded row
+  document.addEventListener("keydown", (e) => { if(e.key === "Escape" && expandedKey) collapseAll(); });
+
+  // Boot
   renderHero();
   renderList();
   window._sainheRenderSentiment = function(){ renderHero(); renderList(); };
