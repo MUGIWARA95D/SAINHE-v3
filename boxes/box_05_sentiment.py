@@ -17,11 +17,10 @@ No new fetcher required.
 
 import sqlite3
 import sys
-import statistics
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from config import SECTOR_TICKERS, SECTOR_PE_MEDIAN_10Y, SECTOR_PE_BAND
+from config import SECTOR_TICKERS
 
 
 # ══════════════════════════════════════════════════════════════
@@ -99,86 +98,6 @@ def _fetch_rperf_latest(con: sqlite3.Connection) -> dict:
     return {(r[0], r[1]): {"1m": r[2], "3m": r[3], "6m": r[4], "1y": r[5]} for r in rows}
 
 
-def _fetch_sentiment_history(con: sqlite3.Connection, window: int = 90) -> dict:
-    """
-    For each ETF, read the last `window` daily sentiment scores from
-    sentiment_history and derive:
-      - persistence_days : consecutive trailing days sharing the current label
-      - trend_30d        : score(today) − score(30 days ago)
-      - sparkline_90     : list of up to `window` scores (oldest → newest)
-      - score_sigma      : standard deviation of scores over the window
-
-    Returns {ticker: {persistence_days, trend_30d, sparkline_90, score_sigma}}.
-    Tickers with no history return an empty dict (template falls back to '—').
-    """
-    try:
-        rows = con.execute(
-            "SELECT ticker, date, score, label FROM sentiment_history "
-            "ORDER BY ticker ASC, date ASC"
-        ).fetchall()
-    except sqlite3.OperationalError:
-        return {}
-    by_ticker: dict[str, list] = {}
-    for tk, dt, sc, lbl in rows:
-        by_ticker.setdefault(tk, []).append((dt, sc, lbl))
-    out: dict[str, dict] = {}
-    for tk, series in by_ticker.items():
-        # Trim to `window` most recent
-        recent = series[-window:]
-        if not recent:
-            continue
-        scores = [s for _, s, _ in recent if s is not None]
-        labels = [l for _, _, l in recent]
-        if not scores:
-            continue
-        # Persistence: how many trailing rows share the latest non-null label
-        last_label = next((l for l in reversed(labels) if l), None)
-        persistence_days = 0
-        if last_label:
-            for _, _, l in reversed(recent):
-                if l == last_label:
-                    persistence_days += 1
-                else:
-                    break
-        # Trend Δ30j: latest score - score 30 entries ago (or earliest if shorter)
-        latest_score = scores[-1]
-        if len(scores) >= 31:
-            trend_30d = latest_score - scores[-31]
-        elif len(scores) >= 2:
-            trend_30d = latest_score - scores[0]
-        else:
-            trend_30d = None
-        # σ on full window
-        score_sigma = statistics.pstdev(scores) if len(scores) >= 2 else None
-        # Sparkline: 1 number per day, rounded to 3 decimals
-        spark = [round(s, 3) if s is not None else None for _, s, _ in recent]
-        out[tk] = {
-            "persistence_days": persistence_days,
-            "trend_30d"      : round(trend_30d, 4) if trend_30d is not None else None,
-            "sparkline_90"   : spark,
-            "score_sigma"    : round(score_sigma, 4) if score_sigma is not None else None,
-        }
-    return out
-
-
-def _valuation_status(sector: str) -> dict | None:
-    """
-    Static Damodaran 10Y median P/E lookup for context. Without a real-time
-    sector P/E feed we just expose the historical median + flag pending —
-    the template shows it as 'historical median' for now (zero invented data).
-    """
-    median = SECTOR_PE_MEDIAN_10Y.get(sector)
-    if median is None:
-        return None
-    return {
-        "pe_median_10y": median,
-        "tolerance_band": SECTOR_PE_BAND,
-        # Status is left null until a real-time P/E feed is added in a later
-        # commit. Honest: no current vs median comparison possible right now.
-        "status": None,
-    }
-
-
 def _fetch_grid(con: sqlite3.Connection) -> dict:
     """
     Returns {region: {sector: cell_dict}}. Cells with no ETF coverage (e.g.
@@ -186,27 +105,26 @@ def _fetch_grid(con: sqlite3.Connection) -> dict:
     them as muted, non-clickable cells.
     """
     rperf_map = _fetch_rperf_latest(con)
-    hist_map  = _fetch_sentiment_history(con, window=90)
+    # Pro standards only: alphas (rperf), absolute returns, and the 3 independent
+    # signals (DMA200 / MFI / OBV). No composite score, no labels.
     rows = con.execute("""
         SELECT ti.ticker, ti.secteur, ti.region, ti.nom,
-               s.sentiment_score, s.sentiment_label,
                s.mfi, s.obv_dir, s.above_dma200,
                s.dma_50, s.dma_200, s.close, s.chg_pct,
                s.ret_1m, s.ret_3m, s.ret_6m, s.ret_1y,
                s.rperf_1m, s.rperf_3m, s.rperf_6m, s.rperf_1y,
-               s.sparkline_json, s.ts_update
+               s.ts_update
         FROM snapshot s
         JOIN ticker_info ti ON ti.ticker = s.ticker
         WHERE ti.type = 'etf_sector' AND ti.actif = 1
     """).fetchall()
 
     cols = ["ticker", "secteur", "region", "nom",
-            "sentiment_score", "sentiment_label",
             "mfi", "obv_dir", "above_dma200",
             "dma_50", "dma_200", "close", "chg_pct",
             "ret_1m", "ret_3m", "ret_6m", "ret_1y",
             "rperf_1m", "rperf_3m", "rperf_6m", "rperf_1y",
-            "sparkline_json", "ts_update"]
+            "ts_update"]
     snap_by_ticker = {r[0]: dict(zip(cols, r)) for r in rows}
 
     grid = {r: {} for r in REGIONS}
@@ -269,10 +187,8 @@ def _fetch_grid(con: sqlite3.Connection) -> dict:
                 "ret_3m"  : snap.get("ret_3m"),
                 "ret_6m"  : snap.get("ret_6m"),
                 "ret_1y"  : snap.get("ret_1y"),
-                # Composite score + label
-                "score"   : snap.get("sentiment_score"),
-                "label"   : snap.get("sentiment_label"),
-                # Three independent signals
+                # Three independent signals (documented standards: Granville '63,
+                # Quong-Soudack '89, classical 200-day moving average)
                 "dma_signal" : dma_sig,
                 "mfi_value"  : mfi,
                 "mfi_signal" : mfi_sig,
@@ -282,14 +198,7 @@ def _fetch_grid(con: sqlite3.Connection) -> dict:
                 "chg_pct": snap.get("chg_pct"),
                 "dma_50" : snap.get("dma_50"),
                 "dma_200": snap.get("dma_200"),
-                "sparkline": snap.get("sparkline_json"),
                 "ts_update": snap.get("ts_update"),
-                # Historical context from sentiment_history (90-day window)
-                **(hist_map.get(ticker) or
-                   {"persistence_days": None, "trend_30d": None,
-                    "sparkline_90": None, "score_sigma": None}),
-                # Valuation context (static Damodaran 10Y median — no live P/E yet)
-                "valuation": _valuation_status(sector),
             }
     return grid
 

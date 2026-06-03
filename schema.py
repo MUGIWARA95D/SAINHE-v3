@@ -103,19 +103,19 @@ SECTORS_UNITS = {
     "ret_1m": "pct", "ret_3m": "pct", "ret_6m": "pct", "ret_1y": "pct",
     "rperf_1m": "pct", "rperf_3m": "pct", "rperf_6m": "pct", "rperf_1y": "pct",
 }
-# Sector Map (formerly Sentiment): cells inside data.grid[region][sector]
-# carry these per-field units.
+# Rotation: cells inside data.grid[region][sector] carry these per-field units.
+# The composite 'score' and 'label' have been retired — see boxes/box_05.
 SENTIMENT_UNITS = {
     "alpha_1m": "pct", "alpha_3m": "pct", "alpha_6m": "pct", "alpha_1y": "pct",
     "ret_1m": "pct", "ret_3m": "pct", "ret_6m": "pct", "ret_1y": "pct",
-    "score": "score_-1_to_1", "mfi_value": "index_0_100",
+    "mfi_value": "index_0_100",
     "dma_signal": "category", "mfi_signal": "category", "obv_signal": "category",
     "close": "native_ccy", "chg_pct": "pct",
     "breadth_pct": "pct", "regime": "category",
 }
 PORTFOLIO_UNITS = {
     "close": "native_ccy", "chg_pct": "pct", "score": "composite",
-    "rvol": "ratio", "mfi": "index_0_100", "sentiment_score": "score_-1_to_1",
+    "rvol": "ratio", "mfi": "index_0_100",
 }
 
 # ── Per-dataset provenance (shown in JSON envelope) ──────────────────────────
@@ -124,6 +124,6 @@ SOURCES = {
     "indices":   "Yahoo Finance (curl_cffi)",
     "news":      "RSS: Bloomberg, AP, MarketWatch, SCMP, FT",
     "sectors":   "Yahoo Finance (curl_cffi)",
-    "sentiment": "Sector Map — 16 sectors × 4 regions, alpha vs MONDE benchmark + DMA/MFI/OBV signals",
+    "sentiment": "Rotation — 16 sectors × 4 regions, alpha vs MONDE benchmark + DMA/MFI/OBV independent signals",
     "portfolio": "Yahoo Finance (curl_cffi)",
 }

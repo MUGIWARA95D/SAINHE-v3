@@ -24,7 +24,7 @@ META = {
 }
 
 # Tri par défaut de la watchlist
-# Modifie pour changer le critère : "score" | "sentiment_score" | "chg_pct" | "ret_1y"
+# Modifie pour changer le critère : "score" | "chg_pct" | "ret_1y" | "ret_3m"
 TRI_DEFAUT      = "score"
 TRI_DESCENDANT  = True
 
@@ -59,8 +59,6 @@ def _fetch_watchlist(con: sqlite3.Connection) -> list[dict]:
             s.rvol_dir,
             s.mfi,
             s.obv_dir,
-            s.sentiment_score,
-            s.sentiment_label,
             s.sparkline_json,
             s.ts_update
         FROM ticker_info ti
@@ -70,6 +68,10 @@ def _fetch_watchlist(con: sqlite3.Connection) -> list[dict]:
         """,
     ).fetchall()
 
+    # No sentiment_score / sentiment_label — the composite was retired (it had
+    # no academic validation). Portfolio relies on the momentum score (a
+    # weighted blend of returns over 4 timeframes) + the same independent
+    # signals exposed in Rotation (DMA200 / MFI / OBV).
     cols = [
         "ticker", "nom", "secteur", "devise",
         "close", "chg_pct",
@@ -78,7 +80,6 @@ def _fetch_watchlist(con: sqlite3.Connection) -> list[dict]:
         "dma_50", "dma_200", "above_dma200",
         "rvol", "rvol_dir",
         "mfi", "obv_dir",
-        "sentiment_score", "sentiment_label",
         "sparkline_json", "ts_update",
     ]
     return [dict(zip(cols, r)) for r in rows]
@@ -104,7 +105,6 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
             dma_50, dma_200, above_dma200,
             rvol, rvol_dir,
             mfi, obv_dir,
-            sentiment_score, sentiment_label,
             signal,           ← synthèse : "BUY" | "WATCH" | "AVOID"
             sparkline_json,
             ts_update,
@@ -147,8 +147,6 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
             "rvol_dir"       : item["rvol_dir"],
             "mfi"            : item["mfi"],
             "obv_dir"        : item["obv_dir"],
-            "sentiment_score": item["sentiment_score"],
-            "sentiment_label": item["sentiment_label"] or "N/A",
             "signal"         : signal,
             "evidence"       : _build_evidence(item),
             "sparkline"      : item["sparkline_json"],
@@ -191,27 +189,27 @@ def _build_evidence(item: dict) -> str:
 
 def _compute_signal(item: dict) -> str:
     """
-    Signal synthétique basé sur score + sentiment + DMA200.
-    Modifie les seuils ici pour changer la logique de signal.
-    BUY   : score > 0.05  ET sentiment > 0  ET above_dma200 = 1
-    AVOID : score < -0.05 OU sentiment < -0.1
-    WATCH : sinon
-    Si score (momentum) est indisponible, sentiment_score est utilisé en fallback.
+    Synthetic signal based on momentum score + DMA200 + OBV direction.
+    Modify thresholds here to tweak the logic.
+      BUY   : momentum > 0.05  AND DMA200 above  AND OBV not distributing
+      AVOID : momentum < -0.05  OR  DMA200 below + OBV distributing
+      WATCH : otherwise
+    The previous version also required a positive 'sentiment_score' (composite
+    MFI/OBV/DMA200). That composite has been retired — the same information now
+    enters via DMA + OBV explicitly, no arbitrary 40/30/30 weighting.
     """
-    score   = item.get("score")
-    sent    = item.get("sentiment_score")
-    above   = item.get("above_dma200")
+    score = item.get("score")
+    above = item.get("above_dma200")
+    obv   = item.get("obv_dir")
 
-    # Fallback : si le score momentum est absent (ex. FX historique manquant),
-    # utiliser sentiment_score (MFI + OBV + DMA200) comme proxy.
-    if score is None and sent is not None:
-        score = sent
-
-    if score is None or sent is None:
+    if score is None:
         return "N/A"
 
-    if score > 0.05 and sent > 0.0 and above == 1:
+    distributing = (obv == -1)
+    accumulating = (obv == 1)
+
+    if score > 0.05 and above == 1 and not distributing:
         return "BUY"
-    if score < -0.05 or sent < -0.1:
+    if score < -0.05 or (above == 0 and distributing):
         return "AVOID"
     return "WATCH"

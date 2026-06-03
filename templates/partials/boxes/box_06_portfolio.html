@@ -1,5 +1,5 @@
 <!-- ═══ BOX_06 — PORTFOLIO SCANNER ══════════════════════════ -->
-<!-- DATA: box_portfolio = {currency, tickers:[{ticker,nom,secteur,close,chg_pct,ret_1m,ret_3m,ret_6m,ret_1y,score,above_dma200,rvol,mfi,dma_200,sentiment_label,signal,sparkline,ts_update}], total:int} -->
+<!-- DATA: box_portfolio = {currency, tickers:[{ticker,nom,secteur,close,chg_pct,ret_1m,ret_3m,ret_6m,ret_1y,score,above_dma200,rvol,mfi,dma_200,signal,sparkline,ts_update}], total:int} -->
 <style>
 /* ── Native currency badge — portfolio table ── */
 .cur-pill{
@@ -156,16 +156,7 @@
            (I18N.signal_na||"N/A");
   }
   function sigCls(s){return s==="BUY"?"sig-buy":s==="AVOID"?"sig-avoid":s==="WATCH"?"sig-watch":"sig-na";}
-
-  /* sentiment badge color */
-  function sentColor(s){
-    if(!s) return "var(--muted)";
-    const sl=s.toLowerCase();
-    if(sl.includes("euphor"))       return "var(--green)";
-    if(sl.includes("extreme fear")) return "var(--red)";
-    if(sl.includes("bearish")||sl.includes("caution")) return "var(--gold)";
-    return "var(--muted)";
-  }
+  /* (removed sentColor — the composite sentiment_label has been retired) */
 
   /* ── sort state ─────────────────────────────────────────── */
   function getSortLabels(){
@@ -242,10 +233,6 @@
     info.appendChild(mk("div","pt-expand-rets",
       (I18N.col_1m||"1M")+": "+pct(p.ret_1m)+" · "+(I18N.col_3m||"3M")+": "+pct(p.ret_3m)+" · "+(I18N.col_1y||"1Y")+": "+pct(p.ret_1y)));
 
-    var sentEl=info.appendChild(document.createElement("div"));
-    var sentBadge=sentEl.appendChild(mk("span",null,p.sentiment_label||"—"));
-    sentBadge.style.cssText="font-weight:700;color:"+sentColor(p.sentiment_label);
-
     var sigEl=info.appendChild(document.createElement("div"));
     sigEl.appendChild(mk("span","sig "+sigCls(p.signal),sigLabel(p.signal)));
 
@@ -274,8 +261,9 @@
         alerts.push({ticker:p.ticker,msg:I18N.anomaly_neg||"Negative momentum below DMA200",cls:"al-red",hhmm:hhmm,pri:pri});
       if(p.above_dma200===1&&(p.score||0)>0.4)
         alerts.push({ticker:p.ticker,msg:I18N.anomaly_strong||"Strong signal above DMA200",cls:"al-green",hhmm:hhmm,pri:pri});
-      if(p.sentiment_label==="Extreme Fear"&&p.signal==="BUY")
-        alerts.push({ticker:p.ticker,msg:I18N.anomaly_divergence||"Divergence: signal ↑ despite Extreme Fear",cls:"al-gold",hhmm:hhmm,pri:pri*2});
+      /* The 'Extreme Fear + BUY divergence' alert relied on sentiment_label,
+       * which has been retired. The DMA + OBV anomalies above already cover
+       * the meaningful divergences. */
     });
     clear(el);
     if(!alerts.length) return;
@@ -431,12 +419,12 @@
         td.className="pt-ret"+(v==null?"":(v>=0?" p-up":" p-dn"));
       });
 
-      /* col 9 — score (fallback to sentiment_score when momentum score unavailable) */
-      var sc=p.score!=null?p.score:p.sentiment_score;
+      /* col 9 — momentum score (weighted blend of ret_1m/3m/6m/1y) */
+      var sc=p.score;
       var scTxt=sc!=null?(sc>=0?"+":"")+sc.toFixed(2):"—";
       var scTd=tr.appendChild(mk("td",null,scTxt));
       scTd.style.cssText="font-weight:600;color:"+(sc==null?"var(--muted)":sc>=0.1?"var(--green)":sc<=-0.1?"var(--red)":"var(--muted)");
-      if(p.score==null&&sc!=null) scTd.title="Sentiment score (momentum data unavailable)";
+      scTd.title="Momentum score: weighted return blend (1M·20%, 3M·30%, 6M·30%, 1Y·20%)";
 
       /* col 10 — momentum (renamed signal) */
       tr.appendChild(mk("td")).appendChild(mk("span","sig "+sigCls(p.signal),sigLabel(p.signal)));

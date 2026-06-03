@@ -65,19 +65,15 @@
 }
 
 /* ── Cell recto ─ aligned on Macro: .mc-label / .mc-val / .mc-sig ── */
-/* Layout: sector name (TOP-LEFT, .mc-label style)                      */
-/*         score pill   (TOP-RIGHT, .mc-sig style)                      */
-/*         alpha BIG    (CENTER, .mc-val style)                         */
-/*         TF sublabel  (UNDER alpha, .mc-sub style)                    */
+/* Layout: sector name (TOP, .mc-label style)                           */
+/*         alpha BIG   (CENTER, .mc-val style)                          */
+/*         TF sublabel + 'vs N months ago' (UNDER alpha, .mc-sub style) */
 /*         3 D/M/O pills (BOTTOM, .mc-sig style each)                   */
 .sm-c-top   {display:flex;justify-content:space-between;align-items:flex-start;gap:6px;min-width:0}
 .sm-c-name  {font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);
              font-weight:600;line-height:1.3;min-width:0;
-             overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.sm-c-score-small {font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;
-             white-space:nowrap;text-transform:uppercase;letter-spacing:.5px;
-             padding:3px 6px;border-radius:3px;background:rgba(0,0,0,.04)}
-[data-theme="dark"] .sm-c-score-small{background:rgba(255,255,255,.06)}
+             overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+             flex:1}
 .sm-c-mid   {flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center}
 .sm-c-alpha-big{font-size:clamp(20px,3vw,26px);font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15;letter-spacing:-.01em}
 .sm-c-tf-lbl{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.9px;text-transform:uppercase;line-height:1.2}
@@ -109,7 +105,12 @@
   padding:14px 16px;
   cursor:default;
 }
-.sm-cell.zoomed .sm-c-recto{display:none}
+/* Recto layout — declared as a CSS class (NOT inline) so .zoomed display:none
+ * can win the cascade. Previously the recto used recto.style.display='flex'
+ * inline, which always beat the rule below — the recto stayed visible inside
+ * the 3×3 zoom, crushing all the verso content. */
+.sm-c-recto{display:flex;flex-direction:column;justify-content:space-between;height:100%;gap:6px}
+.sm-cell.zoomed .sm-c-recto{display:none!important}
 
 /* ── Detail panel (verso, shown only when .zoomed) ─────────── */
 .sm-c-verso{display:none;flex-direction:column;gap:10px;height:100%;overflow:hidden}
@@ -239,6 +240,11 @@
   function fmtPct(v, d){ if(v==null||!isFinite(v)) return "—"; const p = v*100; return (p>=0?"+":"") + p.toFixed(d==null?1:d) + "%"; }
   function fmtScore(v){ if(v==null||!isFinite(v)) return "—"; return (v>=0?"+":"") + v.toFixed(2); }
   function fmtNum(v, d){ if(v==null||!isFinite(v)) return "—"; return Number(v).toFixed(d==null?2:d); }
+  // Pretty label for the timeframe sub-text ("vs 1 month ago" / "vs 6 months ago" …)
+  function tfWindowLabel(tf){
+    return tf === "1m" ? "1 month" : tf === "3m" ? "3 months"
+         : tf === "6m" ? "6 months" : tf === "1y" ? "1 year" : "";
+  }
 
   function metricKeyFor(region, tf){
     if(tf === "chg_pct") return "chg_pct";
@@ -349,58 +355,15 @@
     });
     v.appendChild(alphas);
 
-    // Meta line — price context + historical depth from sentiment_history
+    // Meta line — raw price context only. No composite score, no label, no
+    // persistence/trend/σ (all of those were derived from a composite that has
+    // been retired in favor of independent signals and the AQR-style alpha).
     const meta = el("div", "sm-v-meta");
     if(cell.close   != null){ const m = el("span"); m.innerHTML = `Close <b>${fmtNum(cell.close)}</b>`; meta.appendChild(m); }
     if(cell.chg_pct != null){ const m = el("span"); m.innerHTML = `Today <b>${fmtPct(cell.chg_pct)}</b>`; meta.appendChild(m); }
     if(cell.dma_200 != null){ const m = el("span"); m.innerHTML = `DMA200 <b>${fmtNum(cell.dma_200)}</b>`; meta.appendChild(m); }
-    if(cell.score   != null){ const m = el("span"); m.innerHTML = `Score <b>${fmtScore(cell.score)}</b>`; meta.appendChild(m); }
-    if(cell.label){            const m = el("span"); m.innerHTML = `Label <b>${cell.label}</b>`; meta.appendChild(m); }
-    // NEW: persistence, trend Δ30d, σ from sentiment_history
-    if(cell.persistence_days != null && cell.persistence_days > 0){
-      const m = el("span"); m.innerHTML = `Persistence <b>${cell.persistence_days}d</b>`; meta.appendChild(m);
-    }
-    if(cell.trend_30d != null){
-      const arrow = cell.trend_30d > 0.05 ? "↑" : cell.trend_30d < -0.05 ? "↓" : "→";
-      const sign  = cell.trend_30d >= 0 ? "+" : "";
-      const m = el("span"); m.innerHTML = `Δ30d <b>${arrow} ${sign}${cell.trend_30d.toFixed(2)}</b>`; meta.appendChild(m);
-    }
-    if(cell.score_sigma != null){
-      const m = el("span"); m.innerHTML = `σ <b>±${cell.score_sigma.toFixed(2)}</b>`; meta.appendChild(m);
-    }
+    if(cell.dma_50  != null){ const m = el("span"); m.innerHTML = `DMA50 <b>${fmtNum(cell.dma_50)}</b>`; meta.appendChild(m); }
     v.appendChild(meta);
-
-    // Mini sparkline 90j (SVG) of the daily sentiment score
-    if(Array.isArray(cell.sparkline_90) && cell.sparkline_90.length >= 5){
-      const pts = cell.sparkline_90.filter(x => x != null);
-      if(pts.length >= 5){
-        const sparkWrap = el("div");
-        sparkWrap.style.cssText = "padding:6px 10px;background:rgba(255,255,255,.5);border:1px solid rgba(0,0,0,.07);border-radius:5px;display:flex;flex-direction:column;gap:3px";
-        const tag = el("div", "sm-v-spark-tag", "SCORE — last 90 days");
-        tag.style.cssText = "font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:700;color:var(--muted);line-height:1.4";
-        sparkWrap.appendChild(tag);
-        const W = 280, H = 32;
-        const min = Math.min(-1, ...pts), max = Math.max(1, ...pts);
-        const rng = max - min || 1;
-        const path = pts.map((p, i) => {
-          const x = (i/(pts.length-1)) * (W-2) + 1;
-          const y = H - ((p-min)/rng) * (H-2) - 1;
-          return (i===0?"M":"L") + x.toFixed(1) + " " + y.toFixed(1);
-        }).join(" ");
-        const last = pts[pts.length-1], first = pts[0];
-        const trend = last >= first;
-        const color = trend ? "var(--green)" : "var(--red)";
-        const zeroY = (H - ((0-min)/rng) * (H-2) - 1).toFixed(1);
-        const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" preserveAspectRatio="none" style="display:block">
-          <line x1="0" x2="${W}" y1="${zeroY}" y2="${zeroY}" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="2 2"/>
-          <path d="${path}" fill="none" stroke="${color}" stroke-width="1.4" stroke-linejoin="round"/>
-        </svg>`;
-        const svgWrap = el("div");
-        svgWrap.innerHTML = svg;
-        sparkWrap.appendChild(svgWrap);
-        v.appendChild(sparkWrap);
-      }
-    }
 
     // 3 signals detailed
     const sigs = el("div", "sm-v-sigs");
@@ -449,6 +412,13 @@
     return v;
   }
 
+  // Bias guard — reads ONLY documented signals (no composite score):
+  //   DMA200 above/below ........ Wyckoff / classical 200-day moving average
+  //   MFI 50d  oversold/overb. .. Quong-Soudack 1989 (extremes only)
+  //   OBV 90d  accum/distrib .... Granville 1963
+  //   alpha at active TF ........ relative performance vs MONDE benchmark
+  // The combination is the trader's triangulation; the message states what
+  // to do when those three agree or diverge.
   function buildBias(c){
     const above   = c.dma_signal === "above";
     const below   = c.dma_signal === "below";
@@ -456,43 +426,35 @@
     const distrib = c.obv_signal === "distribution";
     const overb   = c.mfi_signal === "overbought";
     const overs   = c.mfi_signal === "oversold";
-    const s = c.score;
-    const p = c.persistence_days;
-    const t = c.trend_30d;
+    // Alpha at the active timeframe (or absolute return for MONDE)
+    const aKey = TF === "chg_pct" ? "chg_pct"
+               : (REGION === "MONDE" ? ("ret_" + TF) : ("alpha_" + TF));
+    const a = c[aKey];
+    const strongAlpha = a != null && a >= 0.20;     // +20% standout
+    const weakAlpha   = a != null && a <= -0.20;    // −20% laggard
 
-    // Persistence-aware extreme zones (priority: score × duration)
-    if(s != null && s >= 0.6 && p != null && p >= 60)
-      return `Euphoria persisting for ${p} days (peak zone). Historical 1Y forward returns turn negative after such stretches (Damodaran). Trim — don't add, even if today looks fine.`;
-    if(s != null && s <= -0.6 && p != null && p >= 60)
-      return `Capitulation persisting for ${p} days (trough zone). Historical 1Y forward returns +10–12% on average from here. Contrarian buy — scale in slowly.`;
+    // 3-signal CONFLUENCE — the strongest setups
+    if(above && accum && overb)  return "All three agree on trend + flow but MFI flags overbought. Strong, stretched. Hold; don't chase, wait for a pullback to add.";
+    if(below && distrib && overs) return "All three agree on downtrend + outflow + capitulation. Knife-catching risk — wait for stabilization above DMA200 before re-entry.";
 
-    // Trend-aware accelerations / decelerations
-    if(s != null && s >= 0.3 && t != null && t >= 0.2)
-      return `Score accelerating (+${t.toFixed(2)} in 30d). Momentum strong but stretched — tighten stops; don't chase late entries.`;
-    if(s != null && s <= -0.3 && t != null && t <= -0.2)
-      return `Score collapsing (${t.toFixed(2)} in 30d). Sell-off accelerating — wait for stabilization, no knife-catching.`;
-    if(s != null && Math.abs(s) >= 0.4 && t != null && Math.abs(t) <= 0.05)
-      return `${s > 0 ? "Strong" : "Weak"} signal but stalling (Δ30d ≈ 0). Cycle may be turning — watch for inflection in coming weeks.`;
+    // 3-signal DIVERGENCE — the smart-money tells
+    if(above && distrib)         return "Long-term uptrend but smart money rotating OUT (OBV distribution). Classic divergence — tighten stops, watch for follow-through.";
+    if(below && accum)           return "Long-term downtrend but smart money quietly accumulating (OBV up). Early reversal signal — small starter position only.";
 
-    // Extreme zones (priority: score-driven) — fallback if no persistence info
-    if(s != null && s >= 0.7)  return "Euphoria zone (score >+0.7). Historical 1Y forward returns negative on average (Damodaran). Trim, don't add — book some profit.";
-    if(s != null && s <= -0.7) return "Capitulation zone (score <−0.7). Historical 1Y forward returns +8% to +12% on average. Contrarian buy — scale in, small size.";
+    // Strong alpha + trend confirmation
+    if(above && strongAlpha)     return "Long-term uptrend + outperformance vs MONDE benchmark. Hold; trim only on parabolic legs, otherwise let it run.";
+    if(below && weakAlpha)       return "Long-term downtrend + underperformance vs MONDE benchmark. Default stance: avoid until both repair.";
 
-    // Confluence / divergence cases
-    if(above && accum && overb)  return "Trend + smart-money in + overbought. Strong but stretched. Don't chase, wait for pullback to add.";
-    if(above && accum)            return "Trend confirmed + accumulation. Hold; scale in on pullbacks. Watch for euphoria above +0.6.";
-    if(above && distrib)          return "Uptrend but smart money rotating OUT. Divergence — tight stops, watch for follow-through.";
-    if(above && overb)            return "Healthy trend, short-term overbought (MFI >70). Don't chase — wait for the natural pullback.";
-    if(above && overs)            return "Uptrend with short-term oversold. Strong tactical setup — add into the dip.";
-    if(above)                     return "Long-term uptrend intact. Patience on mixed short-term signals.";
+    // MFI extremes within a trend
+    if(above && overb)           return "Healthy trend, short-term overbought (MFI >70). Don't chase — wait for the natural pullback.";
+    if(above && overs)           return "Uptrend with short-term oversold (MFI <30). Tactical opportunity — add into the dip.";
+    if(below && overs)           return "Downtrend with short-term capitulation (MFI <30). Contrarian only, small size, confirmation needed.";
 
-    if(below && distrib && overs) return "Downtrend + smart money out + oversold. Bottom-fishing tempting but trend rules — avoid.";
-    if(below && distrib)          return "Downtrend confirmed + distribution. Avoid adding. Wait for break and hold above DMA200.";
-    if(below && accum)            return "Downtrend but smart money quietly accumulating. Watch for trend reversal — early signal.";
-    if(below && overs)            return "Downtrend but capitulation flagged (MFI <30). Contrarian — small position only, wait for confirmation.";
-    if(below)                     return "Long-term downtrend. Default stance: avoid until trend repairs above DMA200.";
+    // Trend-only fallbacks
+    if(above)                    return "Long-term uptrend intact. Mixed short-term signals — patience.";
+    if(below)                    return "Long-term downtrend. Default stance: avoid until trend repairs above DMA200.";
 
-    return "Mixed signals — no clear edge. Default: stay aligned with longer-term trend or wait.";
+    return "No clear edge. Stay aligned with longer-term trend or wait.";
   }
 
   // Historical regime → top performer sectors (Damodaran 1990-2024 dataset, US)
@@ -542,32 +504,33 @@
     const bg = cellBg(v, isDark);
     if(bg) c.style.setProperty("--cell-bg", bg);
 
-    // RECTO — name + score pill (top), big alpha at active TF (middle), 3 sigs (bottom)
+    // RECTO — sector name (top), big alpha at active TF + 'vs N months ago'
+    // sub-label (middle), 3 D/M/O sigs (bottom). No score, no label.
+    // Display rule lives in CSS (.sm-c-recto + .sm-cell.zoomed override) so
+    // the verso can replace the recto cleanly in the 3×3 zoom.
     const recto = el("div", "sm-c-recto");
-    recto.style.display = "flex";
-    recto.style.flexDirection = "column";
-    recto.style.justifyContent = "space-between";
-    recto.style.height = "100%";
 
     const top = el("div", "sm-c-top");
     top.appendChild(el("div", "sm-c-name", sectorShortName(sector)));
-    // Score in small pill (top-right) — tells you the composite
-    const scPill = el("div", "sm-c-score-small", cell.score != null ? fmtScore(cell.score) : "—");
-    scPill.style.color = alphaTextColor(cell.score);
-    scPill.title = "Composite score (DMA + MFI + OBV), -1 to +1";
-    top.appendChild(scPill);
     recto.appendChild(top);
 
-    // Big alpha at active TF + TF label
+    // Big alpha at active TF + TF label + 'vs N months ago' clarifier
     const mid = el("div", "sm-c-mid");
     const alphaBig = el("div", "sm-c-alpha-big", v == null ? "—" : fmtPct(v));
     alphaBig.style.color = alphaTextColor(v);
     mid.appendChild(alphaBig);
-    const tfLbl = el("div", "sm-c-tf-lbl",
-      TF === "chg_pct" ? "TODAY" :
-      ((REGION === "MONDE" ? "RET " : "ALPHA ") + TF.toUpperCase())
-    );
-    mid.appendChild(tfLbl);
+    const tfLabel = TF === "chg_pct" ? "TODAY"
+      : ((REGION === "MONDE" ? "RET " : "ALPHA ") + TF.toUpperCase());
+    mid.appendChild(el("div", "sm-c-tf-lbl", tfLabel));
+    // Sub-text clarifies what the % is compared to
+    const subText = TF === "chg_pct"
+      ? "vs yesterday's close"
+      : (REGION === "MONDE"
+          ? "vs " + tfWindowLabel(TF) + " ago"
+          : "vs MONDE benchmark · " + TF.toUpperCase());
+    const subEl = el("div", "sm-c-vs", subText);
+    subEl.style.cssText = "font-size:9.5px;color:var(--muted);font-style:italic;line-height:1.3;opacity:.85";
+    mid.appendChild(subEl);
     recto.appendChild(mid);
 
     recto.appendChild(buildSigsTrio(cell));
