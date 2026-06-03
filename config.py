@@ -158,8 +158,8 @@ WATCHLIST = {
 RVOL_WINDOW          = 20     # jours — standard Bloomberg
 DMA_SHORT            = 50     # 50-DMA
 DMA_LONG             = 200    # 200-DMA
-MFI_PERIOD           = 14     # Money Flow Index
-OBV_DIR_WINDOW       = 20     # jours pour direction OBV
+MFI_PERIOD           = 50     # Money Flow Index — long-term window (was 14)
+OBV_DIR_WINDOW       = 90     # jours pour direction OBV — long-term (was 20)
 MOMENTUM_WINDOWS     = {      # (jours trading → label)
     "1M" : 21,
     "3M" : 63,
@@ -196,6 +196,33 @@ SENTIMENT_THRESHOLDS = {
 # Seuils macro
 VIX_THRESHOLDS = {"complacency": 15, "panic": 30}
 ERP_THRESHOLDS = {"attractive": 0.02, "expensive": 0.01}
+
+# ────────────────────────────────────────────────────────────────────────────
+# SECTOR P/E — 10-year medians (Damodaran, NYU Stern, US sectors, 2014-2024)
+# Used by box_05 Rotation for the valuation flag (cheap / expensive vs history).
+# Update manually once a year from http://pages.stern.nyu.edu/~adamodar/
+# Empty entry means we don't have a reliable median for this sector yet.
+# ────────────────────────────────────────────────────────────────────────────
+SECTOR_PE_MEDIAN_10Y = {
+    "Tech & Semis"        : 27.5,
+    "Robotics & MedTech"  : 32.0,
+    "Healthcare & Pharma" : 21.0,
+    "Finance & Transac."  : 13.5,
+    "Strategic Materials" : 18.0,
+    "Energy"              : 12.5,
+    "Defense & Aerospace" : 22.0,
+    "EV & Clean Energy"   : 28.0,
+    "Space"               : 35.0,   # high uncertainty, small universe
+    "Luxury"              : 24.0,
+    "Agriculture"         : 16.0,
+    "Infra & Water"       : 22.0,
+    "Consumer Staples"    : 21.0,
+    "Digital Assets"      : None,   # no meaningful 10Y P/E (BTC ETF too recent)
+    "Industrials"         : 19.0,
+    "Chemicals"           : 15.5,
+}
+# Tolerance band before flagging cheap / expensive — ±25% of the median
+SECTOR_PE_BAND = 0.25
 
 # ============================================================
 #  6. SOURCES RSS — fetch_news.py

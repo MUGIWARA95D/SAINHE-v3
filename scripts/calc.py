@@ -349,6 +349,118 @@ def calc_rperf_for_sector(
 #  WRITE TO DB
 # ============================================================
 
+# ============================================================
+#  SENTIMENT HISTORY — daily score per ETF (90j+ rolling window)
+#  Required for box_05 Rotation: persistence, trend Δ30j, sparkline,
+#  confidence interval σ. Built ONLY from prices already in DB —
+#  zero API call, zero new fetcher.
+# ============================================================
+
+def _score_for_slice(close_series: pd.Series, vol_series: pd.Series,
+                     high_series: pd.Series, low_series: pd.Series,
+                     mfi_period: int = MFI_PERIOD,
+                     obv_window: int = OBV_DIR_WINDOW,
+                     dma_long:   int = DMA_LONG) -> tuple[float | None, str | None]:
+    """
+    Compute sentiment_score for a price slice (treating its last row as 'now').
+    Same logic as the realtime path (calc_obv + calc_mfi + calc_dma + calc_sentiment)
+    but operates on the already-sliced series so we can rewind history.
+    """
+    if len(close_series) < max(mfi_period, obv_window, dma_long) + 1:
+        return None, None
+    # above DMA200
+    dma_long_val = close_series.rolling(dma_long).mean().iloc[-1]
+    above_dma200 = int(close_series.iloc[-1] > dma_long_val) if not np.isnan(dma_long_val) else None
+    # OBV direction over window
+    delta    = close_series.diff()
+    sign_vec = np.where(delta > 0, 1, np.where(delta < 0, -1, 0))
+    obv_series = (sign_vec * vol_series.fillna(0)).cumsum()
+    if len(obv_series) > obv_window:
+        diff = obv_series.iloc[-1] - obv_series.iloc[-(obv_window + 1)]
+        obv_dir = 1 if diff > 0 else (-1 if diff < 0 else 0)
+    else:
+        obv_dir = 0
+    # MFI
+    high = high_series.fillna(close_series)
+    low  = low_series.fillna(close_series)
+    tp   = (high + low + close_series) / 3.0
+    mf   = tp * vol_series.fillna(0)
+    pos  = pd.Series(np.where(tp > tp.shift(1), mf, 0.0), index=close_series.index)
+    neg  = pd.Series(np.where(tp < tp.shift(1), mf, 0.0), index=close_series.index)
+    pos_sum = pos.rolling(mfi_period).sum().iloc[-1]
+    neg_sum = neg.rolling(mfi_period).sum().iloc[-1]
+    if neg_sum == 0 or np.isnan(neg_sum):
+        mfi_val = 100.0
+    else:
+        mfi_val = 100.0 - (100.0 / (1.0 + pos_sum / neg_sum))
+    return calc_sentiment(_f(mfi_val), obv_dir, above_dma200)
+
+
+def backfill_sentiment_history(con: sqlite3.Connection, days: int = 90) -> int:
+    """
+    Recompute the daily sentiment score for every active ETF, for the last
+    `days` calendar days, and insert into sentiment_history. Idempotent
+    (INSERT OR REPLACE). Zero API call.
+    Returns the number of rows written.
+    """
+    tickers = load_all_tickers(con)
+    total = 0
+    cur = con.cursor()
+    for ticker in tickers:
+        df = load_prices(con, ticker)
+        if len(df) < max(MFI_PERIOD, OBV_DIR_WINDOW, DMA_LONG) + 5:
+            continue
+        # Rolling forward: at each historical row i, score it as if 'today' was that row
+        # We process the most recent `days` rows.
+        start_idx = max(0, len(df) - days)
+        rows = []
+        close = df["close"]; vol = df["volume"]; high = df["high"]; low = df["low"]
+        for i in range(start_idx, len(df)):
+            cs = close.iloc[: i + 1]
+            vs = vol.iloc[: i + 1]
+            hs = high.iloc[: i + 1]
+            ls = low.iloc[: i + 1]
+            score, label = _score_for_slice(cs, vs, hs, ls)
+            if score is None:
+                continue
+            date_str = df.index[i].strftime("%Y-%m-%d")
+            rows.append((ticker, date_str, _f(score), label))
+        if rows:
+            cur.executemany(
+                "INSERT OR REPLACE INTO sentiment_history (ticker, date, score, label) VALUES (?, ?, ?, ?)",
+                rows,
+            )
+            total += len(rows)
+    con.commit()
+    return total
+
+
+def update_sentiment_history_today(con: sqlite3.Connection) -> int:
+    """
+    Append today's score to sentiment_history for every active ETF.
+    Called after every calc.main() run. Cheap: 1 INSERT per ticker.
+    Returns rows written.
+    """
+    tickers = load_all_tickers(con)
+    rows = []
+    for ticker in tickers:
+        df = load_prices(con, ticker)
+        if len(df) < max(MFI_PERIOD, OBV_DIR_WINDOW, DMA_LONG) + 1:
+            continue
+        score, label = _score_for_slice(df["close"], df["volume"], df["high"], df["low"])
+        if score is None:
+            continue
+        date_str = df.index[-1].strftime("%Y-%m-%d")
+        rows.append((ticker, date_str, _f(score), label))
+    if rows:
+        con.executemany(
+            "INSERT OR REPLACE INTO sentiment_history (ticker, date, score, label) VALUES (?, ?, ?, ?)",
+            rows,
+        )
+        con.commit()
+    return len(rows)
+
+
 def upsert_metrics(con: sqlite3.Connection, ticker: str, date: str, vals: dict):
     con.execute(
         """
@@ -581,6 +693,20 @@ def main():
 
     # ── Macro bandeau (lit les closes déjà en base depuis fetch_prices.py) ──
     update_macro_bandeau(con)
+
+    # ── Sentiment history (rolling 90-day score per ETF) ──
+    # First run after the schema is added: the table is empty and we backfill
+    # 90 days from existing prices. Subsequent runs only append today.
+    try:
+        existing = con.execute("SELECT COUNT(*) FROM sentiment_history").fetchone()[0]
+    except sqlite3.OperationalError:
+        existing = 0
+    if existing < 50:
+        n = backfill_sentiment_history(con, days=90)
+        log.info("sentiment_history — backfill %d rows (first run)", n)
+    else:
+        n = update_sentiment_history_today(con)
+        log.info("sentiment_history — appended %d daily scores", n)
 
     con.close()
 

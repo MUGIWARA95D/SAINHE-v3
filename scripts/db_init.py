@@ -298,6 +298,18 @@ CREATE TABLE IF NOT EXISTS news (
     ts_fetch    TEXT    NOT NULL           -- date fetch
 );
 
+-- ── 11. SENTIMENT_HISTORY ─────────────────────────────────
+-- Daily sentiment_score per ETF — required for persistence (days-in-state),
+-- 30-day trend arrow, 90-day sparkline, and confidence interval σ in box_05.
+-- Backfilled from prices on demand (no fetch, all from local data).
+CREATE TABLE IF NOT EXISTS sentiment_history (
+    ticker      TEXT    NOT NULL,
+    date        TEXT    NOT NULL,          -- YYYY-MM-DD (close-of-day score)
+    score       REAL,                      -- composite -1 to +1
+    label       TEXT,                      -- Euphoric/Accumulation/Neutral/Caution/Bearish/Extreme Fear
+    PRIMARY KEY (ticker, date)
+);
+
 """
 
 # ============================================================
@@ -314,6 +326,7 @@ INDEXES = [
     "CREATE INDEX IF NOT EXISTS idx_news_region          ON news (region, ts_pub DESC);",
     "CREATE INDEX IF NOT EXISTS idx_fx_daily_pair_date ON fx_daily (pair, date DESC);",
     "CREATE INDEX IF NOT EXISTS idx_macro_liq_date      ON macro_liquidity (date DESC);",
+    "CREATE INDEX IF NOT EXISTS idx_sent_hist_ticker_date ON sentiment_history (ticker, date DESC);",
 ]
 
 # ============================================================

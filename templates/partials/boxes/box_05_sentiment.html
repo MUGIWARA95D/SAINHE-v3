@@ -349,14 +349,58 @@
     });
     v.appendChild(alphas);
 
-    // Meta line
+    // Meta line — price context + historical depth from sentiment_history
     const meta = el("div", "sm-v-meta");
     if(cell.close   != null){ const m = el("span"); m.innerHTML = `Close <b>${fmtNum(cell.close)}</b>`; meta.appendChild(m); }
     if(cell.chg_pct != null){ const m = el("span"); m.innerHTML = `Today <b>${fmtPct(cell.chg_pct)}</b>`; meta.appendChild(m); }
     if(cell.dma_200 != null){ const m = el("span"); m.innerHTML = `DMA200 <b>${fmtNum(cell.dma_200)}</b>`; meta.appendChild(m); }
     if(cell.score   != null){ const m = el("span"); m.innerHTML = `Score <b>${fmtScore(cell.score)}</b>`; meta.appendChild(m); }
     if(cell.label){            const m = el("span"); m.innerHTML = `Label <b>${cell.label}</b>`; meta.appendChild(m); }
+    // NEW: persistence, trend Δ30d, σ from sentiment_history
+    if(cell.persistence_days != null && cell.persistence_days > 0){
+      const m = el("span"); m.innerHTML = `Persistence <b>${cell.persistence_days}d</b>`; meta.appendChild(m);
+    }
+    if(cell.trend_30d != null){
+      const arrow = cell.trend_30d > 0.05 ? "↑" : cell.trend_30d < -0.05 ? "↓" : "→";
+      const sign  = cell.trend_30d >= 0 ? "+" : "";
+      const m = el("span"); m.innerHTML = `Δ30d <b>${arrow} ${sign}${cell.trend_30d.toFixed(2)}</b>`; meta.appendChild(m);
+    }
+    if(cell.score_sigma != null){
+      const m = el("span"); m.innerHTML = `σ <b>±${cell.score_sigma.toFixed(2)}</b>`; meta.appendChild(m);
+    }
     v.appendChild(meta);
+
+    // Mini sparkline 90j (SVG) of the daily sentiment score
+    if(Array.isArray(cell.sparkline_90) && cell.sparkline_90.length >= 5){
+      const pts = cell.sparkline_90.filter(x => x != null);
+      if(pts.length >= 5){
+        const sparkWrap = el("div");
+        sparkWrap.style.cssText = "padding:6px 10px;background:rgba(255,255,255,.5);border:1px solid rgba(0,0,0,.07);border-radius:5px;display:flex;flex-direction:column;gap:3px";
+        const tag = el("div", "sm-v-spark-tag", "SCORE — last 90 days");
+        tag.style.cssText = "font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:700;color:var(--muted);line-height:1.4";
+        sparkWrap.appendChild(tag);
+        const W = 280, H = 32;
+        const min = Math.min(-1, ...pts), max = Math.max(1, ...pts);
+        const rng = max - min || 1;
+        const path = pts.map((p, i) => {
+          const x = (i/(pts.length-1)) * (W-2) + 1;
+          const y = H - ((p-min)/rng) * (H-2) - 1;
+          return (i===0?"M":"L") + x.toFixed(1) + " " + y.toFixed(1);
+        }).join(" ");
+        const last = pts[pts.length-1], first = pts[0];
+        const trend = last >= first;
+        const color = trend ? "var(--green)" : "var(--red)";
+        const zeroY = (H - ((0-min)/rng) * (H-2) - 1).toFixed(1);
+        const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" preserveAspectRatio="none" style="display:block">
+          <line x1="0" x2="${W}" y1="${zeroY}" y2="${zeroY}" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="2 2"/>
+          <path d="${path}" fill="none" stroke="${color}" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>`;
+        const svgWrap = el("div");
+        svgWrap.innerHTML = svg;
+        sparkWrap.appendChild(svgWrap);
+        v.appendChild(sparkWrap);
+      }
+    }
 
     // 3 signals detailed
     const sigs = el("div", "sm-v-sigs");
@@ -373,14 +417,14 @@
       "200-day trend",
       dmaKind));
     const mfiKind = cell.mfi_signal === "overbought" ? "warn" : cell.mfi_signal === "oversold" ? "up" : "";
-    sigs.appendChild(sb("MFI 14d",
+    sigs.appendChild(sb("MFI 50d",
       cell.mfi_value != null ? "MFI " + Math.round(cell.mfi_value) : "N/A",
       cell.mfi_signal === "overbought" ? ">70 — overbought" :
       cell.mfi_signal === "oversold"   ? "<30 — oversold"   :
       cell.mfi_signal === "neutral"    ? "30-70 — neutral"  : "—",
       mfiKind));
     const obvKind = cell.obv_signal === "accumulation" ? "up" : cell.obv_signal === "distribution" ? "dn" : "";
-    sigs.appendChild(sb("OBV 20d",
+    sigs.appendChild(sb("OBV 90d",
       cell.obv_signal === "accumulation" ? "ACCUM." :
       cell.obv_signal === "distribution" ? "DISTRIB." :
       cell.obv_signal === "neutral"      ? "NEUTRAL" : "N/A",
@@ -413,8 +457,24 @@
     const overb   = c.mfi_signal === "overbought";
     const overs   = c.mfi_signal === "oversold";
     const s = c.score;
+    const p = c.persistence_days;
+    const t = c.trend_30d;
 
-    // Extreme zones (priority: score-driven)
+    // Persistence-aware extreme zones (priority: score × duration)
+    if(s != null && s >= 0.6 && p != null && p >= 60)
+      return `Euphoria persisting for ${p} days (peak zone). Historical 1Y forward returns turn negative after such stretches (Damodaran). Trim — don't add, even if today looks fine.`;
+    if(s != null && s <= -0.6 && p != null && p >= 60)
+      return `Capitulation persisting for ${p} days (trough zone). Historical 1Y forward returns +10–12% on average from here. Contrarian buy — scale in slowly.`;
+
+    // Trend-aware accelerations / decelerations
+    if(s != null && s >= 0.3 && t != null && t >= 0.2)
+      return `Score accelerating (+${t.toFixed(2)} in 30d). Momentum strong but stretched — tighten stops; don't chase late entries.`;
+    if(s != null && s <= -0.3 && t != null && t <= -0.2)
+      return `Score collapsing (${t.toFixed(2)} in 30d). Sell-off accelerating — wait for stabilization, no knife-catching.`;
+    if(s != null && Math.abs(s) >= 0.4 && t != null && Math.abs(t) <= 0.05)
+      return `${s > 0 ? "Strong" : "Weak"} signal but stalling (Δ30d ≈ 0). Cycle may be turning — watch for inflection in coming weeks.`;
+
+    // Extreme zones (priority: score-driven) — fallback if no persistence info
     if(s != null && s >= 0.7)  return "Euphoria zone (score >+0.7). Historical 1Y forward returns negative on average (Damodaran). Trim, don't add — book some profit.";
     if(s != null && s <= -0.7) return "Capitulation zone (score <−0.7). Historical 1Y forward returns +8% to +12% on average. Contrarian buy — scale in, small size.";
 
