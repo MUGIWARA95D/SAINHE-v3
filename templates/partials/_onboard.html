@@ -146,6 +146,7 @@
 
   // ── Layer 1: welcome bar ───────────────────────────────
   function showBar(){
+    window.scrollTo({top:0, behavior:"smooth"});
     // contextual translation hint: only if the browser language isn't English
     var lang = (navigator.language || "en").toLowerCase();
     if(lang.indexOf("en") !== 0){ document.getElementById("onb-trans").style.display = "flex"; }
@@ -160,6 +161,7 @@
 
   // ── Layer 2: spotlight tour ────────────────────────────
   function startTour(){
+    window.scrollTo({top:0, behavior:"instant"});
     // Keep only steps whose target is *visible* in the current viewport/layout.
     active = STEPS.filter(function(s){ return firstVisible(s.sels) !== null; });
     if(!active.length) return;
