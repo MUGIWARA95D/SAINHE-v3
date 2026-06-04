@@ -113,7 +113,7 @@
 .sm-cell.zoomed .sm-c-recto{display:none!important}
 
 /* ── Detail panel (verso, shown only when .zoomed) ─────────── */
-.sm-c-verso{display:none;flex-direction:column;gap:10px;height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:6px}
+.sm-c-verso{display:none;flex-direction:column;gap:10px;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:6px}
 .sm-cell.zoomed .sm-c-verso{display:flex}
 
 /* Verso (zoom 3×3) — aligned on Macro typography */
