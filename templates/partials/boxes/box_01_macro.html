@@ -103,7 +103,47 @@
   .region-card{flex:1 1 calc(50% - 10px)}
 }
 @media(max-width:480px){
-  .mc,.liq-card,.region-card{flex:1 1 100%}
+  .mc,.liq-card{flex:1 1 100%}
+}
+
+/* ── Mobile Carousel — Regional Cards ───────────────────── */
+/* On ≤600px the region-cards flex row becomes a single-axis  */
+/* scroll snap track; each card is exactly one screen wide.   */
+.rc-nav{display:none}
+@media(max-width:600px){
+  .region-cards{
+    flex-wrap:nowrap;
+    overflow-x:scroll;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    gap:0;padding:4px 0 10px;
+  }
+  .region-cards::-webkit-scrollbar{display:none}
+  .region-card{
+    flex:0 0 100%;min-width:0;
+    scroll-snap-align:start;
+    margin:0;border-radius:0;
+    border-left:none;border-top:3px solid var(--border-lt);
+  }
+  .rc-nav{
+    display:flex;align-items:center;justify-content:center;
+    gap:10px;padding:4px 16px 12px;
+  }
+  .rc-dots{display:flex;gap:8px;align-items:center}
+  .rc-dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--border-lt);cursor:pointer;
+    transition:background .2s,transform .18s;
+  }
+  .rc-dot.active{background:var(--gold);transform:scale(1.5)}
+  .rc-arrow-btn{
+    background:none;border:1px solid var(--border-lt);border-radius:4px;
+    color:var(--muted);font-size:16px;padding:3px 12px;line-height:1.5;
+    cursor:pointer;transition:color .15s,border-color .15s,opacity .15s;
+  }
+  .rc-arrow-btn:not(:disabled):active{color:var(--gold);border-color:var(--gold)}
+  .rc-arrow-btn:disabled{opacity:.2;pointer-events:none}
 }
 </style>
 
@@ -310,7 +350,71 @@
       { label:"AUD/USD",   val: fmtAud(L.aud_usd),     cls:audSig(L.aud_usd),   src:"Frankfurter · China proxy",                                learn:"fx" },
     ], "No single benchmark. EM HY OAS + AUD/USD serve as composite risk appetite proxies."));
 
+    // ── Mobile carousel nav (dots + prev/next arrows) ────────────────────────
+    // Injected into DOM; CSS hides it on desktop (> 600px).
+    (function(){
+      var navCards = Array.from(wrap.querySelectorAll(".region-card"));
+      var n = navCards.length;
+      if(!n) return;
+
+      var nav = document.createElement("div");
+      nav.className = "rc-nav";
+
+      var prevBtn = document.createElement("button");
+      prevBtn.className = "rc-arrow-btn"; prevBtn.textContent = "‹"; prevBtn.disabled = true;
+      var dotsWrap = document.createElement("div");
+      dotsWrap.className = "rc-dots";
+      var nextBtn = document.createElement("button");
+      nextBtn.className = "rc-arrow-btn"; nextBtn.textContent = "›";
+
+      nav.appendChild(prevBtn);
+      nav.appendChild(dotsWrap);
+      nav.appendChild(nextBtn);
+
+      var dots = navCards.map(function(c, i){
+        var d = document.createElement("span");
+        d.className = "rc-dot" + (i === 0 ? " active" : "");
+        d.dataset.idx = i;
+        dotsWrap.appendChild(d);
+        return d;
+      });
+
+      function activateDot(idx){
+        dots.forEach(function(d, i){ d.classList.toggle("active", i === idx); });
+        prevBtn.disabled = (idx === 0);
+        nextBtn.disabled = (idx === n - 1);
+      }
+
+      function goTo(idx){
+        var w = wrap.offsetWidth;
+        if(w) wrap.scrollTo({left: idx * w, behavior: "smooth"});
+      }
+
+      wrap.addEventListener("scroll", function(){
+        var w = wrap.offsetWidth;
+        if(!w) return;
+        activateDot(Math.round(wrap.scrollLeft / w));
+      }, {passive: true});
+
+      prevBtn.addEventListener("click", function(){
+        var cur = dots.findIndex(function(d){ return d.classList.contains("active"); });
+        goTo(Math.max(0, cur - 1));
+      });
+      nextBtn.addEventListener("click", function(){
+        var cur = dots.findIndex(function(d){ return d.classList.contains("active"); });
+        goTo(Math.min(n - 1, cur + 1));
+      });
+      dotsWrap.addEventListener("click", function(e){
+        var d = e.target.closest(".rc-dot");
+        if(d) goTo(+d.dataset.idx);
+      });
+
+      // Insert between the cards container and the footnote
+      rcWrap.insertBefore(nav, wrap.nextSibling);
+    })();
+
         function _syncRegionRows(){
+      if(window.innerWidth <= 600) return; // carousel mode — no row-height sync needed
       const cards = Array.from(rcWrap.querySelectorAll('.region-card'));
       if(cards.length < 2) return;
       // 1. Reset all min-heights to get natural heights
