@@ -799,6 +799,9 @@ a.news-hl:hover{color:var(--gold)}
 /* Overview chip — slightly distinct */
 .lrn-toc-overview{border-style:dashed;margin-bottom:16px}
 .lrn-toc-overview.active{border-style:solid}
+/* Empty-state (no panel selected) */
+.lrn-empty-icon{color:rgba(196,149,90,.45)}
+.lrn-empty-txt{color:rgba(245,232,208,.45)}
 
 @media(max-width:680px){
   .lrn-wrap{flex-direction:column;gap:20px}
@@ -877,6 +880,8 @@ a.news-hl:hover{color:var(--gold)}
 .sec-creme .lrn-ci-demo-card{background:rgba(62,32,12,.05);border-left-color:rgba(158,122,46,.3)}
 .sec-creme .lrn-ci-demo-lbl{color:rgba(44,26,14,.45)}
 .sec-creme .lrn-ci-demo-note{color:rgba(44,26,14,.42)}
+.sec-creme .lrn-empty-icon{color:rgba(158,122,46,.5)}
+.sec-creme .lrn-empty-txt{color:rgba(44,26,14,.45)}
 /* dark mode: undo creme overrides — base lrn-* colors are already dark-friendly */
 [data-theme="dark"] .sec-creme .lrn-toc-label{color:rgba(196,149,90,.8)}
 [data-theme="dark"] .sec-creme .lrn-toc-link{border-color:rgba(196,149,90,.18);color:rgba(196,149,90,.65);background:none}
@@ -914,6 +919,8 @@ a.news-hl:hover{color:var(--gold)}
 [data-theme="dark"] .sec-creme .lrn-ci-demo-card{background:var(--card-alt);border-left-color:rgba(196,149,90,.3)}
 [data-theme="dark"] .sec-creme .lrn-ci-demo-lbl{color:rgba(245,232,208,.45)}
 [data-theme="dark"] .sec-creme .lrn-ci-demo-note{color:rgba(245,232,208,.4)}
+[data-theme="dark"] .sec-creme .lrn-empty-icon{color:rgba(196,149,90,.45)}
+[data-theme="dark"] .sec-creme .lrn-empty-txt{color:rgba(245,232,208,.45)}
 /* ══════ Golden Rules grid ═══════════════════════════════ */
 .gr-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
 @media(max-width:680px){.gr-grid{grid-template-columns:1fr}}
