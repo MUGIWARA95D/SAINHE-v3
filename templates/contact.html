@@ -69,6 +69,36 @@
 .ct-block-body a{color:#C4955A;text-decoration:none;font-weight:600}
 .ct-block-body a:hover{text-decoration:underline}
 .ct-divider{height:1px;background:rgba(196,149,90,.14);margin:32px 0}
+/* Roadmap */
+.ct-roadmap{display:flex;flex-direction:column;gap:24px}
+.ct-road-item{border:1px solid rgba(62,32,12,.12);border-radius:12px;overflow:hidden}
+.ct-road-hdr{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:16px 20px;background:rgba(62,32,12,.05);border-bottom:1px solid rgba(62,32,12,.1)}
+.ct-road-title{font-family:var(--serif);font-size:16px;color:#2C1A0E;font-weight:400}
+.ct-road-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;
+  padding:3px 10px;border-radius:999px;flex-shrink:0}
+.ct-road-tag-active{background:rgba(44,122,62,.15);color:#2C7A3E;border:1px solid rgba(44,122,62,.3)}
+.ct-road-tag-planned{background:rgba(158,122,46,.14);color:#9E7A2E;border:1px solid rgba(158,122,46,.3)}
+.ct-road-tag-explore{background:rgba(62,32,12,.08);color:rgba(62,32,12,.55);border:1px solid rgba(62,32,12,.15)}
+.ct-road-why{padding:16px 20px;font-size:13px;line-height:1.75;color:rgba(44,26,14,.65)}
+.ct-road-pipeline{padding:0 20px 18px}
+.ct-road-pipeline-lbl{font-size:9.5px;text-transform:uppercase;letter-spacing:1.2px;
+  color:rgba(62,32,12,.42);font-weight:600;margin-bottom:12px}
+.ct-road-steps{display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap}
+.ct-road-arrow{font-size:12px;color:rgba(62,32,12,.28);align-self:center;padding:0 2px;flex-shrink:0}
+.ct-road-step{display:flex;gap:10px;align-items:flex-start;flex:1;min-width:160px;
+  background:rgba(62,32,12,.04);border:1px solid rgba(62,32,12,.1);border-radius:8px;padding:10px 12px}
+.ct-road-step-num{font-family:var(--serif);font-size:11px;font-weight:600;color:#9E7A2E;
+  background:rgba(158,122,46,.12);border:1px solid rgba(158,122,46,.22);
+  width:20px;height:20px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;letter-spacing:0}
+.ct-road-step-title{font-size:11.5px;font-weight:600;color:#2C1A0E;margin-bottom:3px}
+.ct-road-step-desc{font-size:11px;color:rgba(44,26,14,.55);line-height:1.5}
+@media(max-width:800px){
+  .ct-road-steps{flex-direction:column}
+  .ct-road-arrow{display:none}
+  .ct-road-step{flex:none;width:100%}
+}
 /* Creme overrides */
 .sec-creme .ct-story p{color:rgba(44,26,14,.68)}
 .sec-creme .ct-story p strong{color:#2C1A0E}
@@ -160,6 +190,87 @@
     <div class="ct-block">
       <div class="ct-block-title">Drop a message</div>
       <div class="ct-block-body">The easiest way to reach me is on Instagram: <a href="https://www.instagram.com/hugo_wdmr" target="_blank" rel="noopener"><strong>@hugo_wdmr</strong></a>. I read everything.</div>
+    </div>
+  </div>
+
+  <!-- ─── 04 · WHAT'S NEXT ─────────────────────────────────── -->
+  <div class="sec-band sec-creme">
+    <div class="section-lbl">
+      <span class="section-num">04</span>
+      <h2>What's next</h2><em>In progress</em>
+    </div>
+
+    <div class="ct-roadmap">
+
+      <!-- Stock Analysis — AI Agent -->
+      <div class="ct-road-item">
+        <div class="ct-road-hdr">
+          <div class="ct-road-title">Stock Analysis — AI Agent</div>
+          <div class="ct-road-tag ct-road-tag-active">In progress</div>
+        </div>
+        <div class="ct-road-why">
+          Top-down analysis is the standard institutional framework for a reason: validating the macro environment and sector momentum before touching a single stock eliminates the majority of losing trades before they start. Reading SEC filings directly — 10-K, 10-Q — closes the information gap between retail and professional research desks, because filings carry legal liability in a way that earnings calls and press releases don't.
+        </div>
+        <div class="ct-road-pipeline">
+          <div class="ct-road-pipeline-lbl">Full pipeline</div>
+          <div class="ct-road-steps">
+            <div class="ct-road-step">
+              <div class="ct-road-step-num">1</div>
+              <div class="ct-road-step-body">
+                <div class="ct-road-step-title">Macro check</div>
+                <div class="ct-road-step-desc">Is the macro environment favorable? VIX regime, ERP, yield curve, global liquidity.</div>
+              </div>
+            </div>
+            <div class="ct-road-arrow">→</div>
+            <div class="ct-road-step">
+              <div class="ct-road-step-num">2</div>
+              <div class="ct-road-step-body">
+                <div class="ct-road-step-title">Sector health</div>
+                <div class="ct-road-step-desc">Is the sector in a growth or rotation phase? Relative strength, valuation vs peers.</div>
+              </div>
+            </div>
+            <div class="ct-road-arrow">→</div>
+            <div class="ct-road-step">
+              <div class="ct-road-step-num">3</div>
+              <div class="ct-road-step-body">
+                <div class="ct-road-step-title">Volume validation</div>
+                <div class="ct-road-step-desc">Is there institutional buying confirmation? OBV trend, RVOL, MFI signal.</div>
+              </div>
+            </div>
+            <div class="ct-road-arrow">→</div>
+            <div class="ct-road-step">
+              <div class="ct-road-step-num">4</div>
+              <div class="ct-road-step-body">
+                <div class="ct-road-step-title">SEC analysis</div>
+                <div class="ct-road-step-desc">What does the actual filing say? Revenue quality, debt structure, guidance vs reality.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Portfolio Simulation -->
+      <div class="ct-road-item">
+        <div class="ct-road-hdr">
+          <div class="ct-road-title">Portfolio Simulation</div>
+          <div class="ct-road-tag ct-road-tag-planned">Planned</div>
+        </div>
+        <div class="ct-road-why">
+          Position sizing and correlation between holdings drive risk-adjusted returns far more than stock selection alone — a concentrated portfolio of uncorrelated positions consistently outperforms a diversified list of average picks. Simulating a portfolio against historical macro regimes (rate shock, VIX spike, sector rotation) lets you stress-test your allocation before the market charges you for the lesson.
+        </div>
+      </div>
+
+      <!-- Quant Models -->
+      <div class="ct-road-item">
+        <div class="ct-road-hdr">
+          <div class="ct-road-title">Quantitative Factor Models</div>
+          <div class="ct-road-tag ct-road-tag-explore">Exploring</div>
+        </div>
+        <div class="ct-road-why">
+          Factor models — value, momentum, quality, size — explain the majority of cross-sectional return variance across markets, and systematic exposure to factors is how most institutional alpha is actually generated, not individual stock picking. Backtesting these signals against historical data is the only way to distinguish real edge from hindsight bias, which is why every serious quant desk starts there.
+        </div>
+      </div>
+
     </div>
   </div>
 
