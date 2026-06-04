@@ -21,6 +21,13 @@ name: SAINHE — Data Pipeline
 #    [refresh:prices] → fetch_prices uniquement (lent ~30 min)
 #    [refresh:macro]  → fetch_macro_liquidity uniquement
 #    [refresh:all]    → tout fetcher (= pipeline complet)
+#
+# ── Sécurité forks (repo public) ─────────────────────────────────
+#  Aucun trigger `pull_request` → un fork externe ne peut jamais
+#  déclencher ce workflow ni accéder aux secrets GitHub Actions.
+#  workflow_dispatch / repository_dispatch nécessitent les droits
+#  d'écriture sur le repo (impossibles depuis un fork).
+# ─────────────────────────────────────────────────────────────────
 
 on:
   push:
