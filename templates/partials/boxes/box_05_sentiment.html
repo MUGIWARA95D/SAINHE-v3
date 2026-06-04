@@ -397,7 +397,9 @@
     {
       const kind = cell.dma_signal === "above" ? "up" : cell.dma_signal === "below" ? "dn" : "";
       const b = el("div", "sm-v-sig " + kind);
-      b.appendChild(el("div", "tag", "DMA200"));
+      const dmaTag = el("div", "tag", "DMA200");
+      if(window._ci) dmaTag.appendChild(window._ci("200-day moving average — structural long-term trend signal.", 'rotation', 'rot-signals'));
+      b.appendChild(dmaTag);
       b.appendChild(el("div", "val", cell.dma_signal === "above" ? "ABOVE" : cell.dma_signal === "below" ? "BELOW" : "N/A"));
       b.appendChild(el("div", "sub", "200-day trend"));
       sigs.appendChild(b);
@@ -407,7 +409,9 @@
     {
       const kind = cell.mfi_signal === "overbought" ? "warn" : cell.mfi_signal === "oversold" ? "up" : "";
       const b = el("div", "sm-v-sig " + kind);
-      b.appendChild(el("div", "tag", "MFI 50d"));
+      const mfiTag = el("div", "tag", "MFI 50d");
+      if(window._ci) mfiTag.appendChild(window._ci("Money Flow Index (14d) — current value vs 50 days ago. Rising MFI = building buying pressure.", 'rotation', 'rot-signals'));
+      b.appendChild(mfiTag);
       b.appendChild(el("div", "val", cell.mfi_value != null ? String(Math.round(cell.mfi_value)) : "N/A"));
       if(cell.mfi_50d != null){
         const dir = cell.mfi_value != null
@@ -426,7 +430,9 @@
     {
       const kind = cell.obv_signal === "accumulation" ? "up" : cell.obv_signal === "distribution" ? "dn" : "";
       const b = el("div", "sm-v-sig " + kind);
-      b.appendChild(el("div", "tag", "OBV 90d"));
+      const obvTag = el("div", "tag", "OBV 90d");
+      if(window._ci) obvTag.appendChild(window._ci("On-Balance Volume direction — avg daily volume now vs 90 days ago. Volume expansion confirms the flow.", 'rotation', 'rot-signals'));
+      b.appendChild(obvTag);
       b.appendChild(el("div", "val",
         cell.obv_signal === "accumulation" ? "ACCUM." :
         cell.obv_signal === "distribution" ? "DISTRIB." :
@@ -692,5 +698,13 @@
   renderHero();
   renderGrid();
   window._sainheRenderRotation = function(){ renderHero(); renderGrid(); };
+
+  // (i) badges — Breadth and Regime hero labels
+  if(window._ci){
+    const bLbl = document.querySelector("#sm-hero .sm-hero-block:first-child .sm-hero-label");
+    if(bLbl) bLbl.appendChild(window._ci("% of sector ETFs trading above their 200-day moving average — market participation indicator.", 'rotation', 'rot-breadth'));
+    const rLbl = document.querySelector("#sm-hero .sm-hero-block:nth-child(2) .sm-hero-label");
+    if(rLbl) rLbl.appendChild(window._ci("Risk-On / Neutral / Risk-Off — derived from VIX, yield curve (10Y-3M), and HY credit spreads.", 'rotation', 'rot-regime'));
+  }
 })();
 </script>
