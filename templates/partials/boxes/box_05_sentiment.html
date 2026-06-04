@@ -185,7 +185,7 @@
 }
 </style>
 
-<section class="card" id="box-sentiment">
+<section class="card" id="box-rotation">
   <div class="card-h">
     <span class="card-t">Rotation — Volume Flow &amp; Breadth</span>
     <div style="display:flex;align-items:center;gap:10px">
@@ -434,7 +434,7 @@
       if(cell.vol_cur != null || cell.vol_90d != null){
         let txt = "";
         if(cell.vol_cur != null && cell.vol_90d != null){
-          const pct = ((cell.vol_cur - cell.vol_90d) / cell.vol_90d * 100);
+          const pct = cell.vol_90d !== 0 ? ((cell.vol_cur - cell.vol_90d) / cell.vol_90d * 100) : 0;
           const sign = pct >= 0 ? "+" : "";
           txt = `${fmtVol(cell.vol_cur)}/j · 90d: ${fmtVol(cell.vol_90d)} (${sign}${pct.toFixed(0)}%)`;
         } else if(cell.vol_cur != null){
@@ -691,6 +691,6 @@
 
   renderHero();
   renderGrid();
-  window._sainheRenderSentiment = function(){ renderHero(); renderGrid(); };
+  window._sainheRenderRotation = function(){ renderHero(); renderGrid(); };
 })();
 </script>

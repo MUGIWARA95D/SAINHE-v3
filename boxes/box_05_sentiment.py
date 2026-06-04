@@ -172,7 +172,6 @@ def _fetch_grid(con: sqlite3.Connection) -> dict:
                s.mfi, s.obv_dir, s.above_dma200,
                s.dma_50, s.dma_200, s.close, s.chg_pct,
                s.ret_1m, s.ret_3m, s.ret_6m, s.ret_1y,
-               s.rperf_1m, s.rperf_3m, s.rperf_6m, s.rperf_1y,
                s.rvol, s.rvol_dir,
                s.ts_update
         FROM snapshot s
@@ -184,7 +183,6 @@ def _fetch_grid(con: sqlite3.Connection) -> dict:
             "mfi", "obv_dir", "above_dma200",
             "dma_50", "dma_200", "close", "chg_pct",
             "ret_1m", "ret_3m", "ret_6m", "ret_1y",
-            "rperf_1m", "rperf_3m", "rperf_6m", "rperf_1y",
             "rvol", "rvol_dir",
             "ts_update"]
     snap_by_ticker = {r[0]: dict(zip(cols, r)) for r in rows}

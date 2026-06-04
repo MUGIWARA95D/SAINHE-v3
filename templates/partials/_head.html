@@ -2,7 +2,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>{{ site_name }}</title>
-  <meta name="description" content="{{ site_name }} — {{ site_slogan }}. Macro signals, global indices, sector rotation, sentiment.">
+  <meta name="description" content="{{ site_name }} — {{ site_slogan }}. Macro signals, global indices, sector valuation, rotation heatmap, portfolio scan.">
 
   <!-- JSON-LD: machine-readable dataset catalog for AI agents & crawlers -->
   <script type="application/ld+json">
@@ -10,7 +10,7 @@
     "@context": "https://schema.org",
     "@type": "Dataset",
     "name": "{{ site_name }} financial data",
-    "description": "{{ site_slogan }} — macro signals, global indices, sector rotation, sentiment, watchlist scan.",
+    "description": "{{ site_slogan }} — macro signals, global indices, sector valuation, rotation heatmap, watchlist scan.",
     "creator": {"@type": "Organization", "name": "{{ site_name }}"},
     "isAccessibleForFree": true,
     "distribution": [
@@ -346,7 +346,7 @@ a.news-hl:hover{color:var(--gold)}
 .sc-tip-formula{font-size:9.5px;color:var(--muted);line-height:1.5}
 .sc-tip-formula b{color:var(--p)}
 
-/* ── Sentiment legend bar ─────────────────────────────── */
+/* ── Rotation legend bar ──────────────────────────────── */
 .sc-legend{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;
   padding:7px 12px;margin:0 0 14px;
   background:var(--bg2);border:1px solid var(--border-lt);border-radius:6px;
@@ -993,7 +993,7 @@ a.news-hl:hover{color:var(--gold)}
   border-top:1px solid var(--border-lt);font-size:10px;color:var(--gold);
   font-weight:600;letter-spacing:.2px;cursor:pointer}
 #ci-tip .ci-hint:hover{text-decoration:underline}
-/* ── Sentiment sc-info respects the toggle ────────────────── */
+/* ── sc-info respects the toggle ─────────────────────────── */
 [data-ci="off"] .sc-info{pointer-events:none}
 [data-ci="off"] .sc-info-btn{opacity:0!important}
 [data-ci="off"] .sc-tip{visibility:hidden!important}

@@ -107,16 +107,16 @@
     {% include "partials/boxes/box_04_sectors.html" %}
   </div>
 
-  <!-- ─── 05 · SENTIMENT ──────────────────────────────────── -->
+  <!-- ─── 05 · ROTATION ──────────────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="bib-wrap">
       <button class="box-info-btn" aria-label="About this section">i</button>
       <div class="box-info-pop">
-        <p class="bip-desc">Composite score (−1.0 to +1.0) per sector built from MFI, OBV, and DMA200. Pure math — no opinion.</p>
-        <a class="bip-link" href="/learn.html#lrn-sentiment">Read more →</a>
+        <p class="bip-desc">16 sectors × 4 regions rotation matrix — cell color = alpha vs MONDE benchmark, 3 micro-signals: DMA200, MFI, OBV.</p>
+        <a class="bip-link" href="/learn.html#lrn-rotation">Read more →</a>
       </div>
     </div>
-    <div class="section-lbl" id="nav-sentiment">
+    <div class="section-lbl" id="nav-rotation">
       <h2>Rotation</h2><em>Volume Flow &amp; Breadth</em>
     </div>
     {% include "partials/boxes/box_05_sentiment.html" %}
@@ -363,7 +363,7 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
       a.classList.toggle("active", a.getAttribute("href") === "#" + id);
     });
   };
-  const sectionIds = ["nav-macro","nav-indices","nav-news","nav-sectors","nav-sentiment","nav-portfolio"];
+  const sectionIds = ["nav-macro","nav-indices","nav-news","nav-sectors","nav-rotation","nav-portfolio"];
   const sections = sectionIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
 
   const obs = new IntersectionObserver(function(entries){

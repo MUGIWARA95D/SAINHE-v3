@@ -142,7 +142,7 @@ def build_page_navs() -> dict:
             {"href": "#nav-indices",   "label": "Indices"},
             {"href": "#nav-news",      "label": "News"},
             {"href": "#nav-sectors",   "label": "Valuation"},
-            {"href": "#nav-sentiment", "label": "Rotation"},
+            {"href": "#nav-rotation",  "label": "Rotation"},
             {"href": "#nav-portfolio", "label": "Portfolio"},
         ],
         "stock-analysis": [
@@ -269,6 +269,7 @@ def write_data_layer(boxes_by_id: dict, ts_render: str) -> list[dict]:
             "native_ccy": "value in the instrument's native currency",
             "score_-1_to_1": "score from -1 to +1", "index_0_100": "index 0-100",
             "composite": "composite momentum score", "direction": "-1/0/+1",
+            "shares": "number of shares (avg daily volume)",
         },
     }
     (data_dir / "index.json").write_text(
@@ -280,7 +281,7 @@ def write_data_layer(boxes_by_id: dict, ts_render: str) -> list[dict]:
         f"# {SITE_NAME} — {SITE_SLOGAN}",
         "",
         "> Independent financial intelligence platform. Macro signals, global indices,",
-        "> sector rotation, sentiment, and a personal watchlist scan. All values in USD",
+        "> sector valuation, rotation heatmap, and a personal watchlist scan. All values in USD",
         "> unless a native_ccy unit is given.",
         "",
         "## Machine-readable data",
@@ -295,7 +296,7 @@ def write_data_layer(boxes_by_id: dict, ts_render: str) -> list[dict]:
         "## Notes for agents",
         "",
         "- macro.json is rich per-field: each metric has value, unit, thresholds, regime.",
-        "- Collection datasets (indices, sectors, sentiment, portfolio) use a top-level",
+        "- Collection datasets (indices, sectors, rotation, portfolio) use a top-level",
         "  units map; records are flat. Missing values are null (never \"-\" or \"N/A\").",
         "- Dates are ISO 8601. Refresh cadence: news 5x/day, fx 2x/day, full pipeline nightly.",
         "",

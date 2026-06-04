@@ -90,7 +90,7 @@
     var pEl = document.getElementById("hdr-perf");
     if(sEl){
       sEl.textContent = scoreBase + (sortCol==="score" ? (sortDir===1?" ▼":" ▲") : " ⇅");
-      if(window._ci) sEl.appendChild(window._ci("Composite momentum score (−1.0 to +1.0) combining price trend, volume, and DMA200 position.",'sectors','sec-score'));
+      if(window._ci) sEl.appendChild(window._ci("Weighted momentum score: 1M×20% + 3M×30% + 6M×30% + 1Y×20% — a multi-timeframe return summary.",'sectors','sec-score'));
       sEl.classList.toggle("sec-hdr-sorted", sortCol==="score");
     }
     if(pEl){

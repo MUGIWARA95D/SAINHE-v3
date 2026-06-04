@@ -106,19 +106,24 @@ SECTORS_UNITS = {
 # Rotation: cells inside data.grid[region][sector] carry these per-field units.
 # The composite 'score' and 'label' have been retired — see boxes/box_05.
 SENTIMENT_UNITS = {
+    # Per-cell fields inside data.grid[region][sector]
     "alpha_1m": "pct", "alpha_3m": "pct", "alpha_6m": "pct", "alpha_1y": "pct",
     "ret_1m": "pct", "ret_3m": "pct", "ret_6m": "pct", "ret_1y": "pct",
     "mfi_value": "index_0_100", "mfi_50d": "index_0_100",
     "vol_cur": "shares", "vol_90d": "shares",
     "dma_signal": "category", "mfi_signal": "category", "obv_signal": "category",
     "close": "native_ccy", "chg_pct": "pct",
-    "rvol": "ratio",
-    "breadth_pct": "pct", "regime": "category",
+    "dma_50": "native_ccy", "dma_200": "native_ccy",
+    "rvol": "ratio", "rvol_dir": "category",
+    # Top-level overlays: data.breadth.pct → "pct", data.regime.label → "category"
 }
 PORTFOLIO_UNITS = {
     "close": "native_ccy", "chg_pct": "pct",
     "ret_1m": "pct", "ret_3m": "pct", "ret_6m": "pct", "ret_1y": "pct",
-    "rvol": "ratio", "mfi": "index_0_100",
+    "rvol": "ratio", "rvol_dir": "category",
+    "mfi": "index_0_100",
+    "dma_50": "native_ccy", "dma_200": "native_ccy", "above_dma200": "category",
+    "obv_dir": "category",
     "signal": "category",
 }
 
