@@ -154,10 +154,11 @@ def build_page_navs() -> dict:
             {"href": "#comparaison",  "label": "Comparison"},
         ],
         "learn": [
-            {"href": "#learn-whyfinance",    "label": "Why Finance"},
-            {"href": "#learn-mindmap",       "label": "Mindmap"},
-            {"href": "#learn-dashboard",     "label": "Dashboard"},
-            {"href": "#learn-stockanalysis", "label": "Stock Analysis"},
+            {"href": "#learn-whyfinance",  "label": "Why Finance"},
+            {"href": "#learn-guidelines",  "label": "Guidelines"},
+            {"href": "#learn-mindmap",     "label": "Mindmap"},
+            {"href": "#learn-dashboard",   "label": "Dashboard"},
+            {"href": "#learn-stockanalysis","label": "Stock Analysis"},
         ],
         "contact": [
             {"href": "#ct-about",   "label": "About"},
