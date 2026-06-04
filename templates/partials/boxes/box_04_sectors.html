@@ -1,5 +1,5 @@
-<!-- ═══ BOX_04 — SECTOR ROTATION ════════════════════════════ -->
-<!-- DATA: box_sectors = {secteurs:[{nom, regions:{MONDE:{chg_pct,ret_1m..ret_1y,score,above_dma200,spark_today..spark_1y},...}}]} -->
+<!-- ═══ BOX_04 — VALUATION ════════════════════════════════ -->
+<!-- DATA: box_sectors = {secteurs:[{nom, regions:{MONDE:{chg_pct,ret_1m..ret_1y,above_dma200,spark_today..spark_1y},...}}]} -->
 <section class="card" id="box-sectors">
   <div class="card-h">
     <span class="card-t">Valuation — Price &amp; Performance</span>
@@ -21,7 +21,6 @@
   <div class="sec-hdr">
     <span class="sec-hdr-name" id="shdr-sector"></span>
     <span class="sec-hdr-spark" id="shdr-chart"></span>
-    <span class="sec-hdr-score sec-hdr-sortable" id="shdr-score"></span>
     <span class="sec-hdr-perf  sec-hdr-sortable" id="hdr-perf"></span>
   </div>
 
@@ -48,7 +47,7 @@
   let cZ = "monde", cP = "chg_pct", cSP = "spark_today";
 
   /* ── Sort state ─────────────────────────────────────────────
-     sortCol : null | "score" | "perf"
+     sortCol : null | "perf"
      sortDir : 0 = default (nom ordre), 1 = desc, -1 = asc   */
   let sortCol = null, sortDir = 0;
 
@@ -71,8 +70,8 @@
       if(!ra && !rb) return 0;
       if(!ra) return 1;
       if(!rb) return -1;
-      var va = sortCol === "score" ? ra.score : ra[cP];
-      var vb = sortCol === "score" ? rb.score : rb[cP];
+      var va = ra[cP];
+      var vb = rb[cP];
       // nulls toujours en bas
       if(va == null && vb == null) return 0;
       if(va == null) return 1;
@@ -83,16 +82,9 @@
 
   function updateSortHeaders(){
     var I18N = window.SAINHE_I18N || {};
-    var scoreBase = I18N.col_score || "Score";
     var activeTab = document.querySelector("#ptabs .ptab.active");
     var perfLbl   = activeTab ? (activeTab.dataset.lbl || activeTab.textContent || "Today") : "Today";
-    var sEl = document.getElementById("shdr-score");
     var pEl = document.getElementById("hdr-perf");
-    if(sEl){
-      sEl.textContent = scoreBase + (sortCol==="score" ? (sortDir===1?" ▼":" ▲") : " ⇅");
-      if(window._ci) sEl.appendChild(window._ci("Weighted momentum score: 1M×20% + 3M×30% + 6M×30% + 1Y×20% — a multi-timeframe return summary.",'sectors','sec-score'));
-      sEl.classList.toggle("sec-hdr-sorted", sortCol==="score");
-    }
     if(pEl){
       pEl.textContent = perfLbl + (sortCol==="perf" ? (sortDir===1?" ▼":" ▲") : " ⇅");
       if(window._ci) pEl.appendChild(window._ci("Price return over the selected period (Today / 1M / 3M / 6M / 1Y).",'sectors','sec-perf'));
@@ -160,9 +152,8 @@
         nm.className = "sec-name"; nm.textContent = secName;
         const d1 = document.createElement("span");
         d1.className = "sec-spark"; d1.style.cssText = "color:var(--faint);text-align:center;font-size:11px;display:flex;align-items:center;justify-content:center"; d1.textContent = "—";
-        const d2 = document.createElement("span"); d2.className = "sec-score sec-score-neu"; d2.textContent = "—";
         const d3 = document.createElement("span"); d3.className = "sec-perf p-flat"; d3.textContent = "—";
-        row.appendChild(nm); row.appendChild(d1); row.appendChild(d2); row.appendChild(d3);
+        row.appendChild(nm); row.appendChild(d1); row.appendChild(d3);
       } else {
         const perf = r[cP];
         const cls  = perf == null ? "p-flat" : perf > 0 ? "p-up" : perf < 0 ? "p-dn" : "p-flat";
@@ -176,15 +167,10 @@
         cv.id = "ss"+i; cv.width = 92; cv.height = 28; cv.className = "idx-spark";
         spTd.appendChild(cv);
 
-        const scEl = document.createElement("span");
-        const scCls = r.score == null ? "sec-score-neu" : r.score > 0.1 ? "sec-score-pos" : r.score < -0.1 ? "sec-score-neg" : "sec-score-neu";
-        scEl.className = "sec-score " + scCls;
-        scEl.textContent = r.score != null ? (r.score >= 0 ? "+" : "") + r.score.toFixed(2) : "—";
-
         const pEl = document.createElement("span"); pEl.className = "sec-perf " + cls;
         pEl.textContent = perf != null ? sg + (Math.abs(perf) * 100).toFixed(2) + "%" : "—";
 
-        row.appendChild(nm); row.appendChild(spTd); row.appendChild(scEl); row.appendChild(pEl);
+        row.appendChild(nm); row.appendChild(spTd); row.appendChild(pEl);
       }
       el.appendChild(row);
     });
@@ -207,9 +193,8 @@
 
   window._sainheRenderSectors = function(){ setLabels(); renderSectors(); };
 
-  // Clic sur en-têtes de colonnes → tri
-  document.getElementById("shdr-score").addEventListener("click", function(){ cycleSortCol("score"); });
-  document.getElementById("hdr-perf").addEventListener("click",   function(){ cycleSortCol("perf");  });
+  // Clic sur en-tête de colonne → tri
+  document.getElementById("hdr-perf").addEventListener("click", function(){ cycleSortCol("perf"); });
 
   // Zone tabs
   document.getElementById("ztabs").addEventListener("click", function(e){
