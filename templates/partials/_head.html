@@ -841,11 +841,78 @@ a.news-hl:hover{color:var(--gold)}
   letter-spacing:.5px;align-self:flex-start}
 .lrn-ci-demo-note{font-size:11px;color:rgba(245,232,208,.4);line-height:1.55;
   max-width:200px;padding-top:2px}
-/* ── sec-creme overrides for lrn-panel classes ─────────── */
+/* ── sec-creme overrides for ALL lrn-* classes ─────────── */
 .sec-creme .lrn-panel-row{border-color:rgba(62,32,12,.12)}
 .sec-creme .lrn-panel-row-lbl{background:rgba(62,32,12,.06);border-right-color:rgba(62,32,12,.1);color:rgba(62,32,12,.55)}
 .sec-creme .lrn-panel-row-val{color:rgba(44,26,14,.72)}
 .sec-creme .lrn-panel-row-val strong{color:#2C1A0E}
+.sec-creme .lrn-toc-label{color:rgba(158,122,46,.8)}
+.sec-creme .lrn-toc-link{border-color:rgba(62,32,12,.16);color:rgba(62,32,12,.6);background:rgba(62,32,12,.03)}
+.sec-creme .lrn-toc-link:hover,.sec-creme .lrn-toc-link.active{border-color:#9E7A2E;color:#9E7A2E;background:rgba(158,122,46,.1)}
+.sec-creme .lrn-panel-hdr{border-bottom-color:rgba(62,32,12,.14)}
+.sec-creme .lrn-panel-num{background:rgba(158,122,46,.14);border-color:rgba(158,122,46,.28);color:#9E7A2E}
+.sec-creme .lrn-panel-title{color:#2C1A0E}
+.sec-creme .lrn-block-hdr{border-bottom-color:rgba(62,32,12,.12)}
+.sec-creme .lrn-block-hdr h3{color:#2C1A0E}
+.sec-creme .lrn-block-hdr em{color:rgba(62,32,12,.42)}
+.sec-creme .lrn-card{background:rgba(62,32,12,.04);border-color:rgba(62,32,12,.14)}
+.sec-creme .lrn-card:hover{background:rgba(62,32,12,.08);border-color:rgba(158,122,46,.4);box-shadow:0 8px 24px rgba(62,32,12,.1)}
+.sec-creme .lrn-card-num{background:rgba(158,122,46,.12);border-color:rgba(158,122,46,.24);color:#9E7A2E}
+.sec-creme .lrn-card-title{color:#2C1A0E}
+.sec-creme .lrn-card-desc{color:rgba(44,26,14,.55)}
+.sec-creme .lrn-metric{border-color:rgba(62,32,12,.14)}
+.sec-creme .lrn-metric-label{background:rgba(62,32,12,.06);border-right-color:rgba(62,32,12,.12)}
+.sec-creme .lrn-metric-name{color:#2C1A0E}
+.sec-creme .lrn-metric-tag{color:#9E7A2E}
+.sec-creme .lrn-metric-formula{background:rgba(158,122,46,.1);color:#9E7A2E}
+.sec-creme .lrn-metric-desc{color:rgba(44,26,14,.55)}
+.sec-creme .lrn-metric-desc strong{color:#2C1A0E}
+.sec-creme .lrn-panel-subhdr{color:rgba(62,32,12,.42);border-top-color:rgba(62,32,12,.1)}
+.sec-creme .lrn-panel-subhdr::after{background:rgba(62,32,12,.08)}
+.sec-creme .lrn-ci-callout{background:rgba(158,122,46,.06);border-color:rgba(158,122,46,.18)}
+.sec-creme .lrn-ci-callout-hdr{color:rgba(158,122,46,.75)}
+.sec-creme .lrn-ci-callout-body{color:rgba(44,26,14,.55)}
+.sec-creme .lrn-ci-callout-body strong{color:#2C1A0E}
+.sec-creme .lrn-ci-callout-body code{color:#9E7A2E;background:rgba(158,122,46,.1)}
+.sec-creme .lrn-ci-demo-card{background:rgba(62,32,12,.05);border-left-color:rgba(158,122,46,.3)}
+.sec-creme .lrn-ci-demo-lbl{color:rgba(44,26,14,.45)}
+.sec-creme .lrn-ci-demo-note{color:rgba(44,26,14,.42)}
+/* dark mode: undo creme overrides — base lrn-* colors are already dark-friendly */
+[data-theme="dark"] .sec-creme .lrn-toc-label{color:rgba(196,149,90,.8)}
+[data-theme="dark"] .sec-creme .lrn-toc-link{border-color:rgba(196,149,90,.18);color:rgba(196,149,90,.65);background:none}
+[data-theme="dark"] .sec-creme .lrn-toc-link:hover,[data-theme="dark"] .sec-creme .lrn-toc-link.active{border-color:#C4955A;color:#C4955A;background:rgba(196,149,90,.12)}
+[data-theme="dark"] .sec-creme .lrn-panel-hdr{border-bottom-color:rgba(196,149,90,.18)}
+[data-theme="dark"] .sec-creme .lrn-panel-num{background:rgba(196,149,90,.15);border-color:rgba(196,149,90,.3);color:#C4955A}
+[data-theme="dark"] .sec-creme .lrn-panel-title{color:#F5E8D0}
+[data-theme="dark"] .sec-creme .lrn-block-hdr{border-bottom-color:rgba(196,149,90,.18)}
+[data-theme="dark"] .sec-creme .lrn-block-hdr h3{color:#F5E8D0}
+[data-theme="dark"] .sec-creme .lrn-block-hdr em{color:rgba(196,149,90,.65)}
+[data-theme="dark"] .sec-creme .lrn-card{background:rgba(255,255,255,.06);border-color:rgba(196,149,90,.2)}
+[data-theme="dark"] .sec-creme .lrn-card:hover{background:rgba(255,255,255,.1);border-color:rgba(196,149,90,.45);box-shadow:0 8px 24px rgba(0,0,0,.28)}
+[data-theme="dark"] .sec-creme .lrn-card-num{background:rgba(196,149,90,.15);border-color:rgba(196,149,90,.3);color:#C4955A}
+[data-theme="dark"] .sec-creme .lrn-card-title{color:#F5E8D0}
+[data-theme="dark"] .sec-creme .lrn-card-desc{color:rgba(245,232,208,.5)}
+[data-theme="dark"] .sec-creme .lrn-metric{border-color:rgba(196,149,90,.18)}
+[data-theme="dark"] .sec-creme .lrn-metric-label{background:rgba(196,149,90,.09);border-right-color:rgba(196,149,90,.18)}
+[data-theme="dark"] .sec-creme .lrn-metric-name{color:#F5E8D0}
+[data-theme="dark"] .sec-creme .lrn-metric-tag{color:#C4955A}
+[data-theme="dark"] .sec-creme .lrn-metric-formula{background:rgba(196,149,90,.1);color:#C4955A}
+[data-theme="dark"] .sec-creme .lrn-metric-desc{color:rgba(245,232,208,.55)}
+[data-theme="dark"] .sec-creme .lrn-metric-desc strong{color:rgba(245,232,208,.82)}
+[data-theme="dark"] .sec-creme .lrn-panel-row{border-color:rgba(196,149,90,.15)}
+[data-theme="dark"] .sec-creme .lrn-panel-row-lbl{background:rgba(196,149,90,.08);border-right-color:rgba(196,149,90,.15);color:rgba(196,149,90,.7)}
+[data-theme="dark"] .sec-creme .lrn-panel-row-val{color:rgba(245,232,208,.6)}
+[data-theme="dark"] .sec-creme .lrn-panel-row-val strong{color:#F5E8D0}
+[data-theme="dark"] .sec-creme .lrn-panel-subhdr{color:rgba(196,149,90,.55);border-top-color:rgba(196,149,90,.12)}
+[data-theme="dark"] .sec-creme .lrn-panel-subhdr::after{background:rgba(196,149,90,.1)}
+[data-theme="dark"] .sec-creme .lrn-ci-callout{background:rgba(196,149,90,.05);border-color:rgba(196,149,90,.2)}
+[data-theme="dark"] .sec-creme .lrn-ci-callout-hdr{color:rgba(196,149,90,.8)}
+[data-theme="dark"] .sec-creme .lrn-ci-callout-body{color:rgba(245,232,208,.55)}
+[data-theme="dark"] .sec-creme .lrn-ci-callout-body strong{color:rgba(245,232,208,.82)}
+[data-theme="dark"] .sec-creme .lrn-ci-callout-body code{color:#C4955A;background:rgba(196,149,90,.12)}
+[data-theme="dark"] .sec-creme .lrn-ci-demo-card{background:var(--card-alt);border-left-color:rgba(196,149,90,.3)}
+[data-theme="dark"] .sec-creme .lrn-ci-demo-lbl{color:rgba(245,232,208,.45)}
+[data-theme="dark"] .sec-creme .lrn-ci-demo-note{color:rgba(245,232,208,.4)}
 /* ══════ Golden Rules grid ═══════════════════════════════ */
 .gr-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
 @media(max-width:680px){.gr-grid{grid-template-columns:1fr}}
