@@ -36,10 +36,6 @@
   font-size:12px;color:var(--muted);opacity:.7;display:block;margin-top:2px;
   overflow-wrap:anywhere;word-break:break-word;white-space:normal  /* src wraps, never overflows */
 }
-.rc-note{
-  font-size:12px;color:var(--muted);opacity:.7;padding:6px 16px 4px;
-  font-style:italic;line-height:1.6
-}
 
 /* ── Section dividers ─────────────────────────────────────── */
 .liq-divider-wrap{display:flex;align-items:center;gap:8px;padding:6px 16px 0}
@@ -462,15 +458,6 @@
     // Re-run on resize (cards may reflow to different rows)
     window.addEventListener('resize', _syncRegionRows, {passive:true});
 
-    // ── Methodology footnote ────────────────────────────────────────────────
-    const note = rcWrap.appendChild(mk("p","rc-note",
-      "Curve spread: US uses 10Y−3M (NY Fed Estrella-Mishkin recession model); EU, Japan, China use 10Y−2Y (market convention). "+
-      "Japan yields: MoF Japan daily CSV (primary), FRED monthly (fallback). "+
-      "China yields: ChinaBond CCDC official source — may be unavailable outside China. "+
-      "P/E values are ETF trailing P/E (VGK, EWJ, EEM) — not official index P/E. "+
-      "China P/E not shown (no liquid global ETF). Japan/China HY Spread not shown (Japan: no HY market; China: post-Evergrande restructuring). "+
-      "FX row: DXY (USA), EUR/USD (Europe), JPY/USD (Japan carry signal), CNH/USD (PBOC policy), AUD/USD (EM/China cycle proxy)."
-    ));
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
