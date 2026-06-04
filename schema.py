@@ -111,11 +111,14 @@ SENTIMENT_UNITS = {
     "mfi_value": "index_0_100",
     "dma_signal": "category", "mfi_signal": "category", "obv_signal": "category",
     "close": "native_ccy", "chg_pct": "pct",
+    "rvol": "ratio",
     "breadth_pct": "pct", "regime": "category",
 }
 PORTFOLIO_UNITS = {
-    "close": "native_ccy", "chg_pct": "pct", "score": "composite",
+    "close": "native_ccy", "chg_pct": "pct",
+    "ret_1m": "pct", "ret_3m": "pct", "ret_6m": "pct", "ret_1y": "pct",
     "rvol": "ratio", "mfi": "index_0_100",
+    "signal": "category",
 }
 
 # ── Per-dataset provenance (shown in JSON envelope) ──────────────────────────

@@ -24,8 +24,9 @@ META = {
 }
 
 # Tri par défaut de la watchlist
-# Modifie pour changer le critère : "score" | "chg_pct" | "ret_1y" | "ret_3m"
-TRI_DEFAUT      = "score"
+# Modifie pour changer le critère : "ret_3m" | "ret_6m" | "ret_1y" | "chg_pct"
+# (Le composite 'score' a été retiré pour des raisons de rigueur.)
+TRI_DEFAUT      = "ret_3m"
 TRI_DESCENDANT  = True
 
 
@@ -51,7 +52,6 @@ def _fetch_watchlist(con: sqlite3.Connection) -> list[dict]:
             s.ret_3m,
             s.ret_6m,
             s.ret_1y,
-            s.score,
             s.dma_50,
             s.dma_200,
             s.above_dma200,
@@ -68,15 +68,16 @@ def _fetch_watchlist(con: sqlite3.Connection) -> list[dict]:
         """,
     ).fetchall()
 
-    # No sentiment_score / sentiment_label — the composite was retired (it had
-    # no academic validation). Portfolio relies on the momentum score (a
-    # weighted blend of returns over 4 timeframes) + the same independent
-    # signals exposed in Rotation (DMA200 / MFI / OBV).
+    # Portfolio surfaces only documented, defensible signals:
+    #   - explicit returns (1M/3M/6M/1Y, raw price math)
+    #   - DMA200 above/below (classical 200-day MA cross)
+    #   - RVOL (volume vs 20-day average — standard liquidity gauge)
+    #   - MFI 50d + OBV 90d direction (Quong-Soudack '89, Granville '63)
+    # No composite scores — retired entirely from this box.
     cols = [
         "ticker", "nom", "secteur", "devise",
         "close", "chg_pct",
         "ret_1m", "ret_3m", "ret_6m", "ret_1y",
-        "score",
         "dma_50", "dma_200", "above_dma200",
         "rvol", "rvol_dir",
         "mfi", "obv_dir",
@@ -101,7 +102,6 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
             ticker, nom, secteur,
             close (converti), chg_pct,
             ret_1m, ret_3m, ret_6m, ret_1y,
-            score,
             dma_50, dma_200, above_dma200,
             rvol, rvol_dir,
             mfi, obv_dir,
@@ -109,7 +109,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
             sparkline_json,
             ts_update,
           },
-          ...  (trié par score DESC par défaut)
+          ...  (trié par ret_3m DESC par défaut)
         ],
         "total": int,
       }
@@ -141,7 +141,6 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
             "ret_3m"         : item["ret_3m"],
             "ret_6m"         : item["ret_6m"],
             "ret_1y"         : item["ret_1y"],
-            "score"          : item["score"],
             "above_dma200"   : item["above_dma200"],
             "rvol"           : item["rvol"],
             "rvol_dir"       : item["rvol_dir"],
@@ -166,12 +165,12 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
 def _build_evidence(item: dict) -> str:
     """
     Texte lisible résumant les signaux clés du ticker.
-    Modifie ici pour changer les champs affichés dans la colonne Evidence.
+    Only documented signals — no composite score.
     """
     parts = []
-    sc = item.get("score")
-    if sc is not None:
-        parts.append(f"Score: {sc:+.2f}")
+    r3 = item.get("ret_3m")
+    if r3 is not None:
+        parts.append(f"3M: {r3*100:+.1f}%")
     if item.get("above_dma200") is not None:
         parts.append("DMA200: " + ("↑" if item["above_dma200"] else "↓"))
     obv = item.get("obv_dir")
@@ -189,27 +188,27 @@ def _build_evidence(item: dict) -> str:
 
 def _compute_signal(item: dict) -> str:
     """
-    Synthetic signal based on momentum score + DMA200 + OBV direction.
-    Modify thresholds here to tweak the logic.
-      BUY   : momentum > 0.05  AND DMA200 above  AND OBV not distributing
-      AVOID : momentum < -0.05  OR  DMA200 below + OBV distributing
+    Synthetic BUY/WATCH/AVOID built from independent documented signals
+    (no composite score):
+
+      BUY   : 3M return > +5%  AND  DMA200 above  AND  OBV not distributing
+      AVOID : 3M return < −5%  OR  (DMA200 below AND OBV distributing)
       WATCH : otherwise
-    The previous version also required a positive 'sentiment_score' (composite
-    MFI/OBV/DMA200). That composite has been retired — the same information now
-    enters via DMA + OBV explicitly, no arbitrary 40/30/30 weighting.
+
+    3M return is the trader's de-facto medium-term trend (cf. AQR Momentum
+    12-1 month signal — same family, shorter horizon).
     """
-    score = item.get("score")
+    r3    = item.get("ret_3m")
     above = item.get("above_dma200")
     obv   = item.get("obv_dir")
 
-    if score is None:
+    if r3 is None:
         return "N/A"
 
     distributing = (obv == -1)
-    accumulating = (obv == 1)
 
-    if score > 0.05 and above == 1 and not distributing:
+    if r3 > 0.05 and above == 1 and not distributing:
         return "BUY"
-    if score < -0.05 or (above == 0 and distributing):
+    if r3 < -0.05 or (above == 0 and distributing):
         return "AVOID"
     return "WATCH"

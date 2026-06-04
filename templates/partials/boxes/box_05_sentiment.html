@@ -296,7 +296,7 @@
       r.label === "NEUTRAL"  ? "neutral" : "na");
     const parts = [];
     if(r.vix    != null) parts.push(`VIX ${r.vix}`);
-    if(r.curve  != null) parts.push(`Curve ${r.curve >= 0 ? "+" : ""}${r.curve}%`);
+    if(r.curve  != null) parts.push(`10Y-3M ${r.curve >= 0 ? "+" : ""}${r.curve}%`);
     if(r.hy_oas != null) parts.push(`HY ${r.hy_oas}bps`);
     rSub.textContent = parts.join(" · ");
   }
@@ -363,6 +363,14 @@
     if(cell.chg_pct != null){ const m = el("span"); m.innerHTML = `Today <b>${fmtPct(cell.chg_pct)}</b>`; meta.appendChild(m); }
     if(cell.dma_200 != null){ const m = el("span"); m.innerHTML = `DMA200 <b>${fmtNum(cell.dma_200)}</b>`; meta.appendChild(m); }
     if(cell.dma_50  != null){ const m = el("span"); m.innerHTML = `DMA50 <b>${fmtNum(cell.dma_50)}</b>`; meta.appendChild(m); }
+    // RVOL — relative volume vs 20-day average (>1.2 highlighted gold)
+    if(cell.rvol    != null){
+      const m = el("span");
+      const hot = cell.rvol > 1.2;
+      m.innerHTML = `RVOL <b style="${hot ? 'color:var(--gold)' : ''}">${cell.rvol.toFixed(2)}×</b>`;
+      m.title = "Relative Volume — today's volume vs 20-day average. >1.5 = elevated activity.";
+      meta.appendChild(m);
+    }
     v.appendChild(meta);
 
     // 3 signals detailed

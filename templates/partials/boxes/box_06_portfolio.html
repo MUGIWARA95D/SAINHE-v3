@@ -1,5 +1,8 @@
 <!-- ═══ BOX_06 — PORTFOLIO SCANNER ══════════════════════════ -->
-<!-- DATA: box_portfolio = {currency, tickers:[{ticker,nom,secteur,close,chg_pct,ret_1m,ret_3m,ret_6m,ret_1y,score,above_dma200,rvol,mfi,dma_200,signal,sparkline,ts_update}], total:int} -->
+<!-- DATA: box_portfolio = {currency, tickers:[{ticker,nom,secteur,close,chg_pct,ret_1m,ret_3m,ret_6m,ret_1y,above_dma200,rvol,mfi,dma_200,signal,sparkline,ts_update}], total:int} -->
+<!-- NOTE: the composite 'score' has been retired. Signal (BUY/WATCH/AVOID) is now -->
+<!--       derived from documented independent inputs (ret_3m + DMA200 + OBV) in   -->
+<!--       boxes/box_06_portfolio.py:_compute_signal().                            -->
 <style>
 /* ── Native currency badge — portfolio table ── */
 .cur-pill{
@@ -29,7 +32,6 @@
         <th class="pt-ret" data-sort="ret_1m" id="th-1m"></th>
         <th class="pt-ret" data-sort="ret_3m" id="th-3m"></th>
         <th class="pt-ret" data-sort="ret_1y" id="th-1y"></th>
-        <th data-sort="score" id="th-score"></th>
         <th class="pt-sig-parent" style="white-space:nowrap" id="th-momentum"><span id="pt-sig-btn" class="pt-sig-toggle"></span></th>
         <th class="pt-sig" data-sort="mfi" id="th-mfi"></th>
         <th class="pt-sig" data-sort="rvol" id="th-rvol"></th>
@@ -59,7 +61,6 @@
       "th-1m":       I18N.col_1m      ||"1M",
       "th-3m":       I18N.col_3m      ||"3M",
       "th-1y":       I18N.col_1y      ||"1Y",
-      "th-score":    I18N.col_score   ||"Score",
       "th-mfi":      I18N.col_mfi     ||"MFI",
       "th-rvol":     I18N.col_rvol    ||"RVOL",
       "th-dma200":   I18N.col_dma200  ||"DMA200"
@@ -67,16 +68,15 @@
     var colTips = {
       "th-price":  "Closing price in your selected display currency.",
       "th-1m":     "Total return over 1 month.",
-      "th-3m":     "Total return over 3 months.",
+      "th-3m":     "Total return over 3 months (default sort).",
       "th-1y":     "Total return over 1 year.",
-      "th-score":  "Composite momentum score (−1.0 to +1.0) — weighted average of 1M/3M/6M/1Y price returns in USD.",
       "th-mfi":    "Money Flow Index (14-day) — above 55 = accumulation zone, below 45 = distribution zone.",
       "th-rvol":   "Relative Volume — today's volume vs 20-day average. Above 1.5 = elevated activity.",
       "th-dma200": "200-day Moving Average position. 1 = price above DMA200 (bullish trend), 0 = below (bearish)."
     };
     var colRows = {
       "th-price":"pt-cols","th-1m":"pt-cols","th-3m":"pt-cols","th-1y":"pt-cols",
-      "th-score":"pt-score","th-mfi":"pt-cols","th-rvol":"pt-cols","th-dma200":"pt-cols"
+      "th-mfi":"pt-cols","th-rvol":"pt-cols","th-dma200":"pt-cols"
     };
     /* scope to #pt-table — th-price and th-rvol exist in both indices and portfolio */
     var ptTbl = document.getElementById("pt-table");
@@ -91,7 +91,7 @@
     var retBtn  = document.getElementById("pt-ret-btn");
     if(thToday && retBtn){
       Array.from(thToday.childNodes).forEach(function(n){ if(n.nodeType===3) n.remove(); });
-      thToday.insertBefore(document.createTextNode(todayLbl+" "), retBtn);
+      thToday.insertBefore(document.createTextNode(todayLbl+" "), retBtn);
       retBtn.title = I18N.toggle_returns||"Toggle 1M · 3M · 1Y";
       retBtn.textContent = "▸";
     }
@@ -99,7 +99,7 @@
     var sigBtn = document.getElementById("pt-sig-btn");
     if(thMom && sigBtn){
       Array.from(thMom.childNodes).forEach(function(n){ if(n.nodeType===3) n.remove(); });
-      thMom.insertBefore(document.createTextNode(momentumLbl+" "), sigBtn);
+      thMom.insertBefore(document.createTextNode(momentumLbl+" "), sigBtn);
       sigBtn.title = I18N.toggle_signals||"Toggle MFI · RVOL · DMA200";
       sigBtn.textContent = "▸";
     }
@@ -156,7 +156,6 @@
            (I18N.signal_na||"N/A");
   }
   function sigCls(s){return s==="BUY"?"sig-buy":s==="AVOID"?"sig-avoid":s==="WATCH"?"sig-watch":"sig-na";}
-  /* (removed sentColor — the composite sentiment_label has been retired) */
 
   /* ── sort state ─────────────────────────────────────────── */
   function getSortLabels(){
@@ -169,13 +168,13 @@
       ret_1m:  I18N.col_1m  ||"1M",
       ret_3m:  I18N.col_3m  ||"3M",
       ret_1y:  I18N.col_1y  ||"1Y",
-      score:   I18N.col_score||"Score",
       mfi:     I18N.col_mfi  ||"MFI",
       rvol:    I18N.col_rvol ||"RVOL",
       above_dma200: I18N.col_dma200||"DMA200"
     };
   }
-  let sortCol="score", sortDir=-1; /* default: score descending */
+  /* default sort: 3-month return descending (transparent, single documented signal) */
+  let sortCol="ret_3m", sortDir=-1;
 
   function sortedPort(){
     return PORT.slice().sort(function(a,b){
@@ -209,7 +208,7 @@
     var panelTr=document.createElement("tr");
     panelTr.className="pt-expand-row";
     var panelTd=panelTr.appendChild(document.createElement("td"));
-    panelTd.colSpan=13; panelTd.className="pt-expand-td";
+    panelTd.colSpan=12; panelTd.className="pt-expand-td";
     var inner=panelTd.appendChild(document.createElement("div"));
     inner.className="pt-expand-inner";
 
@@ -223,13 +222,13 @@
     var info=inner.appendChild(document.createElement("div"));
     info.className="pt-expand-info";
 
-    var sc=p.score;
     var dmaStr=p.above_dma200===1?"↑":p.above_dma200===0?"↓":"—";
     var mfiStr=p.mfi!=null?Math.round(p.mfi):"—";
     var rvolStr=p.rvol!=null?p.rvol.toFixed(2):"—";
     info.appendChild(mk("div","pt-expand-score",
-      (I18N.col_score||"Score")+": "+(sc!=null?(sc>=0?"+":"")+sc.toFixed(2):"—")+
-      " · "+(I18N.col_dma200||"DMA200")+": "+dmaStr+" · "+(I18N.col_mfi||"MFI")+": "+mfiStr+" · "+(I18N.col_rvol||"RVOL")+": "+rvolStr));
+      (I18N.col_dma200||"DMA200")+": "+dmaStr+
+      " · "+(I18N.col_mfi||"MFI")+": "+mfiStr+
+      " · "+(I18N.col_rvol||"RVOL")+": "+rvolStr));
     info.appendChild(mk("div","pt-expand-rets",
       (I18N.col_1m||"1M")+": "+pct(p.ret_1m)+" · "+(I18N.col_3m||"3M")+": "+pct(p.ret_3m)+" · "+(I18N.col_1y||"1Y")+": "+pct(p.ret_1y)));
 
@@ -253,17 +252,16 @@
     var el=document.getElementById("pt-anomalies");
     var alerts=[];
     PORT.forEach(function(p){
-      var pri=Math.abs(p.score||0)*(p.rvol||1);
+      var r3 = p.ret_3m;
+      /* priority = severity of 3M move × volume confirmation */
+      var pri = Math.abs(r3||0) * (p.rvol||1);
       var hhmm=tsHHMM(p.ts_update);
       if((p.rvol||0)>1.5)
         alerts.push({ticker:p.ticker,msg:(I18N.anomaly_vol_prefix||"Abnormal volume · RVOL: ")+p.rvol.toFixed(2)+"×",cls:"al-gold",hhmm:hhmm,pri:pri});
-      if(p.above_dma200===0&&(p.score||0)<-0.1)
+      if(p.above_dma200===0 && (r3||0) < -0.05)
         alerts.push({ticker:p.ticker,msg:I18N.anomaly_neg||"Negative momentum below DMA200",cls:"al-red",hhmm:hhmm,pri:pri});
-      if(p.above_dma200===1&&(p.score||0)>0.4)
+      if(p.above_dma200===1 && (r3||0) > 0.10)
         alerts.push({ticker:p.ticker,msg:I18N.anomaly_strong||"Strong signal above DMA200",cls:"al-green",hhmm:hhmm,pri:pri});
-      /* The 'Extreme Fear + BUY divergence' alert relied on sentiment_label,
-       * which has been retired. The DMA + OBV anomalies above already cover
-       * the meaningful divergences. */
     });
     clear(el);
     if(!alerts.length) return;
@@ -286,23 +284,24 @@
   function renderPulse(){
     var I18N=window.SAINHE_I18N||{};
     var el=document.getElementById("pt-pulse");
-    var valid=PORT.filter(function(p){return p.score!=null;});
-    var avg=valid.length?valid.reduce(function(s,p){return s+p.score;},0)/valid.length:null;
+    /* Average 3-month return across the watchlist — transparent, no composite */
+    var valid=PORT.filter(function(p){return p.ret_3m!=null;});
+    var avg3m=valid.length?valid.reduce(function(s,p){return s+p.ret_3m;},0)/valid.length:null;
     var above=PORT.filter(function(p){return p.above_dma200===1;}).length;
     var total=PORT.length;
     var up=PORT.filter(function(p){return p.signal==="BUY";}).length;
     var neut=PORT.filter(function(p){return p.signal==="WATCH";}).length;
     var dn=PORT.filter(function(p){return p.signal==="AVOID";}).length;
-    var avgColor=avg==null?"var(--muted)":avg>0?"var(--green)":"var(--red)";
-    var avgArrow=avg==null?"":avg>0?"▲ ":"▼ ";
+    var avgColor=avg3m==null?"var(--muted)":avg3m>0?"var(--green)":"var(--red)";
+    var avgArrow=avg3m==null?"":avg3m>0?"▲ ":"▼ ";
     var dmaRatio=total>0?above/total:0;
     var dmaColor=dmaRatio>0.6?"var(--green)":dmaRatio<0.4?"var(--red)":"var(--gold)";
     clear(el);
 
-    /* col 1 — avg score */
+    /* col 1 — avg 3M return */
     var c1=el.appendChild(document.createElement("div")); c1.className="pt-pulse-col";
-    c1.appendChild(mk("div","pt-pulse-lbl",I18N.pulse_avg_score||"Avg Score"));
-    var v1=c1.appendChild(mk("div","pt-pulse-val",avgArrow+(avg!=null?(avg>=0?"+":"")+avg.toFixed(2):"—")));
+    c1.appendChild(mk("div","pt-pulse-lbl",I18N.pulse_avg_3m||"Avg 3M"));
+    var v1=c1.appendChild(mk("div","pt-pulse-val",avgArrow+(avg3m!=null?pct(avg3m):"—")));
     v1.style.color=avgColor;
 
     /* col 2 — above dma200 */
@@ -366,7 +365,7 @@
     if(!sorted.length){
       var etr=tb.appendChild(document.createElement("tr"));
       var etd=etr.appendChild(document.createElement("td"));
-      etd.colSpan=13;
+      etd.colSpan=12;
       etd.style.cssText="padding:20px;color:var(--muted);text-align:center";
       etd.textContent=I18N.no_data_portfolio||"No watchlist data";
       return;
@@ -419,17 +418,10 @@
         td.className="pt-ret"+(v==null?"":(v>=0?" p-up":" p-dn"));
       });
 
-      /* col 9 — momentum score (weighted blend of ret_1m/3m/6m/1y) */
-      var sc=p.score;
-      var scTxt=sc!=null?(sc>=0?"+":"")+sc.toFixed(2):"—";
-      var scTd=tr.appendChild(mk("td",null,scTxt));
-      scTd.style.cssText="font-weight:600;color:"+(sc==null?"var(--muted)":sc>=0.1?"var(--green)":sc<=-0.1?"var(--red)":"var(--muted)");
-      scTd.title="Momentum score: weighted return blend (1M·20%, 3M·30%, 6M·30%, 1Y·20%)";
-
-      /* col 10 — momentum (renamed signal) */
+      /* col 9 — momentum signal (BUY/WATCH/AVOID — see _compute_signal in box_06) */
       tr.appendChild(mk("td")).appendChild(mk("span","sig "+sigCls(p.signal),sigLabel(p.signal)));
 
-      /* col 11 — MFI (collapsible) */
+      /* col 10 — MFI (collapsible) */
       var mfiTd=tr.appendChild(mk("td","pt-sig"));
       if(p.mfi!=null){
         var ms=mk("span",null,Math.round(p.mfi).toString());
@@ -437,7 +429,7 @@
         mfiTd.appendChild(ms);
       } else {mfiTd.textContent="—";mfiTd.style.color="var(--muted)";}
 
-      /* col 12 — RVOL (collapsible) */
+      /* col 11 — RVOL (collapsible) */
       var rvolTd=tr.appendChild(mk("td","pt-sig"));
       if(p.rvol!=null){
         var rs=mk("span",null,p.rvol.toFixed(2));
@@ -445,7 +437,7 @@
         rvolTd.appendChild(rs);
       } else {rvolTd.textContent="—";rvolTd.style.color="var(--muted)";}
 
-      /* col 13 — DMA200 arrow + distance (collapsible) */
+      /* col 12 — DMA200 arrow + distance (collapsible) */
       var dmaTd=tr.appendChild(mk("td","pt-sig"));
       if(p.above_dma200!=null){
         var upDma=p.above_dma200===1;
