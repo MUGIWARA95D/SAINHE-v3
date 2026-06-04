@@ -50,11 +50,14 @@
 #onb-ov.on #onb-hole{opacity:1}
 #onb-ov{position:fixed;inset:0;z-index:9390;display:none}
 #onb-ov.on{display:block}
+/* Fixed bottom-centre panel — never moves between steps */
 #onb-tip{
-  position:fixed;z-index:9500;max-width:320px;width:calc(100% - 32px);
+  position:fixed;z-index:9500;
+  bottom:24px;left:50%;transform:translateX(-50%);
+  width:calc(100% - 32px);max-width:420px;
   background:var(--card);border:1px solid var(--border);border-top:3px solid var(--gold);
   border-radius:10px;box-shadow:var(--shadow-md);padding:16px 18px;
-  font-family:var(--sans);transition:top .28s,left .28s,opacity .2s;opacity:0;
+  font-family:var(--sans);opacity:0;transition:opacity .2s;
 }
 #onb-ov.on #onb-tip{opacity:1}
 .onb-tip-step{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);font-weight:700}
@@ -67,8 +70,7 @@
 .onb-tip-btns{display:flex;gap:7px}
 
 @media(max-width:560px){
-  /* mobile: tooltip becomes a fixed bottom sheet, easier to read */
-  #onb-tip{left:16px!important;right:16px;top:auto!important;bottom:18px;max-width:none;width:auto}
+  #onb-tip{bottom:12px}
   #onb-bar{bottom:12px}
   .onb-bar-row{flex-direction:column;align-items:stretch}
   .onb-bar-actions{justify-content:flex-end}
@@ -217,21 +219,13 @@
       document.getElementById("onb-next").textContent = idx===active.length-1 ? "Done" : "Next";
       renderDots();
 
-      // position tooltip below target if room, else above (desktop; mobile uses CSS bottom sheet at <=700)
-      if(window.innerWidth > 700){
-        var th = tip.offsetHeight || 170, tw = tip.offsetWidth || 320;
-        var below = r.bottom + 14;
-        var top = (below + th < window.innerHeight) ? below : Math.max(14, r.top - th - 14);
-        var left = Math.min(Math.max(14, r.left), window.innerWidth - tw - 14);
-        tip.style.top = top + "px";
-        tip.style.left = left + "px";
-      }
+      // Tooltip is CSS-anchored to bottom-centre — no JS positioning needed.
     }
 
-    // Measure twice: once after the smooth-scroll, once a tick later in case
-    // a header animation or layout pass shifted things.
+    // Measure twice: once after smooth-scroll settles, once a tick later for
+    // any layout pass (header animation, sticky elements).
     setTimeout(paint, 280);
-    setTimeout(paint, 600);
+    setTimeout(paint, 520);
   }
   function next(){ if(idx >= active.length-1){ endTour(); } else { idx++; showStep(); } }
   function prev(){ if(idx > 0){ idx--; showStep(); } }
