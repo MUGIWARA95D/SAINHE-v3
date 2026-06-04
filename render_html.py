@@ -300,9 +300,68 @@ def write_data_layer(boxes_by_id: dict, ts_render: str) -> list[dict]:
         "  units map; records are flat. Missing values are null (never \"-\" or \"N/A\").",
         "- Dates are ISO 8601. Refresh cadence: news 5x/day, fx 2x/day, full pipeline nightly.",
         "",
+        "## Signal thresholds — do not invent values; read from macro.json",
+        "",
+        "The exact live values are always in macro.json. The thresholds below define regimes:",
+        "",
+        "### VIX (CBOE Volatility Index) — unit: index level",
+        "- < 12  : extreme complacency — tail risk structurally underpriced",
+        "- 12–15 : complacency zone — implied vol below historical norm",
+        "- 15–20 : normal range — orderly markets, no systemic stress",
+        "- 20–30 : elevated fear — risk-off rotation developing",
+        "- > 30  : panic zone — crisis consistent (GFC 2008 peak: 80, COVID 2020: 66)",
+        "",
+        "### ERP — Equity Risk Premium (unit: pct_points, e.g. 0.025 = 2.5%)",
+        "  Formula: earnings yield (1/P·E S&P 500) minus US 10Y treasury yield",
+        "- < 0%  : negative ERP — bonds outperform equities on risk-adjusted basis",
+        "- 0–1%  : very expensive — near CAPM break-even (Damodaran threshold)",
+        "- 1–2%  : modest premium — balanced allocation, no strong signal",
+        "- > 2%  : attractive — historically above-average forward equity returns",
+        "",
+        "### Yield Curve (10Y − 3M spread, unit: pct_points)",
+        "- ≥ +1.00 : steep — expansionary, low NY Fed recession probability",
+        "- 0 to +1 : flat — ambiguous, no confirmed recession signal",
+        "- −0.50 to 0 : partial inversion — caution; false positives exist (1998, 2019)",
+        "- < −0.50 : full inversion — ~70% preceded recession (1970–2023), lead 6–24 months",
+        "",
+        "### HY OAS — High-Yield Option-Adjusted Spread (unit: bps)",
+        "  US long-run average ~525bps; EM long-run average ~600bps",
+        "- < 260 bps : extreme compression — approaching pre-GFC lows (mid-2007 ~240bps)",
+        "- < 350 bps : tight — comparable to 2006–07, 2021 troughs; underpriced credit risk",
+        "- 350–500 bps : orderly — no systemic stress per Fed FSR framework",
+        "- 500–700 bps : stress — Fed FSR 'elevated vulnerability'",
+        "- > 700 bps : crisis — GFC peak 2000bps (2008), COVID 1100bps (2020)",
+        "",
+        "### CAPE — Shiller/Yale Cyclically Adjusted P/E (unit: ratio)",
+        "  Long-run mean: 17 (1881–present)",
+        "- ≤ 20  : near mean — forward 10Y real returns historically 8–10%",
+        "- 20–25 : modest premium — forward 10Y real returns 4–7%",
+        "- 25–34 : elevated — forward 10Y real returns compressed 0–4%",
+        "- > 34  : extreme — comparable to 1929 (33) and dot-com 2000 (44)",
+        "",
+        "### Portfolio signals (box_06)",
+        "  BUY   : ret_3m > +5%  AND price > DMA200  AND OBV not distributing",
+        "  AVOID : ret_3m < −5%  OR  (price < DMA200 AND OBV distributing)",
+        "  WATCH : all other cases",
+        "  MFI   : Money Flow Index (0–100); overbought > 60, oversold < 40",
+        "  RVOL  : Relative Volume vs 90-day avg; highlighted in gold when > 1.20",
+        "  OBV   : On-Balance Volume trend — accumulating / distributing / neutral",
+        "",
     ]
     (OUTPUT_DIR / "llms.txt").write_text("\n".join(lines), encoding="utf-8")
     log.info("llms.txt written")
+
+    # robots.txt — allow all crawlers, point AI agents to llms.txt
+    robots = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "\n"
+        "# AI agent entry point\n"
+        "# Machine-readable data catalogue: /data/index.json\n"
+        "# Signal thresholds and interpretation: /llms.txt\n"
+    )
+    (OUTPUT_DIR / "robots.txt").write_text(robots, encoding="utf-8")
+    log.info("robots.txt written")
 
     return manifest_entries
 
@@ -362,7 +421,9 @@ def render(currency: str = DEFAULT_CURRENCY):
     # ── 1. Dashboard ────────────────────────────────────────
     _render_page(env, "dashboard.html", OUTPUT_DIR / "index.html", {
         **base_ctx,
-        "current_page" : "dashboard",
+        "current_page"    : "dashboard",
+        "page_title"      : f"{SITE_NAME} — {SITE_SLOGAN}",
+        "page_description": "Live macro signals, global indices, sector rotation, sentiment and portfolio scan. VIX, ERP, yield curve, HY OAS, CAPE and more.",
         "page_nav"     : page_navs["dashboard"],
         "boxes"        : boxes,
         "box_macro"           : _data("box_01_macro"),
@@ -388,22 +449,28 @@ def render(currency: str = DEFAULT_CURRENCY):
     # ── 2. Stock Analysis ────────────────────────────────────
     _render_page(env, "stock-analysis.html", OUTPUT_DIR / "stock-analysis.html", {
         **base_ctx,
-        "current_page" : "stock-analysis",
-        "page_nav"     : page_navs["stock-analysis"],
+        "current_page"    : "stock-analysis",
+        "page_nav"        : page_navs["stock-analysis"],
+        "page_title"      : f"Stock Analysis — {SITE_NAME}",
+        "page_description": "Deep-dive stock analysis: fundamentals, technicals, and valuation context.",
     })
 
     # ── 3. Learn ─────────────────────────────────────────────
     _render_page(env, "learn.html", OUTPUT_DIR / "learn.html", {
         **base_ctx,
-        "current_page" : "learn",
-        "page_nav"     : page_navs["learn"],
+        "current_page"    : "learn",
+        "page_nav"        : page_navs["learn"],
+        "page_title"      : f"Learn — {SITE_NAME}",
+        "page_description": "How to read the dashboard: signal thresholds, column definitions, and interpretation guides for all 6 data boxes.",
     })
 
     # ── 4. Contact ───────────────────────────────────────────
     _render_page(env, "contact.html", OUTPUT_DIR / "contact.html", {
         **base_ctx,
-        "current_page" : "contact",
-        "page_nav"     : page_navs["contact"],
+        "current_page"    : "contact",
+        "page_nav"        : page_navs["contact"],
+        "page_title"      : f"Contact — {SITE_NAME}",
+        "page_description": f"Contact {SITE_NAME} — feedback, data corrections, and partnership inquiries.",
     })
 
     con.close()

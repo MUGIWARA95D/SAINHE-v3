@@ -1,8 +1,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>{{ site_name }}</title>
-  <meta name="description" content="{{ site_name }} — {{ site_slogan }}. Macro signals, global indices, sector valuation, rotation heatmap, portfolio scan.">
+  <title>{{ page_title | default(site_name) }}</title>
+  <meta name="description" content="{{ page_description | default(site_name ~ ' — ' ~ site_slogan ~ '. Macro signals, global indices, sector valuation, rotation heatmap, portfolio scan.') }}">
+  <meta property="og:title" content="{{ page_title | default(site_name) }}">
+  <meta property="og:description" content="{{ page_description | default(site_slogan) }}">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{{ page_title | default(site_name) }}">
+  <meta name="twitter:description" content="{{ page_description | default(site_slogan) }}">
 
   <!-- JSON-LD: machine-readable dataset catalog for AI agents & crawlers -->
   <script type="application/ld+json">
@@ -14,8 +20,13 @@
     "creator": {"@type": "Organization", "name": "{{ site_name }}"},
     "isAccessibleForFree": true,
     "distribution": [
-      {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": "/data/index.json", "name": "Dataset manifest"},
-      {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": "/data/macro.json", "name": "Macro indicators"}
+      {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": "/data/index.json", "name": "Dataset manifest — start here"},
+      {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": "/data/macro.json", "name": "Macro indicators (VIX, ERP, yield curve, DXY, HY OAS, CAPE, global liquidity)"},
+      {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": "/data/indices.json", "name": "Global equity indices (price, return, trend)"},
+      {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": "/data/news.json", "name": "Financial news headlines"},
+      {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": "/data/sectors.json", "name": "US sector valuation and momentum"},
+      {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": "/data/sentiment.json", "name": "Market sentiment indicators"},
+      {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": "/data/portfolio.json", "name": "Portfolio watchlist scan (price, signals, momentum)"}
     ]
   }
   </script>
@@ -428,6 +439,14 @@ a.news-hl:hover{color:var(--gold)}
   font-variant-numeric:tabular-nums;letter-spacing:.5px}
 @media(max-width:720px){.hero{padding:36px 22px 32px;margin:14px 0 22px}
   .hero-lede{font-size:13.5px;margin-bottom:22px}}
+[data-theme="dark"] .hero-eyebrow{color:var(--gold);background:rgba(212,168,64,.12);border-color:rgba(212,168,64,.3)}
+[data-theme="dark"] .hero-dot{background:var(--gold)}
+[data-theme="dark"] .hero-title{color:var(--h)}
+[data-theme="dark"] .hero-title em{color:var(--gold)}
+[data-theme="dark"] .hero-lede{color:rgba(208,192,164,.75)}
+[data-theme="dark"] .hero-chip{color:var(--p);background:rgba(212,168,64,.09);border-color:rgba(212,168,64,.22)}
+[data-theme="dark"] .hero-chip:hover{color:var(--h);background:rgba(212,168,64,.16);border-color:var(--gold)}
+[data-theme="dark"] .hero-chip span{color:var(--gold);background:rgba(212,168,64,.14)}
 
 /* ══════ STATEMENT BAR ════════════════════════════════════════ */
 .statement-bar{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
@@ -937,6 +956,21 @@ a.news-hl:hover{color:var(--gold)}
   .mm-tip-wiki{font-size:.92rem;padding:.55rem 1.05rem;margin-top:2px}
   .mm-tip-close{font-size:1.5rem;padding:6px 11px;top:8px;right:10px}
 }
+/* ── Finance Mindmap dark mode ──────────────────────────── */
+[data-theme="dark"] #mm-wrap{background:var(--card);border-color:var(--border)}
+[data-theme="dark"] #mm-bar{background:var(--card-alt);border-bottom-color:var(--border-lt)}
+[data-theme="dark"] #mm-zoom-btns button{background:var(--card);border-color:var(--border);color:var(--p)}
+[data-theme="dark"] #mm-zoom-btns button:hover{background:var(--hover);border-color:var(--gold);color:var(--gold)}
+[data-theme="dark"] #mm-legend{background:var(--card-alt);border-top-color:var(--border-lt);color:var(--muted)}
+[data-theme="dark"] #mm-tip{background:var(--card);border-color:var(--border);color:var(--p)}
+[data-theme="dark"] #mm-tip.mm-tip-pinned{border-color:var(--gold-border)}
+[data-theme="dark"] .mm-tip-close{color:var(--muted)}
+[data-theme="dark"] .mm-tip-close:hover{color:var(--p);background:var(--hover)}
+[data-theme="dark"] .mm-tip-type{color:var(--muted)}
+[data-theme="dark"] .mm-tip-label{color:var(--h)}
+[data-theme="dark"] .mm-tip-desc{color:var(--p)}
+[data-theme="dark"] .mm-tip-wiki{color:var(--gold);background:var(--gold-bg);border-color:var(--gold-border)}
+[data-theme="dark"] .mm-tip-wiki:hover{background:rgba(212,168,64,.16);border-color:var(--gold)}
 /* ── Box Info Button (ⓘ — coin haut-droit du band) ─────── */
 .bib-wrap{position:absolute;top:20px;right:20px;z-index:100}
 .box-info-btn{background:none;border:1.5px solid rgba(196,149,90,.5);cursor:pointer;font-size:11px;
