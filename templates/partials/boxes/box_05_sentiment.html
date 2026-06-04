@@ -242,13 +242,13 @@
   function fmtPct(v, d){ if(v==null||!isFinite(v)) return "—"; const p = v*100; return (p>=0?"+":"") + p.toFixed(d==null?1:d) + "%"; }
   function fmtScore(v){ if(v==null||!isFinite(v)) return "—"; return (v>=0?"+":"") + v.toFixed(2); }
   function fmtNum(v, d){ if(v==null||!isFinite(v)) return "—"; return Number(v).toFixed(d==null?2:d); }
-  function fmtObv(v){
+  function fmtVol(v){
     if(v==null||!isFinite(v)) return "—";
-    const abs=Math.abs(v), sign=v<0?"−":"";
-    if(abs>=1e9) return sign+(abs/1e9).toFixed(2)+"B";
-    if(abs>=1e6) return sign+(abs/1e6).toFixed(2)+"M";
-    if(abs>=1e3) return sign+(abs/1e3).toFixed(1)+"K";
-    return sign+Math.round(abs);
+    const abs=Math.abs(v);
+    if(abs>=1e9) return (abs/1e9).toFixed(2)+"B";
+    if(abs>=1e6) return (abs/1e6).toFixed(2)+"M";
+    if(abs>=1e3) return (abs/1e3).toFixed(1)+"K";
+    return Math.round(abs).toString();
   }
   // Pretty label for the timeframe sub-text ("vs 1 month ago" / "vs 6 months ago" …)
   function tfWindowLabel(tf){
@@ -415,7 +415,7 @@
       sigs.appendChild(b);
     }
 
-    // ── OBV — direction + raw current and 90d-ago values ──
+    // ── OBV — direction + avg daily volume now vs 90d ago ──
     {
       const kind = cell.obv_signal === "accumulation" ? "up" : cell.obv_signal === "distribution" ? "dn" : "";
       const b = el("div", "sm-v-sig " + kind);
@@ -424,13 +424,20 @@
         cell.obv_signal === "accumulation" ? "ACCUM." :
         cell.obv_signal === "distribution" ? "DISTRIB." :
         cell.obv_signal === "neutral"      ? "NEUTRAL" : "N/A"));
-      if(cell.obv_cur != null || cell.obv_90d != null){
-        const parts = [];
-        if(cell.obv_cur != null) parts.push(`Now: ${fmtObv(cell.obv_cur)}`);
-        if(cell.obv_90d != null) parts.push(`90d: ${fmtObv(cell.obv_90d)}`);
-        b.appendChild(el("div", "raw", parts.join(" · ")));
+      if(cell.vol_cur != null || cell.vol_90d != null){
+        let txt = "";
+        if(cell.vol_cur != null && cell.vol_90d != null){
+          const pct = ((cell.vol_cur - cell.vol_90d) / cell.vol_90d * 100);
+          const sign = pct >= 0 ? "+" : "";
+          txt = `${fmtVol(cell.vol_cur)}/j · 90d: ${fmtVol(cell.vol_90d)} (${sign}${pct.toFixed(0)}%)`;
+        } else if(cell.vol_cur != null){
+          txt = `Vol/j: ${fmtVol(cell.vol_cur)}`;
+        } else {
+          txt = `90d: ${fmtVol(cell.vol_90d)}/j`;
+        }
+        b.appendChild(el("div", "raw", txt));
       }
-      b.appendChild(el("div", "sub", "smart-money flow"));
+      b.appendChild(el("div", "sub", "vol moy/j · 90j ago"));
       sigs.appendChild(b);
     }
 

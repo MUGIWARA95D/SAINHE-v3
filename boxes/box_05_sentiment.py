@@ -100,24 +100,20 @@ def _fetch_rperf_latest(con: sqlite3.Connection) -> dict:
 
 def _fetch_indicator_history(con: sqlite3.Connection, tickers: list) -> dict:
     """
-    Returns {ticker: {obv_cur, mfi_50d, obv_90d}} — raw MFI and OBV values
-    from the metrics table at three horizons so the verso can show the user
-    the actual numbers to compare against today:
-      obv_cur  — latest raw OBV (snapshot only stores the obv_dir flag)
-      mfi_50d  — MFI value closest to 50 calendar days ago
-      obv_90d  — raw OBV value closest to 90 calendar days ago
+    Returns {ticker: {mfi_50d, vol_cur, vol_90d}}.
+
+    mfi_50d  — MFI value closest to 50 calendar days ago (metrics table).
+    vol_cur  — average daily volume over the last ~10 trading days (prices table).
+    vol_90d  — average daily volume in a 10-day window centred on 90 days ago.
+
+    Note: raw cumulative OBV values were dropped — they are arbitrary
+    cumulative sums that vary wildly across tickers and are meaningless in
+    absolute terms. Average daily volume from prices is always populated,
+    directly comparable across dates, and intuitively readable.
     """
     if not tickers:
         return {}
     ph = ",".join("?" * len(tickers))
-
-    cur_rows = con.execute(f"""
-        SELECT ticker, obv FROM (
-            SELECT ticker, obv,
-                   ROW_NUMBER() OVER (PARTITION BY ticker ORDER BY date DESC) AS rn
-            FROM metrics WHERE ticker IN ({ph})
-        ) WHERE rn = 1
-    """, tickers).fetchall()
 
     mfi_rows = con.execute(f"""
         SELECT ticker, mfi FROM (
@@ -128,25 +124,37 @@ def _fetch_indicator_history(con: sqlite3.Connection, tickers: list) -> dict:
         ) WHERE rn = 1
     """, tickers).fetchall()
 
-    obv_rows = con.execute(f"""
-        SELECT ticker, obv FROM (
-            SELECT ticker, obv,
-                   ROW_NUMBER() OVER (PARTITION BY ticker ORDER BY date DESC) AS rn
-            FROM metrics
-            WHERE ticker IN ({ph}) AND date <= date('now', '-90 days')
-        ) WHERE rn = 1
+    # Last ~10 trading days ≈ 14 calendar days
+    vol_cur_rows = con.execute(f"""
+        SELECT ticker, ROUND(AVG(volume)) AS vol_cur
+        FROM prices
+        WHERE ticker IN ({ph})
+          AND date >= date('now', '-14 days')
+          AND volume IS NOT NULL
+        GROUP BY ticker
     """, tickers).fetchall()
 
-    result = {t: {"obv_cur": None, "mfi_50d": None, "obv_90d": None} for t in tickers}
-    for ticker, obv in cur_rows:
-        if ticker in result:
-            result[ticker]["obv_cur"] = obv
+    # ~10 trading days centred on 90 calendar days ago (window: 83–97 days ago)
+    vol_90d_rows = con.execute(f"""
+        SELECT ticker, ROUND(AVG(volume)) AS vol_90d
+        FROM prices
+        WHERE ticker IN ({ph})
+          AND date >= date('now', '-97 days')
+          AND date <= date('now', '-83 days')
+          AND volume IS NOT NULL
+        GROUP BY ticker
+    """, tickers).fetchall()
+
+    result = {t: {"mfi_50d": None, "vol_cur": None, "vol_90d": None} for t in tickers}
     for ticker, mfi in mfi_rows:
         if ticker in result:
             result[ticker]["mfi_50d"] = mfi
-    for ticker, obv in obv_rows:
+    for ticker, vol in vol_cur_rows:
         if ticker in result:
-            result[ticker]["obv_90d"] = obv
+            result[ticker]["vol_cur"] = vol
+    for ticker, vol in vol_90d_rows:
+        if ticker in result:
+            result[ticker]["vol_90d"] = vol
     return result
 
 
@@ -260,8 +268,8 @@ def _fetch_grid(con: sqlite3.Connection) -> dict:
                 "rvol_dir" : snap.get("rvol_dir"),
                 # Raw historical values for the verso comparison rows
                 "mfi_50d"  : hist.get(ticker, {}).get("mfi_50d"),
-                "obv_cur"  : hist.get(ticker, {}).get("obv_cur"),
-                "obv_90d"  : hist.get(ticker, {}).get("obv_90d"),
+                "vol_cur"  : hist.get(ticker, {}).get("vol_cur"),
+                "vol_90d"  : hist.get(ticker, {}).get("vol_90d"),
                 "ts_update": snap.get("ts_update"),
             }
     return grid

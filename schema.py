@@ -109,7 +109,7 @@ SENTIMENT_UNITS = {
     "alpha_1m": "pct", "alpha_3m": "pct", "alpha_6m": "pct", "alpha_1y": "pct",
     "ret_1m": "pct", "ret_3m": "pct", "ret_6m": "pct", "ret_1y": "pct",
     "mfi_value": "index_0_100", "mfi_50d": "index_0_100",
-    "obv_cur": "cumulative_volume", "obv_90d": "cumulative_volume",
+    "vol_cur": "shares", "vol_90d": "shares",
     "dma_signal": "category", "mfi_signal": "category", "obv_signal": "category",
     "close": "native_ccy", "chg_pct": "pct",
     "rvol": "ratio",
