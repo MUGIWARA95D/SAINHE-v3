@@ -398,7 +398,7 @@
       const kind = cell.dma_signal === "above" ? "up" : cell.dma_signal === "below" ? "dn" : "";
       const b = el("div", "sm-v-sig " + kind);
       const dmaTag = el("div", "tag", "DMA200");
-      if(window._ci) dmaTag.appendChild(window._ci("200-day moving average — structural long-term trend signal.", 'rotation', 'rot-signals'));
+      if(window._ci) dmaTag.appendChild(window._ci("200-day moving average — structural trend. Above DMA200 = long-term uptrend, short-term alpha has backing. Below = downtrend, alpha gains are less reliable.", 'rotation', 'rot-signals'));
       b.appendChild(dmaTag);
       b.appendChild(el("div", "val", cell.dma_signal === "above" ? "ABOVE" : cell.dma_signal === "below" ? "BELOW" : "N/A"));
       b.appendChild(el("div", "sub", "200-day trend"));
@@ -410,7 +410,7 @@
       const kind = cell.mfi_signal === "overbought" ? "warn" : cell.mfi_signal === "oversold" ? "up" : "";
       const b = el("div", "sm-v-sig " + kind);
       const mfiTag = el("div", "tag", "MFI 50d");
-      if(window._ci) mfiTag.appendChild(window._ci("Money Flow Index (14d) — current value vs 50 days ago. Rising MFI = building buying pressure.", 'rotation', 'rot-signals'));
+      if(window._ci) mfiTag.appendChild(window._ci("Money Flow Index (14d): >70 overbought · <30 oversold. Compare current vs '50d ago' — rising MFI = buying pressure building. Falling MFI = flow fading even if price still looks strong.", 'rotation', 'rot-signals'));
       b.appendChild(mfiTag);
       b.appendChild(el("div", "val", cell.mfi_value != null ? String(Math.round(cell.mfi_value)) : "N/A"));
       if(cell.mfi_50d != null){
@@ -431,7 +431,7 @@
       const kind = cell.obv_signal === "accumulation" ? "up" : cell.obv_signal === "distribution" ? "dn" : "";
       const b = el("div", "sm-v-sig " + kind);
       const obvTag = el("div", "tag", "OBV 90d");
-      if(window._ci) obvTag.appendChild(window._ci("On-Balance Volume direction — avg daily volume now vs 90 days ago. Volume expansion confirms the flow.", 'rotation', 'rot-signals'));
+      if(window._ci) obvTag.appendChild(window._ci("On-Balance Volume (20d): Accumulation = volume heavier on up-days. Distribution = heavier on down-days. Compare avg daily volume now vs 90d ago — expansion confirms the flow, contraction questions it.", 'rotation', 'rot-signals'));
       b.appendChild(obvTag);
       b.appendChild(el("div", "val",
         cell.obv_signal === "accumulation" ? "ACCUM." :
@@ -702,9 +702,9 @@
   // (i) badges — Breadth and Regime hero labels
   if(window._ci){
     const bLbl = document.querySelector("#sm-hero .sm-hero-block:first-child .sm-hero-label");
-    if(bLbl) bLbl.appendChild(window._ci("% of sector ETFs trading above their 200-day moving average — market participation indicator.", 'rotation', 'rot-breadth'));
+    if(bLbl) bLbl.appendChild(window._ci("Market participation — % of all sector ETFs above their 200-day average. Healthy ≥60% · Narrowing 40–60% · Risk-off <40%. A rally on narrow breadth often precedes a correction.", 'rotation', 'rot-breadth'));
     const rLbl = document.querySelector("#sm-hero .sm-hero-block:nth-child(2) .sm-hero-label");
-    if(rLbl) rLbl.appendChild(window._ci("Risk-On / Neutral / Risk-Off — derived from VIX, yield curve (10Y-3M), and HY credit spreads.", 'rotation', 'rot-regime'));
+    if(rLbl) rLbl.appendChild(window._ci("Macro regime from 3 inputs: VIX, 10Y-3M yield curve, HY OAS. Risk-On requires all three (VIX<20, curve>0, HY<400bps). Risk-Off triggers on any extreme (VIX>30 or HY>600bps). Cyclical sectors carry less weight in Risk-Off.", 'rotation', 'rot-regime'));
   }
 })();
 </script>
