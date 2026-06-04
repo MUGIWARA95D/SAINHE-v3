@@ -1345,7 +1345,7 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
       a.classList.toggle("active", a.getAttribute("href") === "#" + id);
     });
   };
-  const sectionIds = ["learn-dashboard","learn-stockanalysis"];
+  const sectionIds = ["learn-whyfinance","learn-guidelines","learn-mindmap","learn-dashboard","learn-stockanalysis"];
   const sections = sectionIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
 
   const obs = new IntersectionObserver(function(entries){

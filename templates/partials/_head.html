@@ -880,6 +880,7 @@ a.news-hl:hover{color:var(--gold)}
 /* dark mode: undo creme overrides — base lrn-* colors are already dark-friendly */
 [data-theme="dark"] .sec-creme .lrn-toc-label{color:rgba(196,149,90,.8)}
 [data-theme="dark"] .sec-creme .lrn-toc-link{border-color:rgba(196,149,90,.18);color:rgba(196,149,90,.65);background:none}
+[data-theme="dark"] .sec-creme .lrn-btn-flash{animation:lrn-flash 1.1s ease 2}
 [data-theme="dark"] .sec-creme .lrn-toc-link:hover,[data-theme="dark"] .sec-creme .lrn-toc-link.active{border-color:#C4955A;color:#C4955A;background:rgba(196,149,90,.12)}
 [data-theme="dark"] .sec-creme .lrn-panel-hdr{border-bottom-color:rgba(196,149,90,.18)}
 [data-theme="dark"] .sec-creme .lrn-panel-num{background:rgba(196,149,90,.15);border-color:rgba(196,149,90,.3);color:#C4955A}
@@ -1113,6 +1114,10 @@ a.news-hl:hover{color:var(--gold)}
 @keyframes lrn-flash{0%,100%{border-color:rgba(196,149,90,.18);background:none;color:rgba(245,232,208,.5)}
   35%,65%{border-color:#C4955A;background:rgba(196,149,90,.22);color:#C4955A}}
 .lrn-btn-flash{animation:lrn-flash 1.1s ease 2}
+/* sec-creme variant: 0%/100% use dark text so button stays visible on cream bg */
+@keyframes lrn-flash-creme{0%,100%{border-color:rgba(62,32,12,.16);background:rgba(62,32,12,.03);color:rgba(62,32,12,.6)}
+  35%,65%{border-color:#9E7A2E;background:rgba(158,122,46,.22);color:#9E7A2E}}
+.sec-creme .lrn-btn-flash{animation:lrn-flash-creme 1.1s ease 2}
 /* ── Learn panel flash (fallback — whole panel) ─────────────── */
 @keyframes lrn-panel-flash{0%,100%{box-shadow:none}
   35%,65%{box-shadow:0 0 0 3px rgba(196,149,90,.55),0 0 28px rgba(196,149,90,.18)}}
