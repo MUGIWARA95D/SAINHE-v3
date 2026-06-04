@@ -144,6 +144,25 @@
   }
   .rc-arrow-btn:not(:disabled):active{color:var(--gold);border-color:var(--gold)}
   .rc-arrow-btn:disabled{opacity:.2;pointer-events:none}
+  /* US Signal Cards carousel */
+  .macro-grid{
+    flex-wrap:nowrap;
+    overflow-x:scroll;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    gap:0;padding:10px 0 12px;
+  }
+  .macro-grid::-webkit-scrollbar{display:none}
+  .mc{
+    flex:0 0 100%;min-width:0;
+    scroll-snap-align:start;
+    border-radius:0;border-left:none;
+    border-top:3px solid var(--border-lt);
+  }
+  .mc.sig-g{border-top-color:var(--green-border)}
+  .mc.sig-r{border-top-color:var(--red-border)}
+  .mc.sig-y{border-top-color:var(--orange-border)}
 }
 </style>
 
@@ -691,6 +710,56 @@
       null, tipsSC,tipsLabel,
       "FRED DFII10: nominal 10Y minus inflation breakeven. Positive = rates above inflation.","realrates");
   }
+
+  // ── Mobile carousel nav for US Signal Cards ──────────────────────────────
+  (function(){
+    var mcCards = Array.from(grid.querySelectorAll(".mc"));
+    var n = mcCards.length;
+    if(!n) return;
+    var nav = document.createElement("div");
+    nav.className = "rc-nav";
+    var prevBtn = document.createElement("button");
+    prevBtn.className = "rc-arrow-btn"; prevBtn.textContent = "‹"; prevBtn.disabled = true;
+    var dotsWrap = document.createElement("div");
+    dotsWrap.className = "rc-dots";
+    var nextBtn = document.createElement("button");
+    nextBtn.className = "rc-arrow-btn"; nextBtn.textContent = "›";
+    nav.appendChild(prevBtn); nav.appendChild(dotsWrap); nav.appendChild(nextBtn);
+    var dots = mcCards.map(function(c, i){
+      var d = document.createElement("span");
+      d.className = "rc-dot" + (i === 0 ? " active" : "");
+      d.dataset.idx = i;
+      dotsWrap.appendChild(d);
+      return d;
+    });
+    function activateDot(idx){
+      dots.forEach(function(d, i){ d.classList.toggle("active", i === idx); });
+      prevBtn.disabled = (idx === 0);
+      nextBtn.disabled = (idx === n - 1);
+    }
+    function goTo(idx){
+      var w = grid.offsetWidth;
+      if(w) grid.scrollTo({left: idx * w, behavior: "smooth"});
+    }
+    grid.addEventListener("scroll", function(){
+      var w = grid.offsetWidth;
+      if(!w) return;
+      activateDot(Math.round(grid.scrollLeft / w));
+    }, {passive: true});
+    prevBtn.addEventListener("click", function(){
+      var cur = dots.findIndex(function(d){ return d.classList.contains("active"); });
+      goTo(Math.max(0, cur - 1));
+    });
+    nextBtn.addEventListener("click", function(){
+      var cur = dots.findIndex(function(d){ return d.classList.contains("active"); });
+      goTo(Math.min(n - 1, cur + 1));
+    });
+    dotsWrap.addEventListener("click", function(e){
+      var d = e.target.closest(".rc-dot");
+      if(d) goTo(+d.dataset.idx);
+    });
+    grid.insertAdjacentElement("afterend", nav);
+  })();
 
   }; /* end _sainheRenderMacro */
   window._sainheRenderMacro();
