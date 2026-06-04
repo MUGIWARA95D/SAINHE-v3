@@ -160,7 +160,10 @@ def build_page_navs() -> dict:
             {"href": "#learn-stockanalysis", "label": "Stock Analysis"},
         ],
         "contact": [
-            {"href": "#contact-form", "label": "Get in Touch"},
+            {"href": "#ct-about",   "label": "About"},
+            {"href": "#ct-story",   "label": "Story"},
+            {"href": "#ct-reach",   "label": "Reach"},
+            {"href": "#ct-roadmap", "label": "Roadmap"},
         ],
     }
 
