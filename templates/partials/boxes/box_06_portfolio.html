@@ -10,6 +10,16 @@
   padding:1px 5px;border-radius:3px;letter-spacing:.2px;
   margin-left:4px;vertical-align:middle;white-space:nowrap;
 }
+/* ── Portfolio preview / expand toggle ── */
+.pt-row-hidden{display:none}
+.pt-toggle-row{cursor:pointer}
+.pt-toggle-td{
+  text-align:center;padding:10px 16px;
+  font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--gold);border-top:1px solid var(--border-lt);
+  user-select:none;transition:background .15s;
+}
+.pt-toggle-row:hover .pt-toggle-td{background:rgba(196,149,90,.06)}
 </style>
 <section class="card" id="box-portfolio">
   <div class="card-h">
@@ -48,6 +58,9 @@
 
   /* sparkline registry — destroyed before re-render */
   var ptSparks = {};
+
+  var PT_PREVIEW  = 12;   /* rows visible before expand */
+  var ptExpanded  = false;
 
   /* ── i18n column headers ────────────────────────────────── */
   function setColHeaders(){
@@ -452,6 +465,27 @@
         }
       } else {dmaTd.textContent="—";dmaTd.style.color="var(--muted)";}
     });
+
+    /* ── Preview collapse: hide rows beyond PT_PREVIEW ─────── */
+    if(sorted.length > PT_PREVIEW){
+      Array.from(tb.rows).forEach(function(tr, i){
+        tr.classList.toggle("pt-row-hidden", !ptExpanded && i >= PT_PREVIEW);
+      });
+      var ttr = tb.appendChild(document.createElement("tr"));
+      ttr.className = "pt-toggle-row";
+      var ttd = ttr.appendChild(document.createElement("td"));
+      ttd.colSpan = 12; ttd.className = "pt-toggle-td";
+      var hiddenN = sorted.length - PT_PREVIEW;
+      ttd.textContent = ptExpanded
+        ? (I18N.pt_collapse || "▲  Show less")
+        : (I18N.pt_expand   || "▾  Show " + hiddenN + " more");
+      ttr.addEventListener("click", function(){
+        ptExpanded = !ptExpanded;
+        renderTable();
+        if(retCollapsed) ptTable.classList.add("pt-ret-collapsed");
+        if(sigCollapsed)  ptTable.classList.add("pt-sig-collapsed");
+      });
+    }
 
     /* render mini sparklines after DOM is ready */
     sorted.forEach(function(p){
