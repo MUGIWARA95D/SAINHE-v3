@@ -98,6 +98,58 @@ def _fetch_rperf_latest(con: sqlite3.Connection) -> dict:
     return {(r[0], r[1]): {"1m": r[2], "3m": r[3], "6m": r[4], "1y": r[5]} for r in rows}
 
 
+def _fetch_indicator_history(con: sqlite3.Connection, tickers: list) -> dict:
+    """
+    Returns {ticker: {obv_cur, mfi_50d, obv_90d}} — raw MFI and OBV values
+    from the metrics table at three horizons so the verso can show the user
+    the actual numbers to compare against today:
+      obv_cur  — latest raw OBV (snapshot only stores the obv_dir flag)
+      mfi_50d  — MFI value closest to 50 calendar days ago
+      obv_90d  — raw OBV value closest to 90 calendar days ago
+    """
+    if not tickers:
+        return {}
+    ph = ",".join("?" * len(tickers))
+
+    cur_rows = con.execute(f"""
+        SELECT ticker, obv FROM (
+            SELECT ticker, obv,
+                   ROW_NUMBER() OVER (PARTITION BY ticker ORDER BY date DESC) AS rn
+            FROM metrics WHERE ticker IN ({ph})
+        ) WHERE rn = 1
+    """, tickers).fetchall()
+
+    mfi_rows = con.execute(f"""
+        SELECT ticker, mfi FROM (
+            SELECT ticker, mfi,
+                   ROW_NUMBER() OVER (PARTITION BY ticker ORDER BY date DESC) AS rn
+            FROM metrics
+            WHERE ticker IN ({ph}) AND date <= date('now', '-50 days')
+        ) WHERE rn = 1
+    """, tickers).fetchall()
+
+    obv_rows = con.execute(f"""
+        SELECT ticker, obv FROM (
+            SELECT ticker, obv,
+                   ROW_NUMBER() OVER (PARTITION BY ticker ORDER BY date DESC) AS rn
+            FROM metrics
+            WHERE ticker IN ({ph}) AND date <= date('now', '-90 days')
+        ) WHERE rn = 1
+    """, tickers).fetchall()
+
+    result = {t: {"obv_cur": None, "mfi_50d": None, "obv_90d": None} for t in tickers}
+    for ticker, obv in cur_rows:
+        if ticker in result:
+            result[ticker]["obv_cur"] = obv
+    for ticker, mfi in mfi_rows:
+        if ticker in result:
+            result[ticker]["mfi_50d"] = mfi
+    for ticker, obv in obv_rows:
+        if ticker in result:
+            result[ticker]["obv_90d"] = obv
+    return result
+
+
 def _fetch_grid(con: sqlite3.Connection) -> dict:
     """
     Returns {region: {sector: cell_dict}}. Cells with no ETF coverage (e.g.
@@ -128,6 +180,9 @@ def _fetch_grid(con: sqlite3.Connection) -> dict:
             "rvol", "rvol_dir",
             "ts_update"]
     snap_by_ticker = {r[0]: dict(zip(cols, r)) for r in rows}
+
+    # Raw historical values for MFI/OBV comparison displayed in the 3×3 verso
+    hist = _fetch_indicator_history(con, list(snap_by_ticker.keys()))
 
     grid = {r: {} for r in REGIONS}
     for sector in SECTORS:
@@ -203,6 +258,10 @@ def _fetch_grid(con: sqlite3.Connection) -> dict:
                 # RVOL — relative volume vs 20-day average (standard liquidity gauge)
                 "rvol"     : snap.get("rvol"),
                 "rvol_dir" : snap.get("rvol_dir"),
+                # Raw historical values for the verso comparison rows
+                "mfi_50d"  : hist.get(ticker, {}).get("mfi_50d"),
+                "obv_cur"  : hist.get(ticker, {}).get("obv_cur"),
+                "obv_90d"  : hist.get(ticker, {}).get("obv_90d"),
                 "ts_update": snap.get("ts_update"),
             }
     return grid

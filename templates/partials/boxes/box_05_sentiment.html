@@ -113,7 +113,7 @@
 .sm-cell.zoomed .sm-c-recto{display:none!important}
 
 /* ── Detail panel (verso, shown only when .zoomed) ─────────── */
-.sm-c-verso{display:none;flex-direction:column;gap:10px;height:100%;overflow:hidden}
+.sm-c-verso{display:none;flex-direction:column;gap:10px;height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:6px}
 .sm-cell.zoomed .sm-c-verso{display:flex}
 
 /* Verso (zoom 3×3) — aligned on Macro typography */
@@ -147,6 +147,7 @@
 .sm-v-sig .tag{font-size:11px;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;font-weight:700;line-height:1.4}
 .sm-v-sig .val{font-size:13px;font-weight:700;color:var(--h);font-variant-numeric:tabular-nums;line-height:1.15}
 .sm-v-sig .sub{font-size:11.5px;color:var(--muted);line-height:1.5;font-style:italic;opacity:.85}
+.sm-v-sig .raw{font-size:11px;color:var(--p);line-height:1.5;font-variant-numeric:tabular-nums;font-weight:600}
 
 .sm-v-bias{
   font-size:12px;color:var(--p);line-height:1.55;font-style:italic;opacity:.95;
@@ -173,6 +174,7 @@
   .sm-v-sig{padding:5px 6px}
   .sm-v-sig .val{font-size:10.5px}
   .sm-v-sig .sub{font-size:9px}
+  .sm-v-sig .raw{font-size:9.5px}
 }
 </style>
 
@@ -240,6 +242,14 @@
   function fmtPct(v, d){ if(v==null||!isFinite(v)) return "—"; const p = v*100; return (p>=0?"+":"") + p.toFixed(d==null?1:d) + "%"; }
   function fmtScore(v){ if(v==null||!isFinite(v)) return "—"; return (v>=0?"+":"") + v.toFixed(2); }
   function fmtNum(v, d){ if(v==null||!isFinite(v)) return "—"; return Number(v).toFixed(d==null?2:d); }
+  function fmtObv(v){
+    if(v==null||!isFinite(v)) return "—";
+    const abs=Math.abs(v), sign=v<0?"−":"";
+    if(abs>=1e9) return sign+(abs/1e9).toFixed(2)+"B";
+    if(abs>=1e6) return sign+(abs/1e6).toFixed(2)+"M";
+    if(abs>=1e3) return sign+(abs/1e3).toFixed(1)+"K";
+    return sign+Math.round(abs);
+  }
   // Pretty label for the timeframe sub-text ("vs 1 month ago" / "vs 6 months ago" …)
   function tfWindowLabel(tf){
     return tf === "1m" ? "1 month" : tf === "3m" ? "3 months"
@@ -375,32 +385,55 @@
 
     // 3 signals detailed
     const sigs = el("div", "sm-v-sigs");
-    function sb(tag, val, sub, kind){
-      const b = el("div", "sm-v-sig " + (kind || ""));
-      b.appendChild(el("div", "tag", tag));
-      b.appendChild(el("div", "val", val));
-      if(sub) b.appendChild(el("div", "sub", sub));
-      return b;
+
+    // ── DMA200 ──
+    {
+      const kind = cell.dma_signal === "above" ? "up" : cell.dma_signal === "below" ? "dn" : "";
+      const b = el("div", "sm-v-sig " + kind);
+      b.appendChild(el("div", "tag", "DMA200"));
+      b.appendChild(el("div", "val", cell.dma_signal === "above" ? "ABOVE" : cell.dma_signal === "below" ? "BELOW" : "N/A"));
+      b.appendChild(el("div", "sub", "200-day trend"));
+      sigs.appendChild(b);
     }
-    const dmaKind = cell.dma_signal === "above" ? "up" : cell.dma_signal === "below" ? "dn" : "";
-    sigs.appendChild(sb("DMA200",
-      cell.dma_signal === "above" ? "ABOVE" : cell.dma_signal === "below" ? "BELOW" : "N/A",
-      "200-day trend",
-      dmaKind));
-    const mfiKind = cell.mfi_signal === "overbought" ? "warn" : cell.mfi_signal === "oversold" ? "up" : "";
-    sigs.appendChild(sb("MFI 50d",
-      cell.mfi_value != null ? "MFI " + Math.round(cell.mfi_value) : "N/A",
-      cell.mfi_signal === "overbought" ? ">70 — overbought" :
-      cell.mfi_signal === "oversold"   ? "<30 — oversold"   :
-      cell.mfi_signal === "neutral"    ? "30-70 — neutral"  : "—",
-      mfiKind));
-    const obvKind = cell.obv_signal === "accumulation" ? "up" : cell.obv_signal === "distribution" ? "dn" : "";
-    sigs.appendChild(sb("OBV 90d",
-      cell.obv_signal === "accumulation" ? "ACCUM." :
-      cell.obv_signal === "distribution" ? "DISTRIB." :
-      cell.obv_signal === "neutral"      ? "NEUTRAL" : "N/A",
-      "smart-money flow",
-      obvKind));
+
+    // ── MFI — current value + raw 50d-ago for manual comparison ──
+    {
+      const kind = cell.mfi_signal === "overbought" ? "warn" : cell.mfi_signal === "oversold" ? "up" : "";
+      const b = el("div", "sm-v-sig " + kind);
+      b.appendChild(el("div", "tag", "MFI 50d"));
+      b.appendChild(el("div", "val", cell.mfi_value != null ? String(Math.round(cell.mfi_value)) : "N/A"));
+      if(cell.mfi_50d != null){
+        const dir = cell.mfi_value != null
+          ? (cell.mfi_value > cell.mfi_50d + 1 ? " ↑" : cell.mfi_value < cell.mfi_50d - 1 ? " ↓" : " →")
+          : "";
+        b.appendChild(el("div", "raw", `50d ago: ${Math.round(cell.mfi_50d)}${dir}`));
+      }
+      b.appendChild(el("div", "sub",
+        cell.mfi_signal === "overbought" ? ">70 — overbought" :
+        cell.mfi_signal === "oversold"   ? "<30 — oversold"   :
+        cell.mfi_signal === "neutral"    ? "30-70 — neutral"  : "—"));
+      sigs.appendChild(b);
+    }
+
+    // ── OBV — direction + raw current and 90d-ago values ──
+    {
+      const kind = cell.obv_signal === "accumulation" ? "up" : cell.obv_signal === "distribution" ? "dn" : "";
+      const b = el("div", "sm-v-sig " + kind);
+      b.appendChild(el("div", "tag", "OBV 90d"));
+      b.appendChild(el("div", "val",
+        cell.obv_signal === "accumulation" ? "ACCUM." :
+        cell.obv_signal === "distribution" ? "DISTRIB." :
+        cell.obv_signal === "neutral"      ? "NEUTRAL" : "N/A"));
+      if(cell.obv_cur != null || cell.obv_90d != null){
+        const parts = [];
+        if(cell.obv_cur != null) parts.push(`Now: ${fmtObv(cell.obv_cur)}`);
+        if(cell.obv_90d != null) parts.push(`90d: ${fmtObv(cell.obv_90d)}`);
+        b.appendChild(el("div", "raw", parts.join(" · ")));
+      }
+      b.appendChild(el("div", "sub", "smart-money flow"));
+      sigs.appendChild(b);
+    }
+
     v.appendChild(sigs);
 
     // Bias guard
