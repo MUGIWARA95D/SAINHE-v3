@@ -104,6 +104,10 @@
   border-color:var(--gold)!important;
   padding:14px 16px;
   cursor:default;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-y:contain;
 }
 /* Recto layout — declared as a CSS class (NOT inline) so .zoomed display:none
  * can win the cascade. Previously the recto used recto.style.display='flex'
@@ -113,7 +117,10 @@
 .sm-cell.zoomed .sm-c-recto{display:none!important}
 
 /* ── Detail panel (verso, shown only when .zoomed) ─────────── */
-.sm-c-verso{display:none;flex-direction:column;gap:10px;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:6px}
+/* No overflow/height constraints here — the scroll lives on .sm-cell.zoomed
+ * which has an explicit px height from JS. Putting overflow-y:auto on a flex
+ * child inside a parent with overflow:hidden breaks iOS touch scroll. */
+.sm-c-verso{display:none;flex-direction:column;gap:10px;padding-bottom:6px}
 .sm-cell.zoomed .sm-c-verso{display:flex}
 
 /* Verso (zoom 3×3) — aligned on Macro typography */
