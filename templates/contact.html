@@ -37,23 +37,129 @@
 {% include "partials/_header.html" %}
 {% include "partials/_onboard.html" %}
 
+<style>
+/* ── Contact page ─────────────────────────────────────── */
+.ct-founder{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;margin-bottom:36px}
+.ct-avatar{width:64px;height:64px;border-radius:50%;flex-shrink:0;
+  background:rgba(196,149,90,.14);border:2px solid rgba(196,149,90,.32);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:26px;color:rgba(196,149,90,.75)}
+.ct-founder-meta{flex:1;min-width:180px;display:flex;flex-direction:column;gap:5px}
+.ct-name{font-family:var(--serif);font-size:21px;color:#F5E8D0;font-weight:400;line-height:1.1}
+.ct-role{font-size:10.5px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(196,149,90,.65)}
+.ct-bio{font-size:13.5px;line-height:1.7;color:rgba(245,232,208,.58);margin-top:8px}
+.ct-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.ct-link{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:8px;
+  font-size:13px;font-weight:600;text-decoration:none;transition:all .18s;letter-spacing:.3px;
+  border:1px solid}
+.ct-link-ig{background:rgba(196,149,90,.12);border-color:rgba(196,149,90,.32);color:#C4955A}
+.ct-link-ig:hover{background:rgba(196,149,90,.22);border-color:#C4955A;color:#F5E8D0}
+.ct-link-gh{background:rgba(245,232,208,.05);border-color:rgba(245,232,208,.16);color:rgba(245,232,208,.65)}
+.ct-link-gh:hover{background:rgba(245,232,208,.11);border-color:rgba(245,232,208,.32);color:#F5E8D0}
+.ct-story{display:flex;flex-direction:column;gap:18px}
+.ct-story p{font-size:13.5px;line-height:1.78;color:rgba(245,232,208,.6)}
+.ct-story p strong{color:#F5E8D0;font-weight:600}
+.ct-story p em{color:#C4955A;font-style:normal}
+.ct-block{padding:22px 26px;border-radius:11px;border-left:3px solid rgba(196,149,90,.6);
+  background:rgba(196,149,90,.06);border-top:1px solid rgba(196,149,90,.16);
+  border-right:1px solid rgba(196,149,90,.16);border-bottom:1px solid rgba(196,149,90,.16)}
+.ct-block-title{font-family:var(--serif);font-size:16px;color:#F5E8D0;margin-bottom:10px;font-weight:400}
+.ct-block-body{font-size:13px;line-height:1.72;color:rgba(245,232,208,.55)}
+.ct-block-body strong{color:#F5E8D0}
+.ct-block-body a{color:#C4955A;text-decoration:none;font-weight:600}
+.ct-block-body a:hover{text-decoration:underline}
+.ct-divider{height:1px;background:rgba(196,149,90,.14);margin:32px 0}
+/* Creme overrides */
+.sec-creme .ct-story p{color:rgba(44,26,14,.68)}
+.sec-creme .ct-story p strong{color:#2C1A0E}
+.sec-creme .ct-story p em{color:#9E7A2E}
+.sec-creme .ct-block{background:rgba(62,32,12,.05);border-left-color:rgba(100,60,20,.5);
+  border-top-color:rgba(62,32,12,.14);border-right-color:rgba(62,32,12,.14);border-bottom-color:rgba(62,32,12,.14)}
+.sec-creme .ct-block-title{color:#2C1A0E}
+.sec-creme .ct-block-body{color:rgba(44,26,14,.62)}
+.sec-creme .ct-block-body strong{color:#2C1A0E}
+.sec-creme .ct-block-body a{color:#9E7A2E}
+.sec-creme .ct-divider{background:rgba(62,32,12,.12)}
+</style>
+
 <main id="main">
 
   {% include "partials/_hero.html" %}
 
   <!-- ═══ STATEMENT BAR ═══════════════════════════════════════ -->
   <div class="statement-bar">
-    <span class="sb-label">Contact ·</span>
-    <span class="sb-body">Questions, feedback, or partnership inquiries — reach out directly.</span>
+    <span class="sb-label">Get in Touch ·</span>
+    <span class="sb-body">Built by one person, for anyone who wants a clearer view of the markets.</span>
   </div>
 
-  <!-- ─── CONTACT SECTION ──────────────────────────────────── -->
+  <!-- ─── 01 · WHO I AM ────────────────────────────────────── -->
   <div class="sec-band sec-choc">
-    <div class="section-lbl" id="contact-form">
-      <h2>Get in Touch</h2><em>Direct Line</em>
+    <div class="section-lbl">
+      <span class="section-num">01</span>
+      <h2>Who's behind SAINHE</h2>
     </div>
-    <div class="shell-placeholder">
-      <p>Contact form coming soon. In the meantime, reach out via the channels below.</p>
+
+    <div class="ct-founder">
+      <div class="ct-avatar">H</div>
+      <div class="ct-founder-meta">
+        <div class="ct-name">Hugo Waldmeyer</div>
+        <div class="ct-role">Founder &amp; Creator · SAINHE</div>
+        <div class="ct-bio">Finance student, last year of my bachelor's. I designed, built, and maintain this entire project — from the data pipeline to the dashboard. No team, no budget. Just the right questions asked to the right tools.</div>
+      </div>
+    </div>
+
+    <div class="ct-links">
+      <a class="ct-link ct-link-ig" href="https://www.instagram.com/hugo_wdmr" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".5" fill="currentColor" stroke="none"/></svg>
+        @hugo_wdmr
+      </a>
+      <a class="ct-link ct-link-gh" href="https://github.com/mugiwara95d/sainhe-v3" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.461-1.11-1.461-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z"/></svg>
+        View source on GitHub
+      </a>
+    </div>
+
+    <div class="ct-divider"></div>
+
+    <div class="ct-block">
+      <div class="ct-block-title">The code is open</div>
+      <div class="ct-block-body">The full codebase is on GitHub — data pipeline, signal logic, dashboard rendering, everything. If you're curious about how any of it works, or want to understand a specific metric, it's all there to read. <a href="https://github.com/mugiwara95d/sainhe-v3" target="_blank" rel="noopener">github.com/mugiwara95d/sainhe-v3 →</a></div>
+    </div>
+  </div>
+
+  <!-- ─── 02 · WHY THIS EXISTS ──────────────────────────────── -->
+  <div class="sec-band sec-creme">
+    <div class="section-lbl">
+      <span class="section-num">02</span>
+      <h2>Why this project exists</h2>
+    </div>
+
+    <div class="ct-story">
+      <p>This started as a personal tool. I wanted to make better financial decisions for myself — not trade professionally, just understand what's actually happening in the markets at any given moment.</p>
+
+      <p>The problem is that the tools that actually work at a serious level are out of reach for most people. <strong>High-frequency infrastructure, quantitative systems, exclusive data feeds</strong> — these aren't available to someone sitting in a finance class. And trading algorithms lose to transaction fees before they even start. My classes taught me theory, but they never told me what to actually look for when making a decision.</p>
+
+      <p>So I built a different kind of edge. Not faster trades — <em>better context</em>. SAINHE pulls together the signals that institutional analysts watch: ERP, yield curve, VIX regime, HY spreads, sector rotation. Aggregated automatically, explained clearly, no paywall.</p>
+
+      <p>I built all of this without writing a single line of code myself. That's not a disclaimer — <strong>it's the point</strong>. Knowing what to ask, what to look for, and how to think critically about a problem is a skill. The tool is AI. The judgment is human. In a job market where tens of thousands of people apply for a single finance role, I'd rather show what I can actually do.</p>
+    </div>
+  </div>
+
+  <!-- ─── 03 · FEEDBACK ─────────────────────────────────────── -->
+  <div class="sec-band sec-choc">
+    <div class="section-lbl">
+      <span class="section-num">03</span>
+      <h2>Feedback</h2><em>All of it welcome</em>
+    </div>
+
+    <div class="ct-story" style="margin-bottom:28px">
+      <p>Whether something works exactly as you'd expect, something looks off, or something important is missing entirely — I want to hear it. Positive feedback tells me what's worth keeping. Negative feedback helps me fix things I can't see from the inside. Either way, reach out directly on Instagram.</p>
+      <p><strong>If a number looks wrong</strong> — a value that seems stale, a metric that doesn't match what you see elsewhere — send me the ticker or metric name and what you'd expect to see. That kind of feedback is especially useful.</p>
+    </div>
+
+    <div class="ct-block">
+      <div class="ct-block-title">Drop a message</div>
+      <div class="ct-block-body">The easiest way to reach me is on Instagram: <a href="https://www.instagram.com/hugo_wdmr" target="_blank" rel="noopener"><strong>@hugo_wdmr</strong></a>. I read everything.</div>
     </div>
   </div>
 
