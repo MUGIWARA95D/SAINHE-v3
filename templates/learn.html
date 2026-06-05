@@ -1,6 +1,26 @@
 ﻿<!DOCTYPE html>
 <html lang="{{ lang }}" data-theme="light">
 {% include "partials/_head.html" %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "SAINHE Learn — Financial Markets Education",
+  "description": "Plain-language guides to financial markets: macro signals, global indices, sector rotation, portfolio analysis, and the four Golden Rules of investing.",
+  "url": "/learn.html",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "educationalLevel": "beginner",
+  "teaches": ["macro economics", "equity indices", "sector rotation", "portfolio management", "stock analysis"],
+  "hasPart": [
+    {"@type": "LearningResource", "name": "Why Finance", "description": "Why understanding markets matters for anyone who earns, saves, or plans long-term."},
+    {"@type": "LearningResource", "name": "The Golden Rules", "description": "Four fundamental principles: buy fear, diversify correlations, time in the market, know why you own it."},
+    {"@type": "LearningResource", "name": "Finance Mindmap", "description": "Visual map connecting macro, equities, fixed income, commodities, and alternatives."},
+    {"@type": "LearningResource", "name": "Dashboard Guide", "description": "How to read the six dashboard boxes: Macro signals (VIX/ERP/yield curve/DXY), Indices, News, Valuation (sectors.json), Rotation matrix (sentiment.json), and Portfolio scan."},
+    {"@type": "LearningResource", "name": "Stock Analysis", "description": "Top-down framework for dissecting a company: macro → sector → volume validation → SEC filings."}
+  ]
+}
+</script>
 <body>
 
 {% include "partials/_intro.html" %}

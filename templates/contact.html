@@ -1,6 +1,32 @@
 <!DOCTYPE html>
 <html lang="{{ lang }}" data-theme="light">
 {% include "partials/_head.html" %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "name": "About SAINHE — Hugo Waldmeyer",
+  "description": "Hugo Waldmeyer built SAINHE to bridge the information gap between institutional and retail investors. The project is a personal finance dashboard and educational platform for independent analysis.",
+  "url": "/contact.html",
+  "author": {
+    "@type": "Person",
+    "name": "Hugo Waldmeyer",
+    "sameAs": [
+      "https://www.instagram.com/hugo_wdmr/",
+      "https://github.com/MUGIWARA95D"
+    ]
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "SAINHE",
+    "description": "Real-time financial dashboard — macro signals, global indices, sector rotation matrix, portfolio scan. Data is updated daily via an automated pipeline and exposed as machine-readable JSON under /data/.",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web",
+    "isAccessibleForFree": true,
+    "url": "/"
+  }
+}
+</script>
 <body>
 
 {% include "partials/_intro.html" %}
