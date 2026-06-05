@@ -276,6 +276,7 @@ DEFAULT_CURRENCY = "USD"
 # ============================================================
 SITE_NAME   = "SAINHE"
 SITE_SLOGAN = "Fundamental Intelligence"
+SITE_URL    = "https://sainhe.com"
 
 COLORS = {
     "bg_light"  : "#FAF7F2",

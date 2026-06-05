@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://sainhe.pages.dev"><img src="https://img.shields.io/badge/live-sainhe.pages.dev-9E7A2E?style=flat-square&labelColor=2C2C2C" alt="Live site"></a>
+  <a href="https://sainhe.com"><img src="https://img.shields.io/badge/live-sainhe.com-9E7A2E?style=flat-square&labelColor=2C2C2C" alt="Live site"></a>
   <img src="https://img.shields.io/badge/Python-3.11-9E7A2E?style=flat-square&labelColor=2C2C2C" alt="Python 3.11">
   <img src="https://img.shields.io/badge/hosting-Cloudflare%20Pages-C9A84C?style=flat-square&labelColor=2C2C2C" alt="Cloudflare Pages">
   <img src="https://img.shields.io/badge/CI-GitHub%20Actions-C9A84C?style=flat-square&labelColor=2C2C2C" alt="GitHub Actions">
@@ -15,7 +15,7 @@
   so you can think for yourself and act with conviction.</em>
 </p>
 
-<p align="center"><a href="https://sainhe.pages.dev"><b>→ Open the live dashboard</b></a></p>
+<p align="center"><a href="https://sainhe.com"><b>→ Open the live dashboard</b></a></p>
 
 ---
 
@@ -28,8 +28,8 @@ SAINHE turns raw market data into a single, legible dashboard:
   cross-asset signals, each with interpretation thresholds.
 - **Indices** — real-time snapshot of major global indices.
 - **News** — curated financial headlines by region.
-- **Sectors** — momentum and relative performance across 16 sectors × 4 regions.
-- **Sentiment** — composite score per sector (MFI + OBV + 200-DMA).
+- **Valuation** — price, returns, and relative performance across 16 sectors × 4 regions.
+- **Rotation** — sector rotation matrix: alpha vs MONDE benchmark, DMA200/MFI/OBV signals, volume flow.
 - **Portfolio** — technical scan of a personal watchlist.
 
 Every metric carries a small `(i)` that links to a *Learn* page explaining how
@@ -46,7 +46,7 @@ to read it.
                      │
                 render_html.py      Jinja2 -> static HTML  +  JSON data layer
                      │
-              Cloudflare Pages      static hosting (sainhe.pages.dev)
+              Cloudflare Pages      static hosting (sainhe.com)
 ```
 
 - **Stateless & static.** No server at runtime — just static files on a CDN.
@@ -54,6 +54,8 @@ to read it.
   start of each job, refreshes it, and uploads it back. No DB is committed.
 - **Single source of truth.** Each box exposes one `render(con)` dict that feeds
   *both* the HTML and the JSON data layer — no duplicated computation.
+- **Two-environment deploy.** Every pipeline run renders twice:
+  `STOCK_ANALYSIS_LIVE=true` → preview (`dev` branch), `false` → production (`sainhe.com`).
 
 ## Data layer (built for AI agents)
 
@@ -62,10 +64,10 @@ of JSON instead of ~200 KB of markup:
 
 | Resource | Description |
 |---|---|
-| [`/data/index.json`](https://sainhe.pages.dev/data/index.json) | Discovery manifest + units legend |
-| [`/data/macro.json`](https://sainhe.pages.dev/data/macro.json) | Rich per-field: `value`, `unit`, `thresholds`, `regime` |
+| [`/data/index.json`](https://sainhe.com/data/index.json) | Discovery manifest + units legend |
+| [`/data/macro.json`](https://sainhe.com/data/macro.json) | Rich per-field: `value`, `unit`, `thresholds`, `regime` |
 | `/data/{indices,sectors,sentiment,portfolio,news}.json` | Collections with a units map |
-| [`/llms.txt`](https://sainhe.pages.dev/llms.txt) | Entry point for LLM agents |
+| [`/llms.txt`](https://sainhe.com/llms.txt) | Entry point for LLM agents |
 
 Units and thresholds are defined once in [`schema.py`](./schema.py).
 
