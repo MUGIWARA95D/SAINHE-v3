@@ -41,6 +41,14 @@
 
   {% include "partials/_hero.html" %}
 
+  {% if not stock_analysis_live %}
+  <div class="sec-band sec-choc">
+    <div class="shell-placeholder" style="padding:4rem 1rem;text-align:center">
+      <p style="font-family:var(--serif);font-size:1.1rem;color:rgba(245,232,208,.55);margin-bottom:.6rem">Coming soon</p>
+      <p style="font-size:.85rem;color:rgba(245,232,208,.3);letter-spacing:.5px;text-transform:uppercase">Work in progress</p>
+    </div>
+  </div>
+  {% endif %}
 
   <!-- ═══ PIPELINE STRIP ══════════════════════════════════════ -->
   <div class="pipeline">
