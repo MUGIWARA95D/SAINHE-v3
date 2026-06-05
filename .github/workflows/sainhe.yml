@@ -132,8 +132,23 @@ jobs:
         run: python scripts/calc.py
         continue-on-error: true
 
-      - name: Render HTML
+      - name: Render HTML — dev preview (STOCK_ANALYSIS_LIVE=true)
         run: python render_html.py
+        env:
+          STOCK_ANALYSIS_LIVE: "true"
+
+      - name: Deploy to Cloudflare Pages (dev preview)
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          wranglerVersion: "3.99.0"
+          command: pages deploy output --project-name=sainhe --branch=dev
+
+      - name: Render HTML — production (STOCK_ANALYSIS_LIVE=false)
+        run: python render_html.py
+        env:
+          STOCK_ANALYSIS_LIVE: "false"
 
       - name: Upload DB to Google Drive
         if: |
@@ -147,7 +162,7 @@ jobs:
           GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
           GDRIVE_FILE_ID: ${{ secrets.GDRIVE_FILE_ID }}
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare Pages (main → sainhe.com)
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
@@ -203,8 +218,23 @@ jobs:
       - name: Calculate indicators
         run: python scripts/calc.py
 
-      - name: Render HTML
+      - name: Render HTML — dev preview (STOCK_ANALYSIS_LIVE=true)
         run: python render_html.py
+        env:
+          STOCK_ANALYSIS_LIVE: "true"
+
+      - name: Deploy to Cloudflare Pages (dev preview)
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          wranglerVersion: "3.99.0"
+          command: pages deploy output --project-name=sainhe --branch=dev
+
+      - name: Render HTML — production (STOCK_ANALYSIS_LIVE=false)
+        run: python render_html.py
+        env:
+          STOCK_ANALYSIS_LIVE: "false"
 
       - name: Upload DB to Google Drive
         run: python scripts/gdrive_sync.py upload
@@ -212,7 +242,7 @@ jobs:
           GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
           GDRIVE_FILE_ID: ${{ secrets.GDRIVE_FILE_ID }}
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare Pages (main → sainhe.com)
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
@@ -260,8 +290,23 @@ jobs:
       - name: Fetch FX rates
         run: python scripts/fetch_fx.py
 
-      - name: Render HTML
+      - name: Render HTML — dev preview (STOCK_ANALYSIS_LIVE=true)
         run: python render_html.py
+        env:
+          STOCK_ANALYSIS_LIVE: "true"
+
+      - name: Deploy to Cloudflare Pages (dev preview)
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          wranglerVersion: "3.99.0"
+          command: pages deploy output --project-name=sainhe --branch=dev
+
+      - name: Render HTML — production (STOCK_ANALYSIS_LIVE=false)
+        run: python render_html.py
+        env:
+          STOCK_ANALYSIS_LIVE: "false"
 
       - name: Upload DB to Google Drive
         run: python scripts/gdrive_sync.py upload
@@ -269,7 +314,7 @@ jobs:
           GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
           GDRIVE_FILE_ID: ${{ secrets.GDRIVE_FILE_ID }}
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare Pages (main → sainhe.com)
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
@@ -333,8 +378,23 @@ jobs:
       - name: Calculate indicators
         run: python scripts/calc.py
 
-      - name: Render HTML
+      - name: Render HTML — dev preview (STOCK_ANALYSIS_LIVE=true)
         run: python render_html.py
+        env:
+          STOCK_ANALYSIS_LIVE: "true"
+
+      - name: Deploy to Cloudflare Pages (dev preview)
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          wranglerVersion: "3.99.0"
+          command: pages deploy output --project-name=sainhe --branch=dev
+
+      - name: Render HTML — production (STOCK_ANALYSIS_LIVE=false)
+        run: python render_html.py
+        env:
+          STOCK_ANALYSIS_LIVE: "false"
 
       - name: Upload DB to Google Drive
         run: python scripts/gdrive_sync.py upload
@@ -342,7 +402,7 @@ jobs:
           GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
           GDRIVE_FILE_ID: ${{ secrets.GDRIVE_FILE_ID }}
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare Pages (main → sainhe.com)
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}

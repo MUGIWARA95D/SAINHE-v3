@@ -12,6 +12,7 @@ Run:
 """
 
 import json
+import os
 import sqlite3
 import importlib
 import logging
@@ -410,16 +411,21 @@ def render(currency: str = DEFAULT_CURRENCY):
     # ── Agent-facing JSON data layer (/data/*.json + llms.txt) ──
     write_data_layer(boxes_by_id, ts_render)
 
+    # Feature flags
+    stock_analysis_live = os.getenv("STOCK_ANALYSIS_LIVE", "false").strip().lower() == "true"
+    log.info("STOCK_ANALYSIS_LIVE = %s", stock_analysis_live)
+
     # Shared base context (EN-only build)
     base_ctx = {
-        "site_name"   : SITE_NAME,
-        "site_slogan" : SITE_SLOGAN,
-        "colors"      : COLORS,
-        "lang"        : "en",
-        "currency"    : currency,
-        "currencies"  : CURRENCIES,
-        "ts_render"   : ts_render,
-        "fx_rates_js" : fx_rates,
+        "site_name"            : SITE_NAME,
+        "site_slogan"          : SITE_SLOGAN,
+        "colors"               : COLORS,
+        "lang"                 : "en",
+        "currency"             : currency,
+        "currencies"           : CURRENCIES,
+        "ts_render"            : ts_render,
+        "fx_rates_js"          : fx_rates,
+        "stock_analysis_live"  : stock_analysis_live,
     }
 
     # ── 1. Dashboard ────────────────────────────────────────
