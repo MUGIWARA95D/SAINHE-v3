@@ -2,8 +2,8 @@
 gdrive_backup_code.py — Backup complet du code SAINHE vers Google Drive.
 
 Crée deux fichiers horodatés dans un dossier Drive dédié :
-  - sainhe-v3-YYYY-MM-DD.bundle  : git bundle complet (toutes branches + historique)
-  - sainhe-v3-YYYY-MM-DD.zip     : snapshot des sources (sans .git, sans output/)
+  - sainhe-v4-YYYY-MM-DD.bundle  : git bundle complet (toutes branches + historique)
+  - sainhe-v4-YYYY-MM-DD.zip     : snapshot des sources (sans .git, sans output/)
 
 Usage:
     python scripts/gdrive_backup_code.py
@@ -107,12 +107,12 @@ def main():
         tmp = Path(tmp)
 
         # 1. Git bundle
-        bundle_path = tmp / f"sainhe-v3-{TODAY}.bundle"
+        bundle_path = tmp / f"sainhe-v4-{TODAY}.bundle"
         create_git_bundle(bundle_path)
         _upload(svc, folder_id, bundle_path, "application/octet-stream")
 
         # 2. Source zip
-        zip_path = tmp / f"sainhe-v3-{TODAY}.zip"
+        zip_path = tmp / f"sainhe-v4-{TODAY}.zip"
         create_zip(zip_path)
         _upload(svc, folder_id, zip_path, "application/zip")
 
