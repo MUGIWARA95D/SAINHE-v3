@@ -31,7 +31,7 @@
 
 {% include "partials/_intro.html" %}
 
-<!-- ═══ WATERMARK ══════════════════════ -->
+<!-- ═══ WATERMARK ══════════════════════════════════ -->
 <svg id="wm" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <line x1="26" y1="149" x2="114" y2="149" stroke="currentColor" stroke-width="1.5"/>
   <line x1="26" y1="153" x2="114" y2="153" stroke="currentColor" stroke-width="1" opacity=".55"/>
@@ -64,7 +64,7 @@
 {% include "partials/_onboard.html" %}
 
 <style>
-/* ── Contact page ──────────────────────────────────────────────── */
+/* ── Contact page ─────────────────────────────────────── */
 .ct-founder{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;margin-bottom:36px}
 .ct-avatar{width:64px;height:64px;border-radius:50%;flex-shrink:0;
   background:rgba(196,149,90,.14);border:2px solid rgba(196,149,90,.32);
@@ -136,7 +136,7 @@
 .sec-creme .ct-block-body strong{color:#2C1A0E}
 .sec-creme .ct-block-body a{color:#9E7A2E}
 .sec-creme .ct-divider{background:rgba(62,32,12,.12)}
-/* ── Dark mode overrides ─────────────────────────────────────── */
+/* ── Dark mode overrides ──────────────────────────────────── */
 [data-theme="dark"] .ct-road-item{border-color:var(--border)}
 [data-theme="dark"] .ct-road-hdr{background:var(--card-alt);border-bottom-color:var(--border-lt)}
 [data-theme="dark"] .ct-road-title{color:var(--h)}
@@ -164,7 +164,7 @@
 
   {% include "partials/_hero.html" %}
 
-  <!-- ═══ STATEMENT BAR ════════════════════════════════════════ -->
+  <!-- ═══ STATEMENT BAR ═══════════════════════════════════════ -->
   <div class="statement-bar">
     <span class="sb-label">Get in Touch ·</span>
     <span class="sb-body">Built by one person, for anyone who wants a clearer view of the markets.</span>
@@ -204,7 +204,7 @@
     </div>
   </div>
 
-  <!-- ─── 02 · WHY THIS EXISTS ───────────────────────────────── -->
+  <!-- ─── 02 · WHY THIS EXISTS ──────────────────────────────── -->
   <div class="sec-band sec-creme">
     <div class="section-lbl" id="ct-story">
       <h2>Why this project exists</h2>
@@ -221,7 +221,7 @@
     </div>
   </div>
 
-  <!-- ─── 03 · FEEDBACK ───────────────────────────────────────── -->
+  <!-- ─── 03 · FEEDBACK ─────────────────────────────────────── -->
   <div class="sec-band sec-choc">
     <div class="section-lbl" id="ct-reach">
       <h2>Feedback</h2><em>All of it welcome</em>
@@ -314,7 +314,7 @@
     </div>
   </div>
 
-  <!-- ═══ PIPELINE STRIP ════════════════════════════════════════ -->
+  <!-- ═══ PIPELINE STRIP ══════════════════════════════════════ -->
   <div class="pipeline">
     <span>SAINHE pipeline</span>
     <span class="pl-dot"></span>
@@ -329,7 +329,7 @@
 {% include "partials/_footer.html" %}
 {% include "partials/_anim.html" %}
 
-<!-- ═══ SHARED JS HELPERS ══════════════════════════ -->
+<!-- ═══ SHARED JS HELPERS ══════════════════════════════════ -->
 <script>
 /* ── Theme (pill) ────────────────────────────────── */
 const _H=document.documentElement, _TB=document.getElementById("thm");
@@ -344,7 +344,7 @@ function setTheme(t){
 try{setTheme(localStorage.getItem("sainhe_theme")||"light");}catch(e){setTheme("light");}
 if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dark"?"light":"dark");});
 
-/* ── Scroll progress ────────────────────────────── */
+/* ── Scroll progress ─────────────────────────────── */
 (function(){
   const prog=document.getElementById("scroll-prog");
   if(!prog) return;
@@ -368,7 +368,7 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
   },{passive:true});
 })();
 
-/* ── Dropdowns ──────────────────────────────────── */
+/* ── Dropdowns ───────────────────────────────────── */
 (function(){
   var closeTimers = {};
   function openDd(dd){
