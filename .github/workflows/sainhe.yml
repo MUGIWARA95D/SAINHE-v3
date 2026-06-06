@@ -143,7 +143,7 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           wranglerVersion: "3.99.0"
-          command: pages deploy output --project-name=sainhe-v4 --branch=dev
+          command: pages deploy output --project-name=sainhe --branch=dev
 
       - name: Render HTML — production (STOCK_ANALYSIS_LIVE=false)
         run: python render_html.py
@@ -168,7 +168,7 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           wranglerVersion: "3.99.0"
-          command: pages deploy output --project-name=sainhe-v4 --branch=main
+          command: pages deploy output --project-name=sainhe --branch=main
 
   # ════════════════════════════════════════════════════════════
   #  JOB 1 — NEWS
@@ -229,7 +229,7 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           wranglerVersion: "3.99.0"
-          command: pages deploy output --project-name=sainhe-v4 --branch=dev
+          command: pages deploy output --project-name=sainhe --branch=dev
 
       - name: Render HTML — production (STOCK_ANALYSIS_LIVE=false)
         run: python render_html.py
@@ -248,7 +248,7 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           wranglerVersion: "3.99.0"
-          command: pages deploy output --project-name=sainhe-v4 --branch=main
+          command: pages deploy output --project-name=sainhe --branch=main
 
   # ════════════════════════════════════════════════════════════
   #  JOB 2 — FX
@@ -301,7 +301,7 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           wranglerVersion: "3.99.0"
-          command: pages deploy output --project-name=sainhe-v4 --branch=dev
+          command: pages deploy output --project-name=sainhe --branch=dev
 
       - name: Render HTML — production (STOCK_ANALYSIS_LIVE=false)
         run: python render_html.py
@@ -320,7 +320,7 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           wranglerVersion: "3.99.0"
-          command: pages deploy output --project-name=sainhe-v4 --branch=main
+          command: pages deploy output --project-name=sainhe --branch=main
 
   # ════════════════════════════════════════════════════════════
   #  JOB 3 — FULL PIPELINE
@@ -389,7 +389,7 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           wranglerVersion: "3.99.0"
-          command: pages deploy output --project-name=sainhe-v4 --branch=dev
+          command: pages deploy output --project-name=sainhe --branch=dev
 
       - name: Render HTML — production (STOCK_ANALYSIS_LIVE=false)
         run: python render_html.py
@@ -408,4 +408,4 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           wranglerVersion: "3.99.0"
-          command: pages deploy output --project-name=sainhe-v4 --branch=main
+          command: pages deploy output --project-name=sainhe --branch=main
