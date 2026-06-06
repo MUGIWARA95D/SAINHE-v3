@@ -5,7 +5,7 @@
 
 {% include "partials/_intro.html" %}
 
-<!-- ═══ WATERMARK ══════════════════════════════════ -->
+<!-- ═══ WATERMARK ══════════════════════ -->
 <svg id="wm" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <line x1="26" y1="149" x2="114" y2="149" stroke="currentColor" stroke-width="1.5"/>
   <line x1="26" y1="153" x2="114" y2="153" stroke="currentColor" stroke-width="1" opacity=".55"/>
@@ -50,7 +50,7 @@
   </div>
   {% endif %}
 
-  <!-- ═══ PIPELINE STRIP ══════════════════════════════════════ -->
+  <!-- ═══ PIPELINE STRIP ════════════════════════════════════════ -->
   <div class="pipeline">
     <span>SAINHE pipeline</span>
     <span class="pl-dot"></span>
@@ -65,7 +65,7 @@
 {% include "partials/_footer.html" %}
 {% include "partials/_anim.html" %}
 
-<!-- ═══ SHARED JS HELPERS ══════════════════════════════════ -->
+<!-- ═══ SHARED JS HELPERS ══════════════════════════ -->
 <script>
 /* ── Theme (pill) ────────────────────────────────── */
 const _H=document.documentElement, _TB=document.getElementById("thm");
@@ -80,7 +80,7 @@ function setTheme(t){
 try{setTheme(localStorage.getItem("sainhe_theme")||"light");}catch(e){setTheme("light");}
 if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dark"?"light":"dark");});
 
-/* ── Scroll progress ─────────────────────────────── */
+/* ── Scroll progress ────────────────────────────── */
 (function(){
   const prog=document.getElementById("scroll-prog");
   if(!prog) return;
@@ -104,7 +104,7 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
   },{passive:true});
 })();
 
-/* ── Dropdowns ───────────────────────────────────── */
+/* ── Dropdowns ──────────────────────────────────── */
 (function(){
   var closeTimers = {};
   function openDd(dd){
@@ -135,32 +135,6 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
   });
   document.addEventListener("click",function(){
     document.querySelectorAll(".hdr-dd.open").forEach(function(o){ o.classList.remove("open"); });
-  });
-})();
-
-/* ── Nav highlight (scroll-tracked) ─────────────── */
-(function(){
-  const links = document.querySelectorAll(".hdr-nav a:not(.hdr-nav-menu)");
-  const setActive = function(id){
-    links.forEach(function(a){
-      a.classList.toggle("active", a.getAttribute("href") === "#" + id);
-    });
-  };
-  const sectionIds = ["oracle","forge","discernement","equilibre","marees","comparaison"];
-  const sections = sectionIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
-
-  const obs = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting) setActive(e.target.id);
-    });
-  }, { rootMargin: "-40% 0px -55% 0px", threshold: 0 });
-
-  sections.forEach(function(s){ obs.observe(s); });
-
-  links.forEach(function(a){
-    a.addEventListener("click", function(){
-      setActive(this.getAttribute("href").slice(1));
-    });
   });
 })();
 </script>
