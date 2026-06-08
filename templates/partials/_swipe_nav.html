@@ -1,0 +1,227 @@
+<!-- ═══ PAGE DOTS INDICATOR ═══════════════════════════════ -->
+<div id="page-dots" aria-label="Page navigation" role="navigation">
+  <button class="pg-dot" data-page="0" aria-label="Dashboard" title="Dashboard"></button>
+  <button class="pg-dot" data-page="1" aria-label="Stock Analysis" title="Stock Analysis"></button>
+  <button class="pg-dot" data-page="2" aria-label="Learn" title="Learn"></button>
+  <button class="pg-dot" data-page="3" aria-label="Contact" title="Contact"></button>
+</div>
+
+<!-- ═══ SWIPE NAVIGATION ENGINE ══════════════════════════ -->
+<script>
+(function(){
+  var PAGES = [
+    { path: '/index.html' },
+    { path: '/stock-analysis.html' },
+    { path: '/learn.html' },
+    { path: '/contact.html' },
+  ];
+
+  var cache = {};       /* index → { dom: HTMLElement, meta: object } */
+  var currentPage = 0;
+  var navigating  = false;
+
+  /* ── Init ───────────────────────────────────────────── */
+  function init() {
+    var idx = parseInt(document.documentElement.dataset.pageIndex, 10);
+    currentPage = isNaN(idx) ? 0 : idx;
+
+    var metaEl = document.getElementById('sainhe-page-meta');
+    if (metaEl) {
+      try {
+        var meta = JSON.parse(metaEl.textContent);
+        cache[currentPage] = { meta: meta, dom: null }; /* current page = no need to re-fetch DOM */
+      } catch(e) {}
+    }
+
+    updateDots(currentPage);
+    history.replaceState({ page: currentPage }, '', location.pathname);
+
+    /* Prefetch other pages after idle */
+    setTimeout(prefetchAll, 1500);
+  }
+
+  /* ── Prefetch ───────────────────────────────────────── */
+  function prefetchAll() {
+    PAGES.forEach(function(_, i) {
+      if (i !== currentPage && !cache[i]) fetchPage(i);
+    });
+  }
+
+  function fetchPage(index) {
+    if (cache[index] && cache[index].dom) return Promise.resolve(cache[index]);
+    return fetch(PAGES[index].path, { cache: 'no-cache' })
+      .then(function(r) { return r.text(); })
+      .then(function(html) {
+        var doc = (new DOMParser()).parseFromString(html, 'text/html');
+        var main = doc.getElementById('main');
+        var metaEl = doc.getElementById('sainhe-page-meta');
+        var meta = {};
+        if (metaEl) { try { meta = JSON.parse(metaEl.textContent); } catch(e) {} }
+        cache[index] = { dom: main, meta: meta };
+        return cache[index];
+      })
+      .catch(function() { return null; });
+  }
+
+  /* ── UI helpers ─────────────────────────────────────── */
+  function updateDots(index) {
+    document.querySelectorAll('.pg-dot').forEach(function(d) {
+      d.classList.toggle('active', parseInt(d.dataset.page, 10) === index);
+    });
+  }
+
+  function updateHeaderNav(navLinks) {
+    var nav = document.querySelector('.hdr-nav');
+    if (!nav) return;
+    Array.from(nav.querySelectorAll('a:not(.hdr-nav-menu)')).forEach(function(a) { a.remove(); });
+    (navLinks || []).forEach(function(link) {
+      var a = document.createElement('a');
+      a.href = link.href;
+      a.textContent = link.label;
+      nav.appendChild(a);
+    });
+  }
+
+  /* ── Cleanup ────────────────────────────────────────── */
+  function destroyCharts() {
+    if (typeof Chart === 'undefined') return;
+    document.querySelectorAll('#main canvas').forEach(function(cv) {
+      var c = Chart.getChart(cv);
+      if (c) try { c.destroy(); } catch(e) {}
+    });
+  }
+
+  function reRunScripts(container) {
+    container.querySelectorAll('script').forEach(function(old) {
+      var s = document.createElement('script');
+      if (old.src) { s.src = old.src; s.async = true; }
+      else { s.textContent = old.textContent; }
+      old.parentNode.replaceChild(s, old);
+    });
+  }
+
+  /* ── Navigate ───────────────────────────────────────── */
+  function navigate(targetIndex, pushState) {
+    if (navigating) return;
+    if (targetIndex < 0 || targetIndex >= PAGES.length) return; /* elastic stop */
+    if (targetIndex === currentPage) return;
+    navigating = true;
+    pushState = (pushState !== false);
+
+    var main = document.getElementById('main');
+    if (!main) { navigating = false; return; }
+
+    /* Fade out */
+    main.style.opacity = '0';
+    var prog = document.getElementById('scroll-prog');
+    if (prog) prog.style.width = '0%';
+
+    fetchPage(targetIndex).then(function(cached) {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+
+      destroyCharts();
+      window._sainheCleanupAnim && window._sainheCleanupAnim();
+
+      if (cached && cached.dom) {
+        main.innerHTML = cached.dom.innerHTML;
+
+        var meta = cached.meta || {};
+        if (meta.title) document.title = meta.title;
+        updateHeaderNav(meta.nav || []);
+        document.documentElement.dataset.pageIndex = targetIndex;
+
+        if (pushState) {
+          history.pushState({ page: targetIndex }, meta.title || '', PAGES[targetIndex].path);
+        }
+
+        currentPage = targetIndex;
+        updateDots(currentPage);
+
+        reRunScripts(main);
+        setTimeout(function() {
+          window._sainheInitAnim && window._sainheInitAnim();
+        }, 50);
+      }
+
+      main.style.opacity = '1';
+      navigating = false;
+    }).catch(function() {
+      main.style.opacity = '1';
+      navigating = false;
+    });
+  }
+
+  /* ── Touch (mobile swipe) ───────────────────────────── */
+  var touchX = 0, touchY = 0;
+  document.addEventListener('touchstart', function(e) {
+    touchX = e.touches[0].clientX;
+    touchY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', function(e) {
+    var dx = e.changedTouches[0].clientX - touchX;
+    var dy = e.changedTouches[0].clientY - touchY;
+    /* horizontal must be ≥50px and > 1.5× vertical to avoid conflict with scroll */
+    if (Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      navigate(currentPage + (dx > 0 ? -1 : 1));
+    }
+  }, { passive: true });
+
+  /* ── Mouse drag (desktop) ───────────────────────────── */
+  var mStartX = 0, mDown = false, mDragged = false;
+  document.addEventListener('mousedown', function(e) {
+    if (e.button !== 0) return;
+    mStartX  = e.clientX;
+    mDown    = true;
+    mDragged = false;
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (mDown && Math.abs(e.clientX - mStartX) > 10) mDragged = true;
+  });
+  document.addEventListener('mouseup', function(e) {
+    if (mDown && mDragged) {
+      var dx = e.clientX - mStartX;
+      if (Math.abs(dx) >= 80) navigate(currentPage + (dx > 0 ? -1 : 1));
+    }
+    mDown = false; mDragged = false;
+  });
+
+  /* ── Keyboard (← →) ────────────────────────────────── */
+  document.addEventListener('keydown', function(e) {
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    var tag = document.activeElement && document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (e.key === 'ArrowRight') navigate(currentPage + 1);
+    if (e.key === 'ArrowLeft')  navigate(currentPage - 1);
+  });
+
+  /* ── Dot clicks ─────────────────────────────────────── */
+  document.querySelectorAll('.pg-dot').forEach(function(d) {
+    d.addEventListener('click', function() {
+      navigate(parseInt(d.dataset.page, 10));
+    });
+    d.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(parseInt(d.dataset.page, 10)); }
+    });
+  });
+
+  /* ── Header nav link clicks → swipe instead of full reload ── */
+  document.addEventListener('click', function(e) {
+    var a = e.target.closest('.hdr-nav a:not(.hdr-nav-menu)');
+    if (!a) return;
+    var href = a.getAttribute('href');
+    /* Anchor links (#nav-macro etc.) scroll normally; page links navigate via swipe engine */
+    if (href && !href.startsWith('#')) {
+      e.preventDefault();
+      var targetIdx = PAGES.findIndex(function(p) { return p.path === href || p.path.replace('/index.html', '/') === href; });
+      if (targetIdx >= 0) navigate(targetIdx);
+    }
+  });
+
+  /* ── Back / forward button ──────────────────────────── */
+  window.addEventListener('popstate', function(e) {
+    if (e.state && typeof e.state.page === 'number') navigate(e.state.page, false);
+  });
+
+  init();
+})();
+</script>
