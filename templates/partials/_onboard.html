@@ -4,7 +4,7 @@
 <style>
 /* ── Layer 1: welcome bar ─────────────────────────────── */
 #onb-bar{
-  position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(140%);
+  position:fixed;left:50%;bottom:76px;transform:translateX(-50%) translateY(140%);
   z-index:8800;max-width:620px;width:calc(100% - 32px);
   background:var(--card);border:1px solid var(--border);border-left:3px solid var(--gold);
   border-radius:10px;box-shadow:var(--shadow-md);
@@ -53,7 +53,7 @@
 /* Fixed bottom-centre panel — never moves between steps */
 #onb-tip{
   position:fixed;z-index:9500;
-  bottom:24px;left:50%;transform:translateX(-50%);
+  bottom:76px;left:50%;transform:translateX(-50%);
   width:calc(100% - 32px);max-width:420px;
   background:var(--card);border:1px solid var(--border);border-top:3px solid var(--gold);
   border-radius:10px;box-shadow:var(--shadow-md);padding:16px 18px;
@@ -70,8 +70,8 @@
 .onb-tip-btns{display:flex;gap:7px}
 
 @media(max-width:560px){
-  #onb-tip{bottom:12px}
-  #onb-bar{bottom:12px}
+  #onb-tip{bottom:68px}
+  #onb-bar{bottom:68px}
   .onb-bar-row{flex-direction:column;align-items:stretch}
   .onb-bar-actions{justify-content:flex-end}
 }
@@ -121,11 +121,11 @@
   //    a step never highlights "nothing" when its primary target is hidden
   //    (e.g. .hdr-nav is display:none on mobile -> fall back to the Menu button).
   var STEPS = [
-    {sels:["#dd-cur"],                                title:"Display currency",  body:"Switch prices between USD, EUR and HKD here. Everything is stored in USD and converted on the fly."},
-    {sels:[".ci",".bib-wrap",".box-info-btn"],       title:"The (i) marks",     body:"Spot an italic (i) next to a metric? Click it to jump to the Learn page, right at the explanation for that exact signal."},
-    {sels:[".hdr-nav",".hero-chips"],                title:"Four areas",        body:"Dashboard, Stock Analysis, Learn and Get in Touch. Use the menu at the top to move between them."},
-    {sels:['a.hero-chip[href="/learn.html"]','a[href="/learn.html"]'], title:"Start with Learn", body:"New to markets? Learn explains every concept on the site in plain language — look for the “read more” links."},
-    {sels:["#onb-help"],                              title:"Replay anytime",    body:"Click the ? button up here whenever you want to take this tour again."}
+    {sels:[“#dd-cur”],                                title:”Display currency”,  body:”Switch prices between USD, EUR and HKD here. Everything is stored in USD and converted on the fly.”},
+    {sels:[“.ci”,”.bib-wrap”,”.box-info-btn”],       title:”The (i) marks”,     body:”Spot an italic Ⓘ next to a metric? Click it to jump to the Learn page, right at the explanation for that exact signal.”},
+    {sels:[“#page-dots”],                             title:”Navigate between pages”, body:”There are 4 pages: Dashboard · Stock Analysis · Learn · Contact.\n\nMobile: swipe left or right anywhere on the page.\nDesktop: press ← → arrow keys, or drag horizontally.\n\nThe gold dot shows where you are — tap any dot to jump directly.”},
+    {sels:['a.hero-chip[href=”/learn.html”]','a[href=”/learn.html”]'], title:”Start with Learn”, body:”New to markets? Learn explains every concept on the site in plain language — look for the “read more” links.”},
+    {sels:[“#onb-help”],                              title:”Replay anytime”,    body:”Click the ? button up here whenever you want to take this tour again.”}
   ];
 
   // ── Pick the first selector that resolves to a *visible* element ──────────
