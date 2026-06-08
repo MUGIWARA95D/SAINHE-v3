@@ -378,7 +378,7 @@ def _render_page(env: Environment, template_name: str, out_path: Path, ctx: dict
 def render(currency: str = DEFAULT_CURRENCY):
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    # ── Write _headers (Cloudflare Pages cache policy) ───────
+    # ── Write _headers (Cloudflare Pages cache policy) ───────────────────
     headers_content = (
         "/*.html\n"
         "  Cache-Control: no-cache, must-revalidate\n\n"
@@ -394,6 +394,13 @@ def render(currency: str = DEFAULT_CURRENCY):
     ts_map    = _box_timestamps(con)
     ts_render = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     page_navs = build_page_navs()
+    page_order = ["dashboard", "stock-analysis", "learn", "contact"]
+    page_paths = {
+        "dashboard":      "/index.html",
+        "stock-analysis": "/stock-analysis.html",
+        "learn":          "/learn.html",
+        "contact":        "/contact.html",
+    }
 
     env = Environment(loader=FileSystemLoader(str(TEMPLATE_DIR)), autoescape=True)
 
@@ -421,10 +428,12 @@ def render(currency: str = DEFAULT_CURRENCY):
         "stock_analysis_live"  : stock_analysis_live,
     }
 
-    # ── 1. Dashboard ────────────────────────────────────────
+    # ── 1. Dashboard ──────────────────────────────────────────────
     _render_page(env, "dashboard.html", OUTPUT_DIR / "index.html", {
         **base_ctx,
         "current_page"    : "dashboard",
+        "page_index"      : 0,
+        "page_path"       : page_paths["dashboard"],
         "page_title"      : f"{SITE_NAME} — {SITE_SLOGAN}",
         "page_description": "Live macro signals, global indices, sector rotation, sentiment and portfolio scan. VIX, ERP, yield curve, HY OAS, CAPE and more.",
         "page_nav"     : page_navs["dashboard"],
@@ -449,28 +458,34 @@ def render(currency: str = DEFAULT_CURRENCY):
         "ts_portfolio" : ts_map["box_06_portfolio"],
     })
 
-    # ── 2. Stock Analysis ────────────────────────────────────
+    # ── 2. Stock Analysis ─────────────────────────────────────────
     _render_page(env, "stock-analysis.html", OUTPUT_DIR / "stock-analysis.html", {
         **base_ctx,
         "current_page"    : "stock-analysis",
+        "page_index"      : 1,
+        "page_path"       : page_paths["stock-analysis"],
         "page_nav"        : page_navs["stock-analysis"],
         "page_title"      : f"Stock Analysis — {SITE_NAME}",
         "page_description": "Deep-dive stock analysis: fundamentals, technicals, and valuation context.",
     })
 
-    # ── 3. Learn ─────────────────────────────────────────────
+    # ── 3. Learn ──────────────────────────────────────────────────
     _render_page(env, "learn.html", OUTPUT_DIR / "learn.html", {
         **base_ctx,
         "current_page"    : "learn",
+        "page_index"      : 2,
+        "page_path"       : page_paths["learn"],
         "page_nav"        : page_navs["learn"],
         "page_title"      : f"Learn — {SITE_NAME}",
         "page_description": "How to read the dashboard: signal thresholds, column definitions, and interpretation guides for all 6 data boxes.",
     })
 
-    # ── 4. Contact ───────────────────────────────────────────
+    # ── 4. Contact ───────────────────────────────────────────────
     _render_page(env, "contact.html", OUTPUT_DIR / "contact.html", {
         **base_ctx,
         "current_page"    : "contact",
+tml        "page_index"      : 3,
+        "page_path"       : page_paths["contact"],
         "page_nav"        : page_navs["contact"],
         "page_title"      : f"Contact — {SITE_NAME}",
         "page_description": f"Contact {SITE_NAME} — feedback, data corrections, and partnership inquiries.",

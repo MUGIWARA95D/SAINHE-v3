@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ lang }}" data-theme="light">
+<html lang="{{ lang }}" data-theme="light" data-page-index="{{ page_index }}">
 {% include "partials/_head.html" %}
 <body>
 
@@ -36,10 +36,11 @@
 
 {% include "partials/_header.html" %}
 {% include "partials/_onboard.html" %}
+<script type="application/json" id="sainhe-page-meta">{"index":{{ page_index }},"path":"{{ page_path }}","title":{{ page_title | tojson }},"nav":{{ page_nav | tojson }}}</script>
+
+{% include "partials/_hero.html" %}
 
 <main id="main">
-
-  {% include "partials/_hero.html" %}
 
   {% if not stock_analysis_live %}
   <div class="sec-band sec-choc">
@@ -50,7 +51,7 @@
   </div>
   {% endif %}
 
-  <!-- ═══ PIPELINE STRIP ══════════════════════════════════════ -->
+  <!-- ═══ PIPELINE STRIP ══════════════════════════════════════════════ -->
   <div class="pipeline">
     <span>SAINHE pipeline</span>
     <span class="pl-dot"></span>
@@ -65,9 +66,9 @@
 {% include "partials/_footer.html" %}
 {% include "partials/_anim.html" %}
 
-<!-- ═══ SHARED JS HELPERS ══════════════════════════════════ -->
+<!-- ═══ SHARED JS HELPERS ════════════════════════════════════ -->
 <script>
-/* ── Theme (pill) ────────────────────────────────── */
+/* ── Theme (pill) ────────────────────────────────────── */
 const _H=document.documentElement, _TB=document.getElementById("thm");
 const _SUN=_TB?_TB.querySelector(".tp-sun"):null;
 const _MOON=_TB?_TB.querySelector(".tp-moon"):null;
@@ -80,7 +81,7 @@ function setTheme(t){
 try{setTheme(localStorage.getItem("sainhe_theme")||"light");}catch(e){setTheme("light");}
 if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dark"?"light":"dark");});
 
-/* ── Scroll progress ─────────────────────────────── */
+/* ── Scroll progress ───────────────────────────────────── */
 (function(){
   const prog=document.getElementById("scroll-prog");
   if(!prog) return;
@@ -91,7 +92,7 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
   },{passive:true});
 })();
 
-/* ── Watermark scroll ────────────────────────────── */
+/* ── Watermark scroll ──────────────────────────────────── */
 (function(){
   const wm=document.getElementById("wm");
   if(!wm) return;
@@ -104,7 +105,7 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
   },{passive:true});
 })();
 
-/* ── Dropdowns ───────────────────────────────────── */
+/* ── Dropdowns ────────────────────────────────────────── */
 (function(){
   var closeTimers = {};
   function openDd(dd){
@@ -139,5 +140,6 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
 })();
 </script>
 
+{% include "partials/_swipe_nav.html" %}
 </body>
 </html>
