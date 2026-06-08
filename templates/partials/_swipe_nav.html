@@ -19,6 +19,8 @@
   var cache = {};       /* index → { dom: HTMLElement, meta: object } */
   var currentPage = 0;
   var navigating  = false;
+  var pushCount   = 0;  /* cap real history entries so back-stack never bloats */
+  var MAX_PUSH    = 3;  /* after 3 URL changes, overwrite instead of stacking  */
 
   /* ── Init ───────────────────────────────────────────── */
   function init() {
@@ -141,7 +143,14 @@
         document.documentElement.dataset.pageIndex = targetIndex;
 
         if (pushState) {
-          history.pushState({ page: targetIndex }, meta.title || '', PAGES[targetIndex].path);
+          /* Keep at most MAX_PUSH entries in the back-stack: stack the first
+             few URL changes, then overwrite so memory never grows unbounded. */
+          if (pushCount < MAX_PUSH) {
+            history.pushState({ page: targetIndex }, meta.title || '', PAGES[targetIndex].path);
+            pushCount++;
+          } else {
+            history.replaceState({ page: targetIndex }, meta.title || '', PAGES[targetIndex].path);
+          }
         }
 
         currentPage = targetIndex;
@@ -149,9 +158,9 @@
         updateHeroChips(currentPage);
 
         reRunScripts(main);
-        setTimeout(function() {
-          window._sainheInitAnim && window._sainheInitAnim();
-        }, 50);
+        /* Do NOT re-run the scroll-in reveal on swipe: freshly-injected static
+           content is already visible, so cards and their (i) marks stay still
+           instead of replaying the fade/blur entrance on every page change. */
       }
 
       main.style.opacity = '1';

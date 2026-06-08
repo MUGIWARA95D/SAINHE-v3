@@ -402,6 +402,11 @@ a.news-hl:hover{color:var(--gold)}
 }
 
 /* ══════ HERO ══════════════════════════════════════════════════ */
+/* Hero lives OUTSIDE #main (so the swipe engine never swaps it), but must
+ * share #main's exact horizontal box so it aligns with the content bands. */
+.hero-shell{max-width:1600px;margin:0 auto;padding:40px 60px 0}
+@media(max-width:1100px){.hero-shell{padding:32px 40px 0}}
+@media(max-width:800px){.hero-shell{padding:20px 20px 0}}
 .hero{position:relative;margin:20px 0 28px;padding:54px 44px 48px;
   background:linear-gradient(135deg,#F0C8A0 0%,#FFE5CC 100%);
   border-radius:14px;overflow:hidden;color:#3A1E08;
