@@ -394,6 +394,13 @@ def render(currency: str = DEFAULT_CURRENCY):
     ts_map    = _box_timestamps(con)
     ts_render = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     page_navs = build_page_navs()
+    page_order = ["dashboard", "stock-analysis", "learn", "contact"]
+    page_paths = {
+        "dashboard":      "/index.html",
+        "stock-analysis": "/stock-analysis.html",
+        "learn":          "/learn.html",
+        "contact":        "/contact.html",
+    }
 
     env = Environment(loader=FileSystemLoader(str(TEMPLATE_DIR)), autoescape=True)
 
@@ -425,6 +432,8 @@ def render(currency: str = DEFAULT_CURRENCY):
     _render_page(env, "dashboard.html", OUTPUT_DIR / "index.html", {
         **base_ctx,
         "current_page"    : "dashboard",
+        "page_index"      : 0,
+        "page_path"       : page_paths["dashboard"],
         "page_title"      : f"{SITE_NAME} — {SITE_SLOGAN}",
         "page_description": "Live macro signals, global indices, sector rotation, sentiment and portfolio scan. VIX, ERP, yield curve, HY OAS, CAPE and more.",
         "page_nav"     : page_navs["dashboard"],
@@ -453,6 +462,8 @@ def render(currency: str = DEFAULT_CURRENCY):
     _render_page(env, "stock-analysis.html", OUTPUT_DIR / "stock-analysis.html", {
         **base_ctx,
         "current_page"    : "stock-analysis",
+        "page_index"      : 1,
+        "page_path"       : page_paths["stock-analysis"],
         "page_nav"        : page_navs["stock-analysis"],
         "page_title"      : f"Stock Analysis — {SITE_NAME}",
         "page_description": "Deep-dive stock analysis: fundamentals, technicals, and valuation context.",
@@ -462,6 +473,8 @@ def render(currency: str = DEFAULT_CURRENCY):
     _render_page(env, "learn.html", OUTPUT_DIR / "learn.html", {
         **base_ctx,
         "current_page"    : "learn",
+        "page_index"      : 2,
+        "page_path"       : page_paths["learn"],
         "page_nav"        : page_navs["learn"],
         "page_title"      : f"Learn — {SITE_NAME}",
         "page_description": "How to read the dashboard: signal thresholds, column definitions, and interpretation guides for all 6 data boxes.",
@@ -471,6 +484,8 @@ def render(currency: str = DEFAULT_CURRENCY):
     _render_page(env, "contact.html", OUTPUT_DIR / "contact.html", {
         **base_ctx,
         "current_page"    : "contact",
+        "page_index"      : 3,
+        "page_path"       : page_paths["contact"],
         "page_nav"        : page_navs["contact"],
         "page_title"      : f"Contact — {SITE_NAME}",
         "page_description": f"Contact {SITE_NAME} — feedback, data corrections, and partnership inquiries.",
