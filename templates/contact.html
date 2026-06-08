@@ -64,6 +64,10 @@
 {% include "partials/_onboard.html" %}
 <script type="application/json" id="sainhe-page-meta">{"index":{{ page_index }},"path":"{{ page_path }}","title":{{ page_title | tojson }},"nav":{{ page_nav | tojson }}}</script>
 
+{% include "partials/_hero.html" %}
+
+<main id="main">
+
 <style>
 /* ── Contact page ─────────────────────────────────────── */
 .ct-founder{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;margin-bottom:36px}
@@ -160,10 +164,6 @@
 [data-theme="dark"] .sec-creme .ct-block-body a{color:var(--gold)}
 [data-theme="dark"] .sec-creme .ct-divider{background:var(--border-lt)}
 </style>
-
-{% include "partials/_hero.html" %}
-
-<main id="main">
 
   <!-- ═══ STATEMENT BAR ═══════════════════════════════════════ -->
   <div class="statement-bar">
