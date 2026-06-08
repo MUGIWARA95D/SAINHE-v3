@@ -1134,6 +1134,16 @@ a.news-hl:hover{color:var(--gold)}
   35%,65%{background:rgba(196,149,90,.14);border-color:#C4955A;
     box-shadow:inset 3px 0 0 #C4955A}}
 .lrn-row-flash{animation:lrn-row-flash 1.1s ease 2}
+
+/* ══ PAGE TRANSITION ══════════════════════════════════ */
+#main{transition:opacity .18s ease}
+/* ══ PAGE DOTS ════════════════════════════════════════ */
+#page-dots{display:flex;gap:8px;justify-content:center;padding:32px 0 44px}
+.pg-dot{width:8px;height:8px;border-radius:50%;background:var(--border);
+  border:none;cursor:pointer;padding:0;
+  transition:background .3s,transform .25s}
+.pg-dot.active{background:var(--gold);transform:scale(1.35)}
+.pg-dot:hover:not(.active){background:var(--gold-border);transform:scale(1.15)}
 {% endraw %}</style>
   <!-- CI toggle — early init (before box scripts run) -->
   <script>

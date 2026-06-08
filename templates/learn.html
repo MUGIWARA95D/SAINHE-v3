@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="{{ lang }}" data-theme="light">
+<html lang="{{ lang }}" data-theme="light" data-page-index="{{ page_index }}">
 {% include "partials/_head.html" %}
 <script type="application/ld+json">
 {
@@ -56,10 +56,11 @@
 
 {% include "partials/_header.html" %}
 {% include "partials/_onboard.html" %}
+<script type="application/json" id="sainhe-page-meta">{"index":{{ page_index }},"path":"{{ page_path }}","title":{{ page_title | tojson }},"nav":{{ page_nav | tojson }}}</script>
+
+{% include "partials/_hero.html" %}
 
 <main id="main">
-
-  {% include "partials/_hero.html" %}
 
   <!-- ═══ STATEMENT BAR ═══════════════════════════════════════ -->
   <div class="statement-bar">
@@ -1380,6 +1381,7 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
 })();
 </script>
 
+{% include "partials/_swipe_nav.html" %}
 </body>
 </html>
 
