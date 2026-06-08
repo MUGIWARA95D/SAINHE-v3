@@ -746,6 +746,14 @@ window.addEventListener('resize', function() {
             </div>
 
             <div class="lrn-panel-row">
+              <div class="lrn-panel-row-lbl">Navigation</div>
+              <div class="lrn-panel-row-val">SAINHE has four pages — <strong>Dashboard</strong>, <strong>Stock Analysis</strong>, <strong>Learn</strong>, and <strong>Contact</strong> — and you can move between them without any page reload. The four dots at the bottom of the screen always show you where you are (the gold dot = current page).<br><br>
+                <strong>On mobile / tablet:</strong> <strong>swipe left or right</strong> with your finger anywhere on the page. Swipe left to go to the next page, swipe right to go back. You can also tap any of the four dots directly.<br><br>
+                <strong>On desktop:</strong> press the <strong>← →</strong> arrow keys on your keyboard, or <strong>click and drag</strong> horizontally (≥ 80 px) anywhere on the page. You can also click the dots at the bottom, or use the navigation chips in the hero banner at the top of each page.<br><br>
+                The transition is instant — all pages are pre-loaded in the background so there is no wait time between sections.</div>
+            </div>
+
+            <div class="lrn-panel-row">
               <div class="lrn-panel-row-lbl">Updates</div>
               <div class="lrn-panel-row-val">Everything runs on an automated pipeline on GitHub — no human intervention needed. Here is exactly what updates when:<br><br> <strong>News headlines</strong> — every hour, 24/7. The pipeline fetches the latest macro and market articles, recalculates indicators, re-renders the page, and deploys it to the web. You are never more than ~60 minutes behind on news.<br><br> <strong>Prices, signals &amp; all indicators</strong> — every weekday at <strong>10:00 PM UTC</strong> (after US markets close). This is the main daily run: it fetches the latest closing prices for all 100+ tickers, recalculates every score, RVOL, Smart Money signal, momentum composite, sentiment, R-Perf, and yield curve regime, then re-renders and deploys the full dashboard.<br><br> <strong>FX rates</strong> (EUR, HKD conversion) — every 6 hours: midnight, 6 AM, noon, 6 PM UTC.<br><br> <strong>Historical price database</strong> — rebuilt in two batches every night to stay within API limits. Tickers 1–50 run at 2:30 AM and 3:30 AM UTC. Tickers 51–100 run at 3:00 AM and 4:00 AM UTC. This keeps two full years of daily price history fresh for every sparkline and momentum calculation.<br><br> The <strong>timestamp</strong> under each dashboard section shows you the exact moment it was last computed. Fresh = under 6 hours (green dot). Stale = 6–30 hours (orange). Anything beyond 30 hours likely means the pipeline hit an issue or markets were closed — cross-check at the source if a decision depends on it.</div>
             </div>

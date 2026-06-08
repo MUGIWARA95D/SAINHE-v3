@@ -204,9 +204,9 @@
     });
   });
 
-  /* ── Header nav link clicks → swipe instead of full reload ── */
+  /* ── Header nav + hero chip clicks → swipe instead of full reload ── */
   document.addEventListener('click', function(e) {
-    var a = e.target.closest('.hdr-nav a:not(.hdr-nav-menu)');
+    var a = e.target.closest('.hdr-nav a:not(.hdr-nav-menu), .hero-chip');
     if (!a) return;
     var href = a.getAttribute('href');
     /* Anchor links (#nav-macro etc.) scroll normally; page links navigate via swipe engine */
