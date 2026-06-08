@@ -13,13 +13,18 @@
 }
 </style>
 <script>
-(function(){
+window._sainheAnimObserver = null;
+
+window._sainheCleanupAnim = function(){
+  if(window._sainheAnimObserver){
+    window._sainheAnimObserver.disconnect();
+    window._sainheAnimObserver = null;
+  }
+};
+
+window._sainheInitAnim = function(){
+  window._sainheCleanupAnim();
   if(!('IntersectionObserver' in window)) return;
-  /* On phone/tablet, sections are large relative to the viewport — the desktop
-   * settings (threshold 0.12 + negative rootMargin) made users scroll past the
-   * top of a section before the animation fired. On compact viewports we use
-   * threshold 0 + positive bottom rootMargin so the fade-in begins BEFORE the
-   * element enters the viewport, and the user sees it already in place. */
   var COMPACT = window.matchMedia('(max-width:900px)').matches
              || window.matchMedia('(pointer:coarse)').matches;
   var TH = COMPACT ? 0    : 0.12;
@@ -28,16 +33,19 @@
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(e, idx){
       if(!e.isIntersecting) return;
-      /* stagger within the batch: 90ms between siblings entering together */
       e.target.style.transitionDelay = (idx * 90) + 'ms';
       e.target.classList.add('anim-in');
       io.unobserve(e.target);
     });
   }, {threshold: TH, rootMargin: RM});
+  window._sainheAnimObserver = io;
 
-  document.querySelectorAll('.card, .sec-band').forEach(function(el){
+  document.querySelectorAll('#main .card, #main .sec-band').forEach(function(el){
+    el.classList.remove('anim-in');
     el.classList.add('anim-init');
     io.observe(el);
   });
-})();
+};
+
+window._sainheInitAnim();
 </script>
