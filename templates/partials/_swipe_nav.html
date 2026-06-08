@@ -19,6 +19,8 @@
   var cache = {};       /* index → { dom: HTMLElement, meta: object } */
   var currentPage = 0;
   var navigating  = false;
+  var pushCount   = 0;  /* cap real history entries so back-stack never bloats */
+  var MAX_PUSH    = 3;  /* after 3 URL changes, overwrite instead of stacking  */
 
   /* ── Init ───────────────────────────────────────────── */
   function init() {
@@ -34,6 +36,7 @@
     }
 
     updateDots(currentPage);
+    updateHeroChips(currentPage);
     history.replaceState({ page: currentPage }, '', location.pathname);
 
     /* Prefetch other pages after idle */
@@ -70,6 +73,15 @@
     });
   }
 
+  function updateHeroChips(index) {
+    var targetPath = PAGES[index] && PAGES[index].path;
+    document.querySelectorAll('.hero-chip').forEach(function(chip) {
+      var href = chip.getAttribute('href');
+      var active = targetPath && (href === targetPath || href.replace('/index.html', '/') === targetPath);
+      chip.classList.toggle('hero-chip-active', !!active);
+    });
+  }
+
   function updateHeaderNav(navLinks) {
     var nav = document.querySelector('.hdr-nav');
     if (!nav) return;
@@ -84,18 +96,52 @@
 
   /* ── Cleanup ────────────────────────────────────────── */
   function destroyCharts() {
-    if (typeof Chart === 'undefined') return;
-    document.querySelectorAll('#main canvas').forEach(function(cv) {
-      var c = Chart.getChart(cv);
-      if (c) try { c.destroy(); } catch(e) {}
-    });
+    if (typeof Chart !== 'undefined') {
+      document.querySelectorAll('#main canvas').forEach(function(cv) {
+        var c = Chart.getChart(cv);
+        if (c) try { c.destroy(); } catch(e) {}
+      });
+    }
+    /* Stop any D3 force simulation registered by the current page */
+    if (window._sainheD3Sim) {
+      try { window._sainheD3Sim.stop(); } catch(e) {}
+      window._sainheD3Sim = null;
+    }
   }
 
+  /* ── Script re-execution — external deps load first, then inline ── */
+  /* Problem: inline scripts that depend on external CDN libraries (e.g. D3)
+     would run before those libraries finish loading if we executed everything
+     immediately. Fix: collect external <script src> tags, wait for all to load
+     (skipping ones whose global is already present), then run inline scripts. */
   function reRunScripts(container) {
-    container.querySelectorAll('script').forEach(function(old) {
+    var all = Array.from(container.querySelectorAll('script'));
+    var ext = all.filter(function(s) { return !!s.src; });
+    var inl = all.filter(function(s) { return !s.src; });
+
+    function runInline() {
+      inl.forEach(function(old) {
+        var s = document.createElement('script');
+        s.textContent = old.textContent;
+        if (old.parentNode) old.parentNode.replaceChild(s, old);
+        else container.appendChild(s);
+      });
+    }
+
+    if (!ext.length) { runInline(); return; }
+
+    var pending = ext.length;
+    function onLoad() { if (--pending === 0) runInline(); }
+
+    ext.forEach(function(old) {
+      /* D3 already loaded globally — skip re-fetching, just count it done */
+      if (old.src.indexOf('d3') !== -1 && typeof window.d3 !== 'undefined') {
+        old.remove(); onLoad(); return;
+      }
       var s = document.createElement('script');
-      if (old.src) { s.src = old.src; s.async = true; }
-      else { s.textContent = old.textContent; }
+      s.src = old.src;
+      s.async = false; /* preserve relative execution order */
+      s.onload = s.onerror = onLoad;
       old.parentNode.replaceChild(s, old);
     });
   }
@@ -131,16 +177,24 @@
         document.documentElement.dataset.pageIndex = targetIndex;
 
         if (pushState) {
-          history.pushState({ page: targetIndex }, meta.title || '', PAGES[targetIndex].path);
+          /* Keep at most MAX_PUSH entries in the back-stack: stack the first
+             few URL changes, then overwrite so memory never grows unbounded. */
+          if (pushCount < MAX_PUSH) {
+            history.pushState({ page: targetIndex }, meta.title || '', PAGES[targetIndex].path);
+            pushCount++;
+          } else {
+            history.replaceState({ page: targetIndex }, meta.title || '', PAGES[targetIndex].path);
+          }
         }
 
         currentPage = targetIndex;
         updateDots(currentPage);
+        updateHeroChips(currentPage);
 
         reRunScripts(main);
-        setTimeout(function() {
-          window._sainheInitAnim && window._sainheInitAnim();
-        }, 50);
+        /* Do NOT re-run the scroll-in reveal on swipe: freshly-injected static
+           content is already visible, so cards and their (i) marks stay still
+           instead of replaying the fade/blur entrance on every page change. */
       }
 
       main.style.opacity = '1';
@@ -151,13 +205,42 @@
     });
   }
 
+  /* ── Swipe-exclusion zones ──────────────────────────── */
+  /* Returns true if the element (or any ancestor) belongs to a zone where
+     horizontal interaction is owned by the content, not the page navigator.
+     Covers: D3 mindmap (pan/zoom/drag), macro & signal carousels on mobile,
+     and any element that is actually horizontally overflowing. */
+  function inSwipeExclude(el) {
+    if (!el) return false;
+    var node = el;
+    while (node && node !== document.body) {
+      var id = node.id;
+      /* Mindmap: D3 applies its own pan/zoom/drag — never steal those touches */
+      if (id === 'mm-wrap' || id === 'mm-svg' || id === 'mm-bar') return true;
+      /* Named carousels (class-based) */
+      if (node.classList) {
+        if (node.classList.contains('region-cards') || node.classList.contains('macro-grid')) return true;
+      }
+      /* Any element that is actually scrollable horizontally */
+      try {
+        var ox = window.getComputedStyle(node).overflowX;
+        if ((ox === 'scroll' || ox === 'auto') && node.scrollWidth > node.clientWidth + 2) return true;
+      } catch(e) {}
+      node = node.parentElement;
+    }
+    return false;
+  }
+
   /* ── Touch (mobile swipe) ───────────────────────────── */
-  var touchX = 0, touchY = 0;
+  var touchX = 0, touchY = 0, touchTarget = null;
   document.addEventListener('touchstart', function(e) {
     touchX = e.touches[0].clientX;
     touchY = e.touches[0].clientY;
+    touchTarget = e.target;
   }, { passive: true });
   document.addEventListener('touchend', function(e) {
+    /* Ignore swipe that started inside a horizontally-interactive zone */
+    if (inSwipeExclude(touchTarget)) return;
     var dx = e.changedTouches[0].clientX - touchX;
     var dy = e.changedTouches[0].clientY - touchY;
     /* horizontal must be ≥50px and > 1.5× vertical to avoid conflict with scroll */
@@ -167,18 +250,19 @@
   }, { passive: true });
 
   /* ── Mouse drag (desktop) ───────────────────────────── */
-  var mStartX = 0, mDown = false, mDragged = false;
+  var mStartX = 0, mStartTarget = null, mDown = false, mDragged = false;
   document.addEventListener('mousedown', function(e) {
     if (e.button !== 0) return;
-    mStartX  = e.clientX;
-    mDown    = true;
-    mDragged = false;
+    mStartX      = e.clientX;
+    mStartTarget = e.target;
+    mDown        = true;
+    mDragged     = false;
   });
   document.addEventListener('mousemove', function(e) {
     if (mDown && Math.abs(e.clientX - mStartX) > 10) mDragged = true;
   });
   document.addEventListener('mouseup', function(e) {
-    if (mDown && mDragged) {
+    if (mDown && mDragged && !inSwipeExclude(mStartTarget)) {
       var dx = e.clientX - mStartX;
       if (Math.abs(dx) >= 80) navigate(currentPage + (dx > 0 ? -1 : 1));
     }
@@ -204,9 +288,9 @@
     });
   });
 
-  /* ── Header nav link clicks → swipe instead of full reload ── */
+  /* ── Header nav + hero chip clicks → swipe instead of full reload ── */
   document.addEventListener('click', function(e) {
-    var a = e.target.closest('.hdr-nav a:not(.hdr-nav-menu)');
+    var a = e.target.closest('.hdr-nav a:not(.hdr-nav-menu), .hero-chip');
     if (!a) return;
     var href = a.getAttribute('href');
     /* Anchor links (#nav-macro etc.) scroll normally; page links navigate via swipe engine */

@@ -457,6 +457,7 @@ var sim = d3.forceSimulation(nodes)
   .force('center', d3.forceCenter(W/2, H/2))
   .force('collide', d3.forceCollide().radius(function(d) { return nodeR(d)+22; }).iterations(4))
   .alphaDecay(0.022);
+window._sainheD3Sim = sim; /* allow swipe engine to stop it on page nav */
 
 // ── Curved links ─────────────────────────────────────────────
 function arcPath(d) {
