@@ -34,6 +34,7 @@
     }
 
     updateDots(currentPage);
+    updateHeroChips(currentPage);
     history.replaceState({ page: currentPage }, '', location.pathname);
 
     /* Prefetch other pages after idle */
@@ -67,6 +68,15 @@
   function updateDots(index) {
     document.querySelectorAll('.pg-dot').forEach(function(d) {
       d.classList.toggle('active', parseInt(d.dataset.page, 10) === index);
+    });
+  }
+
+  function updateHeroChips(index) {
+    var targetPath = PAGES[index] && PAGES[index].path;
+    document.querySelectorAll('.hero-chip').forEach(function(chip) {
+      var href = chip.getAttribute('href');
+      var active = targetPath && (href === targetPath || href.replace('/index.html', '/') === targetPath);
+      chip.classList.toggle('hero-chip-active', !!active);
     });
   }
 
@@ -136,6 +146,7 @@
 
         currentPage = targetIndex;
         updateDots(currentPage);
+        updateHeroChips(currentPage);
 
         reRunScripts(main);
         setTimeout(function() {
