@@ -302,3 +302,71 @@ BOX_REGISTRY = [
     {"id": "box_05_sentiment", "ordre": 5, "largeur": "full",  "actif": True},
     {"id": "box_06_portfolio", "ordre": 6, "largeur": "full",  "actif": True},
 ]
+
+# ============================================================
+#  11. PAGES — single source of truth for the site's page structure.
+#  Adding a new page = one entry here; render_html.py loops over this.
+#  "dashboard" is always index 0 and renders boxes; others are generic.
+# ============================================================
+PAGES = [
+    {
+        "id"         : "dashboard",
+        "template"   : "dashboard.html",
+        "output"     : "index.html",
+        "path"       : "/index.html",
+        "title"      : None,          # render_html fills: SITE_NAME + " — " + SITE_SLOGAN
+        "description": (
+            "Live macro signals, global indices, sector rotation, sentiment and portfolio "
+            "scan. VIX, ERP, yield curve, HY OAS, CAPE and more."
+        ),
+        "nav": [
+            {"href": "#nav-macro",     "label": "Macro"},
+            {"href": "#nav-indices",   "label": "Indices"},
+            {"href": "#nav-news",      "label": "News"},
+            {"href": "#nav-sectors",   "label": "Valuation"},
+            {"href": "#nav-rotation",  "label": "Rotation"},
+            {"href": "#nav-portfolio", "label": "Portfolio"},
+        ],
+    },
+    {
+        "id"         : "stock-analysis",
+        "template"   : "stock-analysis.html",
+        "output"     : "stock-analysis.html",
+        "path"       : "/stock-analysis.html",
+        "title"      : "Stock Analysis",
+        "description": "Deep-dive stock analysis: fundamentals, technicals, and valuation context.",
+        "nav"        : [],
+    },
+    {
+        "id"         : "learn",
+        "template"   : "learn.html",
+        "output"     : "learn.html",
+        "path"       : "/learn.html",
+        "title"      : "Learn",
+        "description": (
+            "How to read the dashboard: signal thresholds, column definitions, and "
+            "interpretation guides for all 6 data boxes."
+        ),
+        "nav": [
+            {"href": "#learn-whyfinance",   "label": "Why Finance"},
+            {"href": "#learn-guidelines",   "label": "Guidelines"},
+            {"href": "#learn-mindmap",      "label": "Mindmap"},
+            {"href": "#learn-dashboard",    "label": "Dashboard"},
+            {"href": "#learn-stockanalysis","label": "Stock Analysis"},
+        ],
+    },
+    {
+        "id"         : "contact",
+        "template"   : "contact.html",
+        "output"     : "contact.html",
+        "path"       : "/contact.html",
+        "title"      : "Contact",
+        "description": None,          # render_html fills: "Contact SITE_NAME — ..."
+        "nav": [
+            {"href": "#ct-about",   "label": "About"},
+            {"href": "#ct-story",   "label": "Story"},
+            {"href": "#ct-reach",   "label": "Reach"},
+            {"href": "#ct-roadmap", "label": "Roadmap"},
+        ],
+    },
+]

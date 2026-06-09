@@ -9,15 +9,7 @@ import sqlite3
 # ══════════════════════════════════════════════════════════════
 META = {
     "id"         : "box_06_portfolio",
-    "titre"      : {
-        "EN": "Portfolio Scanner",
-        "FR": "Scanner Portefeuille",
-        "DE": "Portfolio-Scanner",
-        "ES": "Escáner de Cartera",
-        "ZH": "投资组合扫描",
-        "RU": "Сканер портфеля",
-        "JA": "ポートフォリオスキャナー",
-    },
+    "titre"      : "Portfolio Scanner",
     "description": "Technical scan of your personal watchlist.",
     "icone"      : "🔍",
     "largeur"    : "full",
@@ -153,7 +145,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
         })
 
     return {
-        "meta": {**META, "titre": META["titre"].get(lang, META["titre"]["EN"])},
+        "meta": META,
         "data": {
             "currency": currency,
             "tickers" : tickers_out,

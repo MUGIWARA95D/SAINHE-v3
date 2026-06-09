@@ -3,31 +3,22 @@ box_01_macro.py — Santé macro : VIX, Yield Curve, ERP, DXY + Global Liquidity
 """
 
 import sqlite3
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from config import VIX_THRESHOLDS, ERP_THRESHOLDS
 
 # ══════════════════════════════════════════════════════════════
 # ── 1. META
 # ══════════════════════════════════════════════════════════════
 META = {
     "id"         : "box_01_macro",
-    "titre"      : {
-        "EN": "Macro Health",
-        "FR": "Santé Macro",
-        "DE": "Makro-Gesundheit",
-        "ES": "Salud Macro",
-        "ZH": "宏观健康",
-        "RU": "Макро-здоровье",
-        "JA": "マクロ健全性",
-    },
+    "titre"      : "Macro Health",
     "description": "ERP, yield curve inversion, VIX regime, DXY trend.",
     "icone"      : "🏛️",
     "largeur"    : "full",
 }
-
-# Seuils de régime — modifie ici pour changer les zones colorées
-VIX_COMPLACENCY = 15
-VIX_PANIC       = 30
-ERP_ATTRACTIVE  = 0.02    # ERP > 2% → actions bon marché vs obligations
-ERP_EXPENSIVE   = 0.01    # ERP < 1% → actions chères
 
 
 # ══════════════════════════════════════════════════════════════
@@ -115,11 +106,11 @@ def _erp_text(erp, us10y, sp500_pe):
         return (f"Negative ERP ({erp_pct:+.2f}%): risk-free rate ({y10_str}) exceeds earnings yield ({ey_str}). "
                 f"Historically rare — last observed 1997–2000 and 2006–2008 (Damodaran). "
                 f"Bonds structurally outperform equities on a risk-adjusted basis at these levels.")
-    if erp < ERP_EXPENSIVE:
+    if erp < ERP_THRESHOLDS["expensive"]:
         return (f"ERP at {erp_pct:.2f}% — below 1% CAPM threshold. "
                 f"Near-zero equity premium vs bonds (earnings yield {ey_str} vs 10Y {y10_str}). "
                 f"Risk-adjusted returns historically favour fixed income (Damodaran, 1960–present).")
-    if erp < ERP_ATTRACTIVE:
+    if erp < ERP_THRESHOLDS["attractive"]:
         return (f"ERP at {erp_pct:.2f}% — below the 2% CAPM attractiveness threshold. "
                 f"Equity premium modest vs bonds. Balanced allocation warranted; no strong directional signal (Damodaran).")
     return (f"ERP at {erp_pct:.2f}% — above 2% CAPM threshold. "
@@ -554,11 +545,11 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
     # ── Régimes ─────────────────────────────────────────────
     vix_val = macro.get("vix")
     if vix_val is not None:
-        if vix_val < VIX_COMPLACENCY:
+        if vix_val < VIX_THRESHOLDS["complacency"]:
             vix_regime = "complacency"
         elif vix_val < 20:
             vix_regime = "normal"
-        elif vix_val < VIX_PANIC:
+        elif vix_val < VIX_THRESHOLDS["panic"]:
             vix_regime = "fear"
         else:
             vix_regime = "panic"
@@ -567,9 +558,9 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
 
     erp_val = macro.get("erp")
     if erp_val is not None:
-        if erp_val >= ERP_ATTRACTIVE:
+        if erp_val >= ERP_THRESHOLDS["attractive"]:
             erp_regime = "attractive"
-        elif erp_val >= ERP_EXPENSIVE:
+        elif erp_val >= ERP_THRESHOLDS["expensive"]:
             erp_regime = "neutral"
         else:
             erp_regime = "expensive"
@@ -606,7 +597,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
     gold_text   = _gold_ratio_text(liq.get("gold_stocks"))
 
     return {
-        "meta": {**META, "titre": META["titre"].get(lang, META["titre"]["EN"])},
+        "meta": META,
         "data": {
             "ts"         : macro.get("ts"),
             "vix"        : {

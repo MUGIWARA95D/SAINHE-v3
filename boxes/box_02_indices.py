@@ -13,15 +13,7 @@ from config import INDICES
 # ══════════════════════════════════════════════════════════════
 META = {
     "id"         : "box_02_indices",
-    "titre"      : {
-        "EN": "Global Indices",
-        "FR": "Indices Globaux",
-        "DE": "Globale Indizes",
-        "ES": "Índices Globales",
-        "ZH": "全球指数",
-        "RU": "Мировые индексы",
-        "JA": "グローバル指数",
-    },
+    "titre"      : "Global Indices",
     "description": "Real-time snapshot of major global indices.",
     "icone"      : "📈",
     "largeur"    : "full",
@@ -125,7 +117,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
         })
 
     return {
-        "meta": {**META, "titre": META["titre"].get(lang, META["titre"]["EN"])},
+        "meta": META,
         "data": {
             "par_region": par_region,
             "currency"  : currency,

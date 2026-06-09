@@ -28,15 +28,7 @@ from config import SECTOR_TICKERS
 # ══════════════════════════════════════════════════════════════
 META = {
     "id"         : "box_05_sentiment",   # ID kept for BOX_REGISTRY stability
-    "titre"      : {
-        "EN": "Rotation",
-        "FR": "Rotation",
-        "DE": "Rotation",
-        "ES": "Rotación",
-        "ZH": "板块轮动",
-        "RU": "Ротация",
-        "JA": "ローテーション",
-    },
+    "titre"      : "Rotation",
     "description": "Volume-driven sector rotation — DMA · MFI · OBV signals across 16 sectors × 4 regions.",
     "icone"      : "🗺️",
     "largeur"    : "full",
@@ -368,7 +360,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
     regime  = _fetch_regime(con)
 
     return {
-        "meta": {**META, "titre": META["titre"].get(lang, META["titre"]["EN"])},
+        "meta": META,
         "data": {
             "regions": REGIONS,
             "sectors": SECTORS,

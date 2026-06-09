@@ -11,15 +11,7 @@ from collections import defaultdict
 # ══════════════════════════════════════════════════════════════
 META = {
     "id"         : "box_04_sectors",
-    "titre"      : {
-        "EN": "Valuation",
-        "FR": "Valorisation",
-        "DE": "Bewertung",
-        "ES": "Valoración",
-        "ZH": "估值",
-        "RU": "Оценка",
-        "JA": "バリュエーション",
-    },
+    "titre"      : "Valuation",
     "description": "Price-driven sector view — momentum scores, relative performance and trend across 16 sectors × 4 regions.",
     "icone"      : "💰",
     "largeur"    : "full",
@@ -223,7 +215,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
         })
 
     return {
-        "meta": {**META, "titre": META["titre"].get(lang, META["titre"]["EN"])},
+        "meta": META,
         "data": {
             "secteurs"      : secteurs_out,
             "regions_ordre" : REGIONS_ORDRE,

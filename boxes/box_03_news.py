@@ -9,15 +9,7 @@ import sqlite3
 # ══════════════════════════════════════════════════════════════
 META = {
     "id"         : "box_03_news",
-    "titre"      : {
-        "EN": "Market News",
-        "FR": "Actualités Marchés",
-        "DE": "Marktnachrichten",
-        "ES": "Noticias de Mercado",
-        "ZH": "市场新闻",
-        "RU": "Новости рынка",
-        "JA": "市場ニュース",
-    },
+    "titre"      : "Market News",
     "description": "Latest financial news from global sources.",
     "icone"      : "📰",
     "largeur"    : "full",
@@ -104,7 +96,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
         })
 
     return {
-        "meta": {**META, "titre": META["titre"].get(lang, META["titre"]["EN"])},
+        "meta": META,
         "data": {
             "par_region": par_region,
             "total"     : len(articles),
