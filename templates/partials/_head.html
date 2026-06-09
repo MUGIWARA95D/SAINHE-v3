@@ -192,9 +192,9 @@ body{padding-top:84px}
 .tk-up{color:#7CC98A}.tk-dn{color:#E08080}
 
 /* ═══════════════════ MAIN ═══════════════════ */
-#main{padding:40px 60px;max-width:1600px;margin:0 auto;position:relative;z-index:1}
-@media(max-width:1100px){#main{padding:32px 40px}}
-@media(max-width:800px){#main{padding:20px 20px}}
+#main{padding:40px 60px 100px;max-width:1600px;margin:0 auto;position:relative;z-index:1}
+@media(max-width:1100px){#main{padding:32px 40px 90px}}
+@media(max-width:800px){#main{padding:20px 20px 84px}}
 
 /* ═══════════════════ CARD ═══════════════════ */
 .card{background:var(--card);border:1px solid var(--border-lt);border-radius:20px;
@@ -402,6 +402,11 @@ a.news-hl:hover{color:var(--gold)}
 }
 
 /* ══════ HERO ══════════════════════════════════════════════════ */
+/* Hero lives OUTSIDE #main (so the swipe engine never swaps it), but must
+ * share #main's exact horizontal box so it aligns with the content bands. */
+.hero-shell{max-width:1600px;margin:0 auto;padding:40px 60px 0}
+@media(max-width:1100px){.hero-shell{padding:32px 40px 0}}
+@media(max-width:800px){.hero-shell{padding:20px 20px 0}}
 .hero{position:relative;margin:20px 0 28px;padding:54px 44px 48px;
   background:linear-gradient(135deg,#F0C8A0 0%,#FFE5CC 100%);
   border-radius:14px;overflow:hidden;color:#3A1E08;
@@ -613,7 +618,7 @@ a.news-hl:hover{color:var(--gold)}
   .hdr-dd-btn{font-size:10px;padding:2px 6px}
 
   /* Main padding */
-  #main{padding:12px 12px}
+  #main{padding:12px 12px 84px}
 
   /* Hero */
   .hero{padding:28px 18px 24px;margin:10px 0 18px;border-radius:10px}
@@ -691,7 +696,7 @@ a.news-hl:hover{color:var(--gold)}
   .hero-chips{flex-wrap:wrap}
   .hero-chip{flex:0 0 calc(50% - 4px);padding:10px 4px;font-size:10.5px}
   .sec-choc,.sec-creme{padding:0 10px 20px}
-  #main{padding:8px 8px}
+  #main{padding:8px 8px 84px}
 }
 
 /* ══════════════════════════════════════════════════════════════ */
@@ -1137,8 +1142,15 @@ a.news-hl:hover{color:var(--gold)}
 
 /* ══ PAGE TRANSITION ══════════════════════════════════ */
 #main{transition:opacity .18s ease}
-/* ══ PAGE DOTS ════════════════════════════════════════ */
-#page-dots{display:flex;gap:8px;justify-content:center;padding:32px 0 44px}
+/* ══ PAGE DOTS (fixed pill at bottom of screen) ══════════════ */
+#page-dots{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:100;
+  display:flex;gap:10px;align-items:center;padding:10px 18px;
+  background:rgba(253,250,244,.78);
+  backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);
+  border:1px solid rgba(221,213,196,.6);border-radius:999px;
+  box-shadow:0 4px 20px rgba(60,40,15,.06),0 1px 3px rgba(60,40,15,.04);
+  transition:background .25s,border-color .25s}
+[data-theme="dark"] #page-dots{background:rgba(22,18,14,.72);border-color:rgba(66,56,40,.6)}
 .pg-dot{width:8px;height:8px;border-radius:50%;background:var(--border);
   border:none;cursor:pointer;padding:0;
   transition:background .3s,transform .25s}
