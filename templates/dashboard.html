@@ -257,33 +257,6 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
   el.appendChild(frag);
 })();
 
-/* ── Box Info Popovers ───────────────────────────── */
-(function(){
-  var locked = null;
-  function closeAll(){
-    document.querySelectorAll('.box-info-pop.bip-open').forEach(function(p){ p.classList.remove('bip-open'); });
-    document.querySelectorAll('.box-info-btn.bib-on').forEach(function(b){ b.classList.remove('bib-on'); });
-    locked = null;
-  }
-  document.querySelectorAll('.box-info-btn').forEach(function(btn){
-    var pop = btn.nextElementSibling;
-    if(!pop) return;
-    var hideTimer;
-    function scheduleHide(){ hideTimer = setTimeout(function(){ if(locked !== pop) pop.classList.remove('bip-open'); }, 400); }
-    function cancelHide(){ clearTimeout(hideTimer); }
-    btn.addEventListener('mouseenter', function(){ cancelHide(); pop.classList.add('bip-open'); });
-    btn.addEventListener('mouseleave', scheduleHide);
-    pop.addEventListener('mouseenter', cancelHide);
-    pop.addEventListener('mouseleave', scheduleHide);
-    btn.addEventListener('click', function(e){
-      e.stopPropagation();
-      if(locked === pop){ closeAll(); }
-      else { closeAll(); pop.classList.add('bip-open'); btn.classList.add('bib-on'); locked = pop; }
-    });
-  });
-  document.addEventListener('click', function(){ closeAll(); });
-})();
-
 /* ── Nav highlight (scroll-tracked) ─────────────── */
 (function(){
   const links = document.querySelectorAll(".hdr-nav a:not(.hdr-nav-menu)");

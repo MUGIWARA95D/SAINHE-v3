@@ -1344,6 +1344,53 @@ a.news-hl:hover{color:var(--gold)}
         window.location.href=_learnUrl(_tab,_row);
       }
     });
+    /* ── Box info popovers (delegated — survives swipe nav) ───── */
+    (function(){
+      var _bipLocked=null,_bipTimer=null;
+      function _bipCloseAll(){
+        clearTimeout(_bipTimer);
+        document.querySelectorAll('.box-info-pop.bip-open').forEach(function(p){p.classList.remove('bip-open');});
+        document.querySelectorAll('.box-info-btn.bib-on').forEach(function(b){b.classList.remove('bib-on');});
+        _bipLocked=null;
+      }
+      function _bipScheduleHide(pop){
+        clearTimeout(_bipTimer);
+        _bipTimer=setTimeout(function(){if(_bipLocked!==pop)pop.classList.remove('bip-open');},400);
+      }
+      document.addEventListener('mouseover',function(e){
+        var btn=e.target.closest?e.target.closest('.box-info-btn'):null;
+        if(btn){clearTimeout(_bipTimer);var pop=btn.nextElementSibling;if(pop)pop.classList.add('bip-open');return;}
+        var pop=e.target.closest?e.target.closest('.box-info-pop'):null;
+        if(pop)clearTimeout(_bipTimer);
+      });
+      document.addEventListener('mouseout',function(e){
+        var btn=e.target.closest?e.target.closest('.box-info-btn'):null;
+        if(btn){
+          var pop=btn.nextElementSibling;
+          if(pop&&e.relatedTarget&&pop.contains(e.relatedTarget))return;
+          if(pop)_bipScheduleHide(pop);
+          return;
+        }
+        var pop=e.target.closest?e.target.closest('.box-info-pop'):null;
+        if(pop){
+          var prevBtn=pop.previousElementSibling;
+          if(prevBtn&&e.relatedTarget&&(e.relatedTarget===prevBtn||prevBtn.contains(e.relatedTarget)))return;
+          _bipScheduleHide(pop);
+        }
+      });
+      document.addEventListener('click',function(e){
+        var btn=e.target.closest?e.target.closest('.box-info-btn'):null;
+        if(btn){
+          e.stopPropagation();
+          var pop=btn.nextElementSibling;
+          if(!pop)return;
+          if(_bipLocked===pop){_bipCloseAll();}
+          else{_bipCloseAll();pop.classList.add('bip-open');btn.classList.add('bib-on');_bipLocked=pop;}
+          return;
+        }
+        _bipCloseAll();
+      });
+    })();
   });
   </script>
 </head>
