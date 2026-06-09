@@ -23,8 +23,8 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import db
 from config import (
-    DB_PATH,
     OUTPUT_DIR,
     TEMPLATE_DIR,
     BOX_REGISTRY,
@@ -376,7 +376,7 @@ def render(currency: str = DEFAULT_CURRENCY):
     (OUTPUT_DIR / "_headers").write_text(headers_content, encoding="utf-8")
     log.info("_headers written")
 
-    con       = sqlite3.connect(DB_PATH, timeout=30)
+    con       = db.connect()
     boxes     = load_boxes(con, currency)
     fx_rates  = _get_fx_rates(con)
     ts_map    = _box_timestamps(con)

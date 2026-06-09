@@ -20,8 +20,8 @@ import feedparser
 import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import db
 from config import (
-    DB_PATH,
     RSS_SOURCES,
     NEWS_RETENTION_DAYS,
     CACHE_NEWS,
@@ -188,7 +188,7 @@ def main():
     src_ids   = active_sources(hour)
     log.info("Heure UTC=%dh — sources actives : %s", hour, src_ids)
 
-    con           = sqlite3.connect(DB_PATH, timeout=30)
+    con           = db.connect()
     total_fetched = 0
     total_new     = 0
 

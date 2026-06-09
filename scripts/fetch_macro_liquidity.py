@@ -23,7 +23,7 @@ import yfinance as yf
 from bs4 import BeautifulSoup
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from config import DB_PATH
+import db
 
 
 # ── Load .env (no python-dotenv needed) ───────────────────────────────────────
@@ -712,7 +712,7 @@ def run():
         row["cape_date"] = today
 
     # ── 7. Write to DB ────────────────────────────────────────────────────────
-    con = sqlite3.connect(DB_PATH, timeout=30)
+    con = db.connect()
 
     # Build UPSERT: only overwrite columns when this run actually fetched a value.
     # Earlier `INSERT OR REPLACE` blanked half-failed runs (a column that came back

@@ -19,7 +19,7 @@ from pathlib import Path
 from curl_cffi import requests as cffi
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from config import DB_PATH
+import db
 
 logging.basicConfig(
     level=logging.INFO,
@@ -141,7 +141,7 @@ def main():
         return
 
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    con = sqlite3.connect(DB_PATH, timeout=30)
+    con = db.connect()
     con.execute(
         "INSERT OR REPLACE INTO app_state(key, value, ts) VALUES('sp500_pe', ?, ?)",
         (f"{pe:.6f}", ts),

@@ -27,7 +27,8 @@ import requests
 import yfinance as yf
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from config import DB_PATH, FX_SOURCES
+import db
+from config import FX_SOURCES
 
 # ============================================================
 #  CONFIG
@@ -229,7 +230,7 @@ def backfill_fx_daily(con: sqlite3.Connection, years: int = 2):
 # ============================================================
 
 def main(backfill: bool = False, backfill_years: int = 2):
-    con = sqlite3.connect(DB_PATH, timeout=30)
+    con = db.connect()
 
     if backfill:
         backfill_fx_daily(con, years=backfill_years)

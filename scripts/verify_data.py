@@ -24,7 +24,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from config import DB_PATH
+import db
 
 
 # ============================================================
@@ -160,7 +160,7 @@ def audit_snapshot(con: sqlite3.Connection) -> list[tuple]:
 # ============================================================
 
 def main():
-    con = sqlite3.connect(DB_PATH, timeout=30)
+    con = db.connect()
 
     tickers = [
         r[0] for r in con.execute(

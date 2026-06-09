@@ -42,8 +42,8 @@ from pathlib import Path
 from curl_cffi import requests as cffi
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import db
 from config import (
-    DB_PATH,
     ALL_SECTOR_ETFS,
     ALL_INDEX_TICKERS,
     WATCHLIST,
@@ -311,7 +311,7 @@ def main(mode: str = "update", half: int = -1, tickers_filter: list[str] | None 
     if mode != "backfill":
         global_period1, global_period2 = _periods_for_mode(mode)
 
-    con            = sqlite3.connect(DB_PATH, timeout=30)
+    con            = db.connect()
     total_inserted = 0
     total_ok       = 0
     total_skip     = 0

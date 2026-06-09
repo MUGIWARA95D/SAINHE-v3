@@ -9,6 +9,7 @@ from pathlib import Path
 
 # Ajouter le dossier parent au path pour importer config
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import db
 from config import (
     DB_PATH,
     ALL_SECTOR_ETFS,
@@ -420,7 +421,7 @@ def _add_col_if_missing(cur, table: str, column: str, col_type: str):
 def init_db():
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    con = sqlite3.connect(DB_PATH, timeout=30)
+    con = db.connect()
     cur = con.cursor()
 
     # Pragmas performance

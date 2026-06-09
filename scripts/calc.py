@@ -18,8 +18,8 @@ import pandas as pd
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import db
 from config import (
-    DB_PATH,
     SECTOR_TICKERS,
     BENCHMARK_MONDE,
     MOMENTUM_WINDOWS,
@@ -617,7 +617,7 @@ def update_macro_bandeau(con: sqlite3.Connection):
 # ============================================================
 
 def main():
-    con     = sqlite3.connect(DB_PATH, timeout=30)
+    con     = db.connect()
     tickers = load_all_tickers(con)
     ts_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
