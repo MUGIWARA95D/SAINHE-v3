@@ -1144,18 +1144,20 @@ a.news-hl:hover{color:var(--gold)}
 #main{transition:opacity .18s ease}
 /* ══ PAGE DOTS (fixed pill at bottom of screen) ══════════════ */
 #page-dots{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:100;
-  display:flex;gap:10px;align-items:center;padding:10px 18px;
+  display:flex;gap:2px;align-items:center;padding:6px 14px;
   background:rgba(253,250,244,.78);
   backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);
   border:1px solid rgba(221,213,196,.6);border-radius:999px;
   box-shadow:0 4px 20px rgba(60,40,15,.06),0 1px 3px rgba(60,40,15,.04);
   transition:background .25s,border-color .25s}
 [data-theme="dark"] #page-dots{background:rgba(22,18,14,.72);border-color:rgba(66,56,40,.6)}
-.pg-dot{width:8px;height:8px;border-radius:50%;background:var(--border);
+.pg-dot{width:20px;height:20px;border-radius:50%;background:transparent;
   border:none;cursor:pointer;padding:0;
-  transition:background .3s,transform .25s}
-.pg-dot.active{background:var(--gold);transform:scale(1.35)}
-.pg-dot:hover:not(.active){background:var(--gold-border);transform:scale(1.15)}
+  display:flex;align-items:center;justify-content:center;transition:transform .25s}
+.pg-dot::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--border);
+  display:block;transition:background .3s,transform .25s}
+.pg-dot.active::after{background:var(--gold);transform:scale(1.35)}
+.pg-dot:hover:not(.active)::after{background:var(--gold-border);transform:scale(1.15)}
 {% endraw %}</style>
   <!-- CI toggle — early init (before box scripts run) -->
   <script>
