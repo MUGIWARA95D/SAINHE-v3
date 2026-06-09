@@ -278,14 +278,20 @@
     if (e.key === 'ArrowLeft')  navigate(currentPage - 1);
   });
 
-  /* ── Dot clicks ─────────────────────────────────────── */
-  document.querySelectorAll('.pg-dot').forEach(function(d) {
-    d.addEventListener('click', function() {
-      navigate(parseInt(d.dataset.page, 10));
-    });
-    d.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(parseInt(d.dataset.page, 10)); }
-    });
+  /* ── Dot clicks (delegated — survives any DOM mutation) ── */
+  document.addEventListener('click', function(e) {
+    var dot = e.target.closest ? e.target.closest('.pg-dot') : null;
+    if (!dot) return;
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(parseInt(dot.dataset.page, 10));
+  }, true); /* capture phase: run before any other document click handlers */
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var dot = document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('pg-dot') ? document.activeElement : null;
+    if (!dot) return;
+    e.preventDefault();
+    navigate(parseInt(dot.dataset.page, 10));
   });
 
   /* ── Header nav + hero chip clicks → swipe instead of full reload ── */
