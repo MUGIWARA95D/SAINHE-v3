@@ -239,6 +239,13 @@ RSS_SOURCES = {
 NEWS_RETENTION_DAYS  = 3     # purge auto — keep last 3 days
 LOG_RETENTION_DAYS   = 90    # logs fetch conservés N jours
 
+# Rétention des tables historiques (purgées à chaque run de calc.py)
+METRICS_RETENTION_DAYS          = 750   # ~3 ans de trading — DMA200 needs 200
+RPERF_RETENTION_DAYS            = 750
+MACRO_BANDEAU_RETENTION_DAYS    = 750
+MACRO_LIQUIDITY_RETENTION_DAYS  = 750
+SENTIMENT_HISTORY_RETENTION_DAYS = 365  # 1 an suffit pour l'analyse de rotation
+
 # ============================================================
 #  7. TAUX DE CHANGE — fetch_fx.py (Frankfurter/yfinance)
 #  Clé  : "USD_XXX"  — taux de conversion USD → XXX

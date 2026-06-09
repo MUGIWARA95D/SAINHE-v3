@@ -31,6 +31,11 @@ from config import (
     RVOL_WINDOW,
     SPARKLINE_DAYS,
     SENTIMENT_THRESHOLDS,
+    METRICS_RETENTION_DAYS,
+    RPERF_RETENTION_DAYS,
+    MACRO_BANDEAU_RETENTION_DAYS,
+    MACRO_LIQUIDITY_RETENTION_DAYS,
+    SENTIMENT_HISTORY_RETENTION_DAYS,
 )
 
 logging.basicConfig(
@@ -613,6 +618,32 @@ def update_macro_bandeau(con: sqlite3.Connection):
 
 
 # ============================================================
+#  PURGE
+# ============================================================
+
+def purge_old_data(con: sqlite3.Connection):
+    """Delete rows older than the configured retention window from history tables."""
+    purges = [
+        ("metrics",           "date", METRICS_RETENTION_DAYS),
+        ("rperf",             "date", RPERF_RETENTION_DAYS),
+        ("macro_bandeau",     "ts",   MACRO_BANDEAU_RETENTION_DAYS),
+        ("macro_liquidity",   "date", MACRO_LIQUIDITY_RETENTION_DAYS),
+        ("sentiment_history", "date", SENTIMENT_HISTORY_RETENTION_DAYS),
+    ]
+    for table, col, days in purges:
+        try:
+            cur = con.execute(
+                f"DELETE FROM {table} WHERE {col} < date('now', ?)",
+                (f"-{days} days",),
+            )
+            if cur.rowcount:
+                log.info("purge %s — %d rows deleted (>%d days)", table, cur.rowcount, days)
+        except Exception as exc:
+            log.warning("purge %s failed: %s", table, exc)
+    con.commit()
+
+
+# ============================================================
 #  MAIN
 # ============================================================
 
@@ -716,6 +747,9 @@ def main():
     else:
         n = update_sentiment_history_today(con)
         log.info("sentiment_history — appended %d daily scores", n)
+
+    # ── Purge old rows from history tables ───────────────────
+    purge_old_data(con)
 
     con.close()
 
