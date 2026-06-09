@@ -5,7 +5,6 @@ box_04_sectors.py — Rotation sectorielle (16 secteurs × 4 régions).
 import json
 import sqlite3
 from collections import defaultdict
-from boxes._base import get_fx_rates
 
 # ══════════════════════════════════════════════════════════════
 # ── 1. META

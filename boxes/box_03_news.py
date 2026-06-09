@@ -3,7 +3,6 @@ box_03_news.py — Fil d'actualités financières (RSS).
 """
 
 import sqlite3
-from boxes._base import get_fx_rates
 
 # ══════════════════════════════════════════════════════════════
 # ── 1. META
