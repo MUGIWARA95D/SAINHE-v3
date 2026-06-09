@@ -310,6 +310,15 @@ CREATE TABLE IF NOT EXISTS sentiment_history (
     PRIMARY KEY (ticker, date)
 );
 
+-- ── 12. APP_STATE ─────────────────────────────────────────
+-- Cross-process key/value scratchpad. Used by fetch_fundamentals.py to hand
+-- off the S&P 500 trailing P/E to calc.py without dual-writing macro_bandeau.
+CREATE TABLE IF NOT EXISTS app_state (
+    key   TEXT PRIMARY KEY,
+    value TEXT,
+    ts    TEXT
+);
+
 """
 
 # ============================================================

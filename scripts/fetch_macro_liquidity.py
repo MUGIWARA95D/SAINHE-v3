@@ -106,7 +106,7 @@ def _fred_obs(series_id: str, n: int = 14, lookback_years: int = 4) -> list[dict
         "file_type"        : "json",
         "observation_start": obs_start,
     }
-    backoffs = [5, 15, 30]   # seconds; 3 retries on 429
+    backoffs = [5, 15, 30]   # seconds; 3 retries on 429 or any exception
     for attempt, wait in enumerate([0] + backoffs):
         if wait: time.sleep(wait)
         try:
@@ -125,7 +125,8 @@ def _fred_obs(series_id: str, n: int = 14, lookback_years: int = 4) -> list[dict
         except Exception as e:
             if attempt == len(backoffs):
                 print(f"[fred] {series_id} error after retries: {e}")
-        return []
+            # else: fall through to next loop iteration to retry
+    return []
 
 
 def _yoy(series: list[dict]) -> float | None:
@@ -713,7 +714,10 @@ def run():
     # ── 7. Write to DB ────────────────────────────────────────────────────────
     con = sqlite3.connect(DB_PATH, timeout=30)
 
-    # Build INSERT with only the columns we have data for
+    # Build UPSERT: only overwrite columns when this run actually fetched a value.
+    # Earlier `INSERT OR REPLACE` blanked half-failed runs (a column that came back
+    # NULL today overwrote yesterday's success). ON CONFLICT … DO UPDATE with
+    # COALESCE keeps the prior value when excluded.col is NULL.
     fixed_cols  = ["date", "ts"]
     fixed_vals  = [today, now]
     data_cols   = list(row.keys())
@@ -724,8 +728,14 @@ def run():
     placeholders = ", ".join(["?"] * len(all_cols))
     col_sql     = ", ".join(all_cols)
 
+    update_clauses = ["ts = excluded.ts"]
+    for c in data_cols:
+        update_clauses.append(f"{c} = COALESCE(excluded.{c}, {c})")
+    update_sql = ", ".join(update_clauses)
+
     con.execute(
-        f"INSERT OR REPLACE INTO macro_liquidity ({col_sql}) VALUES ({placeholders})",
+        f"INSERT INTO macro_liquidity ({col_sql}) VALUES ({placeholders}) "
+        f"ON CONFLICT(date) DO UPDATE SET {update_sql}",
         all_vals,
     )
     con.commit()

@@ -163,9 +163,11 @@ def insert_rates(con: sqlite3.Connection, rates: dict[str, float], ts: str):
             "INSERT OR IGNORE INTO fx_rates (pair, ts, rate) VALUES (?, ?, ?)",
             (pair, ts, rate),
         )
-        # fx_daily — historique long (ajustement returns calc.py)
+        # fx_daily — historique long (ajustement returns calc.py).
+        # OR REPLACE so the noon refetch can correct a stale morning value
+        # (Frankfurter sometimes returns yesterday's value on a holiday).
         con.execute(
-            "INSERT OR IGNORE INTO fx_daily (pair, date, rate) VALUES (?, ?, ?)",
+            "INSERT OR REPLACE INTO fx_daily (pair, date, rate) VALUES (?, ?, ?)",
             (pair, today, rate),
         )
 

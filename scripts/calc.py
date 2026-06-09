@@ -556,7 +556,16 @@ def _latest_close(con: sqlite3.Connection, ticker: str) -> float | None:
 
 
 def _sp500_pe(con: sqlite3.Connection) -> float | None:
-    """P/E S&P 500 — lit la dernière valeur connue dans macro_bandeau."""
+    """P/E S&P 500 — written by fetch_fundamentals.py into app_state.
+    Fallback to macro_bandeau (legacy rows from before the app_state migration)."""
+    row = con.execute(
+        "SELECT value FROM app_state WHERE key='sp500_pe'"
+    ).fetchone()
+    if row and row[0]:
+        try:
+            return float(row[0])
+        except (TypeError, ValueError):
+            pass
     row = con.execute(
         "SELECT sp500_pe FROM macro_bandeau ORDER BY ts DESC LIMIT 1"
     ).fetchone()
