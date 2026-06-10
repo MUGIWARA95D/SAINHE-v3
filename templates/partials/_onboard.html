@@ -11,8 +11,12 @@
   padding:16px 18px;display:flex;flex-direction:column;gap:10px;
   transition:transform .45s cubic-bezier(.4,0,.2,1);opacity:0;
   font-family:var(--sans);
+  /* Hidden state must NOT eat clicks: translateY(140%) leaves the bar's top
+     edge hovering over #page-dots (z-index 8800 vs 100), silently swallowing
+     every dot click. opacity:0 does not disable hit-testing — this does. */
+  pointer-events:none;
 }
-#onb-bar.show{transform:translateX(-50%) translateY(0);opacity:1}
+#onb-bar.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
 .onb-bar-row{display:flex;align-items:center;gap:12px;justify-content:space-between}
 .onb-bar-txt{font-size:14px;color:var(--p);line-height:1.45}
 .onb-bar-txt b{color:var(--h);font-weight:700}
