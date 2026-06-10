@@ -278,14 +278,18 @@
     if (e.key === 'ArrowLeft')  navigate(currentPage - 1);
   });
 
-  /* ── Dot clicks (delegated — survives any DOM mutation) ── */
-  document.addEventListener('click', function(e) {
+  /* ── Dot clicks (delegated — pointerdown fires even if mouse drifts) ── */
+  /* Chrome suppresses the click event when the pointer moves even a few pixels
+     between press and release — common on small targets with a mouse.
+     pointerdown fires regardless of subsequent movement, so navigation is instant
+     and reliable on both desktop mouse and touch.                               */
+  document.addEventListener('pointerdown', function(e) {
+    if (e.button !== undefined && e.button !== 0) return; /* left / primary only */
     var dot = e.target.closest ? e.target.closest('.pg-dot') : null;
     if (!dot) return;
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); /* prevent ghost click on mobile */
     navigate(parseInt(dot.dataset.page, 10));
-  }, true); /* capture phase: run before any other document click handlers */
+  }, true); /* capture phase */
   document.addEventListener('keydown', function(e) {
     if (e.key !== 'Enter' && e.key !== ' ') return;
     var dot = document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('pg-dot') ? document.activeElement : null;
