@@ -415,9 +415,13 @@
       if(conv !== null){
         priceTd.textContent = window.fxSymbol() + conv.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2});
       } else {
-        priceTd.innerHTML = (p.close != null
+        priceTd.textContent = (p.close != null
           ? p.close.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2})
-          : '—') + ' <span class="idx-cur-badge">' + nd + '</span>';
+          : '—') + ' ';
+        var ndBadge = document.createElement('span');
+        ndBadge.className = 'idx-cur-badge';
+        ndBadge.textContent = nd;
+        priceTd.appendChild(ndBadge);
       }
 
       /* col 5 — today % */

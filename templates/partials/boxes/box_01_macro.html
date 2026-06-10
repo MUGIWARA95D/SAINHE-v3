@@ -377,10 +377,12 @@
 
       var prevBtn = document.createElement("button");
       prevBtn.className = "rc-arrow-btn"; prevBtn.textContent = "‹"; prevBtn.disabled = true;
+      prevBtn.setAttribute("aria-label", "Previous card");
       var dotsWrap = document.createElement("div");
       dotsWrap.className = "rc-dots";
       var nextBtn = document.createElement("button");
       nextBtn.className = "rc-arrow-btn"; nextBtn.textContent = "›";
+      nextBtn.setAttribute("aria-label", "Next card");
 
       nav.appendChild(prevBtn);
       nav.appendChild(dotsWrap);
@@ -707,10 +709,12 @@
     nav.className = "rc-nav";
     var prevBtn = document.createElement("button");
     prevBtn.className = "rc-arrow-btn"; prevBtn.textContent = "‹"; prevBtn.disabled = true;
+    prevBtn.setAttribute("aria-label", "Previous card");
     var dotsWrap = document.createElement("div");
     dotsWrap.className = "rc-dots";
     var nextBtn = document.createElement("button");
     nextBtn.className = "rc-arrow-btn"; nextBtn.textContent = "›";
+    nextBtn.setAttribute("aria-label", "Next card");
     nav.appendChild(prevBtn); nav.appendChild(dotsWrap); nav.appendChild(nextBtn);
     var dots = mcCards.map(function(c, i){
       var d = document.createElement("span");

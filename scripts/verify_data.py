@@ -202,8 +202,7 @@ def main():
         FROM (SELECT ticker, date FROM prices)
         GROUP BY ticker
     """).fetchall()
-    from collections import Counter as C
-    c = C()
+    c = Counter()
     for d, n in date_counts:
         c[d] += 1
     for d, n in sorted(c.items(), reverse=True)[:5]:
