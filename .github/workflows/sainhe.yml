@@ -50,6 +50,7 @@ on:
 env:
   DB_PATH: db/sainhe.db
   PYTHONIOENCODING: utf-8
+  PYTHONPATH: .
 
 permissions:
   contents: read
