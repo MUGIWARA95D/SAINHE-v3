@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: sainhe
+Version: 3.0.0
+Requires-Python: >=3.11
+Requires-Dist: yfinance>=0.2.54
+Requires-Dist: curl_cffi>=0.6
+Requires-Dist: pandas>=2.0
+Requires-Dist: numpy>=1.24
+Requires-Dist: feedparser>=6.0
+Requires-Dist: requests>=2.31
+Requires-Dist: beautifulsoup4>=4.12
+Requires-Dist: jinja2>=3.1
+Requires-Dist: watchdog>=4.0
+Requires-Dist: google-api-python-client>=2.100
+Requires-Dist: google-auth>=2.23

@@ -21,18 +21,9 @@
 <script>
 (function(){
 
-  function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-  function fmt(n){ return n!=null ? n.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2}) : "—"; }
-  function staleInfo(ts){
-    if(!ts) return {cls:"ts-unk", label:"?"};
-    const ageH = (Date.now() - new Date(ts)) / 3600000;
-    const I18N_= window.SAINHE_I18N||{};
-    const lbl  = ageH < 1 ? (I18N_.time_lt1h||"<1h") : ageH < 24 ? Math.round(ageH)+(I18N_.time_h||"h") : Math.round(ageH/24)+(I18N_.time_d||"d");
-    if(ageH <  6) return {cls:"ts-fresh", label:lbl};
-    if(ageH < 30) return {cls:"ts-ok",    label:lbl};
-    if(ageH < 72) return {cls:"ts-stale", label:lbl};
-                  return {cls:"ts-old",   label:lbl};
-  }
+  var esc       = window.SAINHE_FMT.esc;
+  var fmt       = window.SAINHE_FMT.fmt;
+  var staleInfo = window.SAINHE_FMT.staleInfo;
 
   const REGIONS = {{ box_indices.par_region | tojson }};
   const ORDER   = ["USA","EU","ASIE","GLOBAL"];

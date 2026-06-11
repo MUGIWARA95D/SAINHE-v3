@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sainhe"
+version = "3.0.0"
+requires-python = ">=3.11"
+dependencies = [
+    "yfinance>=0.2.54",
+    "curl_cffi>=0.6",
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "feedparser>=6.0",
+    "requests>=2.31",
+    "beautifulsoup4>=4.12",
+    "jinja2>=3.1",
+    "watchdog>=4.0",
+    "google-api-python-client>=2.100",
+    "google-auth>=2.23",
+]
+
+[tool.setuptools]
+# Top-level modules (single .py files at repo root)
+py-modules = ["config", "db", "schema", "render_html", "serve", "watch"]
+
+[tool.setuptools.packages.find]
+# Sub-packages (boxes/, scripts/)
+where = ["."]
+include = ["boxes*", "scripts*"]

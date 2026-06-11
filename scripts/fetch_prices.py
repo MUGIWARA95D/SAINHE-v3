@@ -32,7 +32,6 @@ Stratégie backfill :
 import random
 import sqlite3
 import statistics
-import sys
 import time
 import logging
 import argparse
@@ -41,7 +40,6 @@ from pathlib import Path
 
 from curl_cffi import requests as cffi
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import db
 from config import (
     ALL_SECTOR_ETFS,

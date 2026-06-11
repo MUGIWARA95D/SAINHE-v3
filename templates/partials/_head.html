@@ -1283,6 +1283,68 @@ a.news-hl:hover{color:var(--gold)}
   document.documentElement.lang='en';
   </script>
 
+  <!-- ── Shared JS helpers — used by all box templates ──────────────────── -->
+  <!-- mk, esc, fmt, fmtPct, staleInfo were duplicated in every box.        -->
+  <!-- Single definition here; boxes call window.SAINHE_FMT.*               -->
+  <script>
+  (function(){
+    var LOC = window.SAINHE_LOCALE || 'en-US';
+    var I18N = function(){ return window.SAINHE_I18N || {}; };
+
+    window.SAINHE_FMT = {
+      /* Create a DOM element — the most-used builder shorthand */
+      mk: function(tag, cls, txt){
+        var el = document.createElement(tag);
+        if(cls) el.className = cls;
+        if(txt != null) el.textContent = txt;
+        return el;
+      },
+
+      /* HTML-escape a string (safe for attribute/content injection) */
+      esc: function(s){
+        return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                              .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      },
+
+      /* Format a number to 2 dp with locale separators; null → "—" */
+      fmt: function(n, d){
+        if(n == null) return '—';
+        d = (d == null) ? 2 : d;
+        return n.toLocaleString(window.SAINHE_LOCALE || 'en-US',
+          {minimumFractionDigits:d, maximumFractionDigits:d});
+      },
+
+      /* ±percent: input is a ratio (0.05 → +5.00%); d = decimal places */
+      fmtPct: function(n, d){
+        if(n == null || !isFinite(n)) return '—';
+        d = (d == null) ? 2 : d;
+        return (n >= 0 ? '+' : '') + (n * 100).toFixed(d) + '%';
+      },
+
+      /* ±percent from an already-multiplied value (0.05 already = 0.05%) */
+      fmtPctRaw: function(n, d){
+        if(n == null || !isFinite(n)) return '—';
+        d = (d == null) ? 1 : d;
+        return (n >= 0 ? '+' : '') + n.toFixed(d) + '%';
+      },
+
+      /* Timestamp staleness: returns {cls, label} */
+      staleInfo: function(ts){
+        if(!ts) return {cls:'ts-unk', label:'?'};
+        var h = (Date.now() - new Date(ts)) / 3600000;
+        var i = I18N();
+        var lbl = h < 1 ? (i.time_lt1h || '<1h')
+                        : h < 24 ? Math.round(h) + (i.time_h || 'h')
+                                 : Math.round(h / 24) + (i.time_d || 'd');
+        return h < 6  ? {cls:'ts-fresh', label:lbl}
+             : h < 30 ? {cls:'ts-ok',    label:lbl}
+             : h < 72 ? {cls:'ts-stale', label:lbl}
+                      : {cls:'ts-old',   label:lbl};
+      }
+    };
+  })();
+  </script>
+
   <!-- CI toggle + tooltip — shared across all pages and persists through swipe navigation -->
   <script>
   document.addEventListener('DOMContentLoaded',function(){

@@ -9,7 +9,6 @@ Lancement :
 
 import hashlib
 import sqlite3
-import sys
 import time
 import logging
 from datetime import datetime, timezone, timedelta
@@ -19,7 +18,6 @@ from pathlib import Path
 import feedparser
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import db
 from config import (
     RSS_SOURCES,

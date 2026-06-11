@@ -9,15 +9,12 @@ Lancement :
 
 import json
 import sqlite3
-import sys
 import logging
 from datetime import datetime, timezone
-from pathlib import Path
 
 import pandas as pd
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import db
 from config import (
     SECTOR_TICKERS,
@@ -36,6 +33,7 @@ from config import (
     MACRO_BANDEAU_RETENTION_DAYS,
     MACRO_LIQUIDITY_RETENTION_DAYS,
     SENTIMENT_HISTORY_RETENTION_DAYS,
+    PRICES_LOOKBACK_DAYS,
 )
 
 logging.basicConfig(
@@ -101,29 +99,45 @@ def usd_adjust(close: pd.Series, fx: pd.Series | None) -> pd.Series:
     return close / fx_aligned
 
 
-def load_prices(con: sqlite3.Connection, ticker: str) -> pd.DataFrame:
+def load_prices(con: sqlite3.Connection, ticker: str,
+                lookback_days: int = PRICES_LOOKBACK_DAYS) -> pd.DataFrame:
     """
     Lit l'historique OHLCV pour un ticker depuis la table prices.
     Retourne un DataFrame indexé par date (plus ancien → plus récent).
+
+    lookback_days : fenêtre calendaire maximale lue depuis la DB (défaut = PRICES_LOOKBACK_DAYS).
+    Couverture : ret_2Y (504 j trading ≈ 730 j cal) + marge = 780 j — suffisant pour tous les
+    indicateurs (DMA200, MFI50, OBV90, sparkline, momentum).  Passer None pour tout lire.
     """
-    df = pd.read_sql_query(
+    if lookback_days is not None:
+        sql = """
+            SELECT date,
+                   open,
+                   high,
+                   low,
+                   COALESCE(adj_close, close) AS close,
+                   volume
+            FROM prices
+            WHERE ticker = ?
+              AND date >= date('now', ?)
+            ORDER BY date ASC
         """
-        SELECT date,
-               open,
-               high,
-               low,
-               COALESCE(adj_close, close) AS close,   -- adjusted si dispo, sinon raw
-               volume
-        FROM prices
-        WHERE ticker = ?
-        ORDER BY date ASC
-        """,
-        con,
-        params=(ticker,),
-        parse_dates=["date"],
-    )
+        params: tuple = (ticker, f"-{lookback_days} days")
+    else:
+        sql = """
+            SELECT date,
+                   open,
+                   high,
+                   low,
+                   COALESCE(adj_close, close) AS close,
+                   volume
+            FROM prices
+            WHERE ticker = ?
+            ORDER BY date ASC
+        """
+        params = (ticker,)
+    df = pd.read_sql_query(sql, con, params=params, parse_dates=["date"])
     df = df.set_index("date")
-    # Forcer les types numériques
     for col in ["open", "high", "low", "close", "volume"]:
         df[col] = pd.to_numeric(df[col], errors="coerce")
     return df

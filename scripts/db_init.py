@@ -4,11 +4,9 @@ Idempotent : safe à re-run à tout moment (CREATE TABLE IF NOT EXISTS).
 """
 
 import sqlite3
-import sys
 from pathlib import Path
 
 # Ajouter le dossier parent au path pour importer config
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import db
 from config import (
     DB_PATH,

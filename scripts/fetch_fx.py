@@ -26,7 +26,6 @@ from pathlib import Path
 import requests
 import yfinance as yf
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import db
 from config import FX_SOURCES
 

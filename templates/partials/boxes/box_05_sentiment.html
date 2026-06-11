@@ -246,7 +246,7 @@
   const ALPHA_CAP = 0.05;
 
   function el(tag, cls, txt){ const e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
-  function fmtPct(v, d){ if(v==null||!isFinite(v)) return "—"; const p = v*100; return (p>=0?"+":"") + p.toFixed(d==null?1:d) + "%"; }
+  function fmtPct(v, d){ return window.SAINHE_FMT.fmtPct(v, d); }
   function fmtScore(v){ if(v==null||!isFinite(v)) return "—"; return (v>=0?"+":"") + v.toFixed(2); }
   function fmtNum(v, d){ if(v==null||!isFinite(v)) return "—"; return Number(v).toFixed(d==null?2:d); }
   function fmtVol(v){

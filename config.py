@@ -175,6 +175,9 @@ SCORE_WEIGHTS        = {      # Pondération score composite
 }
 SPARKLINE_DAYS       = 7      # jours calendaires pour mini-graphique
 YFINANCE_HISTORY     = "2y"   # historique fetch (2 ans = assez pour tous les calculs)
+# Fenêtre maximale nécessaire pour tous les indicateurs :
+#   ret_2Y = 504 jours de trading ≈ 730 j calendaires + marge hors-trading = 780
+PRICES_LOOKBACK_DAYS = 780    # borne la lecture DB dans load_prices (perf)
 
 # Seuils RVOL directionnel
 RVOL_DIR_THRESHOLDS = {

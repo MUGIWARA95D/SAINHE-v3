@@ -201,8 +201,8 @@
   const LOC  = window.SAINHE_LOCALE || 'en';
   grid.textContent = "";
 
-  function mk(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!=null)el.textContent=txt;return el;}
-  function fmt(n,d){return n!=null?n.toLocaleString(LOC,{minimumFractionDigits:d||2,maximumFractionDigits:d||2}):"—";}
+  var mk  = window.SAINHE_FMT.mk;
+  function fmt(n,d){ return window.SAINHE_FMT.fmt(n,d); }
 
   const L   = M.liq  || {};
   const yc  = M.yield_curve || {};
@@ -228,7 +228,7 @@
   function fmtOAS(v){ return v!=null ? Math.round(v)+"bp" : null; }
   function fmtT(v)  { return v!=null ? "$"+v.toFixed(2)+"T" : "—"; }
   function fmtB(v)  { return v!=null ? "$"+Math.round(v).toLocaleString()+"B" : "—"; }
-  function fmtPct(v,dec){ dec=dec||1; return v!=null?(v>=0?"+":"")+v.toFixed(dec)+"%":"—"; }
+  function fmtPct(v,dec){ return window.SAINHE_FMT.fmtPctRaw(v, dec==null?1:dec); }
   function fmtCu(v) { return v!=null ? "$"+v.toFixed(4)+"/lb" : null; }
   function fmtCuAu(v){ return v!=null ? v.toFixed(4) : null; }
   function fmtJpy(v){ return v!=null ? "¥"+v.toFixed(2) : null; }

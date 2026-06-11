@@ -11,14 +11,12 @@ Lancement :
 """
 
 import sqlite3
-import sys
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
 
 from curl_cffi import requests as cffi
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import db
 
 logging.basicConfig(

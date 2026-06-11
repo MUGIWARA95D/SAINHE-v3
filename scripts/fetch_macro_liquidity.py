@@ -12,7 +12,6 @@ Requires: FRED_API_KEY in environment (free at fred.stlouisfed.org/docs/api/api_
 """
 
 import os
-import sys
 import time
 import datetime as dt
 import sqlite3
@@ -22,7 +21,6 @@ import requests
 import yfinance as yf
 from bs4 import BeautifulSoup
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import db
 
 

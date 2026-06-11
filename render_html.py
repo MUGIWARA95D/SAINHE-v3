@@ -16,13 +16,11 @@ import os
 import sqlite3
 import importlib
 import logging
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 import db
 from config import (
     OUTPUT_DIR,
