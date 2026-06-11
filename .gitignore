@@ -10,3 +10,4 @@ scripts/*_tmp.json
 cache/
 .env
 workspace/
+sainhe.egg-info/
