@@ -26,8 +26,8 @@ from pathlib import Path
 import requests
 import yfinance as yf
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from config import DB_PATH, FX_SOURCES
+import db
+from config import FX_SOURCES
 
 # ============================================================
 #  CONFIG
@@ -163,9 +163,11 @@ def insert_rates(con: sqlite3.Connection, rates: dict[str, float], ts: str):
             "INSERT OR IGNORE INTO fx_rates (pair, ts, rate) VALUES (?, ?, ?)",
             (pair, ts, rate),
         )
-        # fx_daily — historique long (ajustement returns calc.py)
+        # fx_daily — historique long (ajustement returns calc.py).
+        # OR REPLACE so the noon refetch can correct a stale morning value
+        # (Frankfurter sometimes returns yesterday's value on a holiday).
         con.execute(
-            "INSERT OR IGNORE INTO fx_daily (pair, date, rate) VALUES (?, ?, ?)",
+            "INSERT OR REPLACE INTO fx_daily (pair, date, rate) VALUES (?, ?, ?)",
             (pair, today, rate),
         )
 
@@ -227,7 +229,7 @@ def backfill_fx_daily(con: sqlite3.Connection, years: int = 2):
 # ============================================================
 
 def main(backfill: bool = False, backfill_years: int = 2):
-    con = sqlite3.connect(DB_PATH, timeout=30)
+    con = db.connect()
 
     if backfill:
         backfill_fx_daily(con, years=backfill_years)

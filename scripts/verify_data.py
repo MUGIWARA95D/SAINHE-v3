@@ -23,8 +23,7 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from config import DB_PATH
+import db
 
 
 # ============================================================
@@ -160,7 +159,7 @@ def audit_snapshot(con: sqlite3.Connection) -> list[tuple]:
 # ============================================================
 
 def main():
-    con = sqlite3.connect(DB_PATH, timeout=30)
+    con = db.connect()
 
     tickers = [
         r[0] for r in con.execute(
@@ -202,8 +201,7 @@ def main():
         FROM (SELECT ticker, date FROM prices)
         GROUP BY ticker
     """).fetchall()
-    from collections import Counter as C
-    c = C()
+    c = Counter()
     for d, n in date_counts:
         c[d] += 1
     for d, n in sorted(c.items(), reverse=True)[:5]:

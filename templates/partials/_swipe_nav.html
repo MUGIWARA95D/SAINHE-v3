@@ -278,18 +278,25 @@
     if (e.key === 'ArrowLeft')  navigate(currentPage - 1);
   });
 
-  /* ── Dot clicks (delegated — pointerdown fires even if mouse drifts) ── */
-  /* Chrome suppresses the click event when the pointer moves even a few pixels
-     between press and release — common on small targets with a mouse.
-     pointerdown fires regardless of subsequent movement, so navigation is instant
-     and reliable on both desktop mouse and touch.                               */
+  /* ── Dot clicks ── */
+  /* Three-layer approach: pointerdown (capture) + mousedown (target) + click (target)
+     so that no browser quirk can silently swallow the event. */
   document.addEventListener('pointerdown', function(e) {
-    if (e.button !== undefined && e.button !== 0) return; /* left / primary only */
+    if (e.button !== undefined && e.button !== 0) return;
     var dot = e.target.closest ? e.target.closest('.pg-dot') : null;
     if (!dot) return;
-    e.preventDefault(); /* prevent ghost click on mobile */
+    e.preventDefault();
     navigate(parseInt(dot.dataset.page, 10));
-  }, true); /* capture phase */
+  }, true);
+  document.querySelectorAll('.pg-dot').forEach(function(dot) {
+    dot.addEventListener('mousedown', function(e) {
+      if (e.button !== 0) return;
+      navigate(parseInt(dot.dataset.page, 10));
+    });
+    dot.addEventListener('click', function(e) {
+      navigate(parseInt(dot.dataset.page, 10));
+    });
+  });
   document.addEventListener('keydown', function(e) {
     if (e.key !== 'Enter' && e.key !== ' ') return;
     var dot = document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('pg-dot') ? document.activeElement : null;

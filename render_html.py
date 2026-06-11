@@ -16,18 +16,17 @@ import os
 import sqlite3
 import importlib
 import logging
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+import db
 from config import (
-    DB_PATH,
     OUTPUT_DIR,
     TEMPLATE_DIR,
     BOX_REGISTRY,
+    PAGES,
     CURRENCIES,
     DEFAULT_CURRENCY,
     SITE_NAME,
@@ -135,32 +134,19 @@ def _box_timestamps(con: sqlite3.Connection) -> dict:
     }
 
 
-def build_page_navs() -> dict:
-    """Nav links (href + EN label) per page."""
-    return {
-        "dashboard": [
-            {"href": "#nav-macro",     "label": "Macro"},
-            {"href": "#nav-indices",   "label": "Indices"},
-            {"href": "#nav-news",      "label": "News"},
-            {"href": "#nav-sectors",   "label": "Valuation"},
-            {"href": "#nav-rotation",  "label": "Rotation"},
-            {"href": "#nav-portfolio", "label": "Portfolio"},
-        ],
-        "stock-analysis": [],
-        "learn": [
-            {"href": "#learn-whyfinance",  "label": "Why Finance"},
-            {"href": "#learn-guidelines",  "label": "Guidelines"},
-            {"href": "#learn-mindmap",     "label": "Mindmap"},
-            {"href": "#learn-dashboard",   "label": "Dashboard"},
-            {"href": "#learn-stockanalysis","label": "Stock Analysis"},
-        ],
-        "contact": [
-            {"href": "#ct-about",   "label": "About"},
-            {"href": "#ct-story",   "label": "Story"},
-            {"href": "#ct-reach",   "label": "Reach"},
-            {"href": "#ct-roadmap", "label": "Roadmap"},
-        ],
-    }
+def _page_title(page: dict) -> str:
+    """Full HTML title for a page entry from PAGES."""
+    if page["title"] is None:
+        return f"{SITE_NAME} — {SITE_SLOGAN}"
+    if page["id"] == "contact":
+        return f"Contact {SITE_NAME} — feedback, data corrections, and partnership inquiries."
+    return f"{page['title']} — {SITE_NAME}"
+
+
+def _page_description(page: dict) -> str:
+    if page["description"]:
+        return page["description"]
+    return f"Contact {SITE_NAME} — feedback, data corrections, and partnership inquiries."
 
 
 # ============================================================
@@ -388,25 +374,16 @@ def render(currency: str = DEFAULT_CURRENCY):
     (OUTPUT_DIR / "_headers").write_text(headers_content, encoding="utf-8")
     log.info("_headers written")
 
-    con       = sqlite3.connect(DB_PATH, timeout=30)
+    con       = db.connect()
     boxes     = load_boxes(con, currency)
     fx_rates  = _get_fx_rates(con)
     ts_map    = _box_timestamps(con)
     ts_render = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    page_navs = build_page_navs()
-    page_order = ["dashboard", "stock-analysis", "learn", "contact"]
-    page_paths = {
-        "dashboard":      "/index.html",
-        "stock-analysis": "/stock-analysis.html",
-        "learn":          "/learn.html",
-        "contact":        "/contact.html",
-    }
 
     env = Environment(loader=FileSystemLoader(str(TEMPLATE_DIR)), autoescape=True)
 
     boxes_by_id = {b["meta"]["id"]: b for b in boxes}
     def _data(bid): return boxes_by_id.get(bid, {}).get("data", {})
-    def _meta(bid): return boxes_by_id.get(bid, {}).get("meta", {})
 
     # ── Agent-facing JSON data layer (/data/*.json + llms.txt) ──
     write_data_layer(boxes_by_id, ts_render)
@@ -417,82 +394,56 @@ def render(currency: str = DEFAULT_CURRENCY):
 
     # Shared base context (EN-only build)
     base_ctx = {
-        "site_name"            : SITE_NAME,
-        "site_slogan"          : SITE_SLOGAN,
-        "colors"               : COLORS,
-        "lang"                 : "en",
-        "currency"             : currency,
-        "currencies"           : CURRENCIES,
-        "ts_render"            : ts_render,
-        "fx_rates_js"          : fx_rates,
-        "stock_analysis_live"  : stock_analysis_live,
+        "site_name"          : SITE_NAME,
+        "site_slogan"        : SITE_SLOGAN,
+        "colors"             : COLORS,
+        "lang"               : "en",
+        "currency"           : currency,
+        "currencies"         : CURRENCIES,
+        "ts_render"          : ts_render,
+        "fx_rates_js"        : fx_rates,
+        "stock_analysis_live": stock_analysis_live,
     }
 
-    # ── 1. Dashboard ────────────────────────────────────────
-    _render_page(env, "dashboard.html", OUTPUT_DIR / "index.html", {
+    # ── Dashboard (index 0) — special: needs box data ────────
+    dash = PAGES[0]
+    _render_page(env, dash["template"], OUTPUT_DIR / dash["output"], {
         **base_ctx,
-        "current_page"    : "dashboard",
+        "current_page"    : dash["id"],
         "page_index"      : 0,
-        "page_path"       : page_paths["dashboard"],
-        "page_title"      : f"{SITE_NAME} — {SITE_SLOGAN}",
-        "page_description": "Live macro signals, global indices, sector rotation, sentiment and portfolio scan. VIX, ERP, yield curve, HY OAS, CAPE and more.",
-        "page_nav"     : page_navs["dashboard"],
-        "boxes"        : boxes,
-        "box_macro"           : _data("box_01_macro"),
-        "box_macro_meta"      : _meta("box_01_macro"),
-        "box_indices"         : _data("box_02_indices"),
-        "box_indices_meta"    : _meta("box_02_indices"),
-        "box_news"            : _data("box_03_news"),
-        "box_news_meta"       : _meta("box_03_news"),
-        "box_sectors"         : _data("box_04_sectors"),
-        "box_sectors_meta"    : _meta("box_04_sectors"),
-        "box_sentiment"       : _data("box_05_sentiment"),
-        "box_sentiment_meta"  : _meta("box_05_sentiment"),
-        "box_portfolio"       : _data("box_06_portfolio"),
-        "box_portfolio_meta"  : _meta("box_06_portfolio"),
-        "ts_macro"     : ts_map["box_01_macro"],
-        "ts_indices"   : ts_map["box_02_indices"],
-        "ts_news"      : ts_map["box_03_news"],
-        "ts_sectors"   : ts_map["box_04_sectors"],
-        "ts_sentiment" : ts_map.get("box_05_sentiment", "—"),
-        "ts_portfolio" : ts_map["box_06_portfolio"],
+        "page_path"       : dash["path"],
+        "page_title"      : _page_title(dash),
+        "page_description": _page_description(dash),
+        "page_nav"        : dash["nav"],
+        "box_macro"       : _data("box_01_macro"),
+        "box_indices"     : _data("box_02_indices"),
+        "box_news"        : _data("box_03_news"),
+        "box_sectors"     : _data("box_04_sectors"),
+        "box_sentiment"   : _data("box_05_sentiment"),
+        "box_portfolio"   : _data("box_06_portfolio"),
+        "ts_macro"        : ts_map["box_01_macro"],
+        "ts_indices"      : ts_map["box_02_indices"],
+        "ts_news"         : ts_map["box_03_news"],
+        "ts_sectors"      : ts_map["box_04_sectors"],
+        "ts_sentiment"    : ts_map.get("box_05_sentiment", "—"),
+        "ts_portfolio"    : ts_map["box_06_portfolio"],
     })
 
-    # ── 2. Stock Analysis ────────────────────────────────────
-    _render_page(env, "stock-analysis.html", OUTPUT_DIR / "stock-analysis.html", {
-        **base_ctx,
-        "current_page"    : "stock-analysis",
-        "page_index"      : 1,
-        "page_path"       : page_paths["stock-analysis"],
-        "page_nav"        : page_navs["stock-analysis"],
-        "page_title"      : f"Stock Analysis — {SITE_NAME}",
-        "page_description": "Deep-dive stock analysis: fundamentals, technicals, and valuation context.",
-    })
-
-    # ── 3. Learn ─────────────────────────────────────────────
-    _render_page(env, "learn.html", OUTPUT_DIR / "learn.html", {
-        **base_ctx,
-        "current_page"    : "learn",
-        "page_index"      : 2,
-        "page_path"       : page_paths["learn"],
-        "page_nav"        : page_navs["learn"],
-        "page_title"      : f"Learn — {SITE_NAME}",
-        "page_description": "How to read the dashboard: signal thresholds, column definitions, and interpretation guides for all 6 data boxes.",
-    })
-
-    # ── 4. Contact ───────────────────────────────────────────
-    _render_page(env, "contact.html", OUTPUT_DIR / "contact.html", {
-        **base_ctx,
-        "current_page"    : "contact",
-        "page_index"      : 3,
-        "page_path"       : page_paths["contact"],
-        "page_nav"        : page_navs["contact"],
-        "page_title"      : f"Contact — {SITE_NAME}",
-        "page_description": f"Contact {SITE_NAME} — feedback, data corrections, and partnership inquiries.",
-    })
+    # ── All other pages — generic loop (add to PAGES in config.py) ──
+    for i, page in enumerate(PAGES[1:], start=1):
+        _render_page(env, page["template"], OUTPUT_DIR / page["output"], {
+            **base_ctx,
+            "current_page"    : page["id"],
+            "page_index"      : i,
+            "page_path"       : page["path"],
+            "page_title"      : _page_title(page),
+            "page_description": _page_description(page),
+            "page_nav"        : page["nav"],
+        })
 
     con.close()
-    log.info("Render complet — 4 pages (EN) + data layer (6 datasets + manifest)")
+    log.info("Render complet — %d pages (EN) + data layer (%d datasets + manifest)",
+             len(PAGES), len(BOX_REGISTRY))
 
 
 # ============================================================
