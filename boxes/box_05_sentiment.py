@@ -16,27 +16,16 @@ No new fetcher required.
 """
 
 import sqlite3
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from config import SECTOR_TICKERS
 
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # META
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 META = {
     "id"         : "box_05_sentiment",   # ID kept for BOX_REGISTRY stability
-    "titre"      : {
-        "EN": "Rotation",
-        "FR": "Rotation",
-        "DE": "Rotation",
-        "ES": "Rotación",
-        "ZH": "板块轮动",
-        "RU": "Ротация",
-        "JA": "ローテーション",
-    },
+    "titre"      : "Rotation",
     "description": "Volume-driven sector rotation — DMA · MFI · OBV signals across 16 sectors × 4 regions.",
     "icone"      : "🗺️",
     "largeur"    : "full",
@@ -66,9 +55,9 @@ SECTOR_ABBREV = {
 }
 
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # 1. Sector grid — snapshot JOIN ticker_info for every (sector, region)
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 
 def _fetch_rperf_latest(con: sqlite3.Connection) -> dict:
     """
@@ -273,9 +262,9 @@ def _fetch_grid(con: sqlite3.Connection) -> dict:
     return grid
 
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # 2. Market breadth — % of sector ETFs above DMA200
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 
 def _fetch_breadth(con: sqlite3.Connection) -> dict:
     """
@@ -313,9 +302,9 @@ def _fetch_breadth(con: sqlite3.Connection) -> dict:
     }
 
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # 3. Macro regime — VIX + yield curve + HY OAS classification
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 
 def _fetch_regime(con: sqlite3.Connection) -> dict:
     """
@@ -358,9 +347,9 @@ def _fetch_regime(con: sqlite3.Connection) -> dict:
     }
 
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # render
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 
 def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> dict:
     grid    = _fetch_grid(con)
@@ -368,7 +357,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
     regime  = _fetch_regime(con)
 
     return {
-        "meta": {**META, "titre": META["titre"].get(lang, META["titre"]["EN"])},
+        "meta": META,
         "data": {
             "regions": REGIONS,
             "sectors": SECTORS,

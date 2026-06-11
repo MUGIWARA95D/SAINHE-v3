@@ -5,22 +5,13 @@ box_04_sectors.py — Rotation sectorielle (16 secteurs × 4 régions).
 import json
 import sqlite3
 from collections import defaultdict
-from boxes._base import get_fx_rates
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # ── 1. META
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 META = {
     "id"         : "box_04_sectors",
-    "titre"      : {
-        "EN": "Valuation",
-        "FR": "Valorisation",
-        "DE": "Bewertung",
-        "ES": "Valoración",
-        "ZH": "估值",
-        "RU": "Оценка",
-        "JA": "バリュエーション",
-    },
+    "titre"      : "Valuation",
     "description": "Price-driven sector view — momentum scores, relative performance and trend across 16 sectors × 4 regions.",
     "icone"      : "💰",
     "largeur"    : "full",
@@ -39,9 +30,9 @@ SECTEURS_ORDRE = [
 REGIONS_ORDRE = ["MONDE", "USA", "EU", "ASIE"]
 
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # ── 2. QUERY
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 
 def _fetch_multi_sparklines(con: sqlite3.Connection, tickers: list[str]) -> dict[str, dict]:
     """
@@ -149,9 +140,9 @@ def _fetch_rperf(con: sqlite3.Connection) -> dict[tuple, dict]:
     return result
 
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # ── 3. FORMAT
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 
 def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> dict:
     """
@@ -224,7 +215,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
         })
 
     return {
-        "meta": {**META, "titre": META["titre"].get(lang, META["titre"]["EN"])},
+        "meta": META,
         "data": {
             "secteurs"      : secteurs_out,
             "regions_ordre" : REGIONS_ORDRE,

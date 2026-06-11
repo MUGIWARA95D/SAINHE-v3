@@ -83,26 +83,26 @@ ALL_INDEX_TICKERS = list(INDICES.keys())
 #  Format : {"TICKER": {"nom": "...", "secteur": "..."}}
 # ============================================================
 WATCHLIST = {
-    # ── Tech & Semis ──────────────────────────────────────────
+    # ── Tech & Semis ──────────────────────────────────────────────────────
     "NVDA"      : {"nom": "NVIDIA",             "secteur": "Tech & Semis"},
     "AAPL"      : {"nom": "Apple",              "secteur": "Tech & Semis"},
     "MSFT"      : {"nom": "Microsoft",          "secteur": "Tech & Semis"},
     "ASML"      : {"nom": "ASML Holding",       "secteur": "Tech & Semis"},          # NASDAQ → USD
     "TSM"       : {"nom": "Taiwan Semi (TSMC)", "secteur": "Tech & Semis"},           # NYSE ADR → USD
 
-    # ── Robotics & MedTech ────────────────────────────────────
+    # ── Robotics & MedTech ──────────────────────────────────────────────────────
     "6954.T"    : {"nom": "Fanuc",              "secteur": "Robotics & MedTech",  "devise": "JPY"},
     "ISRG"      : {"nom": "Intuitive Surgical", "secteur": "Robotics & MedTech"},
 
-    # ── Healthcare & Pharma ───────────────────────────────────
+    # ── Healthcare & Pharma ──────────────────────────────────────────────────────
     "ROG.SW"    : {"nom": "Roche",              "secteur": "Healthcare & Pharma", "devise": "CHF"},
     "ZTS"       : {"nom": "Zoetis",             "secteur": "Healthcare & Pharma"},
 
-    # ── Energy ────────────────────────────────────────────────
+    # ── Energy ────────────────────────────────────────────────────────────────
     "2222.SR"   : {"nom": "Saudi Aramco",       "secteur": "Energy",              "devise": "SAR"},
     "XOM"       : {"nom": "ExxonMobil",         "secteur": "Energy"},
 
-    # ── Defense & Aerospace ───────────────────────────────────
+    # ── Defense & Aerospace ──────────────────────────────────────────────────────
     "LMT"       : {"nom": "Lockheed Martin",    "secteur": "Defense & Aerospace"},
     "SAF.PA"    : {"nom": "Safran",             "secteur": "Defense & Aerospace", "devise": "EUR"},
     "RHM.DE"    : {"nom": "Rheinmetall",        "secteur": "Defense & Aerospace", "devise": "EUR"},
@@ -110,42 +110,42 @@ WATCHLIST = {
     # SpaceX — privé, pas de données marché. Dans DB actif=1 pour affichage "—"
     # "SPACEX"  : {"nom": "SpaceX",             "secteur": "Defense & Aerospace"},
 
-    # ── EV & Clean Energy ─────────────────────────────────────
+    # ── EV & Clean Energy ──────────────────────────────────────────────────────
     "TSLA"      : {"nom": "Tesla",              "secteur": "EV & Clean Energy"},
     "GEV"       : {"nom": "GE Vernova",         "secteur": "EV & Clean Energy"},
 
-    # ── Space ─────────────────────────────────────────────────
+    # ── Space ─────────────────────────────────────────────────────────────────
     # (SpaceX déplacé sous Defense & Aerospace — voir ci-dessus)
 
-    # ── Luxury ────────────────────────────────────────────────
+    # ── Luxury ──────────────────────────────────────────────────────────────────
     "RACE"      : {"nom": "Ferrari",            "secteur": "Luxury"},
     "RMS.PA"    : {"nom": "Hermès",             "secteur": "Luxury",              "devise": "EUR"},
 
-    # ── Agriculture ───────────────────────────────────────────
+    # ── Agriculture ────────────────────────────────────────────────────────────────
     "DE"        : {"nom": "John Deere",         "secteur": "Agriculture"},
     "CTVA"      : {"nom": "Corteva",            "secteur": "Agriculture"},
 
-    # ── Infra & Water ─────────────────────────────────────────
+    # ── Infra & Water ──────────────────────────────────────────────────────────────
     "GEBN.SW"   : {"nom": "Geberit",            "secteur": "Infra & Water",       "devise": "CHF"},
     "ECL"       : {"nom": "Ecolab",             "secteur": "Infra & Water"},
 
-    # ── Consumer Staples ──────────────────────────────────────
+    # ── Consumer Staples ──────────────────────────────────────────────────────────────
     "NESN.SW"   : {"nom": "Nestlé",             "secteur": "Consumer Staples",    "devise": "CHF"},
     "KO"        : {"nom": "Coca-Cola",          "secteur": "Consumer Staples"},
 
-    # ── Industrials ───────────────────────────────────────────
+    # ── Industrials ────────────────────────────────────────────────────────────────
     "COA.L"     : {"nom": "Coats Group",        "secteur": "Industrials",         "devise": "GBP"},
     "CAT"       : {"nom": "Caterpillar",         "secteur": "Industrials"},
 
-    # ── Strategic Materials ───────────────────────────────────
+    # ── Strategic Materials ──────────────────────────────────────────────────────
     "600111.SS" : {"nom": "Northern Rare Earth", "secteur": "Strategic Materials", "devise": "CNY"},
     "GLD"       : {"nom": "SPDR Gold ETF",        "secteur": "Strategic Materials"},
     "KAP.L"     : {"nom": "Kazatomprom",          "secteur": "Strategic Materials", "devise": "USD"},  # LSE, coté USD
 
-    # ── Digital Assets ────────────────────────────────────────
+    # ── Digital Assets ──────────────────────────────────────────────────────────────
     "BTC-USD"   : {"nom": "Bitcoin",             "secteur": "Digital Assets"},
 
-    # ── Energy ────────────────────────────────────────────────
+    # ── Energy ────────────────────────────────────────────────────────────────
     # Gazprom — sanctionné/suspendu (MOEX). Dans DB actif=1 pour affichage "—".
     # Décommenter ici quand les données seront de nouveau disponibles :
     # "GAZP"    : {"nom": "Gazprom",             "secteur": "Energy",              "devise": "RUB"},
@@ -175,6 +175,9 @@ SCORE_WEIGHTS        = {      # Pondération score composite
 }
 SPARKLINE_DAYS       = 7      # jours calendaires pour mini-graphique
 YFINANCE_HISTORY     = "2y"   # historique fetch (2 ans = assez pour tous les calculs)
+# Fenêtre maximale nécessaire pour tous les indicateurs :
+#   ret_2Y = 504 jours de trading ≈ 730 j calendaires + marge hors-trading = 780
+PRICES_LOOKBACK_DAYS = 780    # borne la lecture DB dans load_prices (perf)
 
 # Seuils RVOL directionnel
 RVOL_DIR_THRESHOLDS = {
@@ -239,6 +242,13 @@ RSS_SOURCES = {
 NEWS_RETENTION_DAYS  = 3     # purge auto — keep last 3 days
 LOG_RETENTION_DAYS   = 90    # logs fetch conservés N jours
 
+# Rétention des tables historiques (purgées à chaque run de calc.py)
+METRICS_RETENTION_DAYS          = 750   # ~3 ans de trading — DMA200 needs 200
+RPERF_RETENTION_DAYS            = 750
+MACRO_BANDEAU_RETENTION_DAYS    = 750
+MACRO_LIQUIDITY_RETENTION_DAYS  = 750
+SENTIMENT_HISTORY_RETENTION_DAYS = 365  # 1 an suffit pour l'analyse de rotation
+
 # ============================================================
 #  7. TAUX DE CHANGE — fetch_fx.py (Frankfurter/yfinance)
 #  Clé  : "USD_XXX"  — taux de conversion USD → XXX
@@ -248,10 +258,10 @@ LOG_RETENTION_DAYS   = 90    # logs fetch conservés N jours
 #         des tickers du portefeuille (JPY, CHF, GBP, CNY, ILS, SAR).
 # ============================================================
 FX_SOURCES = {
-    # ── Devises d'affichage (USD/EUR/HKD) ────────────────────
+    # ── Devises d'affichage (USD/EUR/HKD) ────────────────────────────────────────────
     "USD_EUR": "USDEUR=X",
     "USD_HKD": "USDHKD=X",
-    # ── Indices globaux ───────────────────────────────────────
+    # ── Indices globaux ──────────────────────────────────────────────────────────────
     "USD_JPY": "USDJPY=X",   # ^N225 (Nikkei), 6954.T (Fanuc)
     "USD_GBP": "USDGBP=X",   # ^FTSE (FTSE 100), COA.L
     "USD_CHF": "USDCHF=X",   # ^SSMI (SMI), ROG/GEBN/NESN.SW
@@ -259,7 +269,7 @@ FX_SOURCES = {
     "USD_INR": "USDINR=X",   # ^NSEI (Nifty 50)
     "USD_CAD": "USDCAD=X",   # ^GSPTSE (TSX)
     "USD_AUD": "USDAUD=X",   # ^AXJO (ASX 200)
-    # ── Devises portefeuille exotiques ────────────────────────
+    # ── Devises portefeuille exotiques ────────────────────────────────────────────────
     # USD_ILS supprimé — KAP.IL (Elbit Systems) désactivé
     "USD_SAR": "USDSAR=X",   # 2222.SR (Saudi Aramco)
 }
@@ -301,4 +311,72 @@ BOX_REGISTRY = [
     {"id": "box_04_sectors",   "ordre": 4, "largeur": "full",  "actif": True},
     {"id": "box_05_sentiment", "ordre": 5, "largeur": "full",  "actif": True},
     {"id": "box_06_portfolio", "ordre": 6, "largeur": "full",  "actif": True},
+]
+
+# ============================================================
+#  11. PAGES — single source of truth for the site's page structure.
+#  Adding a new page = one entry here; render_html.py loops over this.
+#  "dashboard" is always index 0 and renders boxes; others are generic.
+# ============================================================
+PAGES = [
+    {
+        "id"         : "dashboard",
+        "template"   : "dashboard.html",
+        "output"     : "index.html",
+        "path"       : "/index.html",
+        "title"      : None,          # render_html fills: SITE_NAME + " — " + SITE_SLOGAN
+        "description": (
+            "Live macro signals, global indices, sector rotation, sentiment and portfolio "
+            "scan. VIX, ERP, yield curve, HY OAS, CAPE and more."
+        ),
+        "nav": [
+            {"href": "#nav-macro",     "label": "Macro"},
+            {"href": "#nav-indices",   "label": "Indices"},
+            {"href": "#nav-news",      "label": "News"},
+            {"href": "#nav-sectors",   "label": "Valuation"},
+            {"href": "#nav-rotation",  "label": "Rotation"},
+            {"href": "#nav-portfolio", "label": "Portfolio"},
+        ],
+    },
+    {
+        "id"         : "stock-analysis",
+        "template"   : "stock-analysis.html",
+        "output"     : "stock-analysis.html",
+        "path"       : "/stock-analysis.html",
+        "title"      : "Stock Analysis",
+        "description": "Deep-dive stock analysis: fundamentals, technicals, and valuation context.",
+        "nav"        : [],
+    },
+    {
+        "id"         : "learn",
+        "template"   : "learn.html",
+        "output"     : "learn.html",
+        "path"       : "/learn.html",
+        "title"      : "Learn",
+        "description": (
+            "How to read the dashboard: signal thresholds, column definitions, and "
+            "interpretation guides for all 6 data boxes."
+        ),
+        "nav": [
+            {"href": "#learn-whyfinance",   "label": "Why Finance"},
+            {"href": "#learn-guidelines",   "label": "Guidelines"},
+            {"href": "#learn-mindmap",      "label": "Mindmap"},
+            {"href": "#learn-dashboard",    "label": "Dashboard"},
+            {"href": "#learn-stockanalysis","label": "Stock Analysis"},
+        ],
+    },
+    {
+        "id"         : "contact",
+        "template"   : "contact.html",
+        "output"     : "contact.html",
+        "path"       : "/contact.html",
+        "title"      : "Contact",
+        "description": None,          # render_html fills: "Contact SITE_NAME — ..."
+        "nav": [
+            {"href": "#ct-about",   "label": "About"},
+            {"href": "#ct-story",   "label": "Story"},
+            {"href": "#ct-reach",   "label": "Reach"},
+            {"href": "#ct-roadmap", "label": "Roadmap"},
+        ],
+    },
 ]

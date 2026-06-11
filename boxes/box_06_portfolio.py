@@ -4,20 +4,12 @@ box_06_portfolio.py — Scanner watchlist personnelle.
 
 import sqlite3
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # ── 1. META
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 META = {
     "id"         : "box_06_portfolio",
-    "titre"      : {
-        "EN": "Portfolio Scanner",
-        "FR": "Scanner Portefeuille",
-        "DE": "Portfolio-Scanner",
-        "ES": "Escáner de Cartera",
-        "ZH": "投资组合扫描",
-        "RU": "Сканер портфеля",
-        "JA": "ポートフォリオスキャナー",
-    },
+    "titre"      : "Portfolio Scanner",
     "description": "Technical scan of your personal watchlist.",
     "icone"      : "🔍",
     "largeur"    : "full",
@@ -30,9 +22,9 @@ TRI_DEFAUT      = "ret_3m"
 TRI_DESCENDANT  = True
 
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # ── 2. QUERY
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 
 def _fetch_watchlist(con: sqlite3.Connection) -> list[dict]:
     """
@@ -86,9 +78,9 @@ def _fetch_watchlist(con: sqlite3.Connection) -> list[dict]:
     return [dict(zip(cols, r)) for r in rows]
 
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # ── 3. FORMAT
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 
 def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> dict:
     """
@@ -153,7 +145,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
         })
 
     return {
-        "meta": {**META, "titre": META["titre"].get(lang, META["titre"]["EN"])},
+        "meta": META,
         "data": {
             "currency": currency,
             "tickers" : tickers_out,
