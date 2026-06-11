@@ -3,25 +3,15 @@ box_02_indices.py — Indices boursiers globaux.
 """
 
 import sqlite3
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from config import INDICES
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # ── 1. META
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 META = {
     "id"         : "box_02_indices",
-    "titre"      : {
-        "EN": "Global Indices",
-        "FR": "Indices Globaux",
-        "DE": "Globale Indizes",
-        "ES": "Índices Globales",
-        "ZH": "全球指数",
-        "RU": "Мировые индексы",
-        "JA": "グローバル指数",
-    },
+    "titre"      : "Global Indices",
     "description": "Real-time snapshot of major global indices.",
     "icone"      : "📈",
     "largeur"    : "full",
@@ -31,9 +21,9 @@ META = {
 REGIONS_ORDRE = ["USA", "EU", "ASIE", "GLOBAL"]
 
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # ── 2. QUERY
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 
 def _fetch_indices(con: sqlite3.Connection) -> list[dict]:
     """
@@ -73,9 +63,9 @@ def _fetch_indices(con: sqlite3.Connection) -> list[dict]:
     return [dict(zip(cols, r)) for r in rows]
 
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # ── 3. FORMAT
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 
 def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> dict:
     """
@@ -125,7 +115,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
         })
 
     return {
-        "meta": {**META, "titre": META["titre"].get(lang, META["titre"]["EN"])},
+        "meta": META,
         "data": {
             "par_region": par_region,
             "currency"  : currency,

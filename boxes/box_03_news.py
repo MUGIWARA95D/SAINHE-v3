@@ -3,22 +3,13 @@ box_03_news.py — Fil d'actualités financières (RSS).
 """
 
 import sqlite3
-from boxes._base import get_fx_rates
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # ── 1. META
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 META = {
     "id"         : "box_03_news",
-    "titre"      : {
-        "EN": "Market News",
-        "FR": "Actualités Marchés",
-        "DE": "Marktnachrichten",
-        "ES": "Noticias de Mercado",
-        "ZH": "市场新闻",
-        "RU": "Новости рынка",
-        "JA": "市場ニュース",
-    },
+    "titre"      : "Market News",
     "description": "Latest financial news from global sources.",
     "icone"      : "📰",
     "largeur"    : "full",
@@ -29,9 +20,9 @@ ARTICLES_PAR_REGION = 5
 REGIONS_ORDRE       = ["GLOBAL", "USA", "EU", "ASIE"]
 
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # ── 2. QUERY
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 
 def _fetch_news(con: sqlite3.Connection) -> list[dict]:
     """
@@ -69,9 +60,9 @@ def _fetch_news(con: sqlite3.Connection) -> list[dict]:
     ]
 
 
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 # ── 3. FORMAT
-# ══════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════
 
 def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> dict:
     """
@@ -105,7 +96,7 @@ def render(con: sqlite3.Connection, lang: str = "EN", currency: str = "USD") -> 
         })
 
     return {
-        "meta": {**META, "titre": META["titre"].get(lang, META["titre"]["EN"])},
+        "meta": META,
         "data": {
             "par_region": par_region,
             "total"     : len(articles),
