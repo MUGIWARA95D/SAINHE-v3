@@ -4,13 +4,11 @@
 <!--       derived from documented independent inputs (ret_3m + DMA200 + OBV) in   -->
 <!--       boxes/box_06_portfolio.py:_compute_signal().                            -->
 <style>
-/* ── Native currency badge — portfolio table ── */
 .cur-pill{
   display:inline-block;font-size:7.5px;font-weight:700;
   padding:1px 5px;border-radius:3px;letter-spacing:.2px;
   margin-left:4px;vertical-align:middle;white-space:nowrap;
 }
-/* ── Portfolio preview / expand toggle ── */
 .pt-row-hidden{display:none}
 .pt-toggle-row{cursor:pointer}
 .pt-toggle-td{
@@ -55,14 +53,10 @@
 (function(){
   const PORT = {{ box_portfolio.tickers | tojson }};
   const tb   = document.getElementById("ptb");
-
-  /* sparkline registry — destroyed before re-render */
   var ptSparks = {};
-
-  var PT_PREVIEW  = 12;   /* rows visible before expand */
+  var PT_PREVIEW  = 12;
   var ptExpanded  = false;
 
-  /* ── i18n column headers ────────────────────────────────── */
   function setColHeaders(){
     var I18N = window.SAINHE_I18N || {};
     var todayLbl    = I18N.col_today    ||"Today";
@@ -91,7 +85,6 @@
       "th-price":"pt-cols","th-1m":"pt-cols","th-3m":"pt-cols","th-1y":"pt-cols",
       "th-mfi":"pt-cols","th-rvol":"pt-cols","th-dma200":"pt-cols"
     };
-    /* scope to #pt-table — th-price and th-rvol exist in both indices and portfolio */
     var ptTbl = document.getElementById("pt-table");
     function ptTh(id){ return ptTbl ? ptTbl.querySelector('[id="'+id+'"]') : document.getElementById(id); }
     Object.keys(colHeaderMap).forEach(function(id){
@@ -118,26 +111,17 @@
     }
   }
 
-  /* ── helpers ────────────────────────────────────────────── */
-  function mk(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!=null)el.textContent=txt;return el;}
+  var mk        = window.SAINHE_FMT.mk;
   function clear(el){while(el.firstChild) el.removeChild(el.firstChild);}
-  function pct(n){return n!=null?(n>=0?"+":"")+(n*100).toFixed(2)+"%":"—";}
-  function fmt(n){return n!=null?n.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2}):"—";}
-
-  function staleInfo(ts){
-    if(!ts) return {cls:"ts-unk",label:"?"};
-    const h=(Date.now()-new Date(ts))/3600000;
-    const _i=window.SAINHE_I18N||{};
-    const l=h<1?(_i.time_lt1h||"<1h"):h<24?Math.round(h)+(_i.time_h||"h"):Math.round(h/24)+(_i.time_d||"d");
-    return h<6?{cls:"ts-fresh",label:l}:h<30?{cls:"ts-ok",label:l}:h<72?{cls:"ts-stale",label:l}:{cls:"ts-old",label:l};
-  }
+  function pct(n){ return window.SAINHE_FMT.fmtPct(n, 2); }
+  var fmt       = window.SAINHE_FMT.fmt;
+  var staleInfo = window.SAINHE_FMT.staleInfo;
   function tsHHMM(ts){
     if(!ts) return "—";
     const d=new Date(ts);
     return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
   }
 
-  /* ── native currency badge ──────────────────────────────── */
   var ND_COLORS = {
     'USD':['rgba(44,122,62,.15)','#2C7A3E'],
     'EUR':['rgba(26,79,173,.15)','#1A4FAD'],
@@ -154,13 +138,12 @@
     var c = ND_COLORS[nd] || ['rgba(100,100,100,.12)','var(--muted)'];
     var el = document.createElement("span");
     el.className = "cur-pill";
-    el.textContent = nd; /* show as-is: GBp stays GBp */
+    el.textContent = nd;
     el.style.background = c[0];
     el.style.color = c[1];
     return el;
   }
 
-  /* signal display mapping */
   function sigLabel(s){
     var I18N=window.SAINHE_I18N||{};
     return s==="BUY"?(I18N.signal_buy_display||"↑ Buy"):
@@ -170,7 +153,6 @@
   }
   function sigCls(s){return s==="BUY"?"sig-buy":s==="AVOID"?"sig-avoid":s==="WATCH"?"sig-watch":"sig-na";}
 
-  /* ── sort state ─────────────────────────────────────────── */
   function getSortLabels(){
     var I18N=window.SAINHE_I18N||{};
     return {
@@ -186,16 +168,13 @@
       above_dma200: I18N.col_dma200||"DMA200"
     };
   }
-  /* default sort: 3-month return descending (transparent, single documented signal) */
   let sortCol="ret_3m", sortDir=-1;
 
   function sortedPort(){
     return PORT.slice().sort(function(a,b){
       var va=a[sortCol], vb=b[sortCol];
-      /* string columns */
       if(typeof va==="string"||typeof vb==="string")
         return sortDir*(va||"").localeCompare(vb||"");
-      /* nulls always to the bottom, regardless of direction */
       if(va==null&&vb==null) return 0;
       if(va==null) return 1;
       if(vb==null) return -1;
@@ -203,38 +182,29 @@
     });
   }
 
-  /* ── expansion panel ────────────────────────────────────── */
   var expandTr=null, expandPanelTr=null, expandChart=null;
-
   function closeExpand(){
     if(expandPanelTr){expandPanelTr.remove();expandPanelTr=null;}
     if(expandChart){expandChart.destroy();expandChart=null;}
     expandTr=null;
   }
-
   function toggleExpand(tr,p){
     if(expandTr===tr){closeExpand();return;}
     closeExpand();
     expandTr=tr;
     var I18N=window.SAINHE_I18N||{};
-
     var panelTr=document.createElement("tr");
     panelTr.className="pt-expand-row";
     var panelTd=panelTr.appendChild(document.createElement("td"));
     panelTd.colSpan=12; panelTd.className="pt-expand-td";
     var inner=panelTd.appendChild(document.createElement("div"));
     inner.className="pt-expand-inner";
-
-    /* big sparkline */
     var sparkWrap=inner.appendChild(document.createElement("div"));
     sparkWrap.className="pt-expand-spark";
     var bigCv=sparkWrap.appendChild(document.createElement("canvas"));
     bigCv.width=200; bigCv.height=50;
-
-    /* info column */
     var info=inner.appendChild(document.createElement("div"));
     info.className="pt-expand-info";
-
     var dmaStr=p.above_dma200===1?"↑":p.above_dma200===0?"↓":"—";
     var mfiStr=p.mfi!=null?Math.round(p.mfi):"—";
     var rvolStr=p.rvol!=null?p.rvol.toFixed(2):"—";
@@ -244,13 +214,9 @@
       " · "+(I18N.col_rvol||"RVOL")+": "+rvolStr));
     info.appendChild(mk("div","pt-expand-rets",
       (I18N.col_1m||"1M")+": "+pct(p.ret_1m)+" · "+(I18N.col_3m||"3M")+": "+pct(p.ret_3m)+" · "+(I18N.col_1y||"1Y")+": "+pct(p.ret_1y)));
-
     var sigEl=info.appendChild(document.createElement("div"));
     sigEl.appendChild(mk("span","sig "+sigCls(p.signal),sigLabel(p.signal)));
-
     tr.after(panelTr); expandPanelTr=panelTr;
-
-    /* render big sparkline */
     var raw=[];
     try{if(p.sparkline) raw=JSON.parse(p.sparkline);}catch(e){}
     if(raw.length){
@@ -259,14 +225,12 @@
     }
   }
 
-  /* ── anomalies feed ─────────────────────────────────────── */
   function renderAnomalies(){
     var I18N=window.SAINHE_I18N||{};
     var el=document.getElementById("pt-anomalies");
     var alerts=[];
     PORT.forEach(function(p){
       var r3 = p.ret_3m;
-      /* priority = severity of 3M move × volume confirmation */
       var pri = Math.abs(r3||0) * (p.rvol||1);
       var hhmm=tsHHMM(p.ts_update);
       if((p.rvol||0)>1.5)
@@ -293,11 +257,9 @@
     });
   }
 
-  /* ── portfolio pulse bandeau ────────────────────────────── */
   function renderPulse(){
     var I18N=window.SAINHE_I18N||{};
     var el=document.getElementById("pt-pulse");
-    /* Average 3-month return across the watchlist — transparent, no composite */
     var valid=PORT.filter(function(p){return p.ret_3m!=null;});
     var avg3m=valid.length?valid.reduce(function(s,p){return s+p.ret_3m;},0)/valid.length:null;
     var above=PORT.filter(function(p){return p.above_dma200===1;}).length;
@@ -310,20 +272,14 @@
     var dmaRatio=total>0?above/total:0;
     var dmaColor=dmaRatio>0.6?"var(--green)":dmaRatio<0.4?"var(--red)":"var(--gold)";
     clear(el);
-
-    /* col 1 — avg 3M return */
     var c1=el.appendChild(document.createElement("div")); c1.className="pt-pulse-col";
     c1.appendChild(mk("div","pt-pulse-lbl",I18N.pulse_avg_3m||"Avg 3M"));
     var v1=c1.appendChild(mk("div","pt-pulse-val",avgArrow+(avg3m!=null?pct(avg3m):"—")));
     v1.style.color=avgColor;
-
-    /* col 2 — above dma200 */
     var c2=el.appendChild(document.createElement("div")); c2.className="pt-pulse-col";
     c2.appendChild(mk("div","pt-pulse-lbl",I18N.pulse_above_dma||"Above DMA200"));
     var v2=c2.appendChild(mk("div","pt-pulse-val",above+" / "+total));
     v2.style.color=dmaColor;
-
-    /* col 3 — momentum counts */
     var c3=el.appendChild(document.createElement("div")); c3.className="pt-pulse-col";
     c3.appendChild(mk("div","pt-pulse-lbl",I18N.pulse_momentum||"Momentum"));
     var v3=c3.appendChild(document.createElement("div")); v3.className="pt-pulse-val";
@@ -332,8 +288,6 @@
     var sn=v3.appendChild(mk("span",null,neut+" →")); sn.style.color="var(--gold)";
     v3.appendChild(mk("span",null," · ")).style.color="var(--faint)";
     var sd=v3.appendChild(mk("span",null,dn+" ↓")); sd.style.color="var(--red)";
-
-    /* col 4 — last fetch age (most recent ts_update) */
     var latestTs=null;
     PORT.forEach(function(p){
       if(p.ts_update&&(!latestTs||new Date(p.ts_update)>new Date(latestTs))) latestTs=p.ts_update;
@@ -347,23 +301,19 @@
     if(si.cls==="ts-old") v4.style.fontWeight="900";
   }
 
-  /* ── main table render ──────────────────────────────────── */
   function renderTable(){
     var I18N=window.SAINHE_I18N||{};
     var SORT_LABELS=getSortLabels();
-    /* destroy old sparkline instances before clearing DOM */
     Object.values(ptSparks).forEach(function(c){ try{ c.destroy(); }catch(e){} });
     Object.keys(ptSparks).forEach(function(k){ delete ptSparks[k]; });
     closeExpand();
-
-    /* update sort indicators in header — arrows via CSS data-dir, no text pollution */
     document.querySelectorAll("#pt-head [data-sort]").forEach(function(th){
       var col=th.dataset.sort;
       var base=SORT_LABELS[col]||col;
       var savedRet=th.querySelector(".pt-ret-toggle");
       var savedSig=th.querySelector(".pt-sig-toggle");
       var savedCi =th.querySelector(".ci");
-      th.textContent=base; /* clean label only */
+      th.textContent=base;
       if(savedRet) th.appendChild(savedRet);
       if(savedSig) th.appendChild(savedSig);
       if(savedCi)  th.appendChild(savedCi);
@@ -371,10 +321,8 @@
       if(col===sortCol) th.setAttribute("data-dir",sortDir===-1?"desc":"asc");
       else th.removeAttribute("data-dir");
     });
-
     var sorted=sortedPort();
     clear(tb);
-
     if(!sorted.length){
       var etr=tb.appendChild(document.createElement("tr"));
       var etd=etr.appendChild(document.createElement("td"));
@@ -383,74 +331,55 @@
       etd.textContent=I18N.no_data_portfolio||"No watchlist data";
       return;
     }
-
     sorted.forEach(function(p){
       var tr=tb.appendChild(mk("tr"));
       tr.addEventListener("click",function(){toggleExpand(tr,p);});
-
-      /* col 1 — category */
       tr.appendChild(mk("td",null,(I18N.sectors&&I18N.sectors[p.secteur])||p.secteur||"—")).style.color="var(--muted)";
-
-      /* native devise — resolved early, used in col 2 badge and col 4 price */
       var nd = p.native_devise || 'USD';
-
-      /* col 2 — ticker + name + native currency badge (proper nouns: never translate) */
       var td1=tr.appendChild(mk("td"));
       var tkEl=mk("strong",null,p.ticker); tkEl.translate=false;
       td1.appendChild(tkEl).style.color="var(--h)";
       var sub=td1.appendChild(mk("span",null," "+(p.nom||""))); sub.translate=false;
       sub.style.cssText="font-size:10px;color:var(--muted)";
       td1.appendChild(ndBadge(nd));
-
-      /* col 3 — mini sparkline canvas */
       var td2=tr.appendChild(mk("td"));
       var cv=td2.appendChild(document.createElement("canvas"));
       cv.id="psp_"+p.ticker.replace(/\W/g,"_");
       cv.width=56; cv.height=22; cv.className="idx-spark";
-
-      /* col 4 — price (converted to display currency, or native + badge if devise not in FX table) */
       var priceTd = tr.appendChild(mk("td"));
       priceTd.style.fontVariantNumeric = "tabular-nums";
       var conv = window.fxConvert(p.close, nd);
       if(conv !== null){
         priceTd.textContent = window.fxSymbol() + conv.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2});
       } else {
-        priceTd.innerHTML = (p.close != null
+        priceTd.textContent = (p.close != null
           ? p.close.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2})
-          : '—') + ' <span class="idx-cur-badge">' + nd + '</span>';
+          : '—') + ' ';
+        var ndBadgeEl = document.createElement('span');
+        ndBadgeEl.className = 'idx-cur-badge';
+        ndBadgeEl.textContent = nd;
+        priceTd.appendChild(ndBadgeEl);
       }
-
-      /* col 5 — today % */
       var chgTd=tr.appendChild(mk("td",null,pct(p.chg_pct)));
       chgTd.style.fontWeight="600";
       chgTd.className=(p.chg_pct||0)>=0?"p-up":"p-dn";
-
-      /* col 6-8 — 1M / 3M / 1Y (collapsible) */
       [p.ret_1m,p.ret_3m,p.ret_1y].forEach(function(v){
         var td=tr.appendChild(mk("td",null,pct(v)));
         td.className="pt-ret"+(v==null?"":(v>=0?" p-up":" p-dn"));
       });
-
-      /* col 9 — momentum signal (BUY/WATCH/AVOID — see _compute_signal in box_06) */
       tr.appendChild(mk("td")).appendChild(mk("span","sig "+sigCls(p.signal),sigLabel(p.signal)));
-
-      /* col 10 — MFI (collapsible) */
       var mfiTd=tr.appendChild(mk("td","pt-sig"));
       if(p.mfi!=null){
         var ms=mk("span",null,Math.round(p.mfi).toString());
         ms.style.cssText="font-weight:600;color:"+(p.mfi>60?"var(--green)":p.mfi<40?"var(--red)":"var(--gold)");
         mfiTd.appendChild(ms);
       } else {mfiTd.textContent="—";mfiTd.style.color="var(--muted)";}
-
-      /* col 11 — RVOL (collapsible) */
       var rvolTd=tr.appendChild(mk("td","pt-sig"));
       if(p.rvol!=null){
         var rs=mk("span",null,p.rvol.toFixed(2));
         rs.style.cssText=p.rvol>1.2?"font-weight:700;color:var(--gold)":"color:var(--muted)";
         rvolTd.appendChild(rs);
       } else {rvolTd.textContent="—";rvolTd.style.color="var(--muted)";}
-
-      /* col 12 — DMA200 arrow + distance (collapsible) */
       var dmaTd=tr.appendChild(mk("td","pt-sig"));
       if(p.above_dma200!=null){
         var upDma=p.above_dma200===1;
@@ -465,8 +394,6 @@
         }
       } else {dmaTd.textContent="—";dmaTd.style.color="var(--muted)";}
     });
-
-    /* ── Preview collapse: hide rows beyond PT_PREVIEW ─────── */
     if(sorted.length > PT_PREVIEW){
       Array.from(tb.rows).forEach(function(tr, i){
         tr.classList.toggle("pt-row-hidden", !ptExpanded && i >= PT_PREVIEW);
@@ -486,8 +413,6 @@
         if(sigCollapsed)  ptTable.classList.add("pt-sig-collapsed");
       });
     }
-
-    /* render mini sparklines after DOM is ready */
     sorted.forEach(function(p){
       var cv=document.getElementById("psp_"+p.ticker.replace(/\W/g,"_"));
       if(!cv) return;
@@ -499,7 +424,6 @@
     });
   }
 
-  /* ── header sort click handlers ─────────────────────────── */
   document.querySelectorAll("#pt-head [data-sort]").forEach(function(th){
     th.addEventListener("click",function(){
       var col=th.dataset.sort;
@@ -508,48 +432,41 @@
     });
   });
 
-  /* ── returns collapse toggle ────────────────────────────── */
-  var retCollapsed=true; /* start collapsed */
+  var retCollapsed=true;
   var ptTable=document.getElementById("pt-table");
   var retBtn=document.getElementById("pt-ret-btn");
   if(retBtn){
     retBtn.addEventListener("click",function(e){
-      e.stopPropagation(); /* don't trigger Today sort */
+      e.stopPropagation();
       retCollapsed=!retCollapsed;
       ptTable.classList.toggle("pt-ret-collapsed",retCollapsed);
       retBtn.textContent=retCollapsed?"▸":"▾";
     });
   }
-
-  /* ── momentum/detail collapse toggle ───────────────────── */
-  var sigCollapsed=true; /* start collapsed */
+  var sigCollapsed=true;
   var sigBtn=document.getElementById("pt-sig-btn");
   if(sigBtn){
     sigBtn.addEventListener("click",function(e){
-      e.stopPropagation(); /* don't trigger sort */
+      e.stopPropagation();
       sigCollapsed=!sigCollapsed;
       ptTable.classList.toggle("pt-sig-collapsed",sigCollapsed);
       sigBtn.textContent=sigCollapsed?"▸":"▾";
     });
   }
 
-  /* ── expose pour le switcher de devise + i18n re-render ── */
   window._sainheRenderPortfolio = function(){
     setColHeaders();
     renderAnomalies();
     renderPulse();
     renderTable();
-    /* restore collapsed state after re-render */
     if(retCollapsed) ptTable.classList.add("pt-ret-collapsed");
     if(sigCollapsed) ptTable.classList.add("pt-sig-collapsed");
   };
 
-  /* ── init ───────────────────────────────────────────────── */
   setColHeaders();
   renderAnomalies();
   renderPulse();
   renderTable();
-  /* apply collapsed state after table is rendered */
   ptTable.classList.add("pt-ret-collapsed");
   ptTable.classList.add("pt-sig-collapsed");
 })();

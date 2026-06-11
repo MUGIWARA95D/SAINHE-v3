@@ -4,11 +4,9 @@ Idempotent : safe à re-run à tout moment (CREATE TABLE IF NOT EXISTS).
 """
 
 import sqlite3
-import sys
 from pathlib import Path
 
-# Ajouter le dossier parent au path pour importer config
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import db
 from config import (
     DB_PATH,
     ALL_SECTOR_ETFS,
@@ -18,18 +16,12 @@ from config import (
     WATCHLIST,
 )
 
-# ============================================================
-#  DDL — 9 tables
-# ============================================================
-
 DDL = """
 
--- ── 1. PRICES ─────────────────────────────────────────────
--- OHLCV journalier brut. Une ligne par (ticker, date).
 CREATE TABLE IF NOT EXISTS prices (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     ticker      TEXT    NOT NULL,
-    date        TEXT    NOT NULL,          -- ISO 8601 : "2025-04-01"
+    date        TEXT    NOT NULL,
     open        REAL,
     high        REAL,
     low         REAL,
@@ -39,35 +31,25 @@ CREATE TABLE IF NOT EXISTS prices (
     UNIQUE(ticker, date)
 );
 
--- ── 2. METRICS ────────────────────────────────────────────
--- Indicateurs calculés par ticker (un snapshot par jour).
--- INSERT OR REPLACE : écrase si recalculé.
 CREATE TABLE IF NOT EXISTS metrics (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     ticker          TEXT    NOT NULL,
-    date            TEXT    NOT NULL,          -- date de calcul
-    -- Moyennes mobiles
+    date            TEXT    NOT NULL,
     dma_50          REAL,
     dma_200         REAL,
-    above_dma200    INTEGER,                   -- 1/0
-    -- Momentum (returns)
+    above_dma200    INTEGER,
     ret_1m          REAL,
     ret_3m          REAL,
     ret_6m          REAL,
     ret_1y          REAL,
     ret_2y          REAL,
-    -- Score composite
     score           REAL,
-    -- Volume
-    rvol            REAL,                      -- RVOL 20j
-    rvol_dir        REAL,                      -- RVOL directionnel
-    -- Indicateurs techniques
+    rvol            REAL,
+    rvol_dir        REAL,
     obv             REAL,
-    obv_dir         INTEGER,                   -- +1 / 0 / -1
-    mfi             REAL,                      -- Money Flow Index 14j
-    -- Sentiment
-    sentiment_score REAL,                      -- -1.0 à +1.0
-    -- R-Perf vs benchmark monde
+    obv_dir         INTEGER,
+    mfi             REAL,
+    sentiment_score REAL,
     rperf_1m        REAL,
     rperf_3m        REAL,
     rperf_6m        REAL,
@@ -75,53 +57,40 @@ CREATE TABLE IF NOT EXISTS metrics (
     UNIQUE(ticker, date)
 );
 
--- ── 3. TICKER_INFO ────────────────────────────────────────
--- Métadonnées statiques par ticker (nom, région, secteur…).
--- Seed au démarrage depuis config.py.
 CREATE TABLE IF NOT EXISTS ticker_info (
     ticker      TEXT    PRIMARY KEY,
     nom         TEXT,
-    type        TEXT    NOT NULL,   -- 'etf_sector' | 'index' | 'watchlist'
-    region      TEXT,               -- 'MONDE'|'USA'|'EU'|'ASIE'|'GLOBAL'
-    secteur     TEXT,               -- secteur SAINHE (pour ETFs)
-    devise      TEXT,               -- 'USD'|'EUR'|'HKD'…
-    volume_flag INTEGER DEFAULT 1,  -- 0 = pas de volume (indices de taux…)
+    type        TEXT    NOT NULL,
+    region      TEXT,
+    secteur     TEXT,
+    devise      TEXT,
+    volume_flag INTEGER DEFAULT 1,
     actif       INTEGER DEFAULT 1
 );
 
--- ── 4. INTRADAY_VOLUME ────────────────────────────────────
--- Volumes horaires pour RVOL intraday (optionnel — Box 02).
 CREATE TABLE IF NOT EXISTS intraday_volume (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     ticker      TEXT    NOT NULL,
-    ts          TEXT    NOT NULL,   -- ISO 8601 avec heure : "2025-04-01T14:30:00"
+    ts          TEXT    NOT NULL,
     volume      INTEGER,
     UNIQUE(ticker, ts)
 );
 
--- ── 5. FX_RATES ───────────────────────────────────────────
--- Taux de change scrappés (Google Finance).
 CREATE TABLE IF NOT EXISTS fx_rates (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    pair        TEXT    NOT NULL,   -- 'USD_EUR' | 'USD_HKD'
-    ts          TEXT    NOT NULL,   -- ISO 8601 avec heure
+    pair        TEXT    NOT NULL,
+    ts          TEXT    NOT NULL,
     rate        REAL    NOT NULL,
     UNIQUE(pair, ts)
 );
 
--- ── 5b. FX_DAILY ──────────────────────────────────────────
--- Un taux par paire par jour — conservé sur 2 ans pour ajuster les returns.
--- Alimenté par fetch_fx.py + backfill Frankfurter historique.
 CREATE TABLE IF NOT EXISTS fx_daily (
     pair  TEXT NOT NULL,
-    date  TEXT NOT NULL,   -- YYYY-MM-DD
+    date  TEXT NOT NULL,
     rate  REAL NOT NULL,
     PRIMARY KEY (pair, date)
 );
 
--- ── 6. MACRO_BANDEAU ──────────────────────────────────────
--- Dernières valeurs macro pour le bandeau (VIX, TNX, IRX, DXY, ERP…).
--- Un seul enregistrement actif, remplacé à chaque fetch.
 CREATE TABLE IF NOT EXISTS macro_bandeau (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     ts              TEXT    NOT NULL,
@@ -129,19 +98,16 @@ CREATE TABLE IF NOT EXISTS macro_bandeau (
     us10y           REAL,
     us3m            REAL,
     dxy             REAL,
-    erp             REAL,           -- Earnings yield S&P - US10Y
-    yield_curve     REAL,           -- US10Y - US3M
+    erp             REAL,
+    yield_curve     REAL,
     sp500_pe        REAL,
     sp500_earnings_yield REAL
 );
 
--- ── 7. RPERF ──────────────────────────────────────────────
--- Performance relative régionale vs benchmark MONDE.
--- Pré-calculé pour Box 03 sector rotation.
 CREATE TABLE IF NOT EXISTS rperf (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     secteur     TEXT    NOT NULL,
-    region      TEXT    NOT NULL,   -- 'USA'|'EU'|'ASIE'
+    region      TEXT    NOT NULL,
     date        TEXT    NOT NULL,
     rperf_1m    REAL,
     rperf_3m    REAL,
@@ -150,171 +116,124 @@ CREATE TABLE IF NOT EXISTS rperf (
     UNIQUE(secteur, region, date)
 );
 
--- ── 8. SNAPSHOT ───────────────────────────────────────────
--- Dernières valeurs pré-calculées par ticker.
--- Zéro calcul au moment du rendu HTML — 1 SELECT * suffit.
--- INSERT OR REPLACE : toujours une seule ligne par ticker.
 CREATE TABLE IF NOT EXISTS snapshot (
     ticker          TEXT    PRIMARY KEY,
-    ts_update       TEXT,               -- horodatage du dernier calcul
-    -- Prix
+    ts_update       TEXT,
     close           REAL,
     close_prev      REAL,
-    chg_pct         REAL,               -- variation % J vs J-1
-    -- Moyennes mobiles
+    chg_pct         REAL,
     dma_50          REAL,
     dma_200         REAL,
     above_dma200    INTEGER,
-    -- Momentum
     ret_1m          REAL,
     ret_3m          REAL,
     ret_6m          REAL,
     ret_1y          REAL,
     ret_2y          REAL,
-    -- Score
     score           REAL,
-    -- Volume
     rvol            REAL,
     rvol_dir        REAL,
-    -- Indicateurs
     obv_dir         INTEGER,
     mfi             REAL,
-    -- Sentiment
     sentiment_score REAL,
     sentiment_label TEXT,
-    -- R-Perf
     rperf_1m        REAL,
     rperf_3m        REAL,
     rperf_6m        REAL,
     rperf_1y        REAL,
-    -- Sparkline (7 jours, JSON array)
     sparkline_json  TEXT
 );
 
--- ── 9. MACRO_LIQUIDITY ────────────────────────────────────
--- Global macro liquidity snapshot — one row per fetch date.
--- Sources: FRED API, ECB SDW, yfinance, multpl.com
--- Columns are nullable — "N/A" shown in UI when data unavailable.
 CREATE TABLE IF NOT EXISTS macro_liquidity (
-    date                TEXT PRIMARY KEY,   -- YYYY-MM-DD (fetch date)
-    ts                  TEXT,               -- ISO datetime of fetch
-
-    -- ── Fed / US Plumbing ────────────────────────────────────
-    fed_walcl_t         REAL,               -- Fed balance sheet, trillions USD
-    fed_walcl_wk_pct    REAL,               -- WoW % change
-    fed_walcl_date      TEXT,               -- FRED data as-of date
-    rrp_b               REAL,               -- Reverse Repo, billions USD
+    date                TEXT PRIMARY KEY,
+    ts                  TEXT,
+    fed_walcl_t         REAL,
+    fed_walcl_wk_pct    REAL,
+    fed_walcl_date      TEXT,
+    rrp_b               REAL,
     rrp_date            TEXT,
-    tga_b               REAL,               -- Treasury General Account, billions USD
+    tga_b               REAL,
     tga_date            TEXT,
-
-    -- ── ECB ──────────────────────────────────────────────────
-    ecb_assets_t        REAL,               -- ECB total assets, trillions EUR
-    ecb_assets_wk_pct   REAL,               -- WoW % change
-    ecb_assets_date     TEXT,               -- ECB data as-of date
-
-    -- ── M2 / Money Supply ────────────────────────────────────
-    us_m2_yoy           REAL,               -- US M2 YoY %
+    ecb_assets_t        REAL,
+    ecb_assets_wk_pct   REAL,
+    ecb_assets_date     TEXT,
+    us_m2_yoy           REAL,
     us_m2_date          TEXT,
-    eu_m3_yoy           REAL,               -- EU M3 YoY %
+    eu_m3_yoy           REAL,
     eu_m3_date          TEXT,
-    china_m2_yoy        REAL,               -- China M2 YoY %
+    china_m2_yoy        REAL,
     china_m2_date       TEXT,
-
-    -- ── Global CB Trend Signal ────────────────────────────────
-    global_cb_trend     TEXT,               -- 'EXPANSION' | 'CONTRACTION' | 'MIXED'
-
-    -- ── Yield Curves ─────────────────────────────────────────
-    bund_10y            REAL,               -- German Bund 10Y proxy (ECB AAA EU), %
-    bund_2y             REAL,               -- German Bund 2Y proxy, %
-    bund_spread         REAL,               -- 10Y − 2Y
-    bund_signal         TEXT,               -- steep | flat | partial_inversion | full_inversion
+    global_cb_trend     TEXT,
+    bund_10y            REAL,
+    bund_2y             REAL,
+    bund_spread         REAL,
+    bund_signal         TEXT,
     bund_date           TEXT,
-    jgb_10y             REAL,               -- JGB 10Y, % (monthly FRED)
+    jgb_10y             REAL,
     jgb_10y_date        TEXT,
-    uk_10y              REAL,               -- UK Gilt 10Y, % (monthly FRED)
+    uk_10y              REAL,
     uk_10y_date         TEXT,
-
-    -- ── Credit Spreads ────────────────────────────────────────
-    hy_oas_us           REAL,               -- US HY OAS, bps (FRED BAMLH0A0HYM2 × 100)
+    hy_oas_us           REAL,
     hy_oas_us_date      TEXT,
-    hy_oas_eu           REAL,               -- EU HY OAS, bps (FRED BAMLHE00EHY2EY × 100)
+    hy_oas_eu           REAL,
     hy_oas_eu_date      TEXT,
-    hy_oas_em           REAL,               -- EM HY OAS, bps (FRED BAMLEMHBHYCRPIOAS × 100)
+    hy_oas_em           REAL,
     hy_oas_em_date      TEXT,
-
-    -- ── Valuation ────────────────────────────────────────────
-    cape_us             REAL,               -- Shiller CAPE US (multpl.com)
+    cape_us             REAL,
     cape_date           TEXT,
-    pe_eu               REAL,               -- P/E EU proxy via VGK ETF
-    pe_jp               REAL,               -- P/E JP proxy via EWJ ETF
-    pe_em               REAL,               -- P/E EM proxy via EEM ETF
-    pe_cn               REAL,               -- P/E China proxy via MCHI ETF
-
-    -- ── M2 Japan ─────────────────────────────────────────────
-    japan_m2_yoy        REAL,               -- Japan M2 YoY % (FRED MYAGM2JPM189N)
+    pe_eu               REAL,
+    pe_jp               REAL,
+    pe_em               REAL,
+    pe_cn               REAL,
+    japan_m2_yoy        REAL,
     japan_m2_date       TEXT,
-
-    -- ── Allocation Ratios ─────────────────────────────────────
-    gold_stocks         REAL,               -- (GLD × 10) / ^GSPC — oz gold per S&P point
-    cnh_usd             REAL,               -- USD/CNH — yuan stress indicator
-
-    -- ── Real Rates & Inflation ────────────────────────────────
-    us_tips_10y         REAL,               -- FRED DFII10: 10Y TIPS real yield, %
+    gold_stocks         REAL,
+    cnh_usd             REAL,
+    us_tips_10y         REAL,
     us_tips_date        TEXT,
-    us_breakeven_10y    REAL,               -- FRED T10YIE: 10Y inflation breakeven, %
+    us_breakeven_10y    REAL,
     us_breakeven_date   TEXT,
-
-    -- ── JGB Curve (daily — MoF Japan) ────────────────────────
-    jgb_2y              REAL,               -- MoF Japan daily JGB 2Y, %
-    jgb_spread          REAL,               -- JGB 10Y − 2Y
-    jgb_signal          TEXT,               -- steep | flat | partial_inversion | full_inversion
-
-    -- ── CGB (Chinese Government Bonds — CCDC) ─────────────────
-    cgb_10y             REAL,               -- ChinaBond CCDC 10Y yield, %
-    cgb_2y              REAL,               -- ChinaBond CCDC 2Y yield, %
-    cgb_spread          REAL,               -- CGB 10Y − 2Y (Japanification signal)
-    cgb_signal          TEXT,               -- CGB curve regime
+    jgb_2y              REAL,
+    jgb_spread          REAL,
+    jgb_signal          TEXT,
+    cgb_10y             REAL,
+    cgb_2y              REAL,
+    cgb_spread          REAL,
+    cgb_signal          TEXT,
     cgb_date            TEXT,
-
-    -- ── Real Economy Cycle Signals ────────────────────────────
-    copper_price        REAL,               -- HG=F front month, USD/lb
-    copper_gold_ratio   REAL,               -- (copper × 100) / gold — industrial vs safe-haven
-    jpy_usd             REAL                -- JPY per USD (yfinance JPY=X) — yen carry risk
+    copper_price        REAL,
+    copper_gold_ratio   REAL,
+    jpy_usd             REAL
 );
 
--- ── 10. NEWS ──────────────────────────────────────────────
--- Articles RSS. Dédupliqués par hash MD5 du titre.
 CREATE TABLE IF NOT EXISTS news (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    hash        TEXT    NOT NULL UNIQUE,   -- MD5(titre)
-    source_id   INTEGER,                   -- clé RSS_SOURCES
+    hash        TEXT    NOT NULL UNIQUE,
+    source_id   INTEGER,
     region      TEXT,
     lang        TEXT,
     titre       TEXT    NOT NULL,
     lien        TEXT,
     resume      TEXT,
-    ts_pub      TEXT,                      -- date publication (ISO 8601)
-    ts_fetch    TEXT    NOT NULL           -- date fetch
+    ts_pub      TEXT,
+    ts_fetch    TEXT    NOT NULL
 );
 
--- ── 11. SENTIMENT_HISTORY ─────────────────────────────────
--- Daily sentiment_score per ETF — required for persistence (days-in-state),
--- 30-day trend arrow, 90-day sparkline, and confidence interval σ in box_05.
--- Backfilled from prices on demand (no fetch, all from local data).
 CREATE TABLE IF NOT EXISTS sentiment_history (
     ticker      TEXT    NOT NULL,
-    date        TEXT    NOT NULL,          -- YYYY-MM-DD (close-of-day score)
-    score       REAL,                      -- composite -1 to +1
-    label       TEXT,                      -- Euphoric/Accumulation/Neutral/Caution/Bearish/Extreme Fear
+    date        TEXT    NOT NULL,
+    score       REAL,
+    label       TEXT,
     PRIMARY KEY (ticker, date)
 );
 
-"""
+CREATE TABLE IF NOT EXISTS app_state (
+    key   TEXT PRIMARY KEY,
+    value TEXT,
+    ts    TEXT
+);
 
-# ============================================================
-#  INDEXES — performances read-heavy
-# ============================================================
+"""
 
 INDEXES = [
     "CREATE INDEX IF NOT EXISTS idx_prices_ticker_date   ON prices  (ticker, date DESC);",
@@ -329,107 +248,54 @@ INDEXES = [
     "CREATE INDEX IF NOT EXISTS idx_sent_hist_ticker_date ON sentiment_history (ticker, date DESC);",
 ]
 
-# ============================================================
-#  SEED — ticker_info depuis config.py
-# ============================================================
-
-# Devise native par région — EU ETFs trade en EUR, ASIE ETFs en HKD
-# fetch_prices.py corrigera automatiquement via meta.currency Yahoo si différent
 _REGION_DEVISE = {"MONDE": "USD", "USA": "USD", "EU": "EUR", "ASIE": "HKD"}
 
 
 def _build_seed_rows():
     rows = []
-
-    # 1) ETFs sectoriels (64 tickers, dédupliqués dans ALL_SECTOR_ETFS)
-    # Construire un mapping ticker → {secteur, region} depuis SECTOR_TICKERS
     ticker_meta = {}
     for secteur, regions in SECTOR_TICKERS.items():
         for region, ticker in regions.items():
             if ticker and ticker not in ticker_meta:
                 ticker_meta[ticker] = {"secteur": secteur, "region": region}
-            # Si le même ticker apparaît pour plusieurs secteurs/régions,
-            # on garde le premier rencontré (idem ALL_SECTOR_ETFS)
-
     for ticker, meta in ticker_meta.items():
         rows.append((
-            ticker,
-            ticker,                # nom = ticker par défaut (yfinance le mettra à jour)
-            "etf_sector",
-            meta["region"],
-            meta["secteur"],
-            _REGION_DEVISE.get(meta["region"], "USD"),  # devise native par région
-            1,                     # volume_flag
-            1,                     # actif
+            ticker, ticker, "etf_sector", meta["region"], meta["secteur"],
+            _REGION_DEVISE.get(meta["region"], "USD"), 1, 1,
         ))
-
-    # 2) Indices globaux
     for ticker, info in INDICES.items():
         rows.append((
-            ticker,
-            info["nom"],
-            "index",
-            info["region"],
-            None,                  # pas de secteur SAINHE
-            info["devise"],
-            1 if info["volume"] else 0,
-            1,
+            ticker, info["nom"], "index", info["region"], None,
+            info["devise"], 1 if info["volume"] else 0, 1,
         ))
-
-    # 3) Watchlist personnelle
     for ticker, info in WATCHLIST.items():
         rows.append((
-            ticker,
-            info["nom"],
-            "watchlist",
-            None,
-            info.get("secteur"),
-            info.get("devise", "USD"),   # devise native (JPY, CHF, GBP…) ou USD par défaut
-            1,
-            1,
+            ticker, info["nom"], "watchlist", None, info.get("secteur"),
+            info.get("devise", "USD"), 1, 1,
         ))
-
     return rows
 
 
-# ============================================================
-#  HELPERS
-# ============================================================
-
 def _add_col_if_missing(cur, table: str, column: str, col_type: str):
-    """ALTER TABLE ... ADD COLUMN — no-op if column already exists."""
     existing = {row[1] for row in cur.execute(f"PRAGMA table_info({table})")}
     if column not in existing:
         cur.execute(f"ALTER TABLE {table} ADD COLUMN {column} {col_type}")
         print(f"[db_init] Migration: added {table}.{column} ({col_type})")
 
 
-# ============================================================
-#  MAIN
-# ============================================================
-
 def init_db():
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-
-    con = sqlite3.connect(DB_PATH, timeout=30)
+    con = db.connect()
     cur = con.cursor()
-
-    # Pragmas performance
     cur.executescript("""
         PRAGMA journal_mode = WAL;
-        PRAGMA cache_size   = -32000;   -- 32 MB
+        PRAGMA cache_size   = -32000;
         PRAGMA synchronous  = NORMAL;
         PRAGMA temp_store   = MEMORY;
     """)
-
-    # Tables
     cur.executescript(DDL)
-
-    # Indexes
     for idx in INDEXES:
         cur.execute(idx)
-
-    # Seed ticker_info (INSERT OR IGNORE — ne touche pas les lignes existantes)
     seed_rows = _build_seed_rows()
     cur.executemany(
         """
@@ -439,9 +305,6 @@ def init_db():
         """,
         seed_rows,
     )
-
-    # Migration : met à jour la devise des tickers watchlist dont le config.py
-    # définit explicitement une devise non-USD (les lignes existantes ont "USD" hardcodé).
     watchlist_devises = [
         (info["devise"], ticker)
         for ticker, info in WATCHLIST.items()
@@ -453,8 +316,6 @@ def init_db():
             watchlist_devises,
         )
         print(f"[db_init] {len(watchlist_devises)} devises watchlist mises à jour")
-
-    # Migration : met à jour la devise des ETFs sectoriels EU/ASIE (étaient tous "USD")
     ticker_meta = {}
     for secteur, regions in SECTOR_TICKERS.items():
         for region, ticker in regions.items():
@@ -471,37 +332,28 @@ def init_db():
             etf_devises,
         )
         print(f"[db_init] {len(etf_devises)} devises etf_sector mises à jour")
-
-    # ── Migrations idempotentes — ajout de colonnes manquantes ───────────────
     _add_col_if_missing(cur, "macro_liquidity", "hy_oas_em",           "REAL")
     _add_col_if_missing(cur, "macro_liquidity", "hy_oas_em_date",      "TEXT")
-    # Real rates & inflation (FRED DFII10, T10YIE)
     _add_col_if_missing(cur, "macro_liquidity", "us_tips_10y",         "REAL")
     _add_col_if_missing(cur, "macro_liquidity", "us_tips_date",        "TEXT")
     _add_col_if_missing(cur, "macro_liquidity", "us_breakeven_10y",    "REAL")
     _add_col_if_missing(cur, "macro_liquidity", "us_breakeven_date",   "TEXT")
-    # JGB daily curve (MoF Japan)
     _add_col_if_missing(cur, "macro_liquidity", "jgb_2y",              "REAL")
     _add_col_if_missing(cur, "macro_liquidity", "jgb_spread",          "REAL")
     _add_col_if_missing(cur, "macro_liquidity", "jgb_signal",          "TEXT")
-    # CGB curve (ChinaBond CCDC)
     _add_col_if_missing(cur, "macro_liquidity", "cgb_10y",             "REAL")
     _add_col_if_missing(cur, "macro_liquidity", "cgb_2y",              "REAL")
     _add_col_if_missing(cur, "macro_liquidity", "cgb_spread",          "REAL")
     _add_col_if_missing(cur, "macro_liquidity", "cgb_signal",          "TEXT")
     _add_col_if_missing(cur, "macro_liquidity", "cgb_date",            "TEXT")
-    # Real economy cycle signals (yfinance)
     _add_col_if_missing(cur, "macro_liquidity", "copper_price",        "REAL")
     _add_col_if_missing(cur, "macro_liquidity", "copper_gold_ratio",   "REAL")
     _add_col_if_missing(cur, "macro_liquidity", "jpy_usd",             "REAL")
-    # China P/E proxy (MCHI ETF) + Japan M2
     _add_col_if_missing(cur, "macro_liquidity", "pe_cn",               "REAL")
     _add_col_if_missing(cur, "macro_liquidity", "japan_m2_yoy",        "REAL")
     _add_col_if_missing(cur, "macro_liquidity", "japan_m2_date",       "TEXT")
-
     con.commit()
     con.close()
-
     print(f"[db_init] Base initialisée : {DB_PATH}")
     print(f"[db_init] {len(seed_rows)} tickers seedés dans ticker_info")
 

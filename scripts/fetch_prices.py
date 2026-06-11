@@ -32,7 +32,6 @@ Stratégie backfill :
 import random
 import sqlite3
 import statistics
-import sys
 import time
 import logging
 import argparse
@@ -41,9 +40,8 @@ from pathlib import Path
 
 from curl_cffi import requests as cffi
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import db
 from config import (
-    DB_PATH,
     ALL_SECTOR_ETFS,
     ALL_INDEX_TICKERS,
     WATCHLIST,
@@ -133,7 +131,7 @@ def _filter_partial_intraday(ticker: str, rows: list[tuple]) -> list[tuple]:
     last_date = last[1]
     last_vol  = last[7]
 
-    # ── Règle 1 : volume heuristic ─────────────────────────────
+    # ── Règle 1 : volume heuristic ──────────────────────────────
     if last_vol and last_vol > 0:
         prior_vols = [r[7] for r in rows[-21:-1] if r[7] and r[7] > 0]
         if len(prior_vols) >= 5:
@@ -147,7 +145,7 @@ def _filter_partial_intraday(ticker: str, rows: list[tuple]) -> list[tuple]:
                 return rows[:-1]
         return rows
 
-    # ── Règle 2 : no volume (indices) → date-based ─────────────
+    # ── Règle 2 : no volume (indices) → date-based ─────────────────
     today_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     if last_date == today_utc:
         log.warning("%s — drop partial intraday %s (no volume, date=today)", ticker, last_date)
@@ -289,7 +287,6 @@ def main(mode: str = "update", half: int = -1, tickers_filter: list[str] | None 
     """
     tickers = _all_tickers()
 
-    # ── Filtre --tickers ────────────────────────────────────────
     if tickers_filter:
         wanted = set(tickers_filter)
         tickers = [t for t in tickers if t in wanted]
@@ -297,8 +294,6 @@ def main(mode: str = "update", half: int = -1, tickers_filter: list[str] | None 
         if missing:
             log.warning("--tickers non reconnus (absents de config) : %s", ", ".join(sorted(missing)))
         log.info("Mode=%s | tickers=%s (%d)", mode, ", ".join(tickers), len(tickers))
-
-    # ── Filtre --half (ignoré si --tickers fourni) ──────────────
     elif half in (0, 1):
         mid     = len(tickers) // 2
         tickers = tickers[:mid] if half == 0 else tickers[mid:]
@@ -307,19 +302,16 @@ def main(mode: str = "update", half: int = -1, tickers_filter: list[str] | None 
     else:
         log.info("Mode=%s | %d tickers (tous)", mode, len(tickers))
 
-    # ── Période globale (update / full) — backfill calcule par ticker ──
     if mode != "backfill":
         global_period1, global_period2 = _periods_for_mode(mode)
 
-    con            = sqlite3.connect(DB_PATH, timeout=30)
+    con            = db.connect()
     total_inserted = 0
     total_ok       = 0
     total_skip     = 0
-    total_done     = 0  # backfill : cible déjà atteinte
+    total_done     = 0
 
     for i, ticker in enumerate(tickers):
-
-        # ── Fenêtre temporelle ──────────────────────────────────
         if mode == "backfill":
             window = _backfill_window(con, ticker)
             if window is None:
@@ -332,10 +324,6 @@ def main(mode: str = "update", half: int = -1, tickers_filter: list[str] | None 
                 total_skip += 1
                 continue
             period1, period2 = window
-            log.debug("%s — backfill window: %s → %s",
-                      ticker,
-                      datetime.fromtimestamp(period1, tz=timezone.utc).strftime("%Y-%m-%d"),
-                      datetime.fromtimestamp(period2, tz=timezone.utc).strftime("%Y-%m-%d"))
         else:
             period1, period2 = global_period1, global_period2
 
@@ -352,7 +340,6 @@ def main(mode: str = "update", half: int = -1, tickers_filter: list[str] | None 
                      ticker, len(rows), n,
                      f"  [devise={detected_currency}]" if detected_currency else "")
 
-        # Auto-correction de la devise native si Yahoo en rapporte une différente
         if detected_currency:
             _maybe_update_devise(con, ticker, detected_currency)
 
