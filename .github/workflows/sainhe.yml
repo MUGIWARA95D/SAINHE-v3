@@ -50,6 +50,7 @@ on:
 env:
   DB_PATH: db/sainhe.db
   PYTHONIOENCODING: utf-8
+  PYTHONPATH: .
 
 permissions:
   contents: read
@@ -253,7 +254,7 @@ jobs:
   # ════════════════════════════════════════════════════════════
   #  JOB 2 — FX
   #  Cron : midi + minuit heure Paris (CEST, UTC+2)
-  #         → 10H UTC + 22H UTC
+          #         → 10H UTC + 22H UTC
   #  NB : à 22H UTC lun-ven, le full pipeline tourne aussi —
   #       les deux jobs sont indépendants, le pipeline re-fetche FX
   #       de toute façon, donc pas de conflit fonctionnel.
