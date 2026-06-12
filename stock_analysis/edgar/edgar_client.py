@@ -72,8 +72,10 @@ class EdgarClient:
 
     def submissions(self, cik: int) -> dict:
         url = config.EDGAR_BASE_SUBMISSIONS.format(cik=cik)
-        return self._get_json(url, f"submissions:{cik}")
+        # 7 jours : catch NT filings / amendemements dans la semaine
+        return self._get_json(url, f"submissions:{cik}", max_age_days=7)
 
     def companyfacts(self, cik: int) -> dict:
         url = config.EDGAR_BASE_COMPANYFACTS.format(cik=cik)
-        return self._get_json(url, f"companyfacts:{cik}")
+        # 30 jours : données 10-K/10-Q — au pire un filing trimestriel décalé d'1 mois
+        return self._get_json(url, f"companyfacts:{cik}", max_age_days=30)
