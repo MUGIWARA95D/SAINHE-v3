@@ -1225,9 +1225,9 @@ a.news-hl:hover{color:var(--gold)}
   /* Currency prefix symbol */
   window.fxSymbol = function(){
     var c = window.SAINHE_CUR || 'USD';
-    if(c === 'EUR') return '€ ';
-    if(c === 'HKD') return 'HK$ ';
-    return '$ ';  /* USD — toujours affiché pour distinguer des indicateurs */
+    if(c === 'EUR') return '€ ';
+    if(c === 'HKD') return 'HK$ ';
+    return '$ ';  /* USD — toujours affiché pour distinguer des indicateurs */
   };
 
   /* Called by the header dropdown — updates state and re-renders price boxes */
@@ -1281,6 +1281,31 @@ a.news-hl:hover{color:var(--gold)}
   <script>
   window.SAINHE_LANG='en'; window.SAINHE_LOCALE='en-US'; window.SAINHE_I18N={};
   document.documentElement.lang='en';
+  </script>
+
+  <!-- SAINHE_FMT — shared formatting helpers (used by box_02, box_03, box_06) -->
+  <script>
+  window.SAINHE_FMT = {
+    /* HTML-escape for innerHTML interpolation */
+    esc: function(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); },
+    /* Locale number, 2 decimals, em-dash for null */
+    fmt: function(n){ return n!=null ? n.toLocaleString(window.SAINHE_LOCALE||'en',{minimumFractionDigits:2,maximumFractionDigits:2}) : "—"; },
+    /* Signed percent: 0.0123 → "+1.23%" */
+    fmtPct: function(n, d){ return n!=null ? (n>=0?"+":"")+(n*100).toFixed(d==null?2:d)+"%" : "—"; },
+    /* DOM element factory */
+    mk: function(tag,cls,txt){ const el=document.createElement(tag); if(cls)el.className=cls; if(txt!=null)el.textContent=txt; return el; },
+    /* Data freshness chip: ts → {cls, label} */
+    staleInfo: function(ts){
+      if(!ts) return {cls:"ts-unk", label:"?"};
+      const ageH = (Date.now() - new Date(ts)) / 3600000;
+      const I18N_= window.SAINHE_I18N||{};
+      const lbl  = ageH < 1 ? (I18N_.time_lt1h||"<1h") : ageH < 24 ? Math.round(ageH)+(I18N_.time_h||"h") : Math.round(ageH/24)+(I18N_.time_d||"d");
+      if(ageH <  6) return {cls:"ts-fresh", label:lbl};
+      if(ageH < 30) return {cls:"ts-ok",    label:lbl};
+      if(ageH < 72) return {cls:"ts-stale", label:lbl};
+                    return {cls:"ts-old",   label:lbl};
+    }
+  };
   </script>
 
   <!-- CI toggle + tooltip — shared across all pages and persists through swipe navigation -->
