@@ -2,6 +2,9 @@ __pycache__/
 *.pyc
 db/sainhe.db
 output/
+# le package Python stock_analysis/output (report_builder) n'est PAS le dossier de build
+!stock_analysis/output/
+stock_analysis/output/json/
 .claude/
 *.xlsx
 ~$*
