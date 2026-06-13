@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SAINHE // NEO — Dossier Engine (stock analysis concept)</title>
+<style>
+/* ════════════════════════════════════════════════════════════
+   SAINHE // NEO · page 2 — DOSSIER ENGINE
+   Mirrors the real stock_analysis backend blocks:
+   A verdict (EPV, reverse-DCF, consensus) · C DuPont · D trends
+   E health · H sensitivity · score_composite (adjustable weights)
+   Single file. Demo data. Isolated from dev/.com pipeline.
+   ════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#04060c; --ink:#e8edf6; --dim:#8b95ab; --faint:#4a5468;
+  --line:rgba(140,160,200,.13);
+  --cyan:#3de0c8; --cyan-dim:rgba(61,224,200,.14);
+  --gold:#e9b44c; --gold-dim:rgba(233,180,76,.12);
+  --red:#ff5d5d;  --red-dim:rgba(255,93,93,.12);
+  --green:#46e08a;--green-dim:rgba(70,224,138,.12);
+  --violet:#8a7dff;
+  --mono:ui-monospace,'SF Mono','Cascadia Code',Menlo,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;
+  --glass:rgba(16,22,38,.55); --glass-edge:rgba(160,190,255,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);overflow-x:hidden;line-height:1.5}
+::selection{background:var(--cyan);color:#04141a}
+#field{position:fixed;inset:0;z-index:0;opacity:.7}
+.aurora{position:fixed;border-radius:50%;filter:blur(110px);z-index:0;pointer-events:none;opacity:.45}
+.a1{width:55vw;height:55vw;left:-12vw;top:-18vh;background:radial-gradient(circle,rgba(138,125,255,.15),transparent 65%);animation:drift1 28s ease-in-out infinite alternate}
+.a2{width:48vw;height:48vw;right:-14vw;top:35vh;background:radial-gradient(circle,rgba(61,224,200,.13),transparent 65%);animation:drift2 33s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(9vw,12vh) scale(1.12)}}
+@keyframes drift2{to{transform:translate(-9vw,-9vh) scale(.92)}}
+
+header{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
+  padding:14px 28px;background:linear-gradient(rgba(4,6,12,.88),rgba(4,6,12,0));backdrop-filter:blur(8px)}
+.logo{font-family:var(--mono);font-size:14px;letter-spacing:.35em;color:var(--ink);text-decoration:none}
+.logo b{color:var(--violet);font-weight:600}
+nav{display:flex;gap:22px}
+nav a{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--dim);text-decoration:none;text-transform:uppercase;transition:color .2s}
+nav a:hover{color:var(--cyan)}
+nav a.back{color:var(--cyan)}
+.demo-tag{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--gold);border:1px solid rgba(233,180,76,.4);
+  padding:4px 10px;border-radius:99px;background:var(--gold-dim);text-transform:uppercase}
+@media(max-width:900px){nav{display:none}}
+
+main{position:relative;z-index:1}
+section{min-height:88vh;display:flex;flex-direction:column;justify-content:center;padding:110px 7vw 70px;position:relative}
+.sec-id{font-family:var(--mono);font-size:11px;letter-spacing:.4em;color:var(--violet);text-transform:uppercase;margin-bottom:14px}
+.sec-id::before{content:"";display:inline-block;width:34px;height:1px;background:var(--violet);vertical-align:middle;margin-right:14px}
+h1{font-size:clamp(40px,6.4vw,86px);font-weight:200;letter-spacing:-.02em;line-height:1.05}
+h1 b{font-weight:600;background:linear-gradient(100deg,var(--violet),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:clamp(28px,3.8vw,48px);font-weight:200;letter-spacing:-.015em;margin-bottom:8px}
+h2 b{font-weight:600;color:var(--cyan)}
+.lede{color:var(--dim);max-width:600px;font-size:15px;margin-top:16px}
+.lede em{color:var(--ink);font-style:normal}
+.rv{opacity:0;transform:translateY(34px);transition:opacity .8s cubic-bezier(.2,.6,.2,1),transform .8s cubic-bezier(.2,.6,.2,1)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.1s}.rv.d2{transition-delay:.22s}.rv.d3{transition-delay:.34s}
+
+.panel{background:var(--glass);border:1px solid var(--glass-edge);border-radius:18px;padding:24px;backdrop-filter:blur(14px)}
+.mono{font-family:var(--mono)}
+
+/* ── HERO: universe spectrum ──────────────────────────────── */
+#hero{align-items:flex-start}
+#spectrum-wrap{width:100%;margin-top:54px}
+#spectrum{position:relative;height:150px;border-bottom:1px solid var(--line)}
+#spectrum .axis-lbl{position:absolute;bottom:-26px;font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--faint);text-transform:uppercase}
+.spec-node{
+  position:absolute;bottom:18px;transform:translateX(-50%);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:7px;transition:transform .25s;
+}
+.spec-node:hover{transform:translateX(-50%) translateY(-6px)}
+.spec-dot{width:13px;height:13px;border-radius:50%;background:var(--faint);transition:all .25s}
+.spec-node.full .spec-dot{background:var(--cyan);box-shadow:0 0 14px var(--cyan)}
+.spec-node.sel .spec-dot{background:var(--gold);box-shadow:0 0 20px var(--gold);transform:scale(1.5)}
+.spec-tk{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--dim);writing-mode:vertical-rl;transform:rotate(180deg)}
+.spec-node.sel .spec-tk{color:var(--gold)}
+.spec-node.full .spec-tk{color:var(--ink)}
+#spectrum-note{margin-top:44px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--faint);text-transform:uppercase}
+#spectrum-note b{color:var(--cyan)}
+
+/* ── identity strip ───────────────────────────────────────── */
+#identity{
+  position:sticky;top:58px;z-index:35;margin:0 7vw;
+  display:flex;align-items:center;gap:26px;flex-wrap:wrap;
+  background:rgba(8,12,22,.88);border:1px solid var(--glass-edge);border-radius:16px;
+  padding:14px 24px;backdrop-filter:blur(16px);
+}
+#id-tk{font-family:var(--mono);font-size:24px;font-weight:600;letter-spacing:.04em;color:var(--gold)}
+#id-nm{font-size:13px;color:var(--dim)}
+.id-kv{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.id-kv b{color:var(--ink);font-weight:500}
+#id-score-mini{margin-left:auto;display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;color:var(--dim)}
+#id-score-mini b{font-size:20px;color:var(--cyan)}
+
+/* ── 01 VERDICT ───────────────────────────────────────────── */
+#verdict-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,1fr);gap:24px;margin-top:42px}
+@media(max-width:1000px){#verdict-grid{grid-template-columns:1fr}}
+#beam-panel{padding:34px 30px}
+#beam{position:relative;height:130px;margin-top:8px}
+#beam-axis{position:absolute;left:0;right:0;top:64px;height:2px;background:linear-gradient(90deg,rgba(255,93,93,.4),rgba(233,180,76,.4),rgba(70,224,138,.4))}
+.beam-mark{position:absolute;top:0;transform:translateX(-50%);text-align:center;transition:left 1s cubic-bezier(.3,.7,.3,1)}
+.beam-mark .pin{width:2px;height:34px;margin:0 auto}
+.beam-mark .lab{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase;margin-bottom:4px}
+.beam-mark .val{font-family:var(--mono);font-size:15px}
+.beam-mark.px .pin{background:var(--ink)} .beam-mark.px .val{color:var(--ink)}
+.beam-mark.epv{top:68px}
+.beam-mark.epv .pin{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.beam-mark.epv .val{color:var(--cyan)}
+#mos-band{position:absolute;top:60px;height:10px;border-radius:99px;background:rgba(61,224,200,.18);border:1px solid rgba(61,224,200,.35);transition:left 1s,width 1s}
+#verdict-line{margin-top:26px;font-size:14px;color:var(--dim);border-top:1px solid var(--line);padding-top:18px}
+#verdict-line b{color:var(--ink)}
+.v-cards{display:flex;flex-direction:column;gap:16px}
+.v-card{padding:18px 20px}
+.v-card .t{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;margin-bottom:8px}
+.v-card .big{font-family:var(--mono);font-size:24px}
+.v-card .sub{font-size:12px;color:var(--faint);margin-top:5px}
+.v-card .sub b{color:var(--dim)}
+
+/* ── 02 SCORE: pillars + weight sliders ───────────────────── */
+#score-grid{display:grid;grid-template-columns:240px minmax(0,1fr);gap:44px;align-items:center;margin-top:42px}
+@media(max-width:900px){#score-grid{grid-template-columns:1fr}}
+#score-ring{position:relative;width:220px;height:220px;margin:0 auto}
+#score-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+#score-ring .trk{fill:none;stroke:rgba(140,160,200,.12);stroke-width:10}
+#score-ring .arc{fill:none;stroke:url(#sgrad);stroke-width:10;stroke-linecap:round;stroke-dasharray:0 999;transition:stroke-dasharray 1.2s cubic-bezier(.3,.7,.3,1)}
+#score-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#score-c b{font-family:var(--mono);font-size:44px;font-weight:600}
+#score-c span{font-family:var(--mono);font-size:9px;letter-spacing:.25em;color:var(--dim);text-transform:uppercase;margin-top:4px}
+.pillar{display:grid;grid-template-columns:150px minmax(0,1fr) 56px 120px;gap:16px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.pillar:last-child{border-bottom:none}
+.p-nm{font-size:13px;color:var(--dim)}
+.p-track{height:8px;border-radius:99px;background:rgba(140,160,200,.08);overflow:hidden}
+.p-fill{height:100%;border-radius:99px;width:0;transition:width 1s cubic-bezier(.25,.8,.3,1);background:linear-gradient(90deg,rgba(61,224,200,.5),var(--cyan));box-shadow:0 0 12px rgba(61,224,200,.3)}
+.p-val{font-family:var(--mono);font-size:13px;text-align:right}
+.p-w{display:flex;align-items:center;gap:8px}
+.p-w input{flex:1;accent-color:var(--violet);height:3px;cursor:pointer}
+.p-w span{font-family:var(--mono);font-size:10.5px;color:var(--violet);width:34px;text-align:right}
+#score-note{margin-top:18px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase}
+@media(max-width:700px){.pillar{grid-template-columns:100px 1fr 44px}.p-w{display:none}}
+
+/* ── 03 DUPONT waterfall ──────────────────────────────────── */
+#dupont{display:flex;gap:14px;align-items:flex-end;margin-top:48px;flex-wrap:wrap}
+.dp{flex:1;min-width:120px;text-align:center}
+.dp-bar{width:100%;border-radius:10px 10px 4px 4px;height:0;transition:height 1s cubic-bezier(.3,.7,.3,1);position:relative}
+.dp-bar.op{background:linear-gradient(180deg,var(--cyan),rgba(61,224,200,.25))}
+.dp-bar.lv{background:linear-gradient(180deg,var(--violet),rgba(138,125,255,.25))}
+.dp-bar.tot{background:linear-gradient(180deg,var(--gold),rgba(233,180,76,.25));box-shadow:0 0 24px rgba(233,180,76,.25)}
+.dp-val{font-family:var(--mono);font-size:17px;margin-top:10px}
+.dp-nm{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;margin-top:4px}
+.dp-op{font-family:var(--mono);font-size:24px;color:var(--faint);padding-bottom:64px}
+#dupont-text{margin-top:30px;font-size:14px;color:var(--dim);max-width:720px}
+#dupont-text b{color:var(--ink)}
+
+/* ── 04 HEALTH dials + trends ─────────────────────────────── */
+.h-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-top:42px}
+.h-card{padding:20px}
+.h-nm{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase}
+.h-val{font-family:var(--mono);font-size:27px;margin:10px 0 2px}
+.h-val.ok{color:var(--green)} .h-val.warn{color:var(--gold)} .h-val.bad{color:var(--red)}
+.h-sub{font-size:11.5px;color:var(--faint)}
+#trend-strip{margin-top:26px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.tr-card{padding:20px}
+.tr-nm{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;margin-bottom:14px}
+.tr-bars{display:flex;align-items:flex-end;gap:5px;height:74px}
+.tr-bars i{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(180deg,rgba(61,224,200,.85),rgba(61,224,200,.2));height:0;transition:height .8s cubic-bezier(.3,.7,.3,1)}
+.tr-yrs{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:8px}
+
+/* ── 05 SIMULATOR ─────────────────────────────────────────── */
+#sim-grid{display:grid;grid-template-columns:minmax(280px,1fr) minmax(0,1.25fr);gap:28px;margin-top:42px;align-items:start}
+@media(max-width:1000px){#sim-grid{grid-template-columns:1fr}}
+.sim-panel{padding:26px}
+.s-row{margin-bottom:22px}
+.s-head{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:9px}
+.s-head .k{color:var(--dim)} .s-head .v{color:var(--cyan)}
+.s-row input[type=range]{width:100%;accent-color:var(--cyan);height:4px;cursor:pointer}
+.s-sub{font-size:11px;color:var(--faint);margin-top:6px}
+#wacc-line{font-family:var(--mono);font-size:12px;color:var(--dim);border-top:1px solid var(--line);padding-top:16px;margin-top:4px;line-height:2}
+#wacc-line b{color:var(--violet)}
+#fv-readout{text-align:center;padding:30px 26px}
+#fv-big{font-family:var(--mono);font-size:54px;font-weight:600;letter-spacing:-.02em;transition:color .3s}
+#fv-up{font-family:var(--mono);font-size:15px;margin-top:6px}
+#fv-mos{margin-top:18px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding:7px 18px;border-radius:99px;display:inline-block}
+#fv-mos.ok{color:var(--green);background:var(--green-dim);border:1px solid rgba(70,224,138,.35)}
+#fv-mos.warn{color:var(--gold);background:var(--gold-dim);border:1px solid rgba(233,180,76,.3)}
+#fv-mos.bad{color:var(--red);background:var(--red-dim);border:1px solid rgba(255,93,93,.3)}
+#heat{margin-top:22px}
+#heat .hd{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;margin-bottom:12px}
+#heat table{border-collapse:separate;border-spacing:4px;width:100%}
+#heat td,#heat th{font-family:var(--mono);font-size:10.5px;text-align:center;padding:8px 4px;border-radius:7px}
+#heat th{color:var(--faint);font-weight:400}
+#heat td{background:rgba(140,160,200,.07);color:var(--dim);transition:all .3s}
+#heat td.hot{background:rgba(61,224,200,.22);color:var(--cyan);box-shadow:0 0 14px rgba(61,224,200,.25);font-weight:600}
+#sim-note{margin-top:20px;font-size:12.5px;color:var(--faint)}
+#sim-note b{color:var(--dim)}
+
+footer{position:relative;z-index:1;padding:70px 8vw 60px;text-align:center}
+.foot-note{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<canvas id="field"></canvas>
+<div class="aurora a1"></div><div class="aurora a2"></div>
+
+<header>
+  <a class="logo" href="index.html">SAINHE<b>//NEO</b></a>
+  <nav>
+    <a class="back" href="index.html">← Dashboard</a>
+    <a href="#verdict">Verdict</a><a href="#score">Score</a><a href="#dupont">DuPont</a>
+    <a href="#health">Health</a><a href="#simulator">Simulator</a>
+  </nav>
+  <div class="demo-tag">Concept N-1 · Demo data</div>
+</header>
+
+<main>
+
+<!-- ═══ HERO: the 30-company universe ══════════════════════ -->
+<section id="hero">
+  <div class="sec-id rv">Stock analysis · EDGAR pipeline</div>
+  <h1 class="rv d1">Thirty companies.<br>One <b>dossier engine</b>.</h1>
+  <p class="lede rv d2">Every ticker below went through the same machine: EDGAR 10-K facts →
+  normalized FCF → EPV &amp; residual-income valuation → DuPont → balance-sheet forensics →
+  composite score. <em>Click a glowing node to open its dossier.</em> Position on the axis = composite score.</p>
+
+  <div id="spectrum-wrap" class="rv d3">
+    <div id="spectrum"></div>
+    <div id="spectrum-note">● <b>cyan</b> = full dossier loaded · grey = in pipeline queue · gold = selected</div>
+  </div>
+</section>
+
+<!-- sticky identity strip -->
+<div id="identity">
+  <span id="id-tk">—</span><span id="id-nm">—</span>
+  <span class="id-kv">FY <b id="id-fy">—</b></span>
+  <span class="id-kv">Price <b id="id-px">—</b></span>
+  <span class="id-kv">β <b id="id-beta">—</b></span>
+  <span id="id-score-mini">Composite <b id="id-score">—</b>/100</span>
+</div>
+
+<!-- ═══ 01 VERDICT ═════════════════════════════════════════ -->
+<section id="verdict">
+  <div class="sec-id rv">01 · Verdict</div>
+  <h2 class="rv">Price vs. <b>value beam.</b></h2>
+  <p class="lede rv d1">The market's number and ours, on one axis. The shaded band is the EPV
+  confidence range (FCF p25–p75) — when price sits left of the band, the margin of safety is real,
+  not rhetorical.</p>
+
+  <div id="verdict-grid" class="rv d2">
+    <div class="panel" id="beam-panel">
+      <div id="beam">
+        <div id="mos-band"></div>
+        <div class="beam-mark px" id="mark-px"><div class="lab">Price</div><div class="val"></div><div class="pin"></div></div>
+        <div class="beam-mark epv" id="mark-epv"><div class="pin"></div><div class="val"></div><div class="lab">EPV / share</div></div>
+        <div id="beam-axis"></div>
+      </div>
+      <div id="verdict-line"></div>
+    </div>
+    <div class="v-cards">
+      <div class="panel v-card">
+        <div class="t">Reverse DCF — implied growth</div>
+        <div class="big mono" id="v-rdcf">—</div>
+        <div class="sub">What the current price <b>assumes forever</b>. Below 0%: the market prices decay.</div>
+      </div>
+      <div class="panel v-card">
+        <div class="t">WACC sensitivity ±100 bps</div>
+        <div class="big mono" id="v-wacc-sens">—</div>
+        <div class="sub">EPV/share at WACC −1pt · central · +1pt</div>
+      </div>
+      <div class="panel v-card">
+        <div class="t">Street consensus</div>
+        <div class="big mono" id="v-cons">—</div>
+        <div class="sub" id="v-cons-sub">—</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 02 SCORE ═══════════════════════════════════════════ -->
+<section id="score">
+  <div class="sec-id rv">02 · Composite score</div>
+  <h2 class="rv">Five pillars. <b>Your weights.</b></h2>
+  <p class="lede rv d1">The backend ships default weights — but conviction is personal.
+  Drag the violet sliders and watch the composite re-price <em>live</em>. The ring never lies
+  about what you chose to care about.</p>
+
+  <div id="score-grid" class="rv d2">
+    <div id="score-ring">
+      <svg viewBox="0 0 100 100">
+        <defs><linearGradient id="sgrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#3de0c8"/><stop offset="1" stop-color="#8a7dff"/>
+        </linearGradient></defs>
+        <circle class="trk" cx="50" cy="50" r="43"/>
+        <circle class="arc" id="score-arc" cx="50" cy="50" r="43"/>
+      </svg>
+      <div id="score-c"><b id="score-val">0</b><span>Composite /100</span></div>
+    </div>
+    <div class="panel" id="pillars"></div>
+  </div>
+  <div id="score-note" class="rv d3">Weights auto-normalize to 100% · backend note: « pondérations modifiables par l'utilisateur »</div>
+</section>
+
+<!-- ═══ 03 DUPONT ══════════════════════════════════════════ -->
+<section id="dupont-sec">
+  <div class="sec-id rv">03 · DuPont</div>
+  <h2 class="rv" id="dupont">ROE, <b>decomposed.</b></h2>
+  <p class="lede rv d1">Penman decomposition: operating return (RNOA) plus the leverage game
+  (FLEV × SPREAD). Bars grow to scale — you see <em>where</em> the return is manufactured,
+  operations or balance sheet.</p>
+
+  <div id="dupont" class="rv d2" style="display:flex;gap:14px;align-items:flex-end;margin-top:48px;flex-wrap:wrap">
+    <div class="dp"><div class="dp-bar op" id="dp-rnoa"></div><div class="dp-val" id="dpv-rnoa">—</div><div class="dp-nm">RNOA · operating</div></div>
+    <div class="dp-op">+</div>
+    <div class="dp"><div class="dp-bar lv" id="dp-lev"></div><div class="dp-val" id="dpv-lev">—</div><div class="dp-nm">FLEV × SPREAD · leverage gain</div></div>
+    <div class="dp-op">=</div>
+    <div class="dp"><div class="dp-bar tot" id="dp-roe"></div><div class="dp-val" id="dpv-roe">—</div><div class="dp-nm">ROE</div></div>
+  </div>
+  <div id="dupont-text" class="rv d3"></div>
+</section>
+
+<!-- ═══ 04 HEALTH ══════════════════════════════════════════ -->
+<section id="health">
+  <div class="sec-id rv">04 · Balance-sheet forensics</div>
+  <h2 class="rv">Can it <b>survive winter?</b></h2>
+  <p class="lede rv d1">Debt payback from real cash flow, interest coverage, the cash-conversion
+  cycle day by day, and whether earnings are cash or accruals. Green means the number clears
+  its threshold — thresholds live in config, not vibes.</p>
+  <div class="h-grid rv d2" id="h-cards"></div>
+  <div id="trend-strip" class="rv d3">
+    <div class="panel tr-card"><div class="tr-nm">ROIC · 10y</div><div class="tr-bars" id="tr-roic"></div><div class="tr-yrs"><span id="tr-y0"></span><span id="tr-y9"></span></div></div>
+    <div class="panel tr-card"><div class="tr-nm">Gross margin · 10y</div><div class="tr-bars" id="tr-gm"></div><div class="tr-yrs"><span id="tr-y0b"></span><span id="tr-y9b"></span></div></div>
+  </div>
+</section>
+
+<!-- ═══ 05 SIMULATOR ═══════════════════════════════════════ -->
+<section id="simulator">
+  <div class="sec-id rv">05 · Simulator</div>
+  <h2 class="rv">Bend the future. <b>Watch value move.</b></h2>
+  <p class="lede rv d1">Four levers — perpetual growth, operating margin, beta, risk-free rate.
+  WACC rebuilds itself (r<sub>f</sub> + β·ERP, blended with after-tax debt), fair value re-prices
+  on every pixel of slider travel, and the sensitivity grid lights the cell you're standing in.</p>
+
+  <div id="sim-grid" class="rv d2">
+    <div class="panel sim-panel">
+      <div class="s-row">
+        <div class="s-head"><span class="k">Perpetual growth g</span><span class="v" id="sv-g">2.8%</span></div>
+        <input type="range" id="s-g" min="-2" max="6" step="0.1" value="2.8">
+        <div class="s-sub">Anchor: reverse-DCF implied g — what price already assumes</div>
+      </div>
+      <div class="s-row">
+        <div class="s-head"><span class="k">Operating margin</span><span class="v" id="sv-m">20.0%</span></div>
+        <input type="range" id="s-m" min="5" max="45" step="0.5" value="20">
+        <div class="s-sub">Normalized NOPAT margin on revenue</div>
+      </div>
+      <div class="s-row">
+        <div class="s-head"><span class="k">Beta β</span><span class="v" id="sv-b">1.10</span></div>
+        <input type="range" id="s-b" min="0.5" max="2.2" step="0.05" value="1.1">
+        <div class="s-sub">Levered beta vs market — feeds cost of equity</div>
+      </div>
+      <div class="s-row">
+        <div class="s-head"><span class="k">Risk-free rate</span><span class="v" id="sv-rf">4.2%</span></div>
+        <input type="range" id="s-rf" min="2" max="7" step="0.1" value="4.2">
+        <div class="s-sub">10Y Treasury — the gravity of all valuation</div>
+      </div>
+      <div id="wacc-line"></div>
+    </div>
+
+    <div>
+      <div class="panel" id="fv-readout">
+        <div class="h-nm">Fair value / share</div>
+        <div id="fv-big">—</div>
+        <div id="fv-up"></div>
+        <div id="fv-mos"></div>
+      </div>
+      <div class="panel" id="heat">
+        <div class="hd">Sensitivity — fair value across margin × growth</div>
+        <table id="heat-tbl"></table>
+        <div id="sim-note"><b>Live cell</b> tracks your sliders. The backend ships this exact
+        matrix per company (bloc H) — here it recomputes client-side.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="foot-note">SAINHE // NEO · dossier engine concept · demo data · EPV &amp; RI math simplified for simulation · not investment advice</div>
+</footer>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   DEMO UNIVERSE — 30 tickers. 6 carry full dossiers (incl. TESTCO,
+   whose numbers are the backend's actual reference sample).
+   ════════════════════════════════════════════════════════════ */
+const U = [
+  // full dossiers
+  {tk:"TESTCO",nm:"Test Manufacturing Co.",score:77.8,full:1,fy:2023,px:15.00,beta:0.95,
+   epv:20.30,epvLo:13.73,epvHi:18.46,waccS:[23.21,20.30,17.97],rdcf:-0.6,
+   cons:{mean:16.0,n:8},rnoa:21.6,levgain:4.7,roe:26.3,
+   health:{nde:0.82,cov:12.5,payback:1.6,cr:1.75,ccc:37.7,ocfni:1.41},
+   roic10:[18.2,18.6,19.0,19.3,19.7,19.6,20.0,20.3,20.6,21.2],
+   gm10:[37,37.5,38,38.4,38.9,39.4,39.8,40.1,40.2,40.0],
+   rev:1200, shares:100, netdebt:245, tax:.21, kd:4.6, dRatio:.24, m0:20.0, g0:2.8, b0:0.95},
+  {tk:"AAPL",nm:"Apple Inc.",score:71.4,full:1,fy:2025,px:248.10,beta:1.25,
+   epv:201.40,epvLo:182.0,epvHi:224.0,waccS:[228.0,201.4,179.5],rdcf:3.8,
+   cons:{mean:262.0,n:42},rnoa:54.2,levgain:12.6,roe:66.8,
+   health:{nde:0.61,cov:28.4,payback:1.1,cr:0.99,ccc:-38.2,ocfni:1.18},
+   roic10:[26,28,31,30,33,36,42,48,52,54],
+   gm10:[39,39,38.5,38.3,38.2,41.8,43.3,44.1,45.9,46.5],
+   rev:402000, shares:15100, netdebt:48000, tax:.16, kd:3.9, dRatio:.07, m0:31.5, g0:3.8, b0:1.25},
+  {tk:"MSFT",nm:"Microsoft Corp.",score:78.2,full:1,fy:2025,px:512.30,beta:1.05,
+   epv:438.0,epvLo:402.0,epvHi:478.0,waccS:[495.0,438.0,392.0],rdcf:4.6,
+   cons:{mean:545.0,n:48},rnoa:38.9,levgain:5.4,roe:44.3,
+   health:{nde:0.34,cov:41.2,payback:0.7,cr:1.27,ccc:18.4,ocfni:1.32},
+   roic10:[19,21,23,26,28,30,33,35,37,39],
+   gm10:[64,64.5,65,65.9,67.8,68.4,68.9,69.0,69.8,70.1],
+   rev:282000, shares:7430, netdebt:21000, tax:.18, kd:3.7, dRatio:.05, m0:44.8, g0:4.6, b0:1.05},
+  {tk:"KO",nm:"Coca-Cola Co.",score:80.6,full:1,fy:2025,px:71.84,beta:0.58,
+   epv:66.20,epvLo:61.0,epvHi:72.5,waccS:[74.8,66.2,59.4],rdcf:1.9,
+   cons:{mean:75.0,n:26},rnoa:18.4,levgain:21.8,roe:40.2,
+   health:{nde:1.92,cov:11.8,payback:3.4,cr:1.13,ccc:24.6,ocfni:1.21},
+   roic10:[14,13.5,12.8,13.2,14.1,13.0,14.6,15.8,16.4,18.4],
+   gm10:[60.1,60.5,60.7,61.9,60.8,59.3,60.3,59.1,59.5,61.0],
+   rev:47200, shares:4310, netdebt:28400, tax:.19, kd:4.2, dRatio:.36, m0:30.2, g0:1.9, b0:0.58},
+  {tk:"JPM",nm:"JPMorgan Chase",score:73.9,full:1,fy:2025,px:312.40,beta:1.12,
+   epv:341.0,epvLo:312.0,epvHi:368.0,waccS:[378.0,341.0,309.0],rdcf:1.2,
+   cons:{mean:330.0,n:29},rnoa:12.8,levgain:7.1,roe:19.9,
+   health:{nde:1.4,cov:8.9,payback:4.1,cr:1.21,ccc:0,ocfni:1.08},
+   roic10:[8.4,9.1,9.6,10.2,11.5,10.8,13.6,12.9,13.4,12.8],
+   gm10:[57,57,58,58,59,57,61,60,61,61],
+   rev:178000, shares:2840, netdebt:0, tax:.21, kd:4.8, dRatio:.42, m0:38.0, g0:1.2, b0:1.12},
+  {tk:"XOM",nm:"Exxon Mobil",score:68.7,full:1,fy:2025,px:118.50,beta:0.88,
+   epv:139.0,epvLo:114.0,epvHi:166.0,waccS:[158.0,139.0,123.0],rdcf:-1.4,
+   cons:{mean:128.0,n:25},rnoa:14.6,levgain:3.2,roe:17.8,
+   health:{nde:0.71,cov:19.6,payback:1.9,cr:1.34,ccc:21.2,ocfni:1.52},
+   roic10:[7.9,2.1,4.6,8.2,9.4,-3.4,6.1,19.8,15.2,14.6],
+   gm10:[31,28,29,32,33,24,29,34,33,32],
+   rev:344000, shares:4020, netdebt:39000, tax:.24, kd:4.4, dRatio:.18, m0:13.4, g0:0.5, b0:0.88},
+  // pipeline queue (score only)
+  {tk:"NVDA",score:74.1},{tk:"GOOGL",score:76.3},{tk:"AMZN",score:69.5},{tk:"META",score:72.8},
+  {tk:"BRK.B",score:79.4},{tk:"V",score:81.2},{tk:"MA",score:79.9},{tk:"UNH",score:64.2},
+  {tk:"LLY",score:70.6},{tk:"JNJ",score:75.3},{tk:"PG",score:78.8},{tk:"NESN",score:77.1},
+  {tk:"MC.PA",score:73.4},{tk:"ASML",score:75.8},{tk:"TSM",score:74.9},{tk:"SAP",score:71.7},
+  {tk:"COST",score:66.4},{tk:"WMT",score:69.8},{tk:"CAT",score:67.2},{tk:"DE",score:68.1},
+  {tk:"LMT",score:72.3},{tk:"NOC",score:71.1},{tk:"CVX",score:67.9},{tk:"SHEL",score:66.8},
+];
+const PILLARS = [
+  {k:"valuation",            nm:"Valuation",            w:30},
+  {k:"balance_sheet_health", nm:"Balance sheet",        w:25},
+  {k:"earnings_quality",     nm:"Earnings quality",     w:20},
+  {k:"smart_money",          nm:"Smart money",          w:15},
+  {k:"momentum",             nm:"Momentum",             w:10},
+];
+// per-company pillar scores (demo)
+const PSCORES = {
+  TESTCO:[100,85,70,50,50], AAPL:[55,88,82,64,71], MSFT:[58,92,86,70,78],
+  KO:[72,74,88,76,62], JPM:[81,69,73,68,70], XOM:[84,80,66,52,48],
+};
+const ERP=4.6;            // equity risk premium, %
+let CUR=null;
+
+/* ── particle field (same engine as page 1) ────────────────── */
+(function(){
+  const cv=document.getElementById("field"),ctx=cv.getContext("2d");
+  let W,H,pts=[];
+  function size(){W=cv.width=innerWidth;H=cv.height=innerHeight}
+  size();addEventListener("resize",size);
+  const N=Math.min(90,Math.floor(innerWidth/16));
+  for(let i=0;i<N;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18,r:Math.random()*1.4+.4});
+  const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  (function frame(){
+    ctx.clearRect(0,0,W,H);
+    for(const p of pts){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fillStyle="rgba(140,130,220,.32)";ctx.fill();}
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const a=pts[i],b=pts[j],dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy;
+      if(d2<130*130){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+        ctx.strokeStyle=`rgba(130,120,220,${.09*(1-d2/16900)})`;ctx.lineWidth=.6;ctx.stroke();}}
+    if(!reduced)requestAnimationFrame(frame);
+  })();
+})();
+
+/* ── reveal engine ──────────────────────────────────────────── */
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(!e.isIntersecting)return;
+  e.target.classList.add("in");io.unobserve(e.target);
+  if(e.target.id==="score-grid")armScore();
+  if(e.target.id==="dupont")armDupont();
+  if(e.target.classList.contains("h-grid")||e.target.id==="trend-strip")armTrends();
+});},{threshold:.25});
+document.querySelectorAll(".rv").forEach(el=>io.observe(el));
+
+/* ── universe spectrum ──────────────────────────────────────── */
+(function(){
+  const sp=document.getElementById("spectrum");
+  const mn=60,mx=85;
+  [60,70,80].forEach(v=>{
+    const l=document.createElement("div");l.className="axis-lbl";
+    l.style.left=((v-mn)/(mx-mn)*100)+"%";l.textContent=v;sp.appendChild(l);
+  });
+  U.forEach(c=>{
+    const n=document.createElement("div");
+    n.className="spec-node"+(c.full?" full":"");
+    n.style.left=((c.score-mn)/(mx-mn)*96+2)+"%";
+    n.innerHTML=`<span class="spec-tk">${c.tk}</span><span class="spec-dot"></span>`;
+    n.title=`${c.tk} · score ${c.score}`;
+    n.addEventListener("click",()=>{ if(c.full){ select(c); document.getElementById("verdict").scrollIntoView({behavior:"smooth"}); }});
+    sp.appendChild(n); c._node=n;
+  });
+})();
+
+/* ── company selection → repaint all blocks ─────────────────── */
+function select(c){
+  CUR=c;
+  U.forEach(x=>x._node && x._node.classList.toggle("sel",x===c));
+  // identity
+  id("id-tk").textContent=c.tk; id("id-nm").textContent=c.nm;
+  id("id-fy").textContent=c.fy; id("id-px").textContent="$"+c.px.toFixed(2);
+  id("id-beta").textContent=c.beta.toFixed(2); id("id-score").textContent=c.score.toFixed(1);
+  // verdict beam — axis spans [min*0.85, max*1.15]
+  const lo=Math.min(c.px,c.epvLo)*.82, hi=Math.max(c.px,c.epvHi)*1.12;
+  const X=v=>((v-lo)/(hi-lo)*100);
+  const mPx=id("mark-px"), mEpv=id("mark-epv"), band=id("mos-band");
+  mPx.style.left=X(c.px)+"%"; mPx.querySelector(".val").textContent="$"+c.px.toFixed(2);
+  mEpv.style.left=X(c.epv)+"%"; mEpv.querySelector(".val").textContent="$"+c.epv.toFixed(2);
+  band.style.left=X(c.epvLo)+"%"; band.style.width=(X(c.epvHi)-X(c.epvLo))+"%";
+  const up=(c.epv/c.px-1)*100;
+  id("verdict-line").innerHTML = up>=10
+    ? `EPV sits <b>${up.toFixed(0)}% above price</b> — the market sells durable earning power at a discount. Confidence band $${c.epvLo.toFixed(0)}–$${c.epvHi.toFixed(0)}.`
+    : up>=-10
+    ? `Price and EPV are <b>within ±10%</b> — fairly priced on current earning power; the upside case must come from growth, not re-rating. Band $${c.epvLo.toFixed(0)}–$${c.epvHi.toFixed(0)}.`
+    : `Price runs <b>${(-up).toFixed(0)}% ahead of EPV</b> — you are paying today for tomorrow's growth. Band $${c.epvLo.toFixed(0)}–$${c.epvHi.toFixed(0)}.`;
+  id("v-rdcf").textContent=(c.rdcf>=0?"+":"")+c.rdcf.toFixed(1)+"% /yr";
+  id("v-rdcf").style.color=c.rdcf<0?"var(--green)":c.rdcf<4?"var(--gold)":"var(--red)";
+  id("v-wacc-sens").textContent=c.waccS.map(v=>"$"+v.toFixed(0)).join(" · ");
+  id("v-cons").textContent="$"+c.cons.mean.toFixed(2);
+  id("v-cons-sub").innerHTML=`mean target · <b>${c.cons.n} analysts</b>`;
+  // score pillars
+  buildPillars(c); armScore();
+  // dupont
+  armDupont();
+  // health + trends
+  buildHealth(c); armTrends();
+  // simulator: re-anchor sliders to company
+  id("s-g").value=c.g0; id("s-m").value=c.m0; id("s-b").value=c.b0; id("s-rf").value=4.2;
+  buildHeatAxes(c); sim();
+}
+function id(x){return document.getElementById(x)}
+
+/* ── 02 score ───────────────────────────────────────────────── */
+function buildPillars(c){
+  const wrap=id("pillars"); wrap.innerHTML="";
+  const sc=PSCORES[c.tk];
+  PILLARS.forEach((p,i)=>{
+    const row=document.createElement("div");row.className="pillar";
+    row.innerHTML=`<div class="p-nm">${p.nm}</div>
+      <div class="p-track"><div class="p-fill" data-v="${sc[i]}"></div></div>
+      <div class="p-val">${sc[i]}</div>
+      <div class="p-w"><input type="range" min="0" max="50" value="${p.w}" data-i="${i}"><span>${p.w}%</span></div>`;
+    wrap.appendChild(row);
+  });
+  wrap.querySelectorAll("input").forEach(inp=>inp.addEventListener("input",recompose));
+  recompose();
+}
+function recompose(){
+  if(!CUR)return;
+  const sc=PSCORES[CUR.tk];
+  const inputs=[...id("pillars").querySelectorAll("input")];
+  let ws=inputs.map(i=>+i.value), tot=ws.reduce((a,b)=>a+b,0)||1;
+  inputs.forEach((inp,i)=>inp.nextElementSibling.textContent=Math.round(ws[i]/tot*100)+"%");
+  const comp=sc.reduce((a,v,i)=>a+v*ws[i]/tot,0);
+  id("score-val").textContent=comp.toFixed(1);
+  const C=2*Math.PI*43;
+  id("score-arc").style.strokeDasharray=`${C*comp/100} ${C}`;
+}
+function armScore(){
+  document.querySelectorAll("#pillars .p-fill").forEach(f=>{
+    requestAnimationFrame(()=>f.style.width=f.dataset.v+"%");
+  });
+  recompose();
+}
+
+/* ── 03 dupont ──────────────────────────────────────────────── */
+function armDupont(){
+  if(!CUR)return;
+  const mx=Math.max(CUR.roe,1), H=190;
+  const set=(bar,val,el)=>{ id(bar).style.height=Math.max(8,val/mx*H)+"px"; id(el).textContent=val.toFixed(1)+"%"; };
+  requestAnimationFrame(()=>{
+    set("dp-rnoa",CUR.rnoa,"dpv-rnoa");
+    set("dp-lev",CUR.levgain,"dpv-lev");
+    set("dp-roe",CUR.roe,"dpv-roe");
+  });
+  const share=CUR.levgain/CUR.roe*100;
+  id("dupont-text").innerHTML = share<15
+    ? `<b>${(100-share).toFixed(0)}% of ROE is operating.</b> The return is earned in the business, not engineered on the balance sheet — the safest kind.`
+    : share<40
+    ? `Leverage contributes <b>${share.toFixed(0)}% of ROE</b> — meaningful but serviced (see coverage below). Watch the SPREAD: if borrowing cost rises past RNOA, this gain flips to a drag.`
+    : `<b>${share.toFixed(0)}% of ROE is leverage.</b> The equity return leans hard on debt — fine while SPREAD stays positive, brutal when it doesn't.`;
+}
+
+/* ── 04 health ──────────────────────────────────────────────── */
+function buildHealth(c){
+  const h=c.health, wrap=id("h-cards"); wrap.innerHTML="";
+  const cards=[
+    {nm:"Net debt / EBITDA", v:h.nde.toFixed(2)+"×", cls:h.nde<1.5?"ok":h.nde<3?"warn":"bad", sub:"<1.5× comfortable · >3× strained"},
+    {nm:"Interest coverage", v:h.cov.toFixed(1)+"×", cls:h.cov>8?"ok":h.cov>4?"warn":"bad", sub:"EBIT / interest expense"},
+    {nm:"LT-debt payback",   v:h.payback.toFixed(1)+" yrs", cls:h.payback<3?"ok":h.payback<5?"warn":"bad", sub:"years of FCF to retire LT debt"},
+    {nm:"Current ratio",     v:h.cr.toFixed(2), cls:h.cr>1.2?"ok":h.cr>0.9?"warn":"bad", sub:"current assets / liabilities"},
+    {nm:"Cash conversion",   v:h.ccc.toFixed(1)+" d", cls:h.ccc<45?"ok":h.ccc<75?"warn":"bad", sub:"DSO + DIO − DPO (negative = customers fund you)"},
+    {nm:"OCF / Net income",  v:h.ocfni.toFixed(2)+"×", cls:h.ocfni>1.1?"ok":h.ocfni>0.9?"warn":"bad", sub:">1: earnings are cash, not accruals"},
+  ];
+  cards.forEach(x=>{
+    const el=document.createElement("div");el.className="panel h-card";
+    el.innerHTML=`<div class="h-nm">${x.nm}</div><div class="h-val ${x.cls}">${x.v}</div><div class="h-sub">${x.sub}</div>`;
+    wrap.appendChild(el);
+  });
+  // trends
+  const years=[]; for(let y=c.fy-9;y<=c.fy;y++)years.push(y);
+  id("tr-y0").textContent=years[0]; id("tr-y9").textContent=years[9];
+  id("tr-y0b").textContent=years[0]; id("tr-y9b").textContent=years[9];
+  fillBars("tr-roic",c.roic10); fillBars("tr-gm",c.gm10);
+}
+function fillBars(elId,data){
+  const el=id(elId); el.innerHTML="";
+  const mx=Math.max(...data.map(Math.abs));
+  data.forEach(v=>{
+    const b=document.createElement("i");
+    b.dataset.h=Math.max(4,Math.abs(v)/mx*100);
+    if(v<0)b.style.background="linear-gradient(180deg,rgba(255,93,93,.85),rgba(255,93,93,.2))";
+    el.appendChild(b);
+  });
+}
+function armTrends(){
+  document.querySelectorAll(".tr-bars i").forEach((b,i)=>{
+    setTimeout(()=>{b.style.height=b.dataset.h+"%";}, i*40);
+  });
+}
+
+/* ── 05 simulator ───────────────────────────────────────────── */
+let G_AXIS=[],M_AXIS=[];
+function buildHeatAxes(c){
+  G_AXIS=[];M_AXIS=[];
+  for(let i=-2;i<=2;i++){ G_AXIS.push(+(c.g0+i*0.7).toFixed(1)); M_AXIS.push(+(c.m0+i*2.5).toFixed(1)); }
+}
+function fairValue(c,g,m,beta,rf){
+  // simplified EPV-with-growth: NOPAT margin on revenue, blended WACC
+  const ke=rf+beta*ERP;                              // cost of equity, %
+  const wacc=( (1-c.dRatio)*ke + c.dRatio*c.kd*(1-c.tax) );
+  const w=Math.max(wacc, g+0.8)/100, gg=g/100;       // clamp: WACC > g
+  const nopat=c.rev*(m/100)*(1-c.tax);
+  const ev=nopat*(1+gg)/(w-gg);
+  return { fv:(ev-c.netdebt)/c.shares, wacc, ke };
+}
+function sim(){
+  if(!CUR)return;
+  const g=+id("s-g").value, m=+id("s-m").value, b=+id("s-b").value, rf=+id("s-rf").value;
+  id("sv-g").textContent=g.toFixed(1)+"%"; id("sv-m").textContent=m.toFixed(1)+"%";
+  id("sv-b").textContent=b.toFixed(2);     id("sv-rf").textContent=rf.toFixed(1)+"%";
+  const {fv,wacc,ke}=fairValue(CUR,g,m,b,rf);
+  id("wacc-line").innerHTML=
+    `k<sub>e</sub> = ${rf.toFixed(1)} + ${b.toFixed(2)}·${ERP.toFixed(1)} = <b>${ke.toFixed(2)}%</b><br>`+
+    `WACC = ${(100-CUR.dRatio*100).toFixed(0)}%·k<sub>e</sub> + ${(CUR.dRatio*100).toFixed(0)}%·${CUR.kd.toFixed(1)}·(1−${(CUR.tax*100).toFixed(0)}%) = <b>${wacc.toFixed(2)}%</b>`;
+  const up=(fv/CUR.px-1)*100;
+  const big=id("fv-big"); big.textContent="$"+(fv>0?fv.toFixed(2):"—");
+  big.style.color= up>15?"var(--green)": up>-10?"var(--gold)":"var(--red)";
+  id("fv-up").innerHTML=`vs price $${CUR.px.toFixed(2)} → <b style="color:${up>=0?"var(--green)":"var(--red)"}">${up>=0?"+":""}${up.toFixed(1)}%</b>`;
+  const mos=id("fv-mos");
+  if(up>25){mos.className="ok";mos.textContent="Margin of safety · wide";}
+  else if(up>5){mos.className="warn";mos.textContent="Margin of safety · thin";}
+  else{mos.className="bad";mos.textContent="No margin of safety";}
+  // heat grid
+  const tbl=id("heat-tbl");
+  let html=`<tr><th>m \\ g</th>${G_AXIS.map(x=>`<th>${x}%</th>`).join("")}</tr>`;
+  M_AXIS.forEach(mm=>{
+    html+=`<tr><th>${mm}%</th>`;
+    G_AXIS.forEach(gg=>{
+      const v=fairValue(CUR,gg,mm,b,rf).fv;
+      const hot=Math.abs(gg-g)<=0.35 && Math.abs(mm-m)<=1.25;
+      html+=`<td class="${hot?"hot":""}">${v>0?v.toFixed(0):"—"}</td>`;
+    });
+    html+="</tr>";
+  });
+  tbl.innerHTML=html;
+}
+["s-g","s-m","s-b","s-rf"].forEach(s=>id(s).addEventListener("input",sim));
+
+/* ── boot ───────────────────────────────────────────────────── */
+select(U[0]);   // TESTCO — the backend's own reference sample
+</script>
+</body>
+</html>
