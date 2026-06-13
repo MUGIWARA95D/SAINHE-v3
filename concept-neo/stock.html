@@ -2,698 +2,733 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SAINHE // NEO — Dossier Engine (stock analysis concept)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAINHE Édition — Stock Analysis: NVIDIA CORP</title>
 <style>
-/* ════════════════════════════════════════════════════════════
-   SAINHE // NEO · page 2 — DOSSIER ENGINE
-   Mirrors the real stock_analysis backend blocks:
-   A verdict (EPV, reverse-DCF, consensus) · C DuPont · D trends
-   E health · H sensitivity · score_composite (adjustable weights)
-   Single file. Demo data. Isolated from dev/.com pipeline.
-   ════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   SAINHE ÉDITION — Stock Analysis Concept
+   Dossier/report format: editorial chapters with analyst voice
+   Backend blocks: bloc_A_verdict · bloc_C_dupont · bloc_D_trends
+                   bloc_E_health · bloc_H_sensitivity · score_composite
+═══════════════════════════════════════════════════════════════ */
 :root{
-  --bg:#04060c; --ink:#e8edf6; --dim:#8b95ab; --faint:#4a5468;
-  --line:rgba(140,160,200,.13);
-  --cyan:#3de0c8; --cyan-dim:rgba(61,224,200,.14);
-  --gold:#e9b44c; --gold-dim:rgba(233,180,76,.12);
-  --red:#ff5d5d;  --red-dim:rgba(255,93,93,.12);
-  --green:#46e08a;--green-dim:rgba(70,224,138,.12);
-  --violet:#8a7dff;
-  --mono:ui-monospace,'SF Mono','Cascadia Code',Menlo,monospace;
-  --sans:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;
-  --glass:rgba(16,22,38,.55); --glass-edge:rgba(160,190,255,.10);
+  --bg:#F5F0E6;--bg2:#EDE7D9;--card:#FDFAF4;--card-alt:#F3EEE2;
+  --border:#DDD5C4;--border-lt:#EBE5D6;--hover:#F0EADC;
+  --h:#1C1710;--p:#3B3428;--muted:#8A7E6E;--faint:#B5AA96;
+  --gold:#9E7A2E;--gold-bg:#F5ECC8;--gold-border:#D4B86A;
+  --green:#2C7A3E;--green-bg:#E4F3E8;--green-border:#8CC99C;
+  --red:#A03020;--red-bg:#FAE8E4;--red-border:#D4908A;
+  --orange:#8B5C0A;--orange-bg:#FDF0D8;--orange-border:#D4A854;
+  --serif:Georgia,'Times New Roman',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --shadow:0 2px 12px rgba(60,40,15,.10);
 }
-*{margin:0;padding:0;box-sizing:border-box}
+*{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--ink);font-family:var(--sans);overflow-x:hidden;line-height:1.5}
-::selection{background:var(--cyan);color:#04141a}
-#field{position:fixed;inset:0;z-index:0;opacity:.7}
-.aurora{position:fixed;border-radius:50%;filter:blur(110px);z-index:0;pointer-events:none;opacity:.45}
-.a1{width:55vw;height:55vw;left:-12vw;top:-18vh;background:radial-gradient(circle,rgba(138,125,255,.15),transparent 65%);animation:drift1 28s ease-in-out infinite alternate}
-.a2{width:48vw;height:48vw;right:-14vw;top:35vh;background:radial-gradient(circle,rgba(61,224,200,.13),transparent 65%);animation:drift2 33s ease-in-out infinite alternate}
-@keyframes drift1{to{transform:translate(9vw,12vh) scale(1.12)}}
-@keyframes drift2{to{transform:translate(-9vw,-9vh) scale(.92)}}
+body{background:var(--bg);color:var(--p);font-family:var(--sans);font-size:14px;line-height:1.5}
 
-header{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
-  padding:14px 28px;background:linear-gradient(rgba(4,6,12,.88),rgba(4,6,12,0));backdrop-filter:blur(8px)}
-.logo{font-family:var(--mono);font-size:14px;letter-spacing:.35em;color:var(--ink);text-decoration:none}
-.logo b{color:var(--violet);font-weight:600}
-nav{display:flex;gap:22px}
-nav a{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--dim);text-decoration:none;text-transform:uppercase;transition:color .2s}
-nav a:hover{color:var(--cyan)}
-nav a.back{color:var(--cyan)}
-.demo-tag{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--gold);border:1px solid rgba(233,180,76,.4);
-  padding:4px 10px;border-radius:99px;background:var(--gold-dim);text-transform:uppercase}
-@media(max-width:900px){nav{display:none}}
+/* ─── MASTHEAD ──────────────────────────────────────── */
+.masthead{background:var(--h)}
+.mast-top{display:flex;align-items:center;justify-content:space-between;padding:12px 32px;border-bottom:3px double var(--gold)}
+.mast-logo{font-family:var(--serif);font-size:32px;font-weight:700;letter-spacing:8px;color:#F5F0E6;line-height:1}
+.mast-right{text-align:right;display:flex;flex-direction:column;gap:2px}
+.mast-edition{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:rgba(245,240,230,.45);font-weight:700}
+.mast-date{font-family:var(--serif);font-size:12px;color:rgba(245,240,230,.7);letter-spacing:.5px}
+.mast-byline{background:var(--gold);text-align:center;padding:4px 32px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--h);font-weight:800}
 
-main{position:relative;z-index:1}
-section{min-height:88vh;display:flex;flex-direction:column;justify-content:center;padding:110px 7vw 70px;position:relative}
-.sec-id{font-family:var(--mono);font-size:11px;letter-spacing:.4em;color:var(--violet);text-transform:uppercase;margin-bottom:14px}
-.sec-id::before{content:"";display:inline-block;width:34px;height:1px;background:var(--violet);vertical-align:middle;margin-right:14px}
-h1{font-size:clamp(40px,6.4vw,86px);font-weight:200;letter-spacing:-.02em;line-height:1.05}
-h1 b{font-weight:600;background:linear-gradient(100deg,var(--violet),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
-h2{font-size:clamp(28px,3.8vw,48px);font-weight:200;letter-spacing:-.015em;margin-bottom:8px}
-h2 b{font-weight:600;color:var(--cyan)}
-.lede{color:var(--dim);max-width:600px;font-size:15px;margin-top:16px}
-.lede em{color:var(--ink);font-style:normal}
-.rv{opacity:0;transform:translateY(34px);transition:opacity .8s cubic-bezier(.2,.6,.2,1),transform .8s cubic-bezier(.2,.6,.2,1)}
-.rv.in{opacity:1;transform:none}
-.rv.d1{transition-delay:.1s}.rv.d2{transition-delay:.22s}.rv.d3{transition-delay:.34s}
+/* ─── NAV STRIP ─────────────────────────────────────── */
+.nav-strip{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;gap:0;padding:0 32px;overflow-x:auto;scrollbar-width:none}
+.nav-strip::-webkit-scrollbar{display:none}
+.nav-link{padding:9px 16px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s}
+.nav-link:hover{color:var(--gold)}
+.nav-link.active{color:var(--h);border-bottom-color:var(--gold)}
 
-.panel{background:var(--glass);border:1px solid var(--glass-edge);border-radius:18px;padding:24px;backdrop-filter:blur(14px)}
-.mono{font-family:var(--mono)}
-
-/* ── HERO: universe spectrum ──────────────────────────────── */
-#hero{align-items:flex-start}
-#spectrum-wrap{width:100%;margin-top:54px}
-#spectrum{position:relative;height:150px;border-bottom:1px solid var(--line)}
-#spectrum .axis-lbl{position:absolute;bottom:-26px;font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--faint);text-transform:uppercase}
-.spec-node{
-  position:absolute;bottom:18px;transform:translateX(-50%);cursor:pointer;
-  display:flex;flex-direction:column;align-items:center;gap:7px;transition:transform .25s;
+/* ─── COMPANY COVER ─────────────────────────────────── */
+.cover{
+  background:var(--h);
+  padding:32px 32px 28px;
+  position:relative;overflow:hidden;
 }
-.spec-node:hover{transform:translateX(-50%) translateY(-6px)}
-.spec-dot{width:13px;height:13px;border-radius:50%;background:var(--faint);transition:all .25s}
-.spec-node.full .spec-dot{background:var(--cyan);box-shadow:0 0 14px var(--cyan)}
-.spec-node.sel .spec-dot{background:var(--gold);box-shadow:0 0 20px var(--gold);transform:scale(1.5)}
-.spec-tk{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--dim);writing-mode:vertical-rl;transform:rotate(180deg)}
-.spec-node.sel .spec-tk{color:var(--gold)}
-.spec-node.full .spec-tk{color:var(--ink)}
-#spectrum-note{margin-top:44px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--faint);text-transform:uppercase}
-#spectrum-note b{color:var(--cyan)}
-
-/* ── identity strip ───────────────────────────────────────── */
-#identity{
-  position:sticky;top:58px;z-index:35;margin:0 7vw;
-  display:flex;align-items:center;gap:26px;flex-wrap:wrap;
-  background:rgba(8,12,22,.88);border:1px solid var(--glass-edge);border-radius:16px;
-  padding:14px 24px;backdrop-filter:blur(16px);
+.cover::before{
+  content:"";position:absolute;top:0;right:0;bottom:0;width:320px;
+  background:repeating-linear-gradient(-45deg,rgba(158,122,46,.08),rgba(158,122,46,.08) 1px,transparent 1px,transparent 12px);
 }
-#id-tk{font-family:var(--mono);font-size:24px;font-weight:600;letter-spacing:.04em;color:var(--gold)}
-#id-nm{font-size:13px;color:var(--dim)}
-.id-kv{font-family:var(--mono);font-size:12px;color:var(--dim)}
-.id-kv b{color:var(--ink);font-weight:500}
-#id-score-mini{margin-left:auto;display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;color:var(--dim)}
-#id-score-mini b{font-size:20px;color:var(--cyan)}
+.cover-inner{position:relative;z-index:1;max-width:900px}
+.cover-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:2.5px;color:var(--gold);font-weight:800;margin-bottom:10px}
+.cover-company{font-family:var(--serif);font-size:36px;font-weight:700;color:#F5F0E6;line-height:1.1;letter-spacing:-.01em}
+.cover-meta{display:flex;align-items:center;gap:16px;margin-top:10px;flex-wrap:wrap}
+.cover-ticker{font-family:var(--serif);font-size:16px;color:rgba(245,240,230,.55);letter-spacing:1px}
+.cover-price{font-family:var(--serif);font-size:28px;font-weight:700;color:#F5F0E6;font-variant-numeric:tabular-nums}
+.cover-chg-up{font-size:14px;font-weight:700;color:var(--green-border)}
+.cover-sep{color:rgba(245,240,230,.2)}
+.cover-mktcap{font-size:12px;color:rgba(245,240,230,.45)}
+.cover-verdict-row{display:flex;align-items:center;gap:16px;margin-top:20px;flex-wrap:wrap}
+.cover-verdict{
+  font-family:var(--serif);font-size:44px;font-weight:700;
+  color:#F5F0E6;letter-spacing:-.02em;line-height:1;
+}
+.cover-score-bar{flex:1;min-width:200px;max-width:400px}
+.score-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(245,240,230,.45);font-weight:800;margin-bottom:6px}
+.score-track{height:6px;background:rgba(245,240,230,.15);border-radius:3px;overflow:hidden}
+.score-fill{height:100%;border-radius:3px;transition:width .8s ease}
+.score-fill.buy{background:var(--green-border)}
+.score-fill.watch{background:var(--gold)}
+.score-fill.avoid{background:var(--red-border)}
+.score-pills{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.sc-pill{
+  font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
+  padding:3px 10px;border-radius:2px;
+}
+.sc-pill.g{background:rgba(44,122,62,.25);color:var(--green-border);border:1px solid rgba(140,201,156,.3)}
+.sc-pill.y{background:rgba(158,122,46,.25);color:var(--gold);border:1px solid rgba(212,184,106,.3)}
+.sc-pill.r{background:rgba(160,48,32,.25);color:var(--red-border);border:1px solid rgba(212,144,138,.3)}
+.sc-pill.n{background:rgba(245,240,230,.1);color:rgba(245,240,230,.4);border:1px solid rgba(245,240,230,.1)}
 
-/* ── 01 VERDICT ───────────────────────────────────────────── */
-#verdict-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,1fr);gap:24px;margin-top:42px}
-@media(max-width:1000px){#verdict-grid{grid-template-columns:1fr}}
-#beam-panel{padding:34px 30px}
-#beam{position:relative;height:130px;margin-top:8px}
-#beam-axis{position:absolute;left:0;right:0;top:64px;height:2px;background:linear-gradient(90deg,rgba(255,93,93,.4),rgba(233,180,76,.4),rgba(70,224,138,.4))}
-.beam-mark{position:absolute;top:0;transform:translateX(-50%);text-align:center;transition:left 1s cubic-bezier(.3,.7,.3,1)}
-.beam-mark .pin{width:2px;height:34px;margin:0 auto}
-.beam-mark .lab{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase;margin-bottom:4px}
-.beam-mark .val{font-family:var(--mono);font-size:15px}
-.beam-mark.px .pin{background:var(--ink)} .beam-mark.px .val{color:var(--ink)}
-.beam-mark.epv{top:68px}
-.beam-mark.epv .pin{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
-.beam-mark.epv .val{color:var(--cyan)}
-#mos-band{position:absolute;top:60px;height:10px;border-radius:99px;background:rgba(61,224,200,.18);border:1px solid rgba(61,224,200,.35);transition:left 1s,width 1s}
-#verdict-line{margin-top:26px;font-size:14px;color:var(--dim);border-top:1px solid var(--line);padding-top:18px}
-#verdict-line b{color:var(--ink)}
-.v-cards{display:flex;flex-direction:column;gap:16px}
-.v-card{padding:18px 20px}
-.v-card .t{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;margin-bottom:8px}
-.v-card .big{font-family:var(--mono);font-size:24px}
-.v-card .sub{font-size:12px;color:var(--faint);margin-top:5px}
-.v-card .sub b{color:var(--dim)}
+/* ─── CONCEPT BANNER ─────────────────────────────────── */
+.concept-banner{background:repeating-linear-gradient(-45deg,rgba(158,122,46,.07),rgba(158,122,46,.07) 8px,transparent 8px,transparent 16px);border:1px dashed var(--gold-border);color:var(--muted);font-size:10px;letter-spacing:1px;text-transform:uppercase;text-align:center;padding:6px}
 
-/* ── 02 SCORE: pillars + weight sliders ───────────────────── */
-#score-grid{display:grid;grid-template-columns:240px minmax(0,1fr);gap:44px;align-items:center;margin-top:42px}
-@media(max-width:900px){#score-grid{grid-template-columns:1fr}}
-#score-ring{position:relative;width:220px;height:220px;margin:0 auto}
-#score-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-#score-ring .trk{fill:none;stroke:rgba(140,160,200,.12);stroke-width:10}
-#score-ring .arc{fill:none;stroke:url(#sgrad);stroke-width:10;stroke-linecap:round;stroke-dasharray:0 999;transition:stroke-dasharray 1.2s cubic-bezier(.3,.7,.3,1)}
-#score-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-#score-c b{font-family:var(--mono);font-size:44px;font-weight:600}
-#score-c span{font-family:var(--mono);font-size:9px;letter-spacing:.25em;color:var(--dim);text-transform:uppercase;margin-top:4px}
-.pillar{display:grid;grid-template-columns:150px minmax(0,1fr) 56px 120px;gap:16px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
-.pillar:last-child{border-bottom:none}
-.p-nm{font-size:13px;color:var(--dim)}
-.p-track{height:8px;border-radius:99px;background:rgba(140,160,200,.08);overflow:hidden}
-.p-fill{height:100%;border-radius:99px;width:0;transition:width 1s cubic-bezier(.25,.8,.3,1);background:linear-gradient(90deg,rgba(61,224,200,.5),var(--cyan));box-shadow:0 0 12px rgba(61,224,200,.3)}
-.p-val{font-family:var(--mono);font-size:13px;text-align:right}
-.p-w{display:flex;align-items:center;gap:8px}
-.p-w input{flex:1;accent-color:var(--violet);height:3px;cursor:pointer}
-.p-w span{font-family:var(--mono);font-size:10.5px;color:var(--violet);width:34px;text-align:right}
-#score-note{margin-top:18px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase}
-@media(max-width:700px){.pillar{grid-template-columns:100px 1fr 44px}.p-w{display:none}}
+/* ─── CHAPTER LAYOUT ─────────────────────────────────── */
+.page{max-width:1100px;margin:0 auto;padding:28px 24px 0}
+.chapter{border:1px solid var(--border);background:var(--card);margin-bottom:1px}
+.chapter-head{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 24px 10px;
+  border-bottom:2px solid var(--h);
+  background:var(--card);
+}
+.ch-num{
+  font-family:var(--serif);font-size:22px;font-weight:700;
+  color:var(--border);line-height:1;width:32px;flex-shrink:0;
+}
+.ch-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:800}
+.ch-title{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--h);line-height:1.2}
+.ch-badge{margin-left:auto;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);font-weight:700;border:1px solid var(--gold-border);padding:2px 7px;border-radius:2px;white-space:nowrap}
+.ch-body{padding:20px 24px}
 
-/* ── 03 DUPONT waterfall ──────────────────────────────────── */
-#dupont{display:flex;gap:14px;align-items:flex-end;margin-top:48px;flex-wrap:wrap}
-.dp{flex:1;min-width:120px;text-align:center}
-.dp-bar{width:100%;border-radius:10px 10px 4px 4px;height:0;transition:height 1s cubic-bezier(.3,.7,.3,1);position:relative}
-.dp-bar.op{background:linear-gradient(180deg,var(--cyan),rgba(61,224,200,.25))}
-.dp-bar.lv{background:linear-gradient(180deg,var(--violet),rgba(138,125,255,.25))}
-.dp-bar.tot{background:linear-gradient(180deg,var(--gold),rgba(233,180,76,.25));box-shadow:0 0 24px rgba(233,180,76,.25)}
-.dp-val{font-family:var(--mono);font-size:17px;margin-top:10px}
-.dp-nm{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;margin-top:4px}
-.dp-op{font-family:var(--mono);font-size:24px;color:var(--faint);padding-bottom:64px}
-#dupont-text{margin-top:30px;font-size:14px;color:var(--dim);max-width:720px}
-#dupont-text b{color:var(--ink)}
+/* ─── STAT GRID (metric cards) ─────────────────────── */
+.stat-grid{display:grid;gap:0}
+.stat-grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.stat-grid.cols-4{grid-template-columns:repeat(4,1fr)}
+.stat-grid.cols-2{grid-template-columns:repeat(2,1fr)}
+.stat-card{padding:16px 18px;border-right:1px solid var(--border-lt);border-bottom:1px solid var(--border-lt)}
+.stat-card:nth-child(3n){border-right:none}
+.stat-card.full{border-right:none}
+.sc-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:800;margin-bottom:6px}
+.sc-val{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--h);line-height:1;font-variant-numeric:tabular-nums}
+.sc-val.g{color:var(--green)}.sc-val.r{color:var(--red)}.sc-val.y{color:var(--orange)}
+.sc-sub{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.4}
+.sc-tag{display:inline-block;margin-top:6px;font-size:8.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:2px}
+.sc-tag.g{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.sc-tag.r{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.sc-tag.y{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border)}
+.sc-tag.n{background:var(--card-alt);color:var(--muted);border:1px solid var(--border-lt)}
 
-/* ── 04 HEALTH dials + trends ─────────────────────────────── */
-.h-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-top:42px}
-.h-card{padding:20px}
-.h-nm{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase}
-.h-val{font-family:var(--mono);font-size:27px;margin:10px 0 2px}
-.h-val.ok{color:var(--green)} .h-val.warn{color:var(--gold)} .h-val.bad{color:var(--red)}
-.h-sub{font-size:11.5px;color:var(--faint)}
-#trend-strip{margin-top:26px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
-.tr-card{padding:20px}
-.tr-nm{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;margin-bottom:14px}
-.tr-bars{display:flex;align-items:flex-end;gap:5px;height:74px}
-.tr-bars i{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(180deg,rgba(61,224,200,.85),rgba(61,224,200,.2));height:0;transition:height .8s cubic-bezier(.3,.7,.3,1)}
-.tr-yrs{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:8px}
+/* ─── ANALYSIS TEXT ─────────────────────────────────── */
+.analysis-box{
+  padding:14px 18px;background:var(--gold-bg);
+  border-left:3px solid var(--gold);border-radius:0;
+  font-family:var(--serif);font-style:italic;font-size:13px;
+  line-height:1.65;color:var(--p);
+}
+.analysis-box strong{font-style:normal;font-weight:700;color:var(--h)}
 
-/* ── 05 SIMULATOR ─────────────────────────────────────────── */
-#sim-grid{display:grid;grid-template-columns:minmax(280px,1fr) minmax(0,1.25fr);gap:28px;margin-top:42px;align-items:start}
-@media(max-width:1000px){#sim-grid{grid-template-columns:1fr}}
-.sim-panel{padding:26px}
-.s-row{margin-bottom:22px}
-.s-head{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:9px}
-.s-head .k{color:var(--dim)} .s-head .v{color:var(--cyan)}
-.s-row input[type=range]{width:100%;accent-color:var(--cyan);height:4px;cursor:pointer}
-.s-sub{font-size:11px;color:var(--faint);margin-top:6px}
-#wacc-line{font-family:var(--mono);font-size:12px;color:var(--dim);border-top:1px solid var(--line);padding-top:16px;margin-top:4px;line-height:2}
-#wacc-line b{color:var(--violet)}
-#fv-readout{text-align:center;padding:30px 26px}
-#fv-big{font-family:var(--mono);font-size:54px;font-weight:600;letter-spacing:-.02em;transition:color .3s}
-#fv-up{font-family:var(--mono);font-size:15px;margin-top:6px}
-#fv-mos{margin-top:18px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding:7px 18px;border-radius:99px;display:inline-block}
-#fv-mos.ok{color:var(--green);background:var(--green-dim);border:1px solid rgba(70,224,138,.35)}
-#fv-mos.warn{color:var(--gold);background:var(--gold-dim);border:1px solid rgba(233,180,76,.3)}
-#fv-mos.bad{color:var(--red);background:var(--red-dim);border:1px solid rgba(255,93,93,.3)}
-#heat{margin-top:22px}
-#heat .hd{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;margin-bottom:12px}
-#heat table{border-collapse:separate;border-spacing:4px;width:100%}
-#heat td,#heat th{font-family:var(--mono);font-size:10.5px;text-align:center;padding:8px 4px;border-radius:7px}
-#heat th{color:var(--faint);font-weight:400}
-#heat td{background:rgba(140,160,200,.07);color:var(--dim);transition:all .3s}
-#heat td.hot{background:rgba(61,224,200,.22);color:var(--cyan);box-shadow:0 0 14px rgba(61,224,200,.25);font-weight:600}
-#sim-note{margin-top:20px;font-size:12.5px;color:var(--faint)}
-#sim-note b{color:var(--dim)}
+/* ─── DUPONT WATERFALL ─────────────────────────────── */
+.dupont-wrap{display:flex;flex-direction:column;gap:4px;padding:4px 0}
+.dp-row{display:flex;align-items:center;gap:0}
+.dp-label{font-size:11px;color:var(--muted);width:140px;flex-shrink:0;text-align:right;padding-right:14px}
+.dp-bar-wrap{flex:1;position:relative;height:28px;display:flex;align-items:center}
+.dp-bar{height:16px;border-radius:2px;min-width:4px;transition:width .6s ease}
+.dp-bar.g{background:var(--green)}
+.dp-bar.y{background:var(--orange)}
+.dp-bar.r{background:var(--red)}
+.dp-bar.n{background:var(--border)}
+.dp-val{margin-left:8px;font-family:var(--serif);font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--h);white-space:nowrap}
+.dp-connector{border-left:1px dotted var(--border-lt);margin:0 2px;height:4px;align-self:flex-end}
 
-footer{position:relative;z-index:1;padding:70px 8vw 60px;text-align:center}
-.foot-note{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase}
-@media (prefers-reduced-motion: reduce){
-  *,*::before,*::after{animation:none!important;transition:none!important}
-  .rv{opacity:1;transform:none}
+/* ─── TREND CHART (inline SVG sparklines) ───────────── */
+.trend-chart{width:100%;height:80px;display:block}
+
+/* ─── SENSITIVITY MATRIX ─────────────────────────────── */
+.matrix-wrap{overflow-x:auto}
+.matrix-table{border-collapse:collapse;font-size:11px;font-variant-numeric:tabular-nums}
+.matrix-table th{background:var(--bg2);padding:6px 10px;font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:800;text-align:center;border:1px solid var(--border)}
+.matrix-table td{padding:7px 10px;text-align:center;border:1px solid var(--border-lt);font-weight:700;min-width:70px;font-size:12px}
+.cell-g3{background:#d4edda;color:#1a5c2e}
+.cell-g2{background:#e4f3e8;color:var(--green)}
+.cell-g1{background:#f0f9f2;color:var(--green)}
+.cell-n{background:var(--card-alt);color:var(--muted)}
+.cell-r1{background:#fdf0f0;color:var(--red)}
+.cell-r2{background:var(--red-bg);color:var(--red)}
+.cell-r3{background:#f4c8c4;color:#7a1a12}
+.matrix-axis{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:800;text-align:center;padding:4px 0}
+
+/* ─── SCORE COMPOSITE ───────────────────────────────── */
+.score-section{padding:24px 24px 20px}
+.score-pillars{display:grid;grid-template-columns:repeat(5,1fr);gap:0}
+.pillar{padding:14px 16px;border-right:1px solid var(--border-lt);text-align:center}
+.pillar:last-child{border-right:none}
+.pillar-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:800;margin-bottom:8px;line-height:1.3}
+.pillar-score{font-family:var(--serif);font-size:32px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.pillar-score.g{color:var(--green)}.pillar-score.y{color:var(--orange)}.pillar-score.r{color:var(--red)}
+.pillar-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:6px}
+.pillar-fill{height:100%;border-radius:2px}
+.pillar-fill.g{background:var(--green)}
+.pillar-fill.y{background:var(--orange)}
+.pillar-fill.r{background:var(--red)}
+.pillar-weight{font-size:9px;color:var(--faint);margin-top:4px}
+.score-final-row{display:flex;align-items:center;gap:24px;padding:20px 24px 16px;border-top:1px solid var(--border)}
+.score-final-num{font-family:var(--serif);font-size:56px;font-weight:700;color:var(--h);line-height:1;font-variant-numeric:tabular-nums}
+.score-final-verdict{display:flex;flex-direction:column;gap:6px}
+.sfv-signal{font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--green)}
+.sfv-sub{font-size:12px;color:var(--muted);line-height:1.4}
+.sfv-tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:4px 12px;border-radius:2px;background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+
+/* ─── HEALTH INDICATORS ─────────────────────────────── */
+.health-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-lt)}
+.health-row:last-child{border-bottom:none}
+.hr-label{font-size:11px;color:var(--muted);width:160px;flex-shrink:0}
+.hr-val{font-family:var(--serif);font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--h);width:80px;flex-shrink:0}
+.hr-bench{font-size:11px;color:var(--faint);flex:1}
+.hr-sig{font-size:8.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:2px 8px;border-radius:2px;flex-shrink:0}
+.hr-sig.g{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.hr-sig.r{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.hr-sig.y{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border)}
+
+/* ─── FOOTER ─────────────────────────────────────────── */
+.page-footer{background:var(--h);color:rgba(245,240,230,.45);font-size:10px;text-align:center;padding:14px 24px;letter-spacing:.5px;margin-top:24px;padding-bottom:32px}
+.page-footer strong{color:rgba(245,240,230,.75)}
+.page-footer a{color:var(--gold);text-decoration:none}
+
+/* ─── WACC GRID ─────────────────────────────────────── */
+.wacc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:4px 0}
+.wacc-card{background:var(--card-alt);border:1px solid var(--border-lt);border-radius:4px;padding:12px 14px}
+.wc-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:800;margin-bottom:4px}
+.wc-val{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--h);font-variant-numeric:tabular-nums;line-height:1}
+.wc-sub{font-size:10px;color:var(--muted);margin-top:3px}
+
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+@media(max-width:900px){
+  .stat-grid.cols-3{grid-template-columns:repeat(2,1fr)}
+  .stat-grid.cols-4{grid-template-columns:repeat(2,1fr)}
+  .score-pillars{grid-template-columns:repeat(3,1fr)}
+  .cover-verdict{font-size:32px}
+  .cover-company{font-size:26px}
+}
+@media(max-width:640px){
+  .mast-top{padding:10px 16px}.mast-logo{font-size:22px;letter-spacing:6px}
+  .page{padding:12px 12px 0}
+  .cover{padding:20px 16px 18px}
+  .cover-company{font-size:22px}
+  .cover-verdict{font-size:26px}
+  .stat-grid.cols-3,.stat-grid.cols-4{grid-template-columns:1fr 1fr}
+  .score-pillars{grid-template-columns:repeat(2,1fr)}
+  .wacc-grid{grid-template-columns:1fr 1fr}
+  .ch-body{padding:14px 14px}
+  .dupont-wrap .dp-label{width:100px;font-size:10px}
+  .health-row{flex-wrap:wrap}
 }
 </style>
 </head>
 <body>
 
-<canvas id="field"></canvas>
-<div class="aurora a1"></div><div class="aurora a2"></div>
-
-<header>
-  <a class="logo" href="index.html">SAINHE<b>//NEO</b></a>
-  <nav>
-    <a class="back" href="index.html">← Dashboard</a>
-    <a href="#verdict">Verdict</a><a href="#score">Score</a><a href="#dupont">DuPont</a>
-    <a href="#health">Health</a><a href="#simulator">Simulator</a>
-  </nav>
-  <div class="demo-tag">Concept N-1 · Demo data</div>
+<header class="masthead">
+  <div class="mast-top">
+    <div class="mast-logo">SAINHE</div>
+    <div class="mast-right">
+      <span class="mast-edition">Intelligence Parlante · Stock Analysis</span>
+      <span class="mast-date">Friday, June 13, 2026</span>
+    </div>
+  </div>
+  <div class="mast-byline">Valuation · DuPont · Trends · Financial Health · Sensitivity · Composite Score</div>
 </header>
 
-<main>
+<nav class="nav-strip">
+  <a href="index.html" class="nav-link">← Dashboard</a>
+  <a href="#" class="nav-link active">Stock Analysis</a>
+  <a href="#ch-1" class="nav-link">I. Valuation</a>
+  <a href="#ch-2" class="nav-link">II. DuPont</a>
+  <a href="#ch-3" class="nav-link">III. Trends</a>
+  <a href="#ch-4" class="nav-link">IV. Health</a>
+  <a href="#ch-5" class="nav-link">V. Sensitivity</a>
+  <a href="#ch-6" class="nav-link">VI. Score</a>
+</nav>
 
-<!-- ═══ HERO: the 30-company universe ══════════════════════ -->
-<section id="hero">
-  <div class="sec-id rv">Stock analysis · EDGAR pipeline</div>
-  <h1 class="rv d1">Thirty companies.<br>One <b>dossier engine</b>.</h1>
-  <p class="lede rv d2">Every ticker below went through the same machine: EDGAR 10-K facts →
-  normalized FCF → EPV &amp; residual-income valuation → DuPont → balance-sheet forensics →
-  composite score. <em>Click a glowing node to open its dossier.</em> Position on the axis = composite score.</p>
+<div class="concept-banner">Concept — Creative frontend revisit · SAINHE spirit preserved · All backend blocs represented · Static mock data for NVDA</div>
 
-  <div id="spectrum-wrap" class="rv d3">
-    <div id="spectrum"></div>
-    <div id="spectrum-note">● <b>cyan</b> = full dossier loaded · grey = in pipeline queue · gold = selected</div>
+<!-- ═══════════════════════════════════════════ COVER -->
+<div class="cover">
+  <div class="cover-inner">
+    <div class="cover-eyebrow">Dossier d'Analyse · SAINHE Stock Analysis Engine</div>
+    <div class="cover-company">NVIDIA Corporation</div>
+    <div class="cover-meta">
+      <span class="cover-ticker">NASDAQ: NVDA</span>
+      <span class="cover-sep">|</span>
+      <span class="cover-price">$1,142.08</span>
+      <span class="cover-chg-up">+$24.4 (+2.18%)</span>
+      <span class="cover-sep">|</span>
+      <span class="cover-mktcap">Mkt Cap $2.80T · Semiconductors · S&amp;P 500</span>
+    </div>
+    <div class="cover-verdict-row">
+      <div>
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:rgba(245,240,230,.4);font-weight:800;margin-bottom:4px">Composite Verdict</div>
+        <div class="cover-verdict" style="color:#8CC99C">BUY</div>
+      </div>
+      <div class="cover-score-bar">
+        <div class="score-label">Composite Score: 74 / 100</div>
+        <div class="score-track"><div class="score-fill buy" style="width:74%"></div></div>
+        <div class="score-pills">
+          <span class="sc-pill g">Valuation ✓</span>
+          <span class="sc-pill g">Quality ✓</span>
+          <span class="sc-pill g">Momentum ✓</span>
+          <span class="sc-pill y">Growth ≈</span>
+          <span class="sc-pill y">Health ≈</span>
+        </div>
+      </div>
+    </div>
   </div>
-</section>
-
-<!-- sticky identity strip -->
-<div id="identity">
-  <span id="id-tk">—</span><span id="id-nm">—</span>
-  <span class="id-kv">FY <b id="id-fy">—</b></span>
-  <span class="id-kv">Price <b id="id-px">—</b></span>
-  <span class="id-kv">β <b id="id-beta">—</b></span>
-  <span id="id-score-mini">Composite <b id="id-score">—</b>/100</span>
 </div>
 
-<!-- ═══ 01 VERDICT ═════════════════════════════════════════ -->
-<section id="verdict">
-  <div class="sec-id rv">01 · Verdict</div>
-  <h2 class="rv">Price vs. <b>value beam.</b></h2>
-  <p class="lede rv d1">The market's number and ours, on one axis. The shaded band is the EPV
-  confidence range (FCF p25–p75) — when price sits left of the band, the margin of safety is real,
-  not rhetorical.</p>
+<main class="page">
 
-  <div id="verdict-grid" class="rv d2">
-    <div class="panel" id="beam-panel">
-      <div id="beam">
-        <div id="mos-band"></div>
-        <div class="beam-mark px" id="mark-px"><div class="lab">Price</div><div class="val"></div><div class="pin"></div></div>
-        <div class="beam-mark epv" id="mark-epv"><div class="pin"></div><div class="val"></div><div class="lab">EPV / share</div></div>
-        <div id="beam-axis"></div>
-      </div>
-      <div id="verdict-line"></div>
-    </div>
-    <div class="v-cards">
-      <div class="panel v-card">
-        <div class="t">Reverse DCF — implied growth</div>
-        <div class="big mono" id="v-rdcf">—</div>
-        <div class="sub">What the current price <b>assumes forever</b>. Below 0%: the market prices decay.</div>
-      </div>
-      <div class="panel v-card">
-        <div class="t">WACC sensitivity ±100 bps</div>
-        <div class="big mono" id="v-wacc-sens">—</div>
-        <div class="sub">EPV/share at WACC −1pt · central · +1pt</div>
-      </div>
-      <div class="panel v-card">
-        <div class="t">Street consensus</div>
-        <div class="big mono" id="v-cons">—</div>
-        <div class="sub" id="v-cons-sub">—</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ 02 SCORE ═══════════════════════════════════════════ -->
-<section id="score">
-  <div class="sec-id rv">02 · Composite score</div>
-  <h2 class="rv">Five pillars. <b>Your weights.</b></h2>
-  <p class="lede rv d1">The backend ships default weights — but conviction is personal.
-  Drag the violet sliders and watch the composite re-price <em>live</em>. The ring never lies
-  about what you chose to care about.</p>
-
-  <div id="score-grid" class="rv d2">
-    <div id="score-ring">
-      <svg viewBox="0 0 100 100">
-        <defs><linearGradient id="sgrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#3de0c8"/><stop offset="1" stop-color="#8a7dff"/>
-        </linearGradient></defs>
-        <circle class="trk" cx="50" cy="50" r="43"/>
-        <circle class="arc" id="score-arc" cx="50" cy="50" r="43"/>
-      </svg>
-      <div id="score-c"><b id="score-val">0</b><span>Composite /100</span></div>
-    </div>
-    <div class="panel" id="pillars"></div>
-  </div>
-  <div id="score-note" class="rv d3">Weights auto-normalize to 100% · backend note: « pondérations modifiables par l'utilisateur »</div>
-</section>
-
-<!-- ═══ 03 DUPONT ══════════════════════════════════════════ -->
-<section id="dupont-sec">
-  <div class="sec-id rv">03 · DuPont</div>
-  <h2 class="rv" id="dupont">ROE, <b>decomposed.</b></h2>
-  <p class="lede rv d1">Penman decomposition: operating return (RNOA) plus the leverage game
-  (FLEV × SPREAD). Bars grow to scale — you see <em>where</em> the return is manufactured,
-  operations or balance sheet.</p>
-
-  <div id="dupont" class="rv d2" style="display:flex;gap:14px;align-items:flex-end;margin-top:48px;flex-wrap:wrap">
-    <div class="dp"><div class="dp-bar op" id="dp-rnoa"></div><div class="dp-val" id="dpv-rnoa">—</div><div class="dp-nm">RNOA · operating</div></div>
-    <div class="dp-op">+</div>
-    <div class="dp"><div class="dp-bar lv" id="dp-lev"></div><div class="dp-val" id="dpv-lev">—</div><div class="dp-nm">FLEV × SPREAD · leverage gain</div></div>
-    <div class="dp-op">=</div>
-    <div class="dp"><div class="dp-bar tot" id="dp-roe"></div><div class="dp-val" id="dpv-roe">—</div><div class="dp-nm">ROE</div></div>
-  </div>
-  <div id="dupont-text" class="rv d3"></div>
-</section>
-
-<!-- ═══ 04 HEALTH ══════════════════════════════════════════ -->
-<section id="health">
-  <div class="sec-id rv">04 · Balance-sheet forensics</div>
-  <h2 class="rv">Can it <b>survive winter?</b></h2>
-  <p class="lede rv d1">Debt payback from real cash flow, interest coverage, the cash-conversion
-  cycle day by day, and whether earnings are cash or accruals. Green means the number clears
-  its threshold — thresholds live in config, not vibes.</p>
-  <div class="h-grid rv d2" id="h-cards"></div>
-  <div id="trend-strip" class="rv d3">
-    <div class="panel tr-card"><div class="tr-nm">ROIC · 10y</div><div class="tr-bars" id="tr-roic"></div><div class="tr-yrs"><span id="tr-y0"></span><span id="tr-y9"></span></div></div>
-    <div class="panel tr-card"><div class="tr-nm">Gross margin · 10y</div><div class="tr-bars" id="tr-gm"></div><div class="tr-yrs"><span id="tr-y0b"></span><span id="tr-y9b"></span></div></div>
-  </div>
-</section>
-
-<!-- ═══ 05 SIMULATOR ═══════════════════════════════════════ -->
-<section id="simulator">
-  <div class="sec-id rv">05 · Simulator</div>
-  <h2 class="rv">Bend the future. <b>Watch value move.</b></h2>
-  <p class="lede rv d1">Four levers — perpetual growth, operating margin, beta, risk-free rate.
-  WACC rebuilds itself (r<sub>f</sub> + β·ERP, blended with after-tax debt), fair value re-prices
-  on every pixel of slider travel, and the sensitivity grid lights the cell you're standing in.</p>
-
-  <div id="sim-grid" class="rv d2">
-    <div class="panel sim-panel">
-      <div class="s-row">
-        <div class="s-head"><span class="k">Perpetual growth g</span><span class="v" id="sv-g">2.8%</span></div>
-        <input type="range" id="s-g" min="-2" max="6" step="0.1" value="2.8">
-        <div class="s-sub">Anchor: reverse-DCF implied g — what price already assumes</div>
-      </div>
-      <div class="s-row">
-        <div class="s-head"><span class="k">Operating margin</span><span class="v" id="sv-m">20.0%</span></div>
-        <input type="range" id="s-m" min="5" max="45" step="0.5" value="20">
-        <div class="s-sub">Normalized NOPAT margin on revenue</div>
-      </div>
-      <div class="s-row">
-        <div class="s-head"><span class="k">Beta β</span><span class="v" id="sv-b">1.10</span></div>
-        <input type="range" id="s-b" min="0.5" max="2.2" step="0.05" value="1.1">
-        <div class="s-sub">Levered beta vs market — feeds cost of equity</div>
-      </div>
-      <div class="s-row">
-        <div class="s-head"><span class="k">Risk-free rate</span><span class="v" id="sv-rf">4.2%</span></div>
-        <input type="range" id="s-rf" min="2" max="7" step="0.1" value="4.2">
-        <div class="s-sub">10Y Treasury — the gravity of all valuation</div>
-      </div>
-      <div id="wacc-line"></div>
-    </div>
-
+<!-- ═══════════════════════════════════════ I. VALUATION -->
+<div class="chapter" id="ch-1">
+  <div class="chapter-head">
+    <div class="ch-num">I.</div>
     <div>
-      <div class="panel" id="fv-readout">
-        <div class="h-nm">Fair value / share</div>
-        <div id="fv-big">—</div>
-        <div id="fv-up"></div>
-        <div id="fv-mos"></div>
-      </div>
-      <div class="panel" id="heat">
-        <div class="hd">Sensitivity — fair value across margin × growth</div>
-        <table id="heat-tbl"></table>
-        <div id="sim-note"><b>Live cell</b> tracks your sliders. The backend ships this exact
-        matrix per company (bloc H) — here it recomputes client-side.</div>
+      <div class="ch-eyebrow">Bloc A — Valuation</div>
+      <div class="ch-title">Intrinsic Value &amp; Market Price</div>
+    </div>
+    <div class="ch-badge">EPV · Reverse-DCF · WACC</div>
+  </div>
+
+  <div class="stat-grid cols-3">
+    <div class="stat-card">
+      <div class="sc-label">EPV (Earnings Power Value)</div>
+      <div class="sc-val g">$1,048</div>
+      <div class="sc-sub">NOPAT / WACC · No-growth value</div>
+      <span class="sc-tag y">8.2% below market</span>
+    </div>
+    <div class="stat-card">
+      <div class="sc-label">Reverse-DCF Implied Growth</div>
+      <div class="sc-val y">+24.8%</div>
+      <div class="sc-sub">Growth baked into current price at WACC 9.4%</div>
+      <span class="sc-tag y">High but defensible</span>
+    </div>
+    <div class="stat-card">
+      <div class="sc-label">WACC</div>
+      <div class="sc-val">9.4%</div>
+      <div class="sc-sub">Cost of equity 11.2% · Debt 4.8% · Lev 8%</div>
+      <span class="sc-tag n">Base case</span>
+    </div>
+    <div class="stat-card">
+      <div class="sc-label">P/E (Trailing)</div>
+      <div class="sc-val r">×58.4</div>
+      <div class="sc-sub">EPS (TTM) $19.58 · Sector median ×28</div>
+      <span class="sc-tag r">Premium · Elevated</span>
+    </div>
+    <div class="stat-card">
+      <div class="sc-label">P/FCF</div>
+      <div class="sc-val r">×48.2</div>
+      <div class="sc-sub">FCF $23.6B TTM · Sector median ×22</div>
+      <span class="sc-tag r">Rich</span>
+    </div>
+    <div class="stat-card">
+      <div class="sc-label">EV/EBITDA</div>
+      <div class="sc-val r">×42.1</div>
+      <div class="sc-sub">EV $2.82T · EBITDA $67.0B TTM</div>
+      <span class="sc-tag r">Premium</span>
+    </div>
+  </div>
+
+  <div class="ch-body">
+    <div class="analysis-box">
+      "At <strong>$1,142</strong>, the market prices in an implied perpetual growth rate of <strong>24.8%</strong> above WACC — aggressive by any historical standard. The EPV of <strong>$1,048</strong> suggests the current price demands near-flawless execution of data center expansion through FY2028. The margin of safety is thin. The stock earns a <strong>Buy signal</strong> only on the strength of its ROIC far exceeding its cost of capital, and the structural AI infrastructure cycle being early-innings."
+    </div>
+
+    <div style="margin-top:20px">
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:800;margin-bottom:14px">WACC Sensitivity Components</div>
+      <div class="wacc-grid">
+        <div class="wacc-card">
+          <div class="wc-label">Risk-Free Rate</div>
+          <div class="wc-val">4.28%</div>
+          <div class="wc-sub">US 10Y Treasury · current</div>
+        </div>
+        <div class="wacc-card">
+          <div class="wc-label">Equity Risk Premium</div>
+          <div class="wc-val">5.81%</div>
+          <div class="wc-sub">Damodaran Jan 2026 · US</div>
+        </div>
+        <div class="wacc-card">
+          <div class="wc-label">Beta (5Y monthly)</div>
+          <div class="wc-val">1.72</div>
+          <div class="wc-sub">vs S&amp;P 500</div>
+        </div>
       </div>
     </div>
   </div>
-</section>
+</div>
+
+<!-- ═══════════════════════════════════════ II. DUPONT -->
+<div class="chapter" id="ch-2">
+  <div class="chapter-head">
+    <div class="ch-num">II.</div>
+    <div>
+      <div class="ch-eyebrow">Bloc C — DuPont Decomposition</div>
+      <div class="ch-title">Return on Equity — Extended Analysis</div>
+    </div>
+    <div class="ch-badge">ROE · RNOA · FLEV · SPREAD</div>
+  </div>
+
+  <div class="stat-grid cols-4">
+    <div class="stat-card">
+      <div class="sc-label">ROE</div>
+      <div class="sc-val g">124.8%</div>
+      <div class="sc-sub">Net income / Avg equity · Top decile</div>
+      <span class="sc-tag g">Exceptional</span>
+    </div>
+    <div class="stat-card">
+      <div class="sc-label">RNOA (Op. Return)</div>
+      <div class="sc-val g">112.4%</div>
+      <div class="sc-sub">NOPAT / Avg net operating assets</div>
+      <span class="sc-tag g">ROIC driver</span>
+    </div>
+    <div class="stat-card">
+      <div class="sc-label">SPREAD (RNOA − WACC)</div>
+      <div class="sc-val g">+103.0%</div>
+      <div class="sc-sub">RNOA 112.4% − WACC 9.4%</div>
+      <span class="sc-tag g">Wide moat</span>
+    </div>
+    <div class="stat-card">
+      <div class="sc-label">FLEV × SPREAD</div>
+      <div class="sc-val g">+12.4%</div>
+      <div class="sc-sub">Financial leverage contribution to ROE</div>
+      <span class="sc-tag n">Modest leverage</span>
+    </div>
+  </div>
+
+  <div class="ch-body">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:800;margin-bottom:12px">ROE Waterfall Decomposition</div>
+    <div class="dupont-wrap">
+      <div class="dp-row">
+        <div class="dp-label">Net Margin</div>
+        <div class="dp-bar-wrap">
+          <div class="dp-bar g" style="width:55%"></div>
+          <div class="dp-val">55.0%</div>
+        </div>
+      </div>
+      <div class="dp-row">
+        <div class="dp-label">Asset Turnover</div>
+        <div class="dp-bar-wrap">
+          <div class="dp-bar g" style="width:38%"></div>
+          <div class="dp-val">0.38×</div>
+        </div>
+      </div>
+      <div class="dp-row">
+        <div class="dp-label">Equity Multiplier</div>
+        <div class="dp-bar-wrap">
+          <div class="dp-bar y" style="width:21%"></div>
+          <div class="dp-val">2.1×</div>
+        </div>
+      </div>
+      <div class="dp-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:4px">
+        <div class="dp-label" style="font-weight:700;color:var(--h)">ROE (product)</div>
+        <div class="dp-bar-wrap">
+          <div class="dp-bar g" style="width:80%"></div>
+          <div class="dp-val" style="font-size:16px;font-weight:800;color:var(--green)">124.8%</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px">
+      <div class="analysis-box">
+        "NVDA's ROE of <strong>124.8%</strong> is almost entirely driven by operational performance — RNOA of <strong>112.4%</strong> dwarfs the WACC of 9.4%, resulting in a spread of <strong>+103 percentage points</strong>. This is not financial engineering: net margins of 55% reflect near-monopoly pricing power in the H200/Blackwell generation. The leverage contribution (FLEV × SPREAD = +12.4%) is incidental. Every dollar of operating capital creates exceptional surplus value."
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ III. TRENDS -->
+<div class="chapter" id="ch-3">
+  <div class="chapter-head">
+    <div class="ch-num">III.</div>
+    <div>
+      <div class="ch-eyebrow">Bloc D — 10-Year Trends</div>
+      <div class="ch-title">ROIC, Margins &amp; Capital Efficiency</div>
+    </div>
+    <div class="ch-badge">ROIC · Gross Margin · FCF Yield</div>
+  </div>
+
+  <div class="stat-grid cols-3">
+    <div class="stat-card">
+      <div class="sc-label">ROIC (TTM)</div>
+      <div class="sc-val g">108.2%</div>
+      <div class="sc-sub">10Y average: 28.4% · FY21 peak prior: 44%</div>
+      <span class="sc-tag g">Step-change improvement</span>
+    </div>
+    <div class="stat-card">
+      <div class="sc-label">Gross Margin (TTM)</div>
+      <div class="sc-val g">72.8%</div>
+      <div class="sc-sub">10Y avg 57.2% · Expanding +15pp since FY22</div>
+      <span class="sc-tag g">Structural improvement</span>
+    </div>
+    <div class="stat-card">
+      <div class="sc-label">FCF Margin (TTM)</div>
+      <div class="sc-val g">48.4%</div>
+      <div class="sc-sub">FCF $26.1B · Revenue $53.9B</div>
+      <span class="sc-tag g">Exceptional cash gen.</span>
+    </div>
+  </div>
+
+  <div class="ch-body">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:800;margin-bottom:8px">ROIC Trend — 10 Years (Annual)</div>
+    <svg class="trend-chart" viewBox="0 0 600 80" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2C7A3E" stop-opacity=".25"/>
+          <stop offset="100%" stop-color="#2C7A3E" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="M0,71 L66,69 L132,67 L198,70 L264,63 L330,61 L396,55 L462,58 L528,52 L594,8" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M0,71 L66,69 L132,67 L198,70 L264,63 L330,61 L396,55 L462,58 L528,52 L594,8 L594,80 L0,80 Z" fill="url(#g1)"/>
+      <circle cx="594" cy="8" r="4" fill="var(--green)"/>
+      <text x="0" y="78" fill="#8A7E6E" font-size="8" text-anchor="start">FY17</text>
+      <text x="594" y="78" fill="#8A7E6E" font-size="8" text-anchor="end">FY26</text>
+      <text x="594" y="6" fill="var(--green)" font-size="9" font-weight="bold" text-anchor="end">108%</text>
+    </svg>
+
+    <div style="margin-top:16px;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:800;margin-bottom:8px">Gross Margin Trend — 10 Years</div>
+    <svg class="trend-chart" viewBox="0 0 600 80" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#9E7A2E" stop-opacity=".2"/>
+          <stop offset="100%" stop-color="#9E7A2E" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="M0,35 L66,32 L132,29 L198,42 L264,24 L330,20 L396,17 L462,38 L528,22 L594,5" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M0,35 L66,32 L132,29 L198,42 L264,24 L330,20 L396,17 L462,38 L528,22 L594,5 L594,80 L0,80 Z" fill="url(#g2)"/>
+      <circle cx="594" cy="5" r="4" fill="var(--gold)"/>
+      <text x="0" y="78" fill="#8A7E6E" font-size="8" text-anchor="start">FY17</text>
+      <text x="594" y="78" fill="#8A7E6E" font-size="8" text-anchor="end">FY26</text>
+      <text x="594" y="3" fill="var(--gold)" font-size="9" font-weight="bold" text-anchor="end">72.8%</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ IV. HEALTH -->
+<div class="chapter" id="ch-4">
+  <div class="chapter-head">
+    <div class="ch-num">IV.</div>
+    <div>
+      <div class="ch-eyebrow">Bloc E — Financial Health</div>
+      <div class="ch-title">Balance Sheet &amp; Cash Forensics</div>
+    </div>
+    <div class="ch-badge">ND/EBITDA · CCC · Coverage · OCF/NI</div>
+  </div>
+
+  <div class="ch-body">
+    <div class="health-row">
+      <div class="hr-label">ND / EBITDA</div>
+      <div class="hr-val g">−0.84×</div>
+      <div class="hr-bench">Net cash position · Benchmark: &lt;2.5× healthy</div>
+      <span class="hr-sig g">STRONG</span>
+    </div>
+    <div class="health-row">
+      <div class="hr-label">Interest Coverage</div>
+      <div class="hr-val g">218×</div>
+      <div class="hr-bench">EBIT / Net interest expense · Benchmark: &gt;5× safe</div>
+      <span class="hr-sig g">EXCEPTIONAL</span>
+    </div>
+    <div class="health-row">
+      <div class="hr-label">Cash Conversion Cycle</div>
+      <div class="hr-val y">62 days</div>
+      <div class="hr-bench">DSO 42d + DIO 84d − DPO 64d · Sector avg 45d</div>
+      <span class="hr-sig y">ELEVATED</span>
+    </div>
+    <div class="health-row">
+      <div class="hr-label">OCF / Net Income</div>
+      <div class="hr-val g">1.08×</div>
+      <div class="hr-bench">Operating cash vs reported earnings · &gt;0.9 = quality</div>
+      <span class="hr-sig g">HIGH QUALITY</span>
+    </div>
+    <div class="health-row">
+      <div class="hr-label">Current Ratio</div>
+      <div class="hr-val g">4.17×</div>
+      <div class="hr-bench">Current assets / Current liabilities · Benchmark: &gt;1.5</div>
+      <span class="hr-sig g">STRONG</span>
+    </div>
+    <div class="health-row">
+      <div class="hr-label">Altman Z-Score</div>
+      <div class="hr-val g">12.8</div>
+      <div class="hr-bench">Discriminant analysis · &gt;3.0 safe zone</div>
+      <span class="hr-sig g">SAFE ZONE</span>
+    </div>
+    <div class="health-row">
+      <div class="hr-label">Piotroski F-Score</div>
+      <div class="hr-val g">8 / 9</div>
+      <div class="hr-bench">9-factor financial health score · &gt;7 = strong</div>
+      <span class="hr-sig g">STRONG</span>
+    </div>
+    <div class="health-row">
+      <div class="hr-label">Beneish M-Score</div>
+      <div class="hr-val g">−3.12</div>
+      <div class="hr-bench">Earnings manipulation model · &lt;−2.22 = unlikely</div>
+      <span class="hr-sig g">NO FLAGS</span>
+    </div>
+
+    <div style="margin-top:16px">
+      <div class="analysis-box">
+        "NVDA's balance sheet is fortress-grade. Net debt is <strong>negative</strong> (net cash of ~$7B), interest coverage is <strong>218×</strong>, and operating cash flow exceeds reported earnings (OCF/NI = 1.08×), confirming earnings quality. The sole concern is the elevated Cash Conversion Cycle of <strong>62 days</strong> driven by longer inventory days as Blackwell supply ramps — a transient, supply-chain explanation rather than a structural deterioration."
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════ V. SENSITIVITY MATRIX -->
+<div class="chapter" id="ch-5">
+  <div class="chapter-head">
+    <div class="ch-num">V.</div>
+    <div>
+      <div class="ch-eyebrow">Bloc H — Sensitivity Analysis</div>
+      <div class="ch-title">Margin × Revenue Growth Scenario Matrix</div>
+    </div>
+    <div class="ch-badge">DCF · Bull/Base/Bear</div>
+  </div>
+
+  <div class="ch-body">
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Implied equity value per share under different operating margin (rows) and revenue CAGR scenarios (columns) at WACC 9.4%. <span style="color:var(--green);font-weight:700">Green</span> = upside vs current price. <span style="color:var(--red);font-weight:700">Red</span> = downside.</p>
+
+    <div class="matrix-wrap">
+      <div class="matrix-axis">Revenue CAGR →</div>
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">Op. Margin ↓</th>
+            <th>+15%</th>
+            <th>+20%</th>
+            <th>+25%</th>
+            <th>+30%</th>
+            <th>+35%</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th style="text-align:left;background:var(--bg2);padding:6px 10px;font-size:9px;letter-spacing:.5px;text-transform:uppercase;font-weight:800">55%</th>
+            <td class="cell-r2">$712</td>
+            <td class="cell-r1">$882</td>
+            <td class="cell-n">$1,098</td>
+            <td class="cell-g1">$1,364</td>
+            <td class="cell-g2">$1,694</td>
+          </tr>
+          <tr>
+            <th style="text-align:left;background:var(--bg2);padding:6px 10px;font-size:9px;letter-spacing:.5px;text-transform:uppercase;font-weight:800">60%</th>
+            <td class="cell-r1">$814</td>
+            <td class="cell-n">$1,008</td>
+            <td class="cell-g1">$1,254</td>
+            <td class="cell-g2">$1,558</td>
+            <td class="cell-g3">$1,934</td>
+          </tr>
+          <tr>
+            <th style="text-align:left;background:var(--bg2);padding:6px 10px;font-size:9px;letter-spacing:.5px;text-transform:uppercase;font-weight:800">65%</th>
+            <td class="cell-r1">$928</td>
+            <td class="cell-n">$1,150</td>
+            <td class="cell-g1">$1,428</td>
+            <td class="cell-g3">$1,774</td>
+            <td class="cell-g3">$2,204</td>
+          </tr>
+          <tr>
+            <th style="text-align:left;background:var(--bg2);padding:6px 10px;font-size:9px;letter-spacing:.5px;text-transform:uppercase;font-weight:800;border:2px solid var(--gold)">72.8% ←</th>
+            <td class="cell-n">$1,088</td>
+            <td class="cell-g1">$1,348</td>
+            <td class="cell-g2" style="border:2px solid var(--gold)">$1,674 ★</td>
+            <td class="cell-g3">$2,078</td>
+            <td class="cell-g3">$2,582</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:10px;color:var(--muted);margin-top:8px">★ = Base case scenario (current margin, CAGR consensus +25%). Current price $1,142. Bold row = current trailing margin.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════ VI. COMPOSITE SCORE -->
+<div class="chapter" id="ch-6">
+  <div class="chapter-head">
+    <div class="ch-num">VI.</div>
+    <div>
+      <div class="ch-eyebrow">Score Composite — 5 Pillars</div>
+      <div class="ch-title">Investment Signal</div>
+    </div>
+    <div class="ch-badge">Adjustable Weights</div>
+  </div>
+
+  <div class="score-section">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:800;margin-bottom:14px">Pillar Scores (0–100) with Weights</div>
+    <div class="score-pillars">
+      <div class="pillar">
+        <div class="pillar-label">Valuation Quality</div>
+        <div class="pillar-score g">62</div>
+        <div class="pillar-bar"><div class="pillar-fill g" style="width:62%"></div></div>
+        <div class="pillar-weight">Weight: 25%</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-label">Business Quality</div>
+        <div class="pillar-score g">92</div>
+        <div class="pillar-bar"><div class="pillar-fill g" style="width:92%"></div></div>
+        <div class="pillar-weight">Weight: 25%</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-label">Momentum</div>
+        <div class="pillar-score g">88</div>
+        <div class="pillar-bar"><div class="pillar-fill g" style="width:88%"></div></div>
+        <div class="pillar-weight">Weight: 20%</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-label">Growth Quality</div>
+        <div class="pillar-score y">68</div>
+        <div class="pillar-bar"><div class="pillar-fill y" style="width:68%"></div></div>
+        <div class="pillar-weight">Weight: 20%</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-label">Financial Health</div>
+        <div class="pillar-score y">72</div>
+        <div class="pillar-bar"><div class="pillar-fill y" style="width:72%"></div></div>
+        <div class="pillar-weight">Weight: 10%</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="score-final-row">
+    <div>
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:800;margin-bottom:4px">Composite Score</div>
+      <div class="score-final-num">74</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">out of 100</div>
+    </div>
+    <div class="score-final-verdict">
+      <div class="sfv-signal">BUY</div>
+      <div class="sfv-sub">Score ≥ 65 · Signal threshold: 65 (BUY) · 40 (WATCH) · &lt;40 (AVOID)</div>
+      <div style="margin-top:8px"><span class="sfv-tag">Conviction: Medium-High</span></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;max-width:460px;line-height:1.5">
+        Primary drivers: exceptional business quality (92) and momentum (88). Constraint: rich valuation multiples compress the valuation pillar (62). High-quality business at a price that demands continued outperformance.
+      </div>
+    </div>
+    <div style="margin-left:auto;text-align:right;flex-shrink:0">
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:800;margin-bottom:8px">Universe Rank</div>
+      <div style="font-family:var(--serif);font-size:28px;font-weight:700;color:var(--h)">#4</div>
+      <div style="font-size:11px;color:var(--muted)">of 30 companies</div>
+    </div>
+  </div>
+
+</div>
 
 </main>
 
-<footer>
-  <div class="foot-note">SAINHE // NEO · dossier engine concept · demo data · EPV &amp; RI math simplified for simulation · not investment advice</div>
+<footer class="page-footer">
+  <strong>SAINHE Intelligence Parlante</strong> &ensp;·&ensp;
+  Backend: bloc_A_verdict · bloc_C_dupont · bloc_D_trends · bloc_E_health · bloc_H_sensitivity · score_composite &ensp;·&ensp;
+  Sources: EDGAR SEC filings, Yahoo Finance, Damodaran datasets &ensp;·&ensp;
+  <a href="index.html">← Back to Dashboard</a> &ensp;·&ensp;
+  Analysis as of June 13, 2026
 </footer>
 
-<script>
-/* ════════════════════════════════════════════════════════════
-   DEMO UNIVERSE — 30 tickers. 6 carry full dossiers (incl. TESTCO,
-   whose numbers are the backend's actual reference sample).
-   ════════════════════════════════════════════════════════════ */
-const U = [
-  // full dossiers
-  {tk:"TESTCO",nm:"Test Manufacturing Co.",score:77.8,full:1,fy:2023,px:15.00,beta:0.95,
-   epv:20.30,epvLo:13.73,epvHi:18.46,waccS:[23.21,20.30,17.97],rdcf:-0.6,
-   cons:{mean:16.0,n:8},rnoa:21.6,levgain:4.7,roe:26.3,
-   health:{nde:0.82,cov:12.5,payback:1.6,cr:1.75,ccc:37.7,ocfni:1.41},
-   roic10:[18.2,18.6,19.0,19.3,19.7,19.6,20.0,20.3,20.6,21.2],
-   gm10:[37,37.5,38,38.4,38.9,39.4,39.8,40.1,40.2,40.0],
-   rev:1200, shares:100, netdebt:245, tax:.21, kd:4.6, dRatio:.24, m0:20.0, g0:2.8, b0:0.95},
-  {tk:"AAPL",nm:"Apple Inc.",score:71.4,full:1,fy:2025,px:248.10,beta:1.25,
-   epv:201.40,epvLo:182.0,epvHi:224.0,waccS:[228.0,201.4,179.5],rdcf:3.8,
-   cons:{mean:262.0,n:42},rnoa:54.2,levgain:12.6,roe:66.8,
-   health:{nde:0.61,cov:28.4,payback:1.1,cr:0.99,ccc:-38.2,ocfni:1.18},
-   roic10:[26,28,31,30,33,36,42,48,52,54],
-   gm10:[39,39,38.5,38.3,38.2,41.8,43.3,44.1,45.9,46.5],
-   rev:402000, shares:15100, netdebt:48000, tax:.16, kd:3.9, dRatio:.07, m0:31.5, g0:3.8, b0:1.25},
-  {tk:"MSFT",nm:"Microsoft Corp.",score:78.2,full:1,fy:2025,px:512.30,beta:1.05,
-   epv:438.0,epvLo:402.0,epvHi:478.0,waccS:[495.0,438.0,392.0],rdcf:4.6,
-   cons:{mean:545.0,n:48},rnoa:38.9,levgain:5.4,roe:44.3,
-   health:{nde:0.34,cov:41.2,payback:0.7,cr:1.27,ccc:18.4,ocfni:1.32},
-   roic10:[19,21,23,26,28,30,33,35,37,39],
-   gm10:[64,64.5,65,65.9,67.8,68.4,68.9,69.0,69.8,70.1],
-   rev:282000, shares:7430, netdebt:21000, tax:.18, kd:3.7, dRatio:.05, m0:44.8, g0:4.6, b0:1.05},
-  {tk:"KO",nm:"Coca-Cola Co.",score:80.6,full:1,fy:2025,px:71.84,beta:0.58,
-   epv:66.20,epvLo:61.0,epvHi:72.5,waccS:[74.8,66.2,59.4],rdcf:1.9,
-   cons:{mean:75.0,n:26},rnoa:18.4,levgain:21.8,roe:40.2,
-   health:{nde:1.92,cov:11.8,payback:3.4,cr:1.13,ccc:24.6,ocfni:1.21},
-   roic10:[14,13.5,12.8,13.2,14.1,13.0,14.6,15.8,16.4,18.4],
-   gm10:[60.1,60.5,60.7,61.9,60.8,59.3,60.3,59.1,59.5,61.0],
-   rev:47200, shares:4310, netdebt:28400, tax:.19, kd:4.2, dRatio:.36, m0:30.2, g0:1.9, b0:0.58},
-  {tk:"JPM",nm:"JPMorgan Chase",score:73.9,full:1,fy:2025,px:312.40,beta:1.12,
-   epv:341.0,epvLo:312.0,epvHi:368.0,waccS:[378.0,341.0,309.0],rdcf:1.2,
-   cons:{mean:330.0,n:29},rnoa:12.8,levgain:7.1,roe:19.9,
-   health:{nde:1.4,cov:8.9,payback:4.1,cr:1.21,ccc:0,ocfni:1.08},
-   roic10:[8.4,9.1,9.6,10.2,11.5,10.8,13.6,12.9,13.4,12.8],
-   gm10:[57,57,58,58,59,57,61,60,61,61],
-   rev:178000, shares:2840, netdebt:0, tax:.21, kd:4.8, dRatio:.42, m0:38.0, g0:1.2, b0:1.12},
-  {tk:"XOM",nm:"Exxon Mobil",score:68.7,full:1,fy:2025,px:118.50,beta:0.88,
-   epv:139.0,epvLo:114.0,epvHi:166.0,waccS:[158.0,139.0,123.0],rdcf:-1.4,
-   cons:{mean:128.0,n:25},rnoa:14.6,levgain:3.2,roe:17.8,
-   health:{nde:0.71,cov:19.6,payback:1.9,cr:1.34,ccc:21.2,ocfni:1.52},
-   roic10:[7.9,2.1,4.6,8.2,9.4,-3.4,6.1,19.8,15.2,14.6],
-   gm10:[31,28,29,32,33,24,29,34,33,32],
-   rev:344000, shares:4020, netdebt:39000, tax:.24, kd:4.4, dRatio:.18, m0:13.4, g0:0.5, b0:0.88},
-  // pipeline queue (score only)
-  {tk:"NVDA",score:74.1},{tk:"GOOGL",score:76.3},{tk:"AMZN",score:69.5},{tk:"META",score:72.8},
-  {tk:"BRK.B",score:79.4},{tk:"V",score:81.2},{tk:"MA",score:79.9},{tk:"UNH",score:64.2},
-  {tk:"LLY",score:70.6},{tk:"JNJ",score:75.3},{tk:"PG",score:78.8},{tk:"NESN",score:77.1},
-  {tk:"MC.PA",score:73.4},{tk:"ASML",score:75.8},{tk:"TSM",score:74.9},{tk:"SAP",score:71.7},
-  {tk:"COST",score:66.4},{tk:"WMT",score:69.8},{tk:"CAT",score:67.2},{tk:"DE",score:68.1},
-  {tk:"LMT",score:72.3},{tk:"NOC",score:71.1},{tk:"CVX",score:67.9},{tk:"SHEL",score:66.8},
-];
-const PILLARS = [
-  {k:"valuation",            nm:"Valuation",            w:30},
-  {k:"balance_sheet_health", nm:"Balance sheet",        w:25},
-  {k:"earnings_quality",     nm:"Earnings quality",     w:20},
-  {k:"smart_money",          nm:"Smart money",          w:15},
-  {k:"momentum",             nm:"Momentum",             w:10},
-];
-// per-company pillar scores (demo)
-const PSCORES = {
-  TESTCO:[100,85,70,50,50], AAPL:[55,88,82,64,71], MSFT:[58,92,86,70,78],
-  KO:[72,74,88,76,62], JPM:[81,69,73,68,70], XOM:[84,80,66,52,48],
-};
-const ERP=4.6;            // equity risk premium, %
-let CUR=null;
-
-/* ── particle field (same engine as page 1) ────────────────── */
-(function(){
-  const cv=document.getElementById("field"),ctx=cv.getContext("2d");
-  let W,H,pts=[];
-  function size(){W=cv.width=innerWidth;H=cv.height=innerHeight}
-  size();addEventListener("resize",size);
-  const N=Math.min(90,Math.floor(innerWidth/16));
-  for(let i=0;i<N;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18,r:Math.random()*1.4+.4});
-  const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
-  (function frame(){
-    ctx.clearRect(0,0,W,H);
-    for(const p of pts){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fillStyle="rgba(140,130,220,.32)";ctx.fill();}
-    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
-      const a=pts[i],b=pts[j],dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy;
-      if(d2<130*130){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
-        ctx.strokeStyle=`rgba(130,120,220,${.09*(1-d2/16900)})`;ctx.lineWidth=.6;ctx.stroke();}}
-    if(!reduced)requestAnimationFrame(frame);
-  })();
-})();
-
-/* ── reveal engine ──────────────────────────────────────────── */
-const io=new IntersectionObserver(es=>{es.forEach(e=>{if(!e.isIntersecting)return;
-  e.target.classList.add("in");io.unobserve(e.target);
-  if(e.target.id==="score-grid")armScore();
-  if(e.target.id==="dupont")armDupont();
-  if(e.target.classList.contains("h-grid")||e.target.id==="trend-strip")armTrends();
-});},{threshold:.25});
-document.querySelectorAll(".rv").forEach(el=>io.observe(el));
-
-/* ── universe spectrum ──────────────────────────────────────── */
-(function(){
-  const sp=document.getElementById("spectrum");
-  const mn=60,mx=85;
-  [60,70,80].forEach(v=>{
-    const l=document.createElement("div");l.className="axis-lbl";
-    l.style.left=((v-mn)/(mx-mn)*100)+"%";l.textContent=v;sp.appendChild(l);
-  });
-  U.forEach(c=>{
-    const n=document.createElement("div");
-    n.className="spec-node"+(c.full?" full":"");
-    n.style.left=((c.score-mn)/(mx-mn)*96+2)+"%";
-    n.innerHTML=`<span class="spec-tk">${c.tk}</span><span class="spec-dot"></span>`;
-    n.title=`${c.tk} · score ${c.score}`;
-    n.addEventListener("click",()=>{ if(c.full){ select(c); document.getElementById("verdict").scrollIntoView({behavior:"smooth"}); }});
-    sp.appendChild(n); c._node=n;
-  });
-})();
-
-/* ── company selection → repaint all blocks ─────────────────── */
-function select(c){
-  CUR=c;
-  U.forEach(x=>x._node && x._node.classList.toggle("sel",x===c));
-  // identity
-  id("id-tk").textContent=c.tk; id("id-nm").textContent=c.nm;
-  id("id-fy").textContent=c.fy; id("id-px").textContent="$"+c.px.toFixed(2);
-  id("id-beta").textContent=c.beta.toFixed(2); id("id-score").textContent=c.score.toFixed(1);
-  // verdict beam — axis spans [min*0.85, max*1.15]
-  const lo=Math.min(c.px,c.epvLo)*.82, hi=Math.max(c.px,c.epvHi)*1.12;
-  const X=v=>((v-lo)/(hi-lo)*100);
-  const mPx=id("mark-px"), mEpv=id("mark-epv"), band=id("mos-band");
-  mPx.style.left=X(c.px)+"%"; mPx.querySelector(".val").textContent="$"+c.px.toFixed(2);
-  mEpv.style.left=X(c.epv)+"%"; mEpv.querySelector(".val").textContent="$"+c.epv.toFixed(2);
-  band.style.left=X(c.epvLo)+"%"; band.style.width=(X(c.epvHi)-X(c.epvLo))+"%";
-  const up=(c.epv/c.px-1)*100;
-  id("verdict-line").innerHTML = up>=10
-    ? `EPV sits <b>${up.toFixed(0)}% above price</b> — the market sells durable earning power at a discount. Confidence band $${c.epvLo.toFixed(0)}–$${c.epvHi.toFixed(0)}.`
-    : up>=-10
-    ? `Price and EPV are <b>within ±10%</b> — fairly priced on current earning power; the upside case must come from growth, not re-rating. Band $${c.epvLo.toFixed(0)}–$${c.epvHi.toFixed(0)}.`
-    : `Price runs <b>${(-up).toFixed(0)}% ahead of EPV</b> — you are paying today for tomorrow's growth. Band $${c.epvLo.toFixed(0)}–$${c.epvHi.toFixed(0)}.`;
-  id("v-rdcf").textContent=(c.rdcf>=0?"+":"")+c.rdcf.toFixed(1)+"% /yr";
-  id("v-rdcf").style.color=c.rdcf<0?"var(--green)":c.rdcf<4?"var(--gold)":"var(--red)";
-  id("v-wacc-sens").textContent=c.waccS.map(v=>"$"+v.toFixed(0)).join(" · ");
-  id("v-cons").textContent="$"+c.cons.mean.toFixed(2);
-  id("v-cons-sub").innerHTML=`mean target · <b>${c.cons.n} analysts</b>`;
-  // score pillars
-  buildPillars(c); armScore();
-  // dupont
-  armDupont();
-  // health + trends
-  buildHealth(c); armTrends();
-  // simulator: re-anchor sliders to company
-  id("s-g").value=c.g0; id("s-m").value=c.m0; id("s-b").value=c.b0; id("s-rf").value=4.2;
-  buildHeatAxes(c); sim();
-}
-function id(x){return document.getElementById(x)}
-
-/* ── 02 score ───────────────────────────────────────────────── */
-function buildPillars(c){
-  const wrap=id("pillars"); wrap.innerHTML="";
-  const sc=PSCORES[c.tk];
-  PILLARS.forEach((p,i)=>{
-    const row=document.createElement("div");row.className="pillar";
-    row.innerHTML=`<div class="p-nm">${p.nm}</div>
-      <div class="p-track"><div class="p-fill" data-v="${sc[i]}"></div></div>
-      <div class="p-val">${sc[i]}</div>
-      <div class="p-w"><input type="range" min="0" max="50" value="${p.w}" data-i="${i}"><span>${p.w}%</span></div>`;
-    wrap.appendChild(row);
-  });
-  wrap.querySelectorAll("input").forEach(inp=>inp.addEventListener("input",recompose));
-  recompose();
-}
-function recompose(){
-  if(!CUR)return;
-  const sc=PSCORES[CUR.tk];
-  const inputs=[...id("pillars").querySelectorAll("input")];
-  let ws=inputs.map(i=>+i.value), tot=ws.reduce((a,b)=>a+b,0)||1;
-  inputs.forEach((inp,i)=>inp.nextElementSibling.textContent=Math.round(ws[i]/tot*100)+"%");
-  const comp=sc.reduce((a,v,i)=>a+v*ws[i]/tot,0);
-  id("score-val").textContent=comp.toFixed(1);
-  const C=2*Math.PI*43;
-  id("score-arc").style.strokeDasharray=`${C*comp/100} ${C}`;
-}
-function armScore(){
-  document.querySelectorAll("#pillars .p-fill").forEach(f=>{
-    requestAnimationFrame(()=>f.style.width=f.dataset.v+"%");
-  });
-  recompose();
-}
-
-/* ── 03 dupont ──────────────────────────────────────────────── */
-function armDupont(){
-  if(!CUR)return;
-  const mx=Math.max(CUR.roe,1), H=190;
-  const set=(bar,val,el)=>{ id(bar).style.height=Math.max(8,val/mx*H)+"px"; id(el).textContent=val.toFixed(1)+"%"; };
-  requestAnimationFrame(()=>{
-    set("dp-rnoa",CUR.rnoa,"dpv-rnoa");
-    set("dp-lev",CUR.levgain,"dpv-lev");
-    set("dp-roe",CUR.roe,"dpv-roe");
-  });
-  const share=CUR.levgain/CUR.roe*100;
-  id("dupont-text").innerHTML = share<15
-    ? `<b>${(100-share).toFixed(0)}% of ROE is operating.</b> The return is earned in the business, not engineered on the balance sheet — the safest kind.`
-    : share<40
-    ? `Leverage contributes <b>${share.toFixed(0)}% of ROE</b> — meaningful but serviced (see coverage below). Watch the SPREAD: if borrowing cost rises past RNOA, this gain flips to a drag.`
-    : `<b>${share.toFixed(0)}% of ROE is leverage.</b> The equity return leans hard on debt — fine while SPREAD stays positive, brutal when it doesn't.`;
-}
-
-/* ── 04 health ──────────────────────────────────────────────── */
-function buildHealth(c){
-  const h=c.health, wrap=id("h-cards"); wrap.innerHTML="";
-  const cards=[
-    {nm:"Net debt / EBITDA", v:h.nde.toFixed(2)+"×", cls:h.nde<1.5?"ok":h.nde<3?"warn":"bad", sub:"<1.5× comfortable · >3× strained"},
-    {nm:"Interest coverage", v:h.cov.toFixed(1)+"×", cls:h.cov>8?"ok":h.cov>4?"warn":"bad", sub:"EBIT / interest expense"},
-    {nm:"LT-debt payback",   v:h.payback.toFixed(1)+" yrs", cls:h.payback<3?"ok":h.payback<5?"warn":"bad", sub:"years of FCF to retire LT debt"},
-    {nm:"Current ratio",     v:h.cr.toFixed(2), cls:h.cr>1.2?"ok":h.cr>0.9?"warn":"bad", sub:"current assets / liabilities"},
-    {nm:"Cash conversion",   v:h.ccc.toFixed(1)+" d", cls:h.ccc<45?"ok":h.ccc<75?"warn":"bad", sub:"DSO + DIO − DPO (negative = customers fund you)"},
-    {nm:"OCF / Net income",  v:h.ocfni.toFixed(2)+"×", cls:h.ocfni>1.1?"ok":h.ocfni>0.9?"warn":"bad", sub:">1: earnings are cash, not accruals"},
-  ];
-  cards.forEach(x=>{
-    const el=document.createElement("div");el.className="panel h-card";
-    el.innerHTML=`<div class="h-nm">${x.nm}</div><div class="h-val ${x.cls}">${x.v}</div><div class="h-sub">${x.sub}</div>`;
-    wrap.appendChild(el);
-  });
-  // trends
-  const years=[]; for(let y=c.fy-9;y<=c.fy;y++)years.push(y);
-  id("tr-y0").textContent=years[0]; id("tr-y9").textContent=years[9];
-  id("tr-y0b").textContent=years[0]; id("tr-y9b").textContent=years[9];
-  fillBars("tr-roic",c.roic10); fillBars("tr-gm",c.gm10);
-}
-function fillBars(elId,data){
-  const el=id(elId); el.innerHTML="";
-  const mx=Math.max(...data.map(Math.abs));
-  data.forEach(v=>{
-    const b=document.createElement("i");
-    b.dataset.h=Math.max(4,Math.abs(v)/mx*100);
-    if(v<0)b.style.background="linear-gradient(180deg,rgba(255,93,93,.85),rgba(255,93,93,.2))";
-    el.appendChild(b);
-  });
-}
-function armTrends(){
-  document.querySelectorAll(".tr-bars i").forEach((b,i)=>{
-    setTimeout(()=>{b.style.height=b.dataset.h+"%";}, i*40);
-  });
-}
-
-/* ── 05 simulator ───────────────────────────────────────────── */
-let G_AXIS=[],M_AXIS=[];
-function buildHeatAxes(c){
-  G_AXIS=[];M_AXIS=[];
-  for(let i=-2;i<=2;i++){ G_AXIS.push(+(c.g0+i*0.7).toFixed(1)); M_AXIS.push(+(c.m0+i*2.5).toFixed(1)); }
-}
-function fairValue(c,g,m,beta,rf){
-  // simplified EPV-with-growth: NOPAT margin on revenue, blended WACC
-  const ke=rf+beta*ERP;                              // cost of equity, %
-  const wacc=( (1-c.dRatio)*ke + c.dRatio*c.kd*(1-c.tax) );
-  const w=Math.max(wacc, g+0.8)/100, gg=g/100;       // clamp: WACC > g
-  const nopat=c.rev*(m/100)*(1-c.tax);
-  const ev=nopat*(1+gg)/(w-gg);
-  return { fv:(ev-c.netdebt)/c.shares, wacc, ke };
-}
-function sim(){
-  if(!CUR)return;
-  const g=+id("s-g").value, m=+id("s-m").value, b=+id("s-b").value, rf=+id("s-rf").value;
-  id("sv-g").textContent=g.toFixed(1)+"%"; id("sv-m").textContent=m.toFixed(1)+"%";
-  id("sv-b").textContent=b.toFixed(2);     id("sv-rf").textContent=rf.toFixed(1)+"%";
-  const {fv,wacc,ke}=fairValue(CUR,g,m,b,rf);
-  id("wacc-line").innerHTML=
-    `k<sub>e</sub> = ${rf.toFixed(1)} + ${b.toFixed(2)}·${ERP.toFixed(1)} = <b>${ke.toFixed(2)}%</b><br>`+
-    `WACC = ${(100-CUR.dRatio*100).toFixed(0)}%·k<sub>e</sub> + ${(CUR.dRatio*100).toFixed(0)}%·${CUR.kd.toFixed(1)}·(1−${(CUR.tax*100).toFixed(0)}%) = <b>${wacc.toFixed(2)}%</b>`;
-  const up=(fv/CUR.px-1)*100;
-  const big=id("fv-big"); big.textContent="$"+(fv>0?fv.toFixed(2):"—");
-  big.style.color= up>15?"var(--green)": up>-10?"var(--gold)":"var(--red)";
-  id("fv-up").innerHTML=`vs price $${CUR.px.toFixed(2)} → <b style="color:${up>=0?"var(--green)":"var(--red)"}">${up>=0?"+":""}${up.toFixed(1)}%</b>`;
-  const mos=id("fv-mos");
-  if(up>25){mos.className="ok";mos.textContent="Margin of safety · wide";}
-  else if(up>5){mos.className="warn";mos.textContent="Margin of safety · thin";}
-  else{mos.className="bad";mos.textContent="No margin of safety";}
-  // heat grid
-  const tbl=id("heat-tbl");
-  let html=`<tr><th>m \\ g</th>${G_AXIS.map(x=>`<th>${x}%</th>`).join("")}</tr>`;
-  M_AXIS.forEach(mm=>{
-    html+=`<tr><th>${mm}%</th>`;
-    G_AXIS.forEach(gg=>{
-      const v=fairValue(CUR,gg,mm,b,rf).fv;
-      const hot=Math.abs(gg-g)<=0.35 && Math.abs(mm-m)<=1.25;
-      html+=`<td class="${hot?"hot":""}">${v>0?v.toFixed(0):"—"}</td>`;
-    });
-    html+="</tr>";
-  });
-  tbl.innerHTML=html;
-}
-["s-g","s-m","s-b","s-rf"].forEach(s=>id(s).addEventListener("input",sim));
-
-/* ── boot ───────────────────────────────────────────────────── */
-select(U[0]);   // TESTCO — the backend's own reference sample
-</script>
 </body>
 </html>
