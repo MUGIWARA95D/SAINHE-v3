@@ -1,0 +1,989 @@
+{
+  "ticker": "TESTCO",
+  "cik": 999999,
+  "as_of": "2026-06-13",
+  "fiscal_year": 2023,
+  "bloc_A_verdict": {
+    "prix": 15.0,
+    "EPV": {
+      "epv_ev": 2274.586719,
+      "epv_equity": 2029.586719,
+      "epv_per_share": 20.295867,
+      "inputs": {
+        "ebit_adj": 250.0,
+        "tax": 0.2,
+        "wacc": 0.087928,
+        "net_debt": 245.0
+      }
+    },
+    "EPV_confidence_range": {
+      "low": 13.732307,
+      "high": 18.456631,
+      "fcf_p25": 111.64,
+      "fcf_p75": 150.0475
+    },
+    "EPV_wacc_sensitivity": {
+      "minus_100bps": 23.214696,
+      "central": 20.295867,
+      "plus_100bps": 17.973155
+    },
+    "RE_valuation": {
+      "re_value_equity": 2227.854003,
+      "re_value_per_share": 22.27854,
+      "inputs": {
+        "B0": 700.0,
+        "RE": 116.1,
+        "ke": 0.097,
+        "g": 0.027735
+      }
+    },
+    "consensus": {
+      "available": true,
+      "target_mean": 16.0,
+      "target_median": 15.5,
+      "target_high": 18.0,
+      "target_low": 13.0,
+      "n_analysts": 8,
+      "warning_few_analysts": false,
+      "dispersion": 0.3125
+    },
+    "reverse_dcf": {
+      "implied_g": -0.006055,
+      "flag_unrealistic": false,
+      "inputs": {
+        "ev": 1745.0,
+        "fcf_adj": 165.0,
+        "wacc": 0.087928
+      }
+    },
+    "SGR": {
+      "sgr": 0.027735,
+      "rr": 0.13105,
+      "roic": 0.21164
+    },
+    "flag_growth_unfinanceable": false
+  },
+  "bloc_B_flags": [],
+  "bloc_C_dupont": {
+    "available": true,
+    "fy": 2023,
+    "RNOA": 0.216216,
+    "FLEV": 0.321429,
+    "NBC": 0.071111,
+    "SPREAD": 0.145105,
+    "leverage_gain": 0.046641,
+    "ROE_dupont": 0.262857,
+    "ROE_direct": 0.262857,
+    "coherence_gap": 0.0,
+    "net_cash_position": false
+  },
+  "bloc_D_trends": {
+    "roic_10y": {
+      "2014": 0.1822,
+      "2015": 0.1859,
+      "2016": 0.1895,
+      "2017": 0.1931,
+      "2018": 0.1966,
+      "2019": 0.1963,
+      "2020": 0.1998,
+      "2021": 0.2031,
+      "2022": 0.2064,
+      "2023": 0.2116
+    },
+    "rnoa_10y": {
+      "2014": 0.3819,
+      "2015": 0.3448,
+      "2016": 0.3158,
+      "2017": 0.2926,
+      "2018": 0.2737,
+      "2019": 0.2517,
+      "2020": 0.2394,
+      "2021": 0.2288,
+      "2022": 0.2196,
+      "2023": 0.2162
+    },
+    "gross_margin_10y": {
+      "2014": 0.37,
+      "2015": 0.373,
+      "2016": 0.376,
+      "2017": 0.379,
+      "2018": 0.382,
+      "2019": 0.385,
+      "2020": 0.388,
+      "2021": 0.391,
+      "2022": 0.394,
+      "2023": 0.4
+    },
+    "fcf_adj_10y": {
+      "2014": 101.76,
+      "2015": 107.26,
+      "2016": 113.1,
+      "2017": 119.28,
+      "2018": 125.85,
+      "2019": 132.79,
+      "2020": 140.17,
+      "2021": 147.98,
+      "2022": 156.25,
+      "2023": 165.0
+    },
+    "roe_10y": {
+      "2014": 0.2438,
+      "2015": 0.246,
+      "2016": 0.248,
+      "2017": 0.2499,
+      "2018": 0.2517,
+      "2019": 0.2534,
+      "2020": 0.255,
+      "2021": 0.2566,
+      "2022": 0.258,
+      "2023": 0.2629
+    },
+    "owner_earnings_10y": {
+      "2014": 113.6,
+      "2015": 119.81,
+      "2016": 126.4,
+      "2017": 133.39,
+      "2018": 140.8,
+      "2019": 148.64,
+      "2020": 156.96,
+      "2021": 165.78,
+      "2022": 175.12,
+      "2023": 185.0
+    },
+    "revenue_10y": {
+      "2014": 592.0,
+      "2015": 627.52,
+      "2016": 665.17,
+      "2017": 705.08,
+      "2018": 747.39,
+      "2019": 792.23,
+      "2020": 839.76,
+      "2021": 890.15,
+      "2022": 943.56,
+      "2023": 1000.0
+    }
+  },
+  "bloc_E_health": {
+    "net_debt_ebitda": 0.816667,
+    "interest_coverage": 12.5,
+    "lt_debt_payback": {
+      "years": 1.630435,
+      "passes": true,
+      "label": "source secondaire"
+    },
+    "current_ratio": 1.75,
+    "quick_ratio": 1.35,
+    "de_ratio": 0.471429,
+    "ccc": {
+      "dso": 43.8,
+      "dio": 48.666667,
+      "dpo": 54.75,
+      "ccc": 37.716667
+    },
+    "ocf_ni": 1.413043,
+    "accruals_pct_rev": -0.076,
+    "retained_earnings_test": {
+      "ratio": 0.978569,
+      "retained_5y": 613.14,
+      "delta_mcap": 600.0,
+      "passes": false,
+      "window": [
+        2018,
+        2023
+      ]
+    }
+  },
+  "bloc_F_peers": {
+    "note": "rempli par peer_batch.build_peer_blocks() sur l'univers complet"
+  },
+  "bloc_G_smart_money": {
+    "note": "submissions non fournies"
+  },
+  "bloc_H_sensitivity": {
+    "margin_axis": [
+      0.2,
+      0.2,
+      0.2,
+      0.2,
+      0.2
+    ],
+    "g_axis": [
+      0.0139,
+      0.0208,
+      0.0277,
+      0.0347,
+      0.0416
+    ],
+    "matrix": [
+      [
+        22.19,
+        23.18,
+        24.38,
+        25.85,
+        27.68
+      ],
+      [
+        22.19,
+        23.19,
+        24.38,
+        25.85,
+        27.68
+      ],
+      [
+        22.19,
+        23.19,
+        24.38,
+        25.85,
+        27.68
+      ],
+      [
+        22.19,
+        23.19,
+        24.38,
+        25.85,
+        27.68
+      ],
+      [
+        22.19,
+        23.19,
+        24.38,
+        25.85,
+        27.68
+      ]
+    ]
+  },
+  "bloc_I_macro": {
+    "leading_indicator": {
+      "indicator": "PMI Manufacturing",
+      "value": "N/D",
+      "label": "contexte macro — indicateur avancé, pas une prédiction"
+    },
+    "geographic_exposure": {
+      "us_pct": "N/D",
+      "non_us_pct": "N/D",
+      "source": "N/D",
+      "note": "Aucune source géographique disponible"
+    }
+  },
+  "drill_down": {
+    "wacc_detail": {
+      "wacc": 0.087928,
+      "ke": 0.097,
+      "kd": 0.060606,
+      "tax_rate": 0.2,
+      "E": 1500.0,
+      "D": 345.0,
+      "rf": 0.042,
+      "erp": 0.05,
+      "beta": 1.1,
+      "mode": "complet"
+    },
+    "adjustments": {
+      "fy": 2023,
+      "ni_brut": 184.0,
+      "ni_adj": 184.0,
+      "ebit_brut": 250.0,
+      "ebit_adj": 250.0,
+      "adjustments": [],
+      "gap_pct": 0.0,
+      "gap_flag": false
+    },
+    "reformulation": {
+      "OA": 1380.0,
+      "FA": 120.0,
+      "OO": 455.0,
+      "FO": 345.0,
+      "NOA": 925.0,
+      "NFO": 225.0,
+      "equity_check": 0.0
+    },
+    "three_statement_10y": {
+      "revenue": {
+        "2014": 592.0,
+        "2015": 627.52,
+        "2016": 665.17,
+        "2017": 705.08,
+        "2018": 747.39,
+        "2019": 792.23,
+        "2020": 839.76,
+        "2021": 890.15,
+        "2022": 943.56,
+        "2023": 1000.0
+      },
+      "cogs": {
+        "2014": 372.96,
+        "2015": 393.46,
+        "2016": 415.07,
+        "2017": 437.85,
+        "2018": 461.89,
+        "2019": 487.22,
+        "2020": 513.93,
+        "2021": 542.1,
+        "2022": 571.8,
+        "2023": 600.0
+      },
+      "ebit": {
+        "2014": 148.0,
+        "2015": 156.88,
+        "2016": 166.29,
+        "2017": 176.27,
+        "2018": 186.85,
+        "2019": 198.06,
+        "2020": 209.94,
+        "2021": 222.54,
+        "2022": 235.89,
+        "2023": 250.0
+      },
+      "dep_amort": {
+        "2014": 29.6,
+        "2015": 31.38,
+        "2016": 33.26,
+        "2017": 35.25,
+        "2018": 37.37,
+        "2019": 39.61,
+        "2020": 41.99,
+        "2021": 44.51,
+        "2022": 47.18,
+        "2023": 50.0
+      },
+      "interest_expense": {
+        "2014": 20.0,
+        "2015": 20.0,
+        "2016": 20.0,
+        "2017": 20.0,
+        "2018": 20.0,
+        "2019": 20.0,
+        "2020": 20.0,
+        "2021": 20.0,
+        "2022": 20.0,
+        "2023": 20.0
+      },
+      "tax_expense": {
+        "2014": 25.6,
+        "2015": 27.38,
+        "2016": 29.26,
+        "2017": 31.25,
+        "2018": 33.37,
+        "2019": 35.61,
+        "2020": 37.99,
+        "2021": 40.51,
+        "2022": 43.18,
+        "2023": 46.0
+      },
+      "pretax_income": {
+        "2014": 128.0,
+        "2015": 136.88,
+        "2016": 146.29,
+        "2017": 156.27,
+        "2018": 166.85,
+        "2019": 178.06,
+        "2020": 189.94,
+        "2021": 202.54,
+        "2022": 215.89,
+        "2023": 230.0
+      },
+      "net_income": {
+        "2014": 102.4,
+        "2015": 109.5,
+        "2016": 117.03,
+        "2017": 125.02,
+        "2018": 133.48,
+        "2019": 142.45,
+        "2020": 151.95,
+        "2021": 162.03,
+        "2022": 172.71,
+        "2023": 184.0
+      },
+      "eps_diluted": {
+        "2014": 1.02,
+        "2015": 1.09,
+        "2016": 1.17,
+        "2017": 1.25,
+        "2018": 1.33,
+        "2019": 1.42,
+        "2020": 1.52,
+        "2021": 1.62,
+        "2022": 1.73,
+        "2023": 1.84
+      },
+      "shares_diluted": {
+        "2014": 100.0,
+        "2015": 100.0,
+        "2016": 100.0,
+        "2017": 100.0,
+        "2018": 100.0,
+        "2019": 100.0,
+        "2020": 100.0,
+        "2021": 100.0,
+        "2022": 100.0,
+        "2023": 100.0
+      },
+      "cash": {
+        "2014": 100.0,
+        "2015": 100.0,
+        "2016": 100.0,
+        "2017": 100.0,
+        "2018": 100.0,
+        "2019": 100.0,
+        "2020": 100.0,
+        "2021": 100.0,
+        "2022": 100.0,
+        "2023": 100.0
+      },
+      "st_investments": {
+        "2014": 20.0,
+        "2015": 20.0,
+        "2016": 20.0,
+        "2017": 20.0,
+        "2018": 20.0,
+        "2019": 20.0,
+        "2020": 20.0,
+        "2021": 20.0,
+        "2022": 20.0,
+        "2023": 20.0
+      },
+      "ar": {
+        "2014": 71.04,
+        "2015": 75.3,
+        "2016": 79.82,
+        "2017": 84.61,
+        "2018": 89.69,
+        "2019": 95.07,
+        "2020": 100.77,
+        "2021": 106.82,
+        "2022": 113.23,
+        "2023": 120.0
+      },
+      "inventory": {
+        "2014": 47.36,
+        "2015": 50.2,
+        "2016": 53.21,
+        "2017": 56.41,
+        "2018": 59.79,
+        "2019": 63.38,
+        "2020": 67.18,
+        "2021": 71.21,
+        "2022": 75.48,
+        "2023": 80.0
+      },
+      "current_assets": {
+        "2014": 350.0,
+        "2015": 350.0,
+        "2016": 350.0,
+        "2017": 350.0,
+        "2018": 350.0,
+        "2019": 350.0,
+        "2020": 350.0,
+        "2021": 350.0,
+        "2022": 350.0,
+        "2023": 350.0
+      },
+      "total_assets": {
+        "2014": 900.0,
+        "2015": 954.0,
+        "2016": 1011.24,
+        "2017": 1071.91,
+        "2018": 1136.23,
+        "2019": 1204.4,
+        "2020": 1276.67,
+        "2021": 1353.27,
+        "2022": 1434.46,
+        "2023": 1500.0
+      },
+      "ppe_net": {
+        "2014": 400.0,
+        "2015": 400.0,
+        "2016": 400.0,
+        "2017": 400.0,
+        "2018": 400.0,
+        "2019": 400.0,
+        "2020": 400.0,
+        "2021": 400.0,
+        "2022": 400.0,
+        "2023": 400.0
+      },
+      "rou_asset": {
+        "2019": 60.0,
+        "2020": 60.0,
+        "2021": 60.0,
+        "2022": 60.0,
+        "2023": 60.0
+      },
+      "operating_lease_liab": {
+        "2019": 65.0,
+        "2020": 65.0,
+        "2021": 65.0,
+        "2022": 65.0,
+        "2023": 65.0
+      },
+      "finance_lease_liab": {
+        "2019": 15.0,
+        "2020": 15.0,
+        "2021": 15.0,
+        "2022": 15.0,
+        "2023": 15.0
+      },
+      "goodwill": {
+        "2014": 200.0,
+        "2015": 200.0,
+        "2016": 200.0,
+        "2017": 200.0,
+        "2018": 200.0,
+        "2019": 200.0,
+        "2020": 200.0,
+        "2021": 200.0,
+        "2022": 200.0,
+        "2023": 200.0
+      },
+      "intangibles": {
+        "2014": 50.0,
+        "2015": 50.0,
+        "2016": 50.0,
+        "2017": 50.0,
+        "2018": 50.0,
+        "2019": 50.0,
+        "2020": 50.0,
+        "2021": 50.0,
+        "2022": 50.0,
+        "2023": 50.0
+      },
+      "ap": {
+        "2014": 53.28,
+        "2015": 56.48,
+        "2016": 59.87,
+        "2017": 63.46,
+        "2018": 67.27,
+        "2019": 71.3,
+        "2020": 75.58,
+        "2021": 80.11,
+        "2022": 84.92,
+        "2023": 90.0
+      },
+      "current_liabilities": {
+        "2014": 200.0,
+        "2015": 200.0,
+        "2016": 200.0,
+        "2017": 200.0,
+        "2018": 200.0,
+        "2019": 200.0,
+        "2020": 200.0,
+        "2021": 200.0,
+        "2022": 200.0,
+        "2023": 200.0
+      },
+      "st_debt": {
+        "2014": 30.0,
+        "2015": 30.0,
+        "2016": 30.0,
+        "2017": 30.0,
+        "2018": 30.0,
+        "2019": 30.0,
+        "2020": 30.0,
+        "2021": 30.0,
+        "2022": 30.0,
+        "2023": 30.0
+      },
+      "lt_debt": {
+        "2014": 300.0,
+        "2015": 300.0,
+        "2016": 300.0,
+        "2017": 300.0,
+        "2018": 300.0,
+        "2019": 300.0,
+        "2020": 300.0,
+        "2021": 300.0,
+        "2022": 300.0,
+        "2023": 300.0
+      },
+      "total_liabilities": {
+        "2014": 800.0,
+        "2015": 800.0,
+        "2016": 800.0,
+        "2017": 800.0,
+        "2018": 800.0,
+        "2019": 800.0,
+        "2020": 800.0,
+        "2021": 800.0,
+        "2022": 800.0,
+        "2023": 800.0
+      },
+      "equity": {
+        "2014": 420.0,
+        "2015": 445.2,
+        "2016": 471.91,
+        "2017": 500.23,
+        "2018": 530.24,
+        "2019": 562.05,
+        "2020": 595.78,
+        "2021": 631.52,
+        "2022": 669.42,
+        "2023": 700.0
+      },
+      "retained_earnings": {
+        "2014": 210.0,
+        "2015": 222.6,
+        "2016": 235.96,
+        "2017": 250.11,
+        "2018": 265.12,
+        "2019": 281.03,
+        "2020": 297.89,
+        "2021": 315.76,
+        "2022": 334.71,
+        "2023": 350.0
+      },
+      "ocf": {
+        "2014": 158.0,
+        "2015": 166.88,
+        "2016": 176.29,
+        "2017": 186.27,
+        "2018": 196.85,
+        "2019": 208.06,
+        "2020": 219.94,
+        "2021": 232.54,
+        "2022": 245.89,
+        "2023": 260.0
+      },
+      "capex": {
+        "2014": 41.44,
+        "2015": 43.93,
+        "2016": 46.56,
+        "2017": 49.36,
+        "2018": 52.32,
+        "2019": 55.46,
+        "2020": 58.78,
+        "2021": 62.31,
+        "2022": 66.05,
+        "2023": 70.0
+      },
+      "sbc": {
+        "2014": 14.8,
+        "2015": 15.69,
+        "2016": 16.63,
+        "2017": 17.63,
+        "2018": 18.68,
+        "2019": 19.81,
+        "2020": 20.99,
+        "2021": 22.25,
+        "2022": 23.59,
+        "2023": 25.0
+      },
+      "buybacks": {
+        "2014": 30.0,
+        "2015": 30.0,
+        "2016": 30.0,
+        "2017": 30.0,
+        "2018": 30.0,
+        "2019": 30.0,
+        "2020": 30.0,
+        "2021": 30.0,
+        "2022": 30.0,
+        "2023": 30.0
+      },
+      "dividends_paid": {
+        "2014": 40.0,
+        "2015": 40.0,
+        "2016": 40.0,
+        "2017": 40.0,
+        "2018": 40.0,
+        "2019": 40.0,
+        "2020": 40.0,
+        "2021": 40.0,
+        "2022": 40.0,
+        "2023": 40.0
+      }
+    },
+    "source_map_per_tag": {
+      "revenue": {
+        "value": 1000.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "cogs": {
+        "value": 600.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "ebit": {
+        "value": 250.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "dep_amort": {
+        "value": 50.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "interest_expense": {
+        "value": 20.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "tax_expense": {
+        "value": 46.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "pretax_income": {
+        "value": 230.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "net_income": {
+        "value": 184.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "eps_diluted": {
+        "value": 1.84,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "shares_diluted": {
+        "value": 100.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "cash": {
+        "value": 100.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "st_investments": {
+        "value": 20.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "ar": {
+        "value": 120.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "inventory": {
+        "value": 80.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "current_assets": {
+        "value": 350.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "total_assets": {
+        "value": 1500.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "ppe_net": {
+        "value": 400.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "rou_asset": {
+        "value": 60.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "operating_lease_liab": {
+        "value": 65.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "finance_lease_liab": {
+        "value": 15.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "goodwill": {
+        "value": 200.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "intangibles": {
+        "value": 50.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "ap": {
+        "value": 90.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "current_liabilities": {
+        "value": 200.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "st_debt": {
+        "value": 30.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "lt_debt": {
+        "value": 300.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "total_liabilities": {
+        "value": 800.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "equity": {
+        "value": 700.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "retained_earnings": {
+        "value": 350.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "ocf": {
+        "value": 260.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "capex": {
+        "value": 70.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "sbc": {
+        "value": 25.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "buybacks": {
+        "value": 30.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      },
+      "dividends_paid": {
+        "value": 40.0,
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "accession": "0002023-23-000001",
+        "filing_form": "10-K",
+        "edgar_filing_url": "https://www.sec.gov/Archives/edgar/data/999999/000202323000001/"
+      }
+    },
+    "edgar_filings_index": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000999999&type=10-K&dateb=&owner=include&count=40"
+  },
+  "score_composite": {
+    "value_0_100": 77.8,
+    "pillars": {
+      "valuation": 100,
+      "balance_sheet_health": 85,
+      "earnings_quality": 70,
+      "smart_money": 50,
+      "momentum": 50
+    },
+    "weights": {
+      "valuation": 0.3,
+      "balance_sheet_health": 0.25,
+      "earnings_quality": 0.2,
+      "smart_money": 0.15,
+      "momentum": 0.1
+    },
+    "note": "pondérations modifiables par l'utilisateur (.txt Couche 4)"
+  }
+}

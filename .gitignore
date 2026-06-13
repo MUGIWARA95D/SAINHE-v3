@@ -11,3 +11,7 @@ cache/
 .env
 workspace/
 sainhe.egg-info/
+
+# Backend cache + output JSON (générés localement)
+sainhe_backend/cache/
+sainhe_backend/output/
