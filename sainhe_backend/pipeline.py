@@ -83,6 +83,12 @@ def main(tickers: list[str]):
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    if not args or args == ["--portfolio"]:
-        args = config.TEST_TICKERS
+    if args == ["--portfolio"]:
+        # 14 tickers US du portfolio SAINHE exploitables par EDGAR (10-K)
+        args = config.EDGAR_TICKERS
+    elif args == ["--portfolio-all"]:
+        # Les 31 tickers — les non-US seront sautés (log ECHEC)
+        args = config.PORTFOLIO_TICKERS
+    elif not args:
+        args = config.EDGAR_TICKERS
     main(args)

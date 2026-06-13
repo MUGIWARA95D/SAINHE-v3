@@ -351,6 +351,43 @@ def write_data_layer(boxes_by_id: dict, ts_render: str) -> list[dict]:
 
 
 # ============================================================
+#  STOCK ANALYSIS DATA (sainhe_backend → output)
+# ============================================================
+
+# Source de vérité versionnée : data/stock/*.json (générés par sainhe_backend/pipeline.py).
+# Copiés tels quels dans output/data/stock/ pour être déployés (Cloudflare Pages),
+# et le valuation_map est passé au template stock-analysis pour le rendu Niveau 1.
+STOCK_DATA_SRC = Path(__file__).parent / "data" / "stock"
+
+
+def load_stock_valuation_map() -> dict | None:
+    """Charge data/stock/valuation_map.json si présent (sinon None → page 'coming soon')."""
+    vmap_path = STOCK_DATA_SRC / "valuation_map.json"
+    if not vmap_path.exists():
+        log.info("Stock: valuation_map.json absent (%s) — page Stock en placeholder", vmap_path)
+        return None
+    try:
+        return json.loads(vmap_path.read_text(encoding="utf-8"))
+    except Exception as e:
+        log.warning("Stock: lecture valuation_map.json échouée (%s)", e)
+        return None
+
+
+def copy_stock_data_to_output():
+    """Copie data/stock/*.json → output/data/stock/*.json pour le déploiement."""
+    if not STOCK_DATA_SRC.exists():
+        return 0
+    dest = OUTPUT_DIR / "data" / "stock"
+    dest.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for src in STOCK_DATA_SRC.glob("*.json"):
+        (dest / src.name).write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
+        n += 1
+    log.info("Stock: %d fichiers JSON copiés → %s", n, dest)
+    return n
+
+
+# ============================================================
 #  RENDER
 # ============================================================
 
@@ -392,6 +429,12 @@ def render(currency: str = DEFAULT_CURRENCY):
     stock_analysis_live = os.getenv("STOCK_ANALYSIS_LIVE", "false").strip().lower() == "true"
     log.info("STOCK_ANALYSIS_LIVE = %s", stock_analysis_live)
 
+    # ── Stock Analysis data (sainhe_backend) ────────────────
+    stock_vmap = load_stock_valuation_map()
+    if stock_analysis_live and stock_vmap:
+        copy_stock_data_to_output()
+        log.info("Stock: Niveau 1 = %d tickers", len(stock_vmap.get("rows", [])))
+
     # Shared base context (EN-only build)
     base_ctx = {
         "site_name"          : SITE_NAME,
@@ -403,6 +446,7 @@ def render(currency: str = DEFAULT_CURRENCY):
         "ts_render"          : ts_render,
         "fx_rates_js"        : fx_rates,
         "stock_analysis_live": stock_analysis_live,
+        "stock_vmap"         : stock_vmap,
     }
 
     # ── Dashboard (index 0) — special: needs box data ────────

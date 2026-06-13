@@ -35,11 +35,38 @@ EDGAR_TICKER_MAP_URL     = "https://www.sec.gov/files/company_tickers.json"
 CACHE_DB_PATH = os.path.join(os.path.dirname(__file__), "cache", "edgar_cache.sqlite")
 OUTPUT_DIR    = os.path.join(os.path.dirname(__file__), "..", "output", "data", "stock")
 
+# ════════════════════════════════════════════════════════════════
+#  PORTFOLIO SAINHE — 31 tickers exacts du dashboard (box_06_portfolio)
+# ════════════════════════════════════════════════════════════════
+# EDGAR (SEC) ne couvre QUE les déposants US (10-K). Les ADR étrangers
+# déposent en 20-F (parsing différent), les valeurs purement étrangères /
+# ETF / crypto n'ont AUCUN companyfacts EDGAR → le pipeline les saute
+# proprement (log ECHEC) et continue.
+#
+#   ✓ EDGAR_OK      : US filers, données complètes
+#   ~ ADR (20-F)    : déposent à la SEC mais format 20-F (couverture partielle)
+#   ✗ NO_EDGAR      : étranger pur / ETF / crypto → pas de fondamentaux SEC
+
+PORTFOLIO_TICKERS = [
+    # ✓ US filers (10-K) — Stock Analysis complet
+    "NVDA", "AAPL", "MSFT", "ISRG", "ZTS", "XOM", "LMT", "TSLA",
+    "GEV", "DE", "CTVA", "ECL", "KO", "CAT",
+    # ~ ADR déposant 20-F à la SEC (couverture partielle)
+    "ASML", "TSM", "RACE",
+    # ✗ Pas de données EDGAR (étranger pur / ETF / crypto) — sautés par le pipeline
+    "6954.T", "ROG.SW", "2222.SR", "SAF.PA", "RHM.DE", "LDO.MI",
+    "RMS.PA", "GEBN.SW", "NESN.SW", "COA.L", "600111.SS",
+    "GLD", "KAP.L", "BTC-USD",
+]
+
+# Sous-ensemble exploitable par EDGAR (US 10-K) — sert de défaut sûr au pipeline
+EDGAR_TICKERS = [
+    "NVDA", "AAPL", "MSFT", "ISRG", "ZTS", "XOM", "LMT", "TSLA",
+    "GEV", "DE", "CTVA", "ECL", "KO", "CAT",
+]
+
 # Tickers de validation Phase 1 (.txt §8 / prompt)
 TEST_TICKERS = ["AAPL", "MSFT", "KO", "JPM", "XOM"]
-
-# Tickers SAINHE complets (portfolio) — à compléter
-PORTFOLIO_TICKERS = ["AAPL", "MSFT", "KO", "JPM", "XOM"]
 
 # ---------------------------------------------------------------- Seuils flags (.txt Couche 2/3)
 GOODWILL_RED_FLAG_PCT_ASSETS = 0.30

@@ -2,6 +2,10 @@ __pycache__/
 *.pyc
 db/sainhe.db
 output/
+# Exception : sainhe_backend/output/ est un module de CODE (report_builder), pas le build
+!sainhe_backend/output/
+!sainhe_backend/output/**
+sainhe_backend/output/__pycache__/
 .claude/
 *.xlsx
 ~$*
@@ -12,6 +16,5 @@ cache/
 workspace/
 sainhe.egg-info/
 
-# Backend cache + output JSON (générés localement)
+# Backend cache (SQLite, généré localement)
 sainhe_backend/cache/
-sainhe_backend/output/
