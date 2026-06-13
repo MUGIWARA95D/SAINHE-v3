@@ -38,7 +38,6 @@
 {% include "partials/_onboard.html" %}
 <script type="application/json" id="sainhe-page-meta">{"index":{{ page_index }},"path":"{{ page_path }}","title":{{ page_title | tojson }},"nav":{{ page_nav | tojson }}}</script>
 
-<div id="page-wrap">
 {% include "partials/_hero.html" %}
 
 <main id="main">
@@ -50,7 +49,7 @@
   </div>
 
   <!-- ─── 01 · MACRO ──────────────────────────────────────── -->
-  <div class="sec-band sec-choc" data-flow="left">
+  <div class="sec-band sec-choc">
     <div class="bib-wrap">
       <button class="box-info-btn" aria-label="About this section">i</button>
       <div class="box-info-pop">
@@ -65,7 +64,7 @@
   </div>
 
   <!-- ─── 02 · INDICES ────────────────────────────────────── -->
-  <div class="sec-band sec-creme" data-flow="right">
+  <div class="sec-band sec-creme">
     <div class="bib-wrap">
       <button class="box-info-btn" aria-label="About this section">i</button>
       <div class="box-info-pop">
@@ -80,7 +79,7 @@
   </div>
 
   <!-- ─── 03 · NEWS ───────────────────────────────────────── -->
-  <div class="sec-band sec-choc" data-flow="left">
+  <div class="sec-band sec-choc">
     <div class="bib-wrap">
       <button class="box-info-btn" aria-label="About this section">i</button>
       <div class="box-info-pop">
@@ -95,7 +94,7 @@
   </div>
 
   <!-- ─── 04 · SECTORS ────────────────────────────────────── -->
-  <div class="sec-band sec-creme" data-flow="right">
+  <div class="sec-band sec-creme">
     <div class="bib-wrap">
       <button class="box-info-btn" aria-label="About this section">i</button>
       <div class="box-info-pop">
@@ -110,7 +109,7 @@
   </div>
 
   <!-- ─── 05 · ROTATION ──────────────────────────────────── -->
-  <div class="sec-band sec-choc" data-flow="left">
+  <div class="sec-band sec-choc">
     <div class="bib-wrap">
       <button class="box-info-btn" aria-label="About this section">i</button>
       <div class="box-info-pop">
@@ -125,7 +124,7 @@
   </div>
 
   <!-- ─── 06 · PORTFOLIO ──────────────────────────────────── -->
-  <div class="sec-band sec-creme" data-flow="right">
+  <div class="sec-band sec-creme">
     <div class="bib-wrap">
       <button class="box-info-btn" aria-label="About this section">i</button>
       <div class="box-info-pop">
@@ -151,10 +150,7 @@
 
 </main>
 
-</div><!-- /page-wrap -->
-
 {% include "partials/_footer.html" %}
-{% include "partials/_spine.html" %}
 {% include "partials/_anim.html" %}
 
 <!-- ═══ SHARED JS HELPERS ══════════════════════════════════ -->
