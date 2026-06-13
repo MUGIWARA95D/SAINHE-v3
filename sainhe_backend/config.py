@@ -25,7 +25,7 @@ import os
 
 # ---------------------------------------------------------------- EDGAR (.txt Couche 1)
 # ⚠️  OBLIGATOIRE : la SEC exige un User-Agent avec email valide
-EDGAR_USER_AGENT = "SAINHE research contact@sainhe.com"   # ← CHANGE TON EMAIL ICI
+EDGAR_USER_AGENT = "SAINHE research hugo24.waldmeyer@gmail.com"
 EDGAR_RATE_LIMIT_PER_SEC = 10
 EDGAR_BASE_SUBMISSIONS   = "https://data.sec.gov/submissions/CIK{cik:0>10}.json"
 EDGAR_BASE_COMPANYFACTS  = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik:0>10}.json"
