@@ -1,0 +1,161 @@
+{
+  "ticker": "MSFT",
+  "cik": 789019,
+  "as_of": "2026-06-13",
+  "fiscal_year": 2010,
+  "bloc_A_verdict": {
+    "prix": 390.74,
+    "EPV": {
+      "epv_ev": 248361075580.41193,
+      "epv_equity": 247927075580.41193,
+      "epv_per_share": 27.77272,
+      "inputs": {
+        "ebit_adj": 24098000000.0,
+        "tax": 0.0,
+        "wacc": 0.097028,
+        "net_debt": 434000000.0
+      }
+    },
+    "EPV_confidence_range": {
+      "low": 67.582723,
+      "high": 135.181721,
+      "fcf_p25": 29068750000.0,
+      "fcf_p75": 58144500000.0
+    },
+    "EPV_wacc_sensitivity": {
+      "minus_100bps": 155.446751,
+      "central": 138.651675,
+      "plus_100bps": 124.995042
+    },
+    "RE_valuation": {
+      "re_value_equity": 1048193515182.7068,
+      "re_value_per_share": 140.414403,
+      "inputs": {
+        "B0": 343479000000.0,
+        "RE": 68463015150.0,
+        "ke": 0.09715,
+        "g": 0.0
+      }
+    },
+    "consensus": {
+      "available": true,
+      "target_mean": 561.38763,
+      "target_median": 555.0,
+      "target_high": 870.0,
+      "target_low": 400.0,
+      "n_analysts": 55,
+      "warning_few_analysts": false,
+      "dispersion": 0.837211
+    },
+    "reverse_dcf": {
+      "implied_g": 0.090123,
+      "flag_unrealistic": false,
+      "inputs": {
+        "ev": 3488569980000.0,
+        "fcf_adj": 22096000000.0,
+        "wacc": 0.097028
+      }
+    },
+    "SGR": {
+      "sgr": "N/D",
+      "rr": "N/D",
+      "note": "pas d'année précédente pour ΔNWC"
+    },
+    "flag_growth_unfinanceable": false
+  },
+  "bloc_B_flags": [
+    {
+      "id": "sbc_15pct_fcf",
+      "severity": "medium",
+      "message": "SBC = 17% du FCF brut (>15%) : FCF brut significativement surestimé",
+      "details": {"sbc_pct_fcf": 0.167209}
+    }
+  ],
+  "bloc_C_dupont": {"available": false},
+  "bloc_D_trends": {
+    "roic_10y": {},
+    "rnoa_10y": {},
+    "gross_margin_10y": {"2010": 0.802357},
+    "fcf_adj_10y": {
+      "2012": 29321000000.0, "2013": 24576000000.0, "2018": 28312000000.0,
+      "2019": 33608000000.0, "2020": 39945000000.0, "2021": 50000000000.0,
+      "2022": 57647000000.0, "2023": 49864000000.0, "2024": 63337000000.0, "2025": 59637000000.0
+    },
+    "roe_10y": {
+      "2016": 0.0434, "2017": 0.09, "2018": 0.1073, "2019": 0.1289, "2020": 0.0947,
+      "2021": 0.4315, "2022": 0.4368, "2023": 0.3509, "2024": 0.3283, "2025": 0.2965
+    },
+    "owner_earnings_10y": {},
+    "revenue_10y": {"2010": 16039000000.0}
+  },
+  "bloc_E_health": {
+    "net_debt_ebitda": "N/D",
+    "interest_coverage": 159.589404,
+    "lt_debt_payback": {"years": 0.394296, "passes": true, "label": "source secondaire"},
+    "current_ratio": 2.129346,
+    "quick_ratio": 2.101044,
+    "de_ratio": 0.128619,
+    "ccc": {"dso": 296.159985, "dio": "N/D", "dpo": "N/D", "ccc": "N/D"},
+    "ocf_ni": 5.328243,
+    "accruals_pct_rev": -1.219216,
+    "retained_earnings_test": {
+      "ratio": 6.626968, "retained_5y": 296029000000.0,
+      "delta_mcap": 1961774758285.5225, "passes": true, "window": [2020, 2025]
+    }
+  },
+  "bloc_F_peers": {"note": "rempli par peer_batch.build_peer_blocks() sur l'univers complet"},
+  "bloc_G_smart_money": {
+    "n_insider_filings_6m": 63,
+    "recent": [
+      {"form": "4", "date": "2026-06-12"}, {"form": "4", "date": "2026-06-12"},
+      {"form": "4", "date": "2026-06-12"}, {"form": "4", "date": "2026-06-12"},
+      {"form": "4", "date": "2026-06-12"}, {"form": "4", "date": "2026-06-12"},
+      {"form": "4", "date": "2026-06-12"}, {"form": "4", "date": "2026-06-12"},
+      {"form": "4", "date": "2026-06-12"}, {"form": "4", "date": "2026-06-12"},
+      {"form": "4", "date": "2026-06-12"}, {"form": "4", "date": "2026-06-10"},
+      {"form": "4", "date": "2026-06-09"}, {"form": "4", "date": "2026-06-09"},
+      {"form": "4", "date": "2026-06-09"}, {"form": "4", "date": "2026-06-09"},
+      {"form": "4", "date": "2026-06-09"}, {"form": "4", "date": "2026-06-09"},
+      {"form": "4", "date": "2026-06-09"}, {"form": "4", "date": "2026-06-09"}
+    ],
+    "note": "détail buy/sell = Phase 6 (parsing Form 4 XML)"
+  },
+  "bloc_H_sensitivity": {"matrix": "N/D", "note": "données insuffisantes"},
+  "bloc_I_macro": {
+    "leading_indicator": {
+      "indicator": "PMI Manufacturing", "value": "N/D",
+      "label": "contexte macro — indicateur avancé, pas une prédiction"
+    },
+    "geographic_exposure": {
+      "us_pct": "N/D", "non_us_pct": "N/D", "source": "yfinance country (HQ)",
+      "country": "United States",
+      "note": "HQ US ; ventilation revenus géographiques non disponible sans parsing dimensionnel XBRL (Phase 6) — voir 10-K Item 1"
+    }
+  },
+  "drill_down": {
+    "wacc_detail": {
+      "wacc": 0.097028, "ke": 0.09715, "kd": 0.025425, "tax_rate": 0.0,
+      "E": 3488135980000.0, "D": 5939000000.0, "rf": 0.042, "erp": 0.05,
+      "beta": 1.103, "mode": "complet"
+    },
+    "adjustments": {
+      "fy": 2010, "ni_brut": 4518000000.0, "ni_adj": 4518000000.0,
+      "ebit_brut": 24098000000.0, "ebit_adj": 24098000000.0,
+      "adjustments": [], "gap_pct": 0.0, "gap_flag": false
+    },
+    "reformulation": {"NOA": "N/D", "NFO": "N/D", "OA": "N/D", "FA": "N/D", "OO": "N/D", "FO": "N/D", "equity_check": "N/D"},
+    "edgar_filings_index": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000789019&type=10-K&dateb=&owner=include&count=40"
+  },
+  "score_composite": {
+    "value_0_100": 42.8,
+    "pillars": {
+      "valuation": 0, "balance_sheet_health": 65, "earnings_quality": 70,
+      "smart_money": 50, "momentum": 50
+    },
+    "weights": {
+      "valuation": 0.3, "balance_sheet_health": 0.25, "earnings_quality": 0.2,
+      "smart_money": 0.15, "momentum": 0.1
+    },
+    "note": "pondérations modifiables par l'utilisateur (.txt Couche 4)"
+  }
+}
