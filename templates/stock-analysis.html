@@ -17,20 +17,12 @@
   <rect x="9" y="6" width="106" height="143" rx="3" stroke="currentColor" stroke-width="2"/>
   <rect x="19" y="16" width="86" height="123" rx="1.5" stroke="currentColor" stroke-width="1"/>
   <path d="M19 30 C17 23 21 17 27 19" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
-  <path d="M19 30 C13 26 14 18 21 16" stroke="currentColor" stroke-width=".9" stroke-linecap="round" opacity=".7"/>
-  <path d="M19 30 C12 27 12 19 17 15" stroke="currentColor" stroke-width=".7" stroke-linecap="round" opacity=".45"/>
   <circle cx="19" cy="30" r="1.8" fill="currentColor" opacity=".55"/>
   <path d="M105 30 C107 23 103 17 97 19" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
-  <path d="M105 30 C111 26 110 18 103 16" stroke="currentColor" stroke-width=".9" stroke-linecap="round" opacity=".7"/>
-  <path d="M105 30 C112 27 112 19 107 15" stroke="currentColor" stroke-width=".7" stroke-linecap="round" opacity=".45"/>
   <circle cx="105" cy="30" r="1.8" fill="currentColor" opacity=".55"/>
   <path d="M19 125 C17 132 21 138 27 136" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
-  <path d="M19 125 C13 129 14 137 21 139" stroke="currentColor" stroke-width=".9" stroke-linecap="round" opacity=".7"/>
-  <path d="M19 125 C12 128 12 136 17 140" stroke="currentColor" stroke-width=".7" stroke-linecap="round" opacity=".45"/>
   <circle cx="19" cy="125" r="1.8" fill="currentColor" opacity=".55"/>
   <path d="M105 125 C107 132 103 138 97 136" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
-  <path d="M105 125 C111 129 110 137 103 139" stroke="currentColor" stroke-width=".9" stroke-linecap="round" opacity=".7"/>
-  <path d="M105 125 C112 128 112 136 107 140" stroke="currentColor" stroke-width=".7" stroke-linecap="round" opacity=".45"/>
   <circle cx="105" cy="125" r="1.8" fill="currentColor" opacity=".55"/>
 </svg>
 
@@ -51,353 +43,306 @@
   </div>
   {% else %}
 
-  <!-- Embed vmap data for JS -->
+  <!-- Embedded universe data (Niveau 1 + navigator + simulator base stats) -->
   <script type="application/json" id="stk-vmap-data">{{ stock_vmap | tojson }}</script>
 
   <style>
-  /* ═══ Stock Analysis — full page styles ═══════════════════════════════ */
+  /* ═══ Stock Analysis — editorial dossier + node navigator + simulator ═══ */
+  .stk-section{max-width:1180px;margin:0 auto;padding:54px 8px 8px}
+  .stk-sec-head{display:flex;align-items:flex-end;gap:16px;margin-bottom:24px}
+  .stk-sec-idx{font-family:var(--mono,monospace);font-size:12px;color:var(--gold);letter-spacing:2px;
+    border:1px solid var(--gold-border);border-radius:6px;padding:4px 9px;background:var(--gold-bg)}
+  .stk-sec-head h2{font-family:var(--serif);font-size:clamp(24px,3vw,32px);line-height:1;color:var(--h);font-weight:400}
+  .stk-sec-head em{font-style:normal;font-size:12px;color:var(--muted);letter-spacing:.5px;
+    text-transform:uppercase;font-weight:600;margin-bottom:5px;display:block}
+  .stk-sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);margin-bottom:8px}
+  .stk-reveal{opacity:0;transform:translateY(24px);filter:blur(3px);
+    transition:opacity .9s cubic-bezier(.2,.6,.2,1),transform .9s cubic-bezier(.2,.6,.2,1),filter .7s}
+  .stk-reveal.in{opacity:1;transform:none;filter:none}
+  @media(prefers-reduced-motion:reduce){.stk-reveal{opacity:1!important;transform:none!important;filter:none!important}}
 
-  /* ── Scatter chart ── */
-  #stk-scatter-wrap {
-    position: relative; width: 100%; overflow: hidden;
-    border-radius: 6px; background: var(--faint, #f8f6f1);
-    min-height: 320px;
-  }
-  #stk-scatter-svg { display: block; width: 100%; height: 340px; }
-  .stk-dot { cursor: pointer; }
-  .stk-dot-label {
-    font-size: 10px; font-weight: 700; font-family: var(--mono, monospace);
-    pointer-events: none; fill: var(--fg, #222);
-  }
-  .stk-axis-label { font-size: 9px; fill: var(--muted, #888); }
-  .stk-fair-line { stroke: var(--border, #ccc); stroke-width: 1; stroke-dasharray: 4 3; }
+  /* ── Universe controls ── */
+  .stk-uni-controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:8px}
+  .stk-chip-row{display:flex;gap:6px;flex-wrap:wrap}
+  .stk-chip{font-size:11.5px;font-weight:600;padding:6px 13px;border-radius:999px;border:1px solid var(--border);
+    background:var(--card);color:var(--muted);cursor:pointer;transition:all .18s}
+  .stk-chip:hover{border-color:var(--gold-border);color:var(--h)}
+  .stk-chip.active{background:var(--gold);color:#fff;border-color:var(--gold)}
+  [data-theme="dark"] .stk-chip.active{color:#15110C}
+  .stk-sort{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+  .stk-sort select{font:inherit;font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid var(--border);
+    background:var(--card);color:var(--h);cursor:pointer}
 
-  /* ── Table ── */
-  #stk-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  #stk-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  #stk-table th {
-    text-align: right; padding: 8px 12px; color: var(--muted);
-    font-weight: 500; font-size: 10px; text-transform: uppercase;
-    letter-spacing: .5px; border-bottom: 1px solid var(--border);
-    white-space: nowrap; cursor: pointer; user-select: none;
-  }
-  #stk-table th:first-child { text-align: left; }
-  #stk-table th.sort-asc::after  { content: " \2191"; opacity: .7; }
-  #stk-table th.sort-desc::after { content: " \2193"; opacity: .7; }
-  #stk-table td {
-    padding: 9px 12px; border-bottom: 1px solid var(--border-lt);
-    vertical-align: middle; text-align: right;
-    font-variant-numeric: tabular-nums; white-space: nowrap;
-    cursor: pointer;
-  }
-  #stk-table td:first-child { text-align: left; }
-  #stk-table tr:hover td { background: var(--hover); }
-  #stk-table tr.stk-row-active td { background: var(--hover); border-left: 3px solid var(--h); }
-  #stk-table tr.stk-row-active td:first-child { padding-left: 9px; }
-  .stk-tk { font-weight: 700; color: var(--h); font-size: 13px; letter-spacing: .3px; }
-  .stk-gap-pos { color: var(--green); font-weight: 600; }
-  .stk-gap-neg { color: var(--red); font-weight: 600; }
-  .stk-na { color: var(--faint); }
-  .stk-score {
-    display: inline-block; min-width: 34px; text-align: center;
-    padding: 2px 8px; border-radius: 12px; font-weight: 700; font-size: 11px;
-  }
-  .stk-score-hi  { background: var(--green-bg);  color: var(--green); }
-  .stk-score-mid { background: var(--yellow-bg); color: var(--yellow); }
-  .stk-score-lo  { background: var(--red-bg);    color: var(--red); }
-  .stk-flags { font-weight: 600; }
-  .stk-flags-0 { color: var(--muted); }
-  .stk-flags-n { color: var(--orange); }
-  .stk-foot {
-    padding: 10px 14px; font-size: 10px; color: var(--faint);
-    border-top: 1px solid var(--border-lt); letter-spacing: .2px;
-  }
+  /* ── Node-axis navigator ── */
+  .stk-spectrum-wrap{padding:30px 26px 18px;margin-top:14px}
+  #stk-spectrum{position:relative;height:170px;border-bottom:1px solid var(--border)}
+  .stk-axis-end{position:absolute;bottom:-24px;font-family:var(--mono,monospace);font-size:9.5px;
+    letter-spacing:.16em;color:var(--faint);text-transform:uppercase}
+  .stk-node{position:absolute;bottom:16px;transform:translateX(-50%);cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:7px;transition:transform .25s}
+  .stk-node:hover{transform:translateX(-50%) translateY(-6px)}
+  .stk-node-dot{width:13px;height:13px;border-radius:50%;background:var(--green);
+    box-shadow:0 0 12px var(--green-border);transition:all .25s}
+  .stk-node.sel .stk-node-dot{background:var(--gold);box-shadow:0 0 22px var(--gold);transform:scale(1.55)}
+  .stk-node-tk{font-family:var(--mono,monospace);font-size:9.5px;letter-spacing:.06em;color:var(--muted);
+    writing-mode:vertical-rl;transform:rotate(180deg)}
+  .stk-node.sel .stk-node-tk{color:var(--gold);font-weight:700}
+  .stk-node-score{font-family:var(--mono,monospace);font-size:10px;color:var(--faint)}
+  .stk-node.sel .stk-node-score{color:var(--gold)}
+  .stk-spectrum-note{margin-top:34px;font-family:var(--mono,monospace);font-size:10px;letter-spacing:.1em;
+    color:var(--faint);text-transform:uppercase}
+  .stk-spectrum-note b{color:var(--gold)}
 
-  /* ── Detail panel ── */
-  #stk-detail {
-    display: none; margin-top: 0;
-    border-top: 2px solid var(--h);
-    animation: stk-fade-in 0.25s ease;
-  }
-  #stk-detail.stk-open { display: block; }
-  @keyframes stk-fade-in {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: none; }
-  }
-  .stk-detail-header {
-    display: flex; align-items: center; gap: 1rem;
-    padding: 1rem 1.25rem 0.75rem;
-    border-bottom: 1px solid var(--border-lt);
-    flex-wrap: wrap;
-  }
-  .stk-detail-ticker {
-    font-size: 1.5rem; font-weight: 800; color: var(--h);
-    font-family: var(--mono, monospace); letter-spacing: 1px;
-  }
-  .stk-detail-asof { font-size: .75rem; color: var(--muted); margin-left: auto; }
-  #stk-detail-close {
-    margin-left: auto; background: none; border: none; cursor: pointer;
-    font-size: 1.2rem; color: var(--muted); padding: 0 4px; line-height: 1;
-  }
-  #stk-detail-close:hover { color: var(--fg); }
-  .stk-loading { padding: 2.5rem; text-align: center; color: var(--muted); font-size: .9rem; }
-  .stk-error   { padding: 2rem 1.25rem; color: var(--red); font-size: .85rem; }
+  /* ── Dossier cover ── */
+  #stk-dossier{scroll-margin-top:96px}
+  .stk-cover{padding:26px 28px;background:linear-gradient(135deg,var(--h),#2a2014);position:relative;
+    overflow:hidden;border-radius:14px 14px 0 0}
+  [data-theme="dark"] .stk-cover{background:linear-gradient(135deg,#0E0B07,#1C1712)}
+  .stk-cover::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(-45deg,rgba(212,184,106,.05),rgba(212,184,106,.05) 1px,transparent 1px,transparent 13px)}
+  .stk-cover-in{position:relative;z-index:1;display:flex;flex-wrap:wrap;align-items:center;gap:24px}
+  .stk-cover-eyebrow{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-border);font-weight:800}
+  .stk-cover-name{font-family:var(--serif);font-size:30px;color:#F5F0E6;line-height:1.05;margin-top:6px}
+  .stk-cover-meta{display:flex;gap:14px;align-items:center;margin-top:9px;flex-wrap:wrap;
+    color:rgba(245,240,230,.62);font-size:12.5px;font-family:var(--mono,monospace)}
+  .stk-cover-px{font-family:var(--mono,monospace);font-size:22px;color:#F5F0E6;font-weight:600}
+  .stk-cover-verdict{margin-left:auto;text-align:right}
+  .stk-cover-vlabel{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(245,240,230,.5);font-weight:800}
+  .stk-cover-vsig{font-family:var(--serif);font-size:38px;line-height:1;margin-top:4px}
+  .stk-cover-vscore{font-size:11px;color:rgba(245,240,230,.62);margin-top:6px;font-family:var(--mono,monospace)}
+  .stk-dos-body{border:1px solid var(--border);border-top:none;border-radius:0 0 14px 14px;background:var(--card)}
 
-  /* ── Tabs ── */
-  .stk-tabs {
-    display: flex; gap: 0; border-bottom: 1px solid var(--border);
-    padding: 0 1.25rem; overflow-x: auto;
-  }
-  .stk-tab-btn {
-    background: none; border: none; border-bottom: 2px solid transparent;
-    padding: .65rem 1rem; font-size: .8rem; font-weight: 600; cursor: pointer;
-    color: var(--muted); letter-spacing: .3px; white-space: nowrap;
-    transition: color .15s, border-color .15s;
-  }
-  .stk-tab-btn:hover { color: var(--fg); }
-  .stk-tab-btn.stk-tab-active { color: var(--h); border-bottom-color: var(--h); }
-  .stk-tab-panel { display: none; padding: 1.25rem; }
-  .stk-tab-panel.stk-tab-panel-active { display: block; }
+  /* ── Bloc ── */
+  .stk-bloc{padding:22px 24px;border-bottom:1px solid var(--border-lt)}
+  .stk-bloc:last-child{border-bottom:none}
+  .stk-bloc-h{display:flex;align-items:center;gap:11px;margin-bottom:16px}
+  .stk-bloc-tag{font-family:var(--mono,monospace);font-size:11px;color:var(--gold);border:1px solid var(--gold-border);
+    border-radius:5px;padding:3px 8px;background:var(--gold-bg)}
+  .stk-bloc-h h3{font-family:var(--serif);font-size:18px;color:var(--h);font-weight:400}
+  .stk-bloc-h em{font-style:normal;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;
+    margin-left:auto;font-weight:600}
+  .stk-statg{display:grid;gap:0;border:1px solid var(--border-lt);border-radius:9px;overflow:hidden}
+  .stk-statg.c3{grid-template-columns:repeat(3,1fr)}.stk-statg.c4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:680px){.stk-statg.c3,.stk-statg.c4{grid-template-columns:repeat(2,1fr)}}
+  .stk-stat{padding:14px 16px;border-right:1px solid var(--border-lt);border-bottom:1px solid var(--border-lt);background:var(--card)}
+  .stk-stat-l{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:800}
+  .stk-stat-v{font-family:var(--serif);font-size:24px;color:var(--h);margin-top:5px;line-height:1;font-variant-numeric:tabular-nums}
+  .stk-stat-v.g{color:var(--green)}.stk-stat-v.r{color:var(--red)}.stk-stat-v.y{color:var(--orange)}
+  .stk-stat-s{font-size:10.5px;color:var(--muted);margin-top:5px;line-height:1.4}
+  .stk-tag{display:inline-block;margin-top:6px;font-size:8.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
+    padding:2px 7px;border-radius:3px}
+  .stk-tag.g{background:var(--green-bg);color:var(--green)}.stk-tag.r{background:var(--red-bg);color:var(--red)}
+  .stk-tag.y{background:var(--orange-bg);color:var(--orange)}.stk-tag.n{background:var(--card-alt);color:var(--muted)}
+  .stk-analysis{padding:13px 16px;background:var(--gold-bg);border-left:3px solid var(--gold);font-family:var(--serif);
+    font-style:italic;font-size:13px;line-height:1.6;color:var(--p);margin-top:14px;border-radius:0 9px 9px 0}
+  .stk-analysis b{font-style:normal;color:var(--h)}
 
-  /* ── Verdict cards ── */
-  .stk-price-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem;
-    margin-bottom: 1.25rem;
-  }
-  @media(max-width:700px){ .stk-price-grid { grid-template-columns: repeat(2,1fr); } }
-  .stk-pcard {
-    border: 1px solid var(--border-lt); border-radius: 8px;
-    padding: .75rem 1rem; background: var(--faint, #fafafa);
-  }
-  .stk-pcard-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: .35rem; }
-  .stk-pcard-val   { font-size: 1.15rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .stk-pcard-delta { font-size: .72rem; font-weight: 600; margin-top: .2rem; }
-  .stk-delta-pos { color: var(--green); }
-  .stk-delta-neg { color: var(--red); }
-  .stk-subsec { margin-bottom: 1.25rem; }
-  .stk-subsec-title {
-    font-size: .72rem; text-transform: uppercase; letter-spacing: .6px;
-    color: var(--muted); margin-bottom: .5rem; font-weight: 600;
-  }
-  /* Confidence range bar */
-  .stk-conf-bar-wrap { position: relative; height: 28px; margin: .4rem 0 .6rem; }
-  .stk-conf-track {
-    position: absolute; top: 10px; left: 0; right: 0; height: 8px;
-    background: var(--border-lt); border-radius: 4px;
-  }
-  .stk-conf-fill {
-    position: absolute; top: 10px; height: 8px; border-radius: 4px;
-    background: linear-gradient(90deg, var(--green), var(--yellow));
-  }
-  .stk-conf-pin {
-    position: absolute; top: 4px; width: 3px; height: 20px;
-    background: var(--red); border-radius: 2px; transform: translateX(-50%);
-  }
-  .stk-conf-labels { display: flex; justify-content: space-between; font-size: .68rem; color: var(--muted); margin-top: .2rem; }
-  /* WACC sensitivity */
-  .stk-wacc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
-  .stk-wacc-cell {
-    text-align: center; border: 1px solid var(--border-lt); border-radius: 6px; padding: .6rem .5rem;
-  }
-  .stk-wacc-cell-label { font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
-  .stk-wacc-cell-val   { font-size: 1rem; font-weight: 700; margin-top: .25rem; }
-  .stk-wacc-cell.central { border-color: var(--h); }
-  /* Sensitivity matrix (Bloc H) */
-  .stk-sens-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .stk-sens-tbl { border-collapse: collapse; font-size: .72rem; font-variant-numeric: tabular-nums; margin: 0 auto; }
-  .stk-sens-tbl th, .stk-sens-tbl td { padding: .35rem .5rem; text-align: center; white-space: nowrap; }
-  .stk-sens-tbl thead th { color: var(--muted); font-weight: 600; font-size: .62rem; border-bottom: 1px solid var(--border); }
-  .stk-sens-tbl tbody th { color: var(--muted); font-weight: 600; font-size: .62rem; text-align: right; border-right: 1px solid var(--border); }
-  .stk-sens-cell { border-radius: 4px; font-weight: 600; color: #1a1a1a; }
-  .stk-sens-corner { font-size: .58rem; color: var(--faint); }
-  .stk-sens-axis-x { font-size: .6rem; color: var(--muted); text-align: center; letter-spacing: .4px; }
-  .stk-sens-axis-y { font-size: .6rem; color: var(--muted); letter-spacing: .4px; }
-  .stk-sens-legend { display: flex; align-items: center; gap: .5rem; font-size: .65rem; color: var(--muted); margin-top: .5rem; flex-wrap: wrap; }
-  .stk-sens-sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; }
-  /* Score composite */
-  .stk-score-total {
-    font-size: 2.2rem; font-weight: 800; display: inline-block;
-    padding: .3rem .9rem; border-radius: 10px; font-variant-numeric: tabular-nums;
-  }
-  .stk-pillar-row { display: flex; align-items: center; gap: .75rem; margin-bottom: .45rem; }
-  .stk-pillar-name { font-size: .75rem; min-width: 130px; color: var(--fg); }
-  .stk-pillar-bar-bg { flex: 1; height: 8px; background: var(--border-lt); border-radius: 4px; overflow: hidden; }
-  .stk-pillar-bar-fill { height: 100%; border-radius: 4px; background: var(--h); }
-  .stk-pillar-val { font-size: .75rem; font-weight: 600; min-width: 36px; text-align: right; font-variant-numeric: tabular-nums; }
-  .stk-pillar-wt  { font-size: .65rem; color: var(--muted); min-width: 28px; text-align: right; }
-  /* Reverse DCF */
-  .stk-rdcf-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-  .stk-rdcf-chip {
-    display: inline-flex; align-items: center; gap: .4rem;
-    border: 1px solid var(--border); border-radius: 20px; padding: .3rem .85rem;
-    font-size: .8rem; font-weight: 600;
-  }
-  .stk-rdcf-note { font-size: .7rem; color: var(--muted); margin-top: .35rem; }
+  /* DuPont waterfall */
+  .stk-dp{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+  .stk-dp-row{display:flex;align-items:center;gap:12px}
+  .stk-dp-l{font-size:11px;color:var(--muted);width:150px;text-align:right;flex-shrink:0}
+  .stk-dp-track{flex:1;height:22px;background:var(--card-alt);border-radius:5px;overflow:hidden}
+  .stk-dp-bar{height:100%;border-radius:5px;width:0;transition:width 1s cubic-bezier(.2,.7,.2,1)}
+  .stk-dp-bar.g{background:linear-gradient(90deg,var(--green-border),var(--green))}
+  .stk-dp-bar.y{background:linear-gradient(90deg,var(--orange-border),var(--orange))}
+  .stk-dp-v{font-family:var(--mono,monospace);font-size:13px;font-weight:700;color:var(--h);width:72px;flex-shrink:0;text-align:right}
 
-  /* ── Flags (N3) ── */
-  .stk-flag-item {
-    display: flex; align-items: flex-start; gap: .75rem;
-    padding: .7rem 0; border-bottom: 1px solid var(--border-lt);
-  }
-  .stk-flag-item:last-child { border-bottom: none; }
-  .stk-flag-badge {
-    flex-shrink: 0; font-size: .65rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .5px; padding: .2rem .6rem; border-radius: 10px;
-  }
-  .stk-flag-high   { background: var(--red-bg);    color: var(--red); }
-  .stk-flag-medium { background: var(--yellow-bg); color: var(--yellow); }
-  .stk-flag-info   { background: var(--faint);     color: var(--muted); border: 1px solid var(--border-lt); }
-  .stk-flag-msg { font-size: .82rem; color: var(--fg); line-height: 1.45; }
-  .stk-flag-id  { font-size: .65rem; color: var(--faint); font-family: var(--mono, monospace); margin-top: .15rem; }
-  /* DuPont */
-  .stk-dupont-eq {
-    font-family: var(--mono, monospace); font-size: .85rem;
-    background: var(--faint); border-radius: 6px; padding: .75rem 1rem;
-    line-height: 2; margin-bottom: .85rem; overflow-x: auto;
-    border: 1px solid var(--border-lt);
-  }
-  .stk-dupont-eq .d-val { font-weight: 700; color: var(--h); }
-  .stk-dupont-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: .6rem; }
-  @media(max-width:600px){ .stk-dupont-grid { grid-template-columns: 1fr 1fr; } }
-  .stk-dupont-cell {
-    border: 1px solid var(--border-lt); border-radius: 7px; padding: .6rem .75rem;
-    background: var(--faint);
-  }
-  .stk-dupont-cell-lbl { font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
-  .stk-dupont-cell-val { font-size: 1rem; font-weight: 700; margin-top: .2rem; font-variant-numeric: tabular-nums; }
-  .stk-dupont-cell-desc { font-size: .68rem; color: var(--muted); margin-top: .15rem; line-height: 1.3; }
-  /* Sparklines */
-  .stk-spark-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: .85rem; }
-  @media(max-width:600px){ .stk-spark-grid { grid-template-columns: 1fr 1fr; } }
-  .stk-spark-card { border: 1px solid var(--border-lt); border-radius: 7px; padding: .6rem .75rem; }
-  .stk-spark-title { font-size: .68rem; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); margin-bottom: .4rem; }
-  .stk-spark-svg { display: block; width: 100%; height: 52px; }
-  .stk-spark-range { display: flex; justify-content: space-between; font-size: .62rem; color: var(--faint); margin-top: .2rem; }
-  .stk-spark-nd { height: 52px; display: flex; align-items: center; justify-content: center; color: var(--faint); font-size: .75rem; }
-  /* Health grid */
-  .stk-health-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: .7rem; }
-  @media(max-width:600px){ .stk-health-grid { grid-template-columns: 1fr 1fr; } }
-  .stk-hcard {
-    border: 1px solid var(--border-lt); border-radius: 7px; padding: .7rem .85rem;
-    position: relative;
-  }
-  .stk-hcard-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); margin-bottom: .3rem; }
-  .stk-hcard-val   { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .stk-hcard-note  { font-size: .65rem; color: var(--muted); margin-top: .15rem; }
-  .stk-hcard-dot {
-    position: absolute; top: .7rem; right: .7rem;
-    width: 9px; height: 9px; border-radius: 50%;
-  }
-  .stk-dot-green  { background: var(--green); }
-  .stk-dot-yellow { background: var(--yellow); }
-  .stk-dot-red    { background: var(--red); }
-  .stk-dot-gray   { background: var(--muted); }
-  .stk-pass { color: var(--green); font-size: .72rem; font-weight: 600; }
-  .stk-fail { color: var(--red);   font-size: .72rem; font-weight: 600; }
+  /* trend svg */
+  .stk-trend{width:100%;height:96px;display:block}
+  .stk-trend path.line{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+    stroke-dasharray:1200;stroke-dashoffset:1200;transition:stroke-dashoffset 1.6s ease}
+  .stk-bloc.in .stk-trend path.line{stroke-dashoffset:0}
+  .stk-trend-nd{height:80px;display:flex;align-items:center;justify-content:center;color:var(--faint);
+    font-size:12px;background:var(--card-alt);border-radius:8px}
 
-  /* ── Smart Money / Macro / WACC (N4) ── */
-  .stk-sm-count { font-size: 1.2rem; font-weight: 700; margin-bottom: .75rem; }
-  .stk-sm-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
-  .stk-sm-table th { text-align: left; color: var(--muted); font-weight: 500; font-size: .7rem; text-transform: uppercase; padding: .4rem .5rem; border-bottom: 1px solid var(--border); }
-  .stk-sm-table td { padding: .45rem .5rem; border-bottom: 1px solid var(--border-lt); }
-  .stk-macro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem; }
-  @media(max-width:600px){ .stk-macro-grid { grid-template-columns: 1fr; } }
-  .stk-macro-card {
-    border: 1px solid var(--border-lt); border-radius: 7px; padding: .85rem 1rem;
-    background: var(--faint);
-  }
-  .stk-macro-card-title { font-size: .68rem; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); margin-bottom: .4rem; }
-  .stk-macro-card-val   { font-size: 1.1rem; font-weight: 700; }
-  .stk-macro-card-note  { font-size: .7rem; color: var(--muted); margin-top: .35rem; font-style: italic; line-height: 1.35; }
-  .stk-wacc-drill { width: 100%; border-collapse: collapse; font-size: .82rem; }
-  .stk-wacc-drill th { text-align: left; color: var(--muted); font-weight: 500; font-size: .7rem; text-transform: uppercase; padding: .4rem .6rem; border-bottom: 1px solid var(--border); }
-  .stk-wacc-drill td { padding: .5rem .6rem; border-bottom: 1px solid var(--border-lt); font-variant-numeric: tabular-nums; }
-  .stk-wacc-drill tr:hover td { background: var(--hover); }
-  .stk-edgar-btn {
-    display: inline-flex; align-items: center; gap: .4rem;
-    margin-top: 1rem; padding: .55rem 1.1rem;
-    border: 1px solid var(--h); border-radius: 6px; color: var(--h);
-    font-size: .8rem; font-weight: 600; text-decoration: none;
-    transition: background .15s, color .15s;
-  }
-  .stk-edgar-btn:hover { background: var(--h); color: #fff; }
+  /* health rows */
+  .stk-hrow{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border-lt)}
+  .stk-hrow:last-child{border-bottom:none}
+  .stk-hrow-l{font-size:11.5px;color:var(--muted);width:180px;flex-shrink:0}
+  .stk-hrow-v{font-family:var(--mono,monospace);font-size:15px;font-weight:700;width:88px;flex-shrink:0;text-align:right}
+  .stk-hrow-b{font-size:10.5px;color:var(--faint);flex:1}
+  .stk-hrow-s{font-size:8.5px;font-weight:800;letter-spacing:.6px;padding:2px 8px;border-radius:3px;flex-shrink:0}
+
+  /* sensitivity heatmap */
+  .stk-heat{border-collapse:collapse;width:100%;font-family:var(--mono,monospace);font-size:12px}
+  .stk-heat th{font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);font-weight:800;
+    padding:6px 8px;border:1px solid var(--border-lt)}
+  .stk-heat td{padding:8px 6px;text-align:center;border:1px solid var(--border-lt);font-weight:700;transition:transform .15s}
+  .stk-heat td:hover{transform:scale(1.08);position:relative;z-index:2;box-shadow:var(--shadow-md)}
+
+  /* score pillars */
+  .stk-pillars{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--border-lt);border-radius:9px;overflow:hidden}
+  @media(max-width:680px){.stk-pillars{grid-template-columns:repeat(3,1fr)}}
+  .stk-pil{padding:14px 12px;text-align:center;border-right:1px solid var(--border-lt);background:var(--card)}
+  .stk-pil-l{font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);font-weight:800;line-height:1.3;min-height:24px}
+  .stk-pil-v{font-family:var(--serif);font-size:28px;line-height:1;margin-top:6px}
+  .stk-pil-w{font-size:9px;color:var(--faint);margin-top:5px}
+  .stk-pil-track{height:3px;background:var(--border-lt);border-radius:2px;margin-top:7px;overflow:hidden}
+  .stk-pil-fill{height:100%;border-radius:2px;width:0;transition:width 1s ease}
+  .stk-score-final{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
+  .stk-sf-num{font-family:var(--serif);font-size:52px;line-height:1;color:var(--h)}
+
+  /* flags */
+  .stk-flag{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-lt)}
+  .stk-flag:last-child{border-bottom:none}
+  .stk-flag-badge{flex-shrink:0;font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+    padding:3px 8px;border-radius:10px}
+  .stk-flag-high{background:var(--red-bg);color:var(--red)}
+  .stk-flag-med{background:var(--orange-bg);color:var(--orange)}
+  .stk-flag-info{background:var(--card-alt);color:var(--muted)}
+  .stk-flag-msg{font-size:12px;color:var(--p);line-height:1.45}
+  .stk-flag-id{font-size:9px;color:var(--faint);font-family:var(--mono,monospace);margin-top:2px}
+
+  .stk-loading{padding:40px;text-align:center;color:var(--muted);font-size:14px}
+
+  /* ── Portfolio simulator ── */
+  .stk-sim-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+  @media(max-width:920px){.stk-sim-grid{grid-template-columns:1fr}}
+  .stk-sim-panel{padding:20px}
+  .stk-sim-panel h3{font-family:var(--serif);font-size:16px;color:var(--h);margin-bottom:4px;font-weight:400}
+  .stk-sim-panel .stk-sub{font-size:11.5px;color:var(--muted);margin-bottom:16px;line-height:1.5}
+  .stk-asset{display:grid;grid-template-columns:104px 1fr 52px;gap:11px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border-lt)}
+  .stk-asset:last-of-type{border-bottom:none}
+  .stk-asset-tk{font-family:var(--mono,monospace);font-size:13px;font-weight:700;color:var(--h)}
+  .stk-asset-meta{font-size:9px;color:var(--muted)}
+  .stk-asset input[type=range]{width:100%;accent-color:var(--gold);cursor:pointer}
+  .stk-asset-w{font-family:var(--mono,monospace);font-size:13px;font-weight:700;color:var(--gold);text-align:right}
+  .stk-asset-rm{background:none;border:none;color:var(--faint);font-size:10px;cursor:pointer;padding:0}
+  .stk-asset-rm:hover{color:var(--red)}
+  .stk-sim-add{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .stk-sim-add select{flex:1;min-width:140px;font:inherit;font-size:12px;padding:8px 12px;border-radius:8px;
+    border:1px solid var(--border);background:var(--card);color:var(--h)}
+  .stk-btn{font:inherit;font-size:12px;font-weight:700;padding:8px 16px;border-radius:8px;border:1px solid var(--gold);
+    background:var(--gold);color:#fff;cursor:pointer;transition:opacity .15s}
+  [data-theme="dark"] .stk-btn{color:#15110C}
+  .stk-btn.ghost{background:var(--card);color:var(--gold)}
+  .stk-btn:hover{opacity:.85}
+  .stk-sim-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .stk-simm{padding:14px 16px;border:1px solid var(--border-lt);border-radius:9px;background:var(--card-alt)}
+  .stk-simm-l{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:800}
+  .stk-simm-v{font-family:var(--serif);font-size:27px;color:var(--h);line-height:1;margin-top:5px;font-variant-numeric:tabular-nums}
+  .stk-simm-v.up{color:var(--green)}.stk-simm-v.dn{color:var(--red)}
+  .stk-simm-s{font-size:10px;color:var(--muted);margin-top:4px}
+  .stk-corr{border-collapse:collapse;font-family:var(--mono,monospace);font-size:10px;margin-top:6px}
+  .stk-corr th{font-size:9px;color:var(--muted);font-weight:700;padding:3px 5px;text-align:center}
+  .stk-corr th.rot{writing-mode:vertical-rl;transform:rotate(180deg);height:46px}
+  .stk-corr td{width:30px;height:30px;text-align:center;color:#fff;font-weight:700;border:1px solid var(--card);border-radius:3px}
+  [data-theme="dark"] .stk-corr td{color:#15110C}
+  .stk-corr td.diag{background:var(--h)!important;color:var(--gold)!important}
+  .stk-frontier{width:100%;height:300px;display:block;background:var(--card-alt);border-radius:9px}
+  .stk-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:10px}
+  .stk-legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+
+  .stk-disclaimer{max-width:1180px;margin:18px auto 0;padding:14px 8px;font-size:10.5px;color:var(--faint);
+    letter-spacing:.2px;line-height:1.6}
   </style>
 
-  <!-- ═══ NIVEAU 1 — VALUATION MAP ══════════════════════════════════════ -->
-  <div class="sec-band sec-creme">
-    <div class="section-lbl" id="nav-valuation-map">
-      <h2>Valuation Map</h2><em>Intrinsic value vs price &mdash; SAINHE portfolio</em>
+  <!-- ═══ 01 · UNIVERSE — node-axis navigator ═══════════════════════════ -->
+  <section class="stk-section" id="stk-universe">
+    <div class="stk-sec-head stk-reveal">
+      <span class="stk-sec-idx">01</span>
+      <div><em>The watchlist · click a node to open its dossier</em><h2>Universe</h2></div>
+      <div class="stk-sec-line"></div>
     </div>
+    <div class="stk-reveal">
+      <div class="stk-uni-controls">
+        <div class="stk-chip-row" id="stk-sector-chips"></div>
+        <div class="stk-sort">Sort
+          <select id="stk-sort">
+            <option value="score">Composite score</option>
+            <option value="upside">EPV upside</option>
+            <option value="ticker">Ticker A&ndash;Z</option>
+            <option value="beta">Beta</option>
+          </select>
+        </div>
+      </div>
+      <div class="card stk-spectrum-wrap">
+        <div id="stk-spectrum"></div>
+        <div class="stk-spectrum-note">Position on the axis = <b>composite score</b> (0&ndash;100). Glow = full EDGAR dossier available. <b id="stk-uni-count">&mdash;</b></div>
+      </div>
+    </div>
+  </section>
 
-    <!-- Card 1: Scatter chart -->
-    <div class="card" style="margin-bottom:1.25rem">
-      <div class="card-h">
-        <span class="card-t">Scatter &middot; EPV vs Prix</span>
-        <span class="badge badge-gold">Niveau 1</span>
-      </div>
-      <div id="stk-scatter-wrap">
-        <svg id="stk-scatter-svg" viewBox="0 0 640 340" preserveAspectRatio="xMidYMid meet"
-             aria-label="EPV vs Price scatter chart"></svg>
-      </div>
-      <div class="stk-foot">
-        Ligne diagonale = fair value (EPV = Prix). Vert = sous-&eacute;valu&eacute; (EPV &gt; Prix) &middot;
-        Rouge = sur-&eacute;valu&eacute;. Cliquez un point pour voir le d&eacute;tail.
+  <!-- ═══ 02 · DOSSIER ═══════════════════════════════════════════════════ -->
+  <section class="stk-section" id="stk-dossier">
+    <div class="stk-sec-head stk-reveal">
+      <span class="stk-sec-idx">02</span>
+      <div><em>Single-stock deep dive &middot; EPV &middot; DuPont &middot; forensics</em><h2>Dossier</h2></div>
+      <div class="stk-sec-line"></div>
+    </div>
+    <div class="stk-reveal">
+      <div class="stk-cover" id="stk-cover"></div>
+      <div class="stk-dos-body" id="stk-dos-body">
+        <div class="stk-loading">Select a company above to open its dossier.</div>
       </div>
     </div>
+  </section>
 
-    <!-- Card 2: Sortable table -->
-    <div class="card" id="stk-vmap">
-      <div class="card-h">
-        <span class="card-t">Tableau &middot; Verdict Niveau 1</span>
-        <span class="badge badge-gold">EDGAR + yfinance</span>
+  <!-- ═══ 03 · PORTFOLIO SIMULATOR ═══════════════════════════════════════ -->
+  <section class="stk-section" id="stk-sim">
+    <div class="stk-sec-head stk-reveal">
+      <span class="stk-sec-idx">03</span>
+      <div><em>Beta &middot; correlation &middot; max-Sharpe efficient frontier</em><h2>Portfolio Simulator</h2></div>
+      <div class="stk-sec-line"></div>
+    </div>
+    <div class="stk-reveal">
+      <div class="stk-sim-grid">
+        <div class="card stk-sim-panel">
+          <h3>Allocation</h3>
+          <div class="stk-sub">Drag weights &mdash; they renormalize to 100%. Each name carries its real &beta; (EDGAR/Yahoo) and a CAPM expected return &mu; = R<sub>f</sub> + &beta;&middot;ERP.</div>
+          <div id="stk-assets"></div>
+          <div class="stk-sim-add">
+            <select id="stk-add-sel"></select>
+            <button class="stk-btn" id="stk-add-btn">+ Add</button>
+            <button class="stk-btn ghost" id="stk-opt-btn">&#9889; Max Sharpe</button>
+            <button class="stk-btn ghost" id="stk-eq-btn">Equal weight</button>
+          </div>
+        </div>
+        <div class="card stk-sim-panel">
+          <h3>Portfolio outcome</h3>
+          <div class="stk-sub">Computed live from weights, &beta;, &sigma; and the correlation matrix.</div>
+          <div class="stk-sim-metrics">
+            <div class="stk-simm"><div class="stk-simm-l">Expected return</div><div class="stk-simm-v" id="stk-m-ret">&mdash;</div><div class="stk-simm-s">annualised, CAPM</div></div>
+            <div class="stk-simm"><div class="stk-simm-l">Volatility</div><div class="stk-simm-v" id="stk-m-vol">&mdash;</div><div class="stk-simm-s">annualised &sigma; (model)</div></div>
+            <div class="stk-simm"><div class="stk-simm-l">Portfolio &beta;</div><div class="stk-simm-v" id="stk-m-beta">&mdash;</div><div class="stk-simm-s">vs S&amp;P 500</div></div>
+            <div class="stk-simm"><div class="stk-simm-l">Sharpe ratio</div><div class="stk-simm-v" id="stk-m-sharpe">&mdash;</div><div class="stk-simm-s" id="stk-m-rf">rf = &mdash;</div></div>
+          </div>
+          <div style="margin-top:14px">
+            <div class="stk-simm-l" style="margin-bottom:8px">Correlation matrix</div>
+            <div style="overflow-x:auto"><table class="stk-corr" id="stk-corr"></table></div>
+          </div>
+        </div>
       </div>
-      <div id="stk-table-wrap">
-        <table id="stk-table">
-          <thead>
-            <tr>
-              <th data-col="ticker"           data-type="str">Ticker</th>
-              <th data-col="prix"             data-type="num">Price</th>
-              <th data-col="epv_per_share"    data-type="num">EPV / sh</th>
-              <th data-col="re_per_share"     data-type="num">RE / sh</th>
-              <th data-col="ecart_pct"        data-type="num">Gap %</th>
-              <th data-col="consensus_median" data-type="num">Consensus</th>
-              <th data-col="score"            data-type="num">Score</th>
-              <th data-col="n_flags"          data-type="num">Flags</th>
-            </tr>
-          </thead>
-          <tbody id="stk-tbody"></tbody>
-        </table>
-      </div>
-      <div class="stk-foot">
-        EPV = Earnings Power Value (Greenwald) &middot; RE = Residual Earnings &middot;
-        Gap = (EPV &minus; Prix)/Prix &middot; Score 0&ndash;100 &middot; Flags = red-flag count &middot;
-        as of {{ stock_vmap.as_of }} &middot; zero-LLM, zero-forecast &mdash; SEC EDGAR + yfinance &middot;
-        <strong>Informational only &mdash; not investment advice</strong>
+      <div class="card stk-sim-panel" style="margin-top:18px">
+        <h3>Efficient frontier</h3>
+        <div class="stk-sub">5,000 random allocations of the selected names &mdash; risk (&sigma;) vs expected return, shaded by Sharpe. Your portfolio is the gold marker; the max-Sharpe (tangency) portfolio is the green ring; min-variance is the red ring.</div>
+        <svg class="stk-frontier" id="stk-frontier" viewBox="0 0 760 300" preserveAspectRatio="none"></svg>
+        <div class="stk-legend">
+          <span><i style="background:var(--gold)"></i>Your portfolio</span>
+          <span><i style="background:var(--green)"></i>Max-Sharpe (tangency)</span>
+          <span><i style="background:var(--red)"></i>Min-variance</span>
+          <span><i style="background:#c9b98a"></i>Random portfolios</span>
+        </div>
       </div>
     </div>
-
-    <!-- Detail panel (Niveaux 2, 3, 4) -->
-    <div id="stk-detail" class="card" style="margin-top:1.25rem">
-      <div class="stk-detail-header">
-        <span class="stk-detail-ticker" id="stk-dticker">&mdash;</span>
-        <span id="stk-dasof" class="stk-detail-asof"></span>
-        <button id="stk-detail-close" title="Fermer" aria-label="Fermer le panneau">&#10005;</button>
-      </div>
-      <div id="stk-detail-body">
-        <div class="stk-loading">S&eacute;lectionnez un ticker pour voir l&apos;analyse compl&egrave;te.</div>
-      </div>
-    </div>
-  </div>
+  </section>
 
   <!-- ═══ PIPELINE STRIP ════════════════════════════════════════════════ -->
   <div class="pipeline">
-    <span>SAINHE pipeline</span>
-    <span class="pl-dot"></span>
+    <span>SAINHE pipeline</span><span class="pl-dot"></span>
     <span>Fetch</span><span class="pl-arr">&#8594;</span>
     <span>Compute</span><span class="pl-arr">&#8594;</span>
     <span>Render</span><span class="pl-arr">&#8594;</span>
     <span>Read</span>
   </div>
+
+  <p class="stk-disclaimer">
+    EPV = Earnings Power Value (Greenwald) &middot; RE = Residual Earnings &middot; Reverse-DCF implied growth &middot;
+    DuPont ROE = RNOA + FLEV &times; SPREAD &middot; Bloc H sensitivity = intrinsic value across margin &times; terminal-growth.
+    Zero-LLM, zero-forecast &mdash; SEC EDGAR + Yahoo Finance + Damodaran. Simulator: &beta;, R<sub>f</sub> and ERP are real;
+    volatility &sigma; is a &beta;-scaled model proxy and the correlation matrix is a sector/&beta; heuristic (no price-history covariance).
+    as of {{ stock_vmap.as_of }} &middot; <strong>Informational only &mdash; not investment advice.</strong>
+  </p>
 
   {% endif %}
 
@@ -406,764 +351,513 @@
 {% include "partials/_footer.html" %}
 {% include "partials/_anim.html" %}
 
-<!-- ═══ SHARED JS HELPERS ══════════════════════════════════════════════ -->
-<script>
-/* ── Theme (pill) ────────────────────────────────────────────────── */
-const _H=document.documentElement, _TB=document.getElementById("thm");
-const _SUN=_TB?_TB.querySelector(".tp-sun"):null;
-const _MOON=_TB?_TB.querySelector(".tp-moon"):null;
-function setTheme(t){
-  _H.dataset.theme=t;
-  if(_SUN)  _SUN.style.opacity  = t==="dark"?"0.3":"1";
-  if(_MOON) _MOON.style.opacity = t==="dark"?"1":"0.3";
-  try{localStorage.setItem("sainhe_theme",t);}catch(e){}
-}
-try{setTheme(localStorage.getItem("sainhe_theme")||"light");}catch(e){setTheme("light");}
-if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dark"?"light":"dark");});
-
-/* ── Scroll progress ─────────────────────────────────────────────── */
-(function(){
-  const prog=document.getElementById("scroll-prog");
-  if(!prog) return;
-  window.addEventListener("scroll",function(){
-    const h=document.documentElement;
-    const pct=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;
-    prog.style.width=Math.min(pct,100)+"%";
-  },{passive:true});
-})();
-
-/* ── Watermark scroll ──────────────────────────────────────────────── */
-(function(){
-  const wm=document.getElementById("wm");
-  if(!wm) return;
-  window.addEventListener("scroll",function(){
-    const max=document.documentElement.scrollHeight-window.innerHeight;
-    if(max<=0) return;
-    const p=Math.min(window.scrollY/max,1);
-    wm.style.top=(12+p*60)+"vh";
-    wm.style.transform="rotate("+(p*720)+"deg)";
-  },{passive:true});
-})();
-
-/* ── Dropdowns ─────────────────────────────────────────────────────── */
-(function(){
-  var closeTimers = {};
-  function openDd(dd){
-    clearTimeout(closeTimers[dd.id]);
-    document.querySelectorAll(".hdr-dd.open").forEach(function(o){
-      if(o!==dd){ clearTimeout(closeTimers[o.id]); o.classList.remove("open"); }
-    });
-    dd.classList.add("open");
-  }
-  function closeDd(dd, delay){
-    clearTimeout(closeTimers[dd.id]);
-    closeTimers[dd.id] = setTimeout(function(){ dd.classList.remove("open"); }, delay||0);
-  }
-  document.querySelectorAll(".hdr-dd").forEach(function(dd){
-    var btn = dd.querySelector(".hdr-dd-btn");
-    if(!btn) return;
-    btn.addEventListener("click",function(e){
-      e.stopPropagation();
-      dd.classList.contains("open") ? closeDd(dd,0) : openDd(dd);
-    });
-    dd.addEventListener("mouseenter",function(){ openDd(dd); });
-    dd.addEventListener("mouseleave",function(){ closeDd(dd, 200); });
-    var menu = dd.querySelector(".hdr-dd-menu");
-    if(menu){
-      menu.addEventListener("mouseenter",function(){ clearTimeout(closeTimers[dd.id]); });
-      menu.addEventListener("mouseleave",function(){ closeDd(dd, 200); });
-    }
-  });
-  document.addEventListener("click",function(){
-    document.querySelectorAll(".hdr-dd.open").forEach(function(o){ o.classList.remove("open"); });
-  });
-})();
-
-/* ── CI toggle ─────────────────────────────────────────────────────── */
-(function(){
-  var btn=document.getElementById('ci-tgl');
-  if(!btn) return;
-  btn.addEventListener('click',function(){
-    var next=document.documentElement.dataset.ci==='on'?'off':'on';
-    document.documentElement.dataset.ci=next;
-    try{localStorage.setItem('sainhe_ci',next);}catch(e){}
-  });
-})();
-
-/* ── CI tooltip (floating, event-delegated) ─────────────────────────── */
-(function(){
-  if(document.getElementById('ci-tip')) return;
-  var tip=document.createElement('div');
-  tip.id='ci-tip';
-  var _txt=document.createElement('span');
-  var _hint=document.createElement('span');
-  _hint.className='ci-hint';
-  tip.appendChild(_txt);
-  tip.appendChild(_hint);
-  document.body.appendChild(tip);
-  var _hideT=null,_tab=null,_row=null;
-  function showTip(ci){
-    clearTimeout(_hideT);
-    _tab=ci.dataset.tab||null; _row=ci.dataset.row||null;
-    _txt.textContent=ci.dataset.tip;
-    if(_tab){
-      _hint.textContent=(window.SAINHE_I18N&&window.SAINHE_I18N.ci_hint)||'→ Click to open Learn panel';
-      _hint.style.display='block';
-    } else {
-      _hint.style.display='none';
-    }
-    tip.classList.add('ci-vis');
-    var r=ci.getBoundingClientRect();
-    tip.style.left=Math.max(8,Math.min(r.left-10,window.innerWidth-260))+'px';
-    tip.style.top=(r.bottom+8)+'px';
-  }
-  function scheduleHide(){
-    clearTimeout(_hideT);
-    _hideT=setTimeout(function(){ tip.classList.remove('ci-vis'); },300);
-  }
-  document.addEventListener('mouseover',function(e){
-    var ci=e.target.classList.contains('ci')?e.target:null;
-    if(ci&&ci.dataset.tip){ showTip(ci); return; }
-    if(tip.contains(e.target)){ clearTimeout(_hideT); return; }
-    scheduleHide();
-  });
-  tip.addEventListener('mouseleave',scheduleHide);
-  function _learnUrl(tab,row){
-    var lang=window.SAINHE_LANG||'en';
-    var base=lang!=='en'?'/'+lang+'/learn.html':'/learn.html';
-    return base+'#open-lrn-'+tab+(row?'--'+row:'');
-  }
-  document.addEventListener('click',function(e){
-    var ci=e.target.classList.contains('ci')?e.target:null;
-    if(ci&&ci.dataset.tab){
-      e.stopPropagation();
-      window.location.href=_learnUrl(ci.dataset.tab,ci.dataset.row||null);
-      return;
-    }
-    if(e.target===_hint&&_tab){
-      window.location.href=_learnUrl(_tab,_row);
-    }
-  });
-})();
-</script>
-
+{% if stock_analysis_live and stock_vmap %}
+{% raw %}
 <!-- ═══ STOCK ANALYSIS JS ══════════════════════════════════════════════ -->
 <script>
 (function(){
   'use strict';
-
-  /* ── Number helpers ── */
-  function isNum(v){ return typeof v === 'number' && isFinite(v); }
-  function fmtPrice(v){ return isNum(v) ? '$' + v.toFixed(2) : 'N/D'; }
-  function fmtPct(v, dec){
-    if(!isNum(v)) return 'N/D';
-    return (v * 100).toFixed(dec === undefined ? 1 : dec) + '%';
-  }
-  function fmtNum(v, dec){ return isNum(v) ? v.toFixed(dec === undefined ? 2 : dec) : 'N/D'; }
-  function fmtB(v){
-    if(!isNum(v)) return 'N/D';
-    var a = Math.abs(v);
-    if(a >= 1e12) return '$' + (v/1e12).toFixed(2) + 'T';
-    if(a >= 1e9)  return '$' + (v/1e9).toFixed(1)  + 'B';
-    if(a >= 1e6)  return '$' + (v/1e6).toFixed(0)  + 'M';
-    return '$' + v.toFixed(0);
-  }
-  function fmtDelta(val, ref){
-    if(!isNum(val) || !isNum(ref) || ref === 0) return '';
-    var pct = ((val - ref) / Math.abs(ref)) * 100;
-    var cls = pct > 0 ? 'stk-delta-pos' : 'stk-delta-neg';
-    return '<div class="stk-pcard-delta ' + cls + '">' + (pct > 0 ? '+' : '') + pct.toFixed(1) + '% vs prix</div>';
-  }
-  function scoreClass(s){
-    if(!isNum(s)) return '';
-    return s >= 55 ? 'stk-score-hi' : s >= 40 ? 'stk-score-mid' : 'stk-score-lo';
-  }
-  function esc(s){ /* minimal HTML escape for user-sourced strings */
-    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  /* ── Parse embedded vmap data ── */
   var vmapEl = document.getElementById('stk-vmap-data');
   if(!vmapEl) return;
-  var vmap;
-  try { vmap = JSON.parse(vmapEl.textContent); } catch(e) { return; }
-  var rows = vmap.rows || [];
+  var VMAP; try { VMAP = JSON.parse(vmapEl.textContent); } catch(e){ return; }
+  var ROWS = (VMAP.rows || []).slice();
 
-  /* ══════════════════════════════════════════════════
-     SCATTER CHART (SVG, built from vmap rows)
-  ══════════════════════════════════════════════════ */
-  (function buildScatter(){
-    var svg = document.getElementById('stk-scatter-svg');
-    if(!svg) return;
+  /* ── helpers ── */
+  function isNum(v){ return typeof v === 'number' && isFinite(v); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function fmt(n,d){ d=(d==null?2:d); return isNum(n)?n.toLocaleString('en',{minimumFractionDigits:d,maximumFractionDigits:d}):'N/D'; }
+  function money(n,d){ return isNum(n)?'$'+fmt(n,(d==null?2:d)):'N/D'; }
+  function pctS(n,d){ d=(d==null?1:d); return isNum(n)?(n>=0?'+':'')+(n*100).toFixed(d)+'%':'N/D'; }
+  function sigOf(score){ return !isNum(score)?'N/D':score>=58?'BUY':score>=46?'WATCH':'AVOID'; }
+  function sigCol(sig){ return sig==='BUY'?'var(--green)':sig==='WATCH'?'var(--orange)':sig==='AVOID'?'var(--red)':'var(--muted)'; }
 
-    var W = 640, H = 340;
-    var PAD = { t: 28, r: 34, b: 52, l: 66 };
-    var pW = W - PAD.l - PAD.r;
-    var pH = H - PAD.t - PAD.b;
+  /* ════════════════ UNIVERSE — node-axis navigator ════════════════ */
+  var SECTORS = ['All'].concat(Array.from(new Set(ROWS.map(function(r){return r.sector;}).filter(Boolean))));
+  var FILTER = 'All', SORT = 'score', SEL = null;
 
-    var pts = rows.filter(function(r){ return isNum(r.prix) && isNum(r.epv_per_share); });
-    if(!pts.length){
-      svg.innerHTML = '<text x="320" y="170" text-anchor="middle" font-size="13" fill="#aaa">Pas de données disponibles</text>';
-      return;
-    }
+  function visibleRows(){
+    var rows = ROWS.filter(function(r){ return FILTER==='All' || r.sector===FILTER; });
+    rows.sort(function(a,b){
+      if(SORT==='ticker') return String(a.ticker).localeCompare(String(b.ticker));
+      var av,bv;
+      if(SORT==='upside'){ av=isNum(a.ecart_pct)?a.ecart_pct:-9; bv=isNum(b.ecart_pct)?b.ecart_pct:-9; }
+      else if(SORT==='beta'){ av=isNum(a.beta)?a.beta:0; bv=isNum(b.beta)?b.beta:0; }
+      else { av=isNum(a.score)?a.score:0; bv=isNum(b.score)?b.score:0; }
+      return bv-av;
+    });
+    return rows;
+  }
 
-    var allV = [];
-    pts.forEach(function(r){ allV.push(r.prix, r.epv_per_share); });
-    var minV = Math.max(0, Math.min.apply(null, allV) * 0.85);
-    var maxV = Math.max.apply(null, allV) * 1.15;
-    var span = maxV - minV; if(span <= 0) span = 1;
-
-    function sx(v){ return PAD.l + (v - minV) / span * pW; }
-    function sy(v){ return PAD.t + pH - (v - minV) / span * pH; }
-
+  function renderSpectrum(){
+    var host = document.getElementById('stk-spectrum');
+    if(!host) return;
+    var rows = visibleRows();
+    var scores = rows.map(function(r){ return isNum(r.score)?r.score:50; });
+    var mn = Math.min.apply(null, scores.concat([30])), mx = Math.max.apply(null, scores.concat([70]));
+    var span = (mx-mn)||1;
     var h = '';
-    /* Grid + ticks */
-    var nT = 5;
-    for(var i = 0; i <= nT; i++){
-      var v = minV + span * i / nT;
-      var xp = sx(v), yp = sy(v);
-      h += '<line x1="'+xp+'" y1="'+PAD.t+'" x2="'+xp+'" y2="'+(PAD.t+pH)+'" stroke="#e0ddd8" stroke-width="0.5"/>';
-      h += '<line x1="'+PAD.l+'" y1="'+yp+'" x2="'+(PAD.l+pW)+'" y2="'+yp+'" stroke="#e0ddd8" stroke-width="0.5"/>';
-      h += '<line x1="'+xp+'" y1="'+(PAD.t+pH)+'" x2="'+xp+'" y2="'+(PAD.t+pH+4)+'" stroke="#bbb" stroke-width="1"/>';
-      h += '<text class="stk-axis-label" x="'+xp+'" y="'+(PAD.t+pH+14)+'" text-anchor="middle">$'+Math.round(v)+'</text>';
-      h += '<line x1="'+(PAD.l-4)+'" y1="'+yp+'" x2="'+PAD.l+'" y2="'+yp+'" stroke="#bbb" stroke-width="1"/>';
-      h += '<text class="stk-axis-label" x="'+(PAD.l-7)+'" y="'+(yp+3)+'" text-anchor="end">$'+Math.round(v)+'</text>';
+    rows.forEach(function(r){
+      var sc = isNum(r.score)?r.score:50;
+      var x = 4 + ((sc-mn)/span)*92;
+      var sel = (r.ticker===SEL) ? ' sel' : '';
+      h += '<div class="stk-node'+sel+'" data-tk="'+esc(r.ticker)+'" style="left:'+x.toFixed(2)+'%" title="'+esc(r.name)+' · score '+fmt(sc,0)+'">'
+        +    '<span class="stk-node-score">'+fmt(sc,0)+'</span>'
+        +    '<span class="stk-node-dot"></span>'
+        +    '<span class="stk-node-tk">'+esc(r.ticker)+'</span>'
+        +  '</div>';
+    });
+    h += '<span class="stk-axis-end" style="left:2px">Lower conviction</span>';
+    h += '<span class="stk-axis-end" style="right:2px">Higher conviction</span>';
+    host.innerHTML = h;
+    host.querySelectorAll('.stk-node').forEach(function(n){
+      n.addEventListener('click', function(){
+        SEL = n.getAttribute('data-tk');
+        renderSpectrum();
+        openDossier(SEL);
+        var d = document.getElementById('stk-dossier');
+        if(d) d.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    });
+    var cnt = document.getElementById('stk-uni-count');
+    if(cnt) cnt.textContent = rows.length + ' names';
+  }
+
+  (function initControls(){
+    var chips = document.getElementById('stk-sector-chips');
+    if(chips){
+      chips.innerHTML = SECTORS.map(function(s,i){
+        return '<span class="stk-chip'+(i===0?' active':'')+'" data-s="'+esc(s)+'">'+esc(s)+'</span>';
+      }).join('');
+      chips.querySelectorAll('.stk-chip').forEach(function(c){
+        c.addEventListener('click', function(){
+          chips.querySelectorAll('.stk-chip').forEach(function(x){ x.classList.remove('active'); });
+          c.classList.add('active'); FILTER = c.getAttribute('data-s'); renderSpectrum();
+        });
+      });
     }
-    /* Fair-value diagonal */
-    h += '<line class="stk-fair-line" x1="'+sx(minV)+'" y1="'+sy(minV)+'" x2="'+sx(maxV)+'" y2="'+sy(maxV)+'"/>';
-    /* Diagonal label */
-    var mv = (minV+maxV)/2, dlx=sx(mv)+6, dly=sy(mv)-6;
-    h += '<text x="'+dlx+'" y="'+dly+'" font-size="8" fill="#bbb" transform="rotate(-45,'+dlx+','+dly+')">fair value</text>';
-    /* Axis titles */
-    h += '<text class="stk-axis-label" x="'+(PAD.l+pW/2)+'" y="'+(H-4)+'" text-anchor="middle" font-size="10">Prix actuel ($)</text>';
-    h += '<text class="stk-axis-label" x="13" y="'+(PAD.t+pH/2)+'" text-anchor="middle" font-size="10" transform="rotate(-90,13,'+(PAD.t+pH/2)+')">EPV / action ($)</text>';
-    /* Dots */
-    pts.forEach(function(r){
-      var cx = sx(r.prix), cy = sy(r.epv_per_share);
-      var under = r.epv_per_share > r.prix;
-      var col = under ? '#2e7d32' : '#c62828';
-      h += '<circle class="stk-dot" cx="'+cx+'" cy="'+cy+'" r="9"'
-         + ' fill="'+col+'" fill-opacity="0.82" stroke="#fff" stroke-width="1.5"'
-         + ' data-ticker="'+esc(r.ticker)+'" />';
-      var lx = cx > W-80 ? cx-13 : cx+13;
-      h += '<text class="stk-dot-label" x="'+lx+'" y="'+(cy-5)+'">'+esc(r.ticker)+'</text>';
-    });
-
-    svg.innerHTML = h;
-
-    svg.querySelectorAll('.stk-dot').forEach(function(dot){
-      dot.addEventListener('click', function(){ openDetail(dot.getAttribute('data-ticker')); });
-    });
+    var sortSel = document.getElementById('stk-sort');
+    if(sortSel) sortSel.addEventListener('change', function(){ SORT=this.value; renderSpectrum(); });
   })();
 
-  /* ══════════════════════════════════════════════════
-     SORTABLE TABLE
-  ══════════════════════════════════════════════════ */
-  var sortState = { col: 'score', dir: -1 };
+  /* ════════════════ DOSSIER ════════════════ */
+  var cache = {}, activeTicker = null;
+  var coverEl = document.getElementById('stk-cover');
+  var bodyEl  = document.getElementById('stk-dos-body');
 
-  function renderTable(){
-    var tbody = document.getElementById('stk-tbody');
-    if(!tbody) return;
-    var sorted = rows.slice().sort(function(a, b){
-      if(sortState.col === 'ticker'){
-        return sortState.dir * String(a.ticker||'').localeCompare(String(b.ticker||''));
-      }
-      var av = a[sortState.col], bv = b[sortState.col];
-      var an = isNum(av), bn = isNum(bv);
-      if(!an && !bn) return 0; if(!an) return 1; if(!bn) return -1;
-      return sortState.dir * (av - bv);
-    });
-    var h = '';
-    sorted.forEach(function(r){
-      var gap = '<span class="stk-na">N/D</span>';
-      if(isNum(r.ecart_pct)){
-        var gc = r.ecart_pct > 0 ? 'stk-gap-pos' : 'stk-gap-neg';
-        gap = '<span class="'+gc+'">'+(r.ecart_pct>0?'+':'')+fmtPct(r.ecart_pct)+'</span>';
-      }
-      var sc = '<span class="stk-na">N/D</span>';
-      if(isNum(r.score)) sc = '<span class="stk-score '+scoreClass(r.score)+'">'+r.score.toFixed(0)+'</span>';
-      var nf = isNum(r.n_flags) ? r.n_flags : 0;
-      h += '<tr class="stk-tr" data-ticker="'+esc(r.ticker)+'">'
-         + '<td><span class="stk-tk">'+esc(r.ticker)+'</span></td>'
-         + '<td>'+(isNum(r.prix)?fmtPrice(r.prix):'<span class="stk-na">N/D</span>')+'</td>'
-         + '<td>'+(isNum(r.epv_per_share)?fmtPrice(r.epv_per_share):'<span class="stk-na">N/D</span>')+'</td>'
-         + '<td>'+(isNum(r.re_per_share)?fmtPrice(r.re_per_share):'<span class="stk-na">N/D</span>')+'</td>'
-         + '<td>'+gap+'</td>'
-         + '<td>'+(isNum(r.consensus_median)?fmtPrice(r.consensus_median):'<span class="stk-na">N/D</span>')+'</td>'
-         + '<td>'+sc+'</td>'
-         + '<td><span class="stk-flags '+(nf===0?'stk-flags-0':'stk-flags-n')+'">'+nf+'</span></td>'
-         + '</tr>';
-    });
-    tbody.innerHTML = h;
-    tbody.querySelectorAll('.stk-tr').forEach(function(tr){
-      tr.addEventListener('click', function(){
-        document.querySelectorAll('.stk-tr').forEach(function(r){ r.classList.remove('stk-row-active'); });
-        tr.classList.add('stk-row-active');
-        openDetail(tr.getAttribute('data-ticker'));
-      });
-    });
-  }
-
-  document.querySelectorAll('#stk-table th[data-col]').forEach(function(th){
-    th.addEventListener('click', function(){
-      var col = th.getAttribute('data-col');
-      sortState.dir = sortState.col === col ? sortState.dir * -1 : -1;
-      sortState.col = col;
-      document.querySelectorAll('#stk-table th').forEach(function(h){ h.className=''; });
-      th.className = sortState.dir === -1 ? 'sort-desc' : 'sort-asc';
-      renderTable();
-    });
-  });
-  renderTable();
-
-  /* ══════════════════════════════════════════════════
-     DETAIL PANEL
-  ══════════════════════════════════════════════════ */
-  var detailEl   = document.getElementById('stk-detail');
-  var detailBody = document.getElementById('stk-detail-body');
-  var dtickerEl  = document.getElementById('stk-dticker');
-  var dasofEl    = document.getElementById('stk-dasof');
-  var closeBtn   = document.getElementById('stk-detail-close');
-  var cache      = {};
-  var activeTicker = null;
-
-  if(closeBtn) closeBtn.addEventListener('click', function(){
-    detailEl.classList.remove('stk-open');
-    document.querySelectorAll('.stk-tr').forEach(function(r){ r.classList.remove('stk-row-active'); });
-    activeTicker = null;
-  });
-
-  function openDetail(ticker){
-    if(!detailEl || !ticker) return;
+  function openDossier(ticker){
+    if(!ticker || !bodyEl) return;
     activeTicker = ticker;
-    dtickerEl.textContent = ticker;
-    dasofEl.textContent   = '';
-    detailEl.classList.add('stk-open');
-    detailBody.innerHTML  = '<div class="stk-loading">Chargement ' + esc(ticker) + '…</div>';
-    detailEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    if(cache[ticker]){ renderDetail(cache[ticker]); return; }
-    fetch('/data/stock/' + encodeURIComponent(ticker) + '_report.json')
-      .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-      .then(function(data){
-        cache[ticker] = data;
-        if(activeTicker === ticker) renderDetail(data);
-      })
-      .catch(function(err){
-        if(activeTicker === ticker)
-          detailBody.innerHTML = '<div class="stk-error">Impossible de charger ' + esc(ticker) + ' : ' + esc(err.message) + '</div>';
-      });
+    var meta = ROWS.filter(function(r){return r.ticker===ticker;})[0] || {ticker:ticker};
+    bodyEl.innerHTML = '<div class="stk-loading">Loading '+esc(ticker)+' &hellip;</div>';
+    renderCover(meta, null);
+    if(cache[ticker]){ renderDossier(cache[ticker], meta); return; }
+    fetch('/data/stock/'+encodeURIComponent(ticker)+'_report.json')
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function(d){ cache[ticker]=d; if(activeTicker===ticker) renderDossier(d, meta); })
+      .catch(function(err){ if(activeTicker===ticker) bodyEl.innerHTML = '<div class="stk-loading" style="color:var(--red)">Could not load '+esc(ticker)+' &mdash; '+esc(err.message)+'</div>'; });
   }
 
-  function renderDetail(d){
-    dtickerEl.textContent = d.ticker || '—';
-    dasofEl.textContent   = 'as of ' + (d.as_of || '');
-    var h = '<div class="stk-tabs">'
-      + '<button class="stk-tab-btn stk-tab-active" data-tab="verdict">Verdict (N2)</button>'
-      + '<button class="stk-tab-btn" data-tab="quality">Qualité (N3)</button>'
-      + '<button class="stk-tab-btn" data-tab="context">Contexte (N4)</button>'
+  function renderCover(meta, d){
+    if(!coverEl) return;
+    var A = d ? (d.bloc_A_verdict||{}) : {};
+    var SCobj = d ? (d.score_composite||{}) : {};
+    var wd = d ? ((d.drill_down||{}).wacc_detail||{}) : {};
+    var price = isNum(A.prix)?A.prix:meta.prix;
+    var score = isNum(SCobj.value_0_100)?SCobj.value_0_100:meta.score;
+    var beta  = isNum(wd.beta)?wd.beta:meta.beta;
+    var wacc  = wd.wacc;
+    var up    = meta.ecart_pct;
+    var sig = sigOf(score);
+    coverEl.innerHTML = '<div class="stk-cover-in">'
+      + '<div>'
+      +   '<div class="stk-cover-eyebrow">Dossier &middot; '+esc(meta.sector||'—')+'</div>'
+      +   '<div class="stk-cover-name">'+esc(meta.name||meta.ticker)+'</div>'
+      +   '<div class="stk-cover-meta"><span class="stk-cover-px">'+money(price)+'</span>'
+      +     '<span>'+esc(meta.ticker)+'</span><span>·</span><span>&beta; '+(isNum(beta)?fmt(beta,2):'N/D')+'</span>'
+      +     '<span>·</span><span>WACC '+(isNum(wacc)?(wacc*100).toFixed(1)+'%':'N/D')+'</span></div>'
       + '</div>'
-      + '<div id="stk-panel-verdict" class="stk-tab-panel stk-tab-panel-active">' + buildVerdict(d) + '</div>'
-      + '<div id="stk-panel-quality" class="stk-tab-panel">'  + buildQuality(d) + '</div>'
-      + '<div id="stk-panel-context" class="stk-tab-panel">'  + buildContext(d) + '</div>';
-    detailBody.innerHTML = h;
-    detailBody.querySelectorAll('.stk-tab-btn').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        detailBody.querySelectorAll('.stk-tab-btn').forEach(function(b){ b.classList.remove('stk-tab-active'); });
-        detailBody.querySelectorAll('.stk-tab-panel').forEach(function(p){ p.classList.remove('stk-tab-panel-active'); });
-        btn.classList.add('stk-tab-active');
-        var panel = detailBody.querySelector('#stk-panel-' + btn.getAttribute('data-tab'));
-        if(panel) panel.classList.add('stk-tab-panel-active');
-      });
+      + '<div class="stk-cover-verdict">'
+      +   '<div class="stk-cover-vlabel">Composite verdict</div>'
+      +   '<div class="stk-cover-vsig" style="color:'+sigCol(sig)+'">'+sig+'</div>'
+      +   '<div class="stk-cover-vscore">Score '+(isNum(score)?fmt(score,1):'N/D')+'/100 &middot; EPV '+pctS(up)+' vs price</div>'
+      + '</div></div>';
+  }
+
+  function renderDossier(d, meta){
+    renderCover(meta, d);
+    var h = buildBlocA(d) + buildBlocC(d) + buildBlocD(d) + buildBlocE(d) + buildBlocH(d) + buildFlags(d) + buildScore(d, meta);
+    bodyEl.innerHTML = h;
+    requestAnimationFrame(function(){
+      bodyEl.querySelectorAll('.stk-bloc').forEach(function(b){ b.classList.add('in'); });
+      setTimeout(function(){
+        bodyEl.querySelectorAll('.stk-dp-bar,.stk-pil-fill').forEach(function(el){ el.style.width = el.getAttribute('data-w')+'%'; });
+      }, 60);
     });
-    buildSparklines(d, detailBody);
   }
 
-  /* ══════════════════════════════════════════════════
-     N2 — VERDICT
-  ══════════════════════════════════════════════════ */
-  function buildVerdict(d){
-    var A  = d.bloc_A_verdict || {};
-    var SC = d.score_composite || {};
-    var prix = A.prix;
-    var epv  = (A.EPV || {}).epv_per_share;
-    var re   = (A.RE_valuation || {}).re_value_per_share;
-    var cobj = A.consensus || {};
-    var cons = (cobj.available && isNum(cobj.target_median)) ? cobj.target_median : null;
-    var h = '';
-
-    /* 4-card price grid */
-    h += '<div class="stk-price-grid">'
-       + pcard('Prix actuel',  fmtPrice(prix), '')
-       + pcard('EPV calculé',   fmtPrice(epv),  fmtDelta(epv,  prix))
-       + pcard('RE Valuation', fmtPrice(re),   fmtDelta(re,   prix))
-       + pcard('Consensus',    fmtPrice(cons), fmtDelta(cons, prix))
-       + '</div>';
-
-    /* Confidence range */
-    var cr = A.EPV_confidence_range || {};
-    if(isNum(cr.low) && isNum(cr.high)){
-      var lo = cr.low, hi = cr.high, rng = hi - lo || 1;
-      var pin = isNum(prix) ? Math.max(0, Math.min(100, ((prix-lo)/rng)*100)) : null;
-      h += '<div class="stk-subsec">'
-         + '<div class="stk-subsec-title">Plage de confiance EPV (p25–p75)</div>'
-         + '<div class="stk-conf-bar-wrap"><div class="stk-conf-track">'
-         + '<div class="stk-conf-fill" style="left:0%;width:100%"></div>'
-         + (pin!==null?'<div class="stk-conf-pin" style="left:'+pin.toFixed(1)+'%"></div>':'')
-         + '</div></div>'
-         + '<div class="stk-conf-labels"><span>'+fmtPrice(lo)+'</span><span>'+fmtPrice(hi)+'</span></div>'
-         + '</div>';
-    }
-
-    /* WACC sensitivity */
-    var ws = A.EPV_wacc_sensitivity || {};
-    if(isNum(ws.minus_100bps) || isNum(ws.central) || isNum(ws.plus_100bps)){
-      h += '<div class="stk-subsec"><div class="stk-subsec-title">Sensibilité WACC</div>'
-         + '<div class="stk-wacc-grid">'
-         + waccCell('WACC −100bps', fmtPrice(ws.minus_100bps), false)
-         + waccCell('Central',            fmtPrice(ws.central),      true)
-         + waccCell('WACC +100bps',       fmtPrice(ws.plus_100bps),  false)
-         + '</div></div>';
-    }
-
-    /* Sensitivity matrix (Bloc H) */
-    h += buildSensitivity(d);
-
-    /* Reverse DCF */
-    var rdcf  = A.reverse_dcf || {};
-    var implG = rdcf.implied_g;
-    var sgr   = (A.SGR || {}).sgr;
-    if(isNum(implG)){
-      h += '<div class="stk-subsec"><div class="stk-subsec-title">Reverse DCF · Croissance implicite</div>'
-         + '<div class="stk-rdcf-row">'
-         + '<div class="stk-rdcf-chip">g implicite : <strong>'+fmtPct(implG)+'</strong></div>'
-         + (isNum(sgr)?'<div class="stk-rdcf-chip">SGR : <strong>'+fmtPct(sgr)+'</strong></div>':'')
-         + (A.flag_growth_unfinanceable?'<div class="stk-rdcf-chip" style="border-color:var(--red);color:var(--red)">⚠ Croissance non finançable</div>':'')
-         + '</div>'
-         + '<p class="stk-rdcf-note">g implicite = croissance annuelle à perpétuité que le marché valorise au prix actuel.</p>'
-         + '</div>';
-    }
-
-    /* Score composite */
-    var total = SC.value_0_100;
-    if(total !== undefined){
-      var pillars = SC.pillars || {}, weights = SC.weights || {};
-      var sCls = isNum(total) ? scoreClass(total) : '';
-      h += '<div class="stk-subsec"><div class="stk-subsec-title">Score composite</div>'
-         + '<div style="margin-bottom:.85rem"><span class="stk-score-total stk-score '+sCls+'">'
-         + (isNum(total)?total.toFixed(1):'N/D')
-         + '<span style="font-size:.9rem;font-weight:400;opacity:.6"> /100</span></span></div>';
-      [
-        {key:'valuation',           label:'Valorisation'},
-        {key:'balance_sheet_health',label:'Santé bilan'},
-        {key:'earnings_quality',    label:'Qualité résultats'},
-        {key:'smart_money',         label:'Smart Money'},
-        {key:'momentum',            label:'Momentum'},
-      ].forEach(function(p){
-        var pv = pillars[p.key], pw = weights[p.key];
-        if(!isNum(pv)) return;
-        var fc = pv>=55?'var(--green)':pv>=40?'var(--yellow)':'var(--red)';
-        h += '<div class="stk-pillar-row">'
-           + '<span class="stk-pillar-name">'+p.label+'</span>'
-           + '<div class="stk-pillar-bar-bg"><div class="stk-pillar-bar-fill" style="width:'+pv+'%;background:'+fc+'"></div></div>'
-           + '<span class="stk-pillar-val '+scoreClass(pv)+'">'+pv.toFixed(0)+'</span>'
-           + (isNum(pw)?'<span class="stk-pillar-wt">×'+(pw*100).toFixed(0)+'%</span>':'')
-           + '</div>';
-      });
-      h += '</div>';
-    }
-    return h;
-  }
-
-  function pcard(label, val, delta){
-    return '<div class="stk-pcard">'
-      + '<div class="stk-pcard-label">'+label+'</div>'
-      + '<div class="stk-pcard-val">'+val+'</div>'
-      + delta + '</div>';
-  }
-  function waccCell(label, val, central){
-    return '<div class="stk-wacc-cell'+(central?' central':'')+'">'
-      + '<div class="stk-wacc-cell-label">'+label+'</div>'
-      + '<div class="stk-wacc-cell-val">'+val+'</div>'
+  function statCell(label, val, cls, sub, tag, tagCls){
+    return '<div class="stk-stat"><div class="stk-stat-l">'+label+'</div>'
+      + '<div class="stk-stat-v '+(cls||'')+'">'+val+'</div>'
+      + (sub?'<div class="stk-stat-s">'+sub+'</div>':'')
+      + (tag?'<span class="stk-tag '+(tagCls||'n')+'">'+tag+'</span>':'')
       + '</div>';
   }
 
-  /* Sensitivity matrix 2D (Bloc H) — NOPAT margin × terminal growth → intrinsic value.
-     Color: green if value > current price (margin of safety), red if below. */
-  function buildSensitivity(d){
-    var H = d.bloc_H_sensitivity || {};
-    var M = H.matrix, gx = H.g_axis, mx = H.margin_axis;
-    if(!Array.isArray(M) || !M.length || !Array.isArray(gx) || !Array.isArray(mx)) return '';
-    var prix = (d.bloc_A_verdict || {}).prix;
-    /* collect finite cell values for color scaling around the price */
-    var flat = [];
-    M.forEach(function(row){ (row||[]).forEach(function(v){ if(isNum(v)) flat.push(v); }); });
+  /* ── Bloc A — Valuation Verdict ── */
+  function buildBlocA(d){
+    var A = d.bloc_A_verdict||{}, wd=(d.drill_down||{}).wacc_detail||{};
+    var price=A.prix, epv=(A.EPV||{}).epv_per_share, re=(A.RE_valuation||{}).re_value_per_share;
+    var g=(A.reverse_dcf||{}).implied_g, ws=A.EPV_wacc_sensitivity||{}, wacc=wd.wacc;
+    var cobj=A.consensus||{}, cons=(cobj.available&&isNum(cobj.target_median))?cobj.target_median:null;
+    var up = (isNum(epv)&&isNum(price)&&price)?(epv-price)/price:null;
+    var epvCls = isNum(up)?(up>=0?'g':'r'):'';
+    var epvTag = isNum(up)?(up>=0.08?'Undervalued':up>=-0.05?'Fairly valued':'Rich'):'N/D';
+    var epvTagCls = isNum(up)?(up>=0.08?'g':up>=-0.05?'n':'r'):'n';
+    var gCls = isNum(g)?(g>0.15?'r':g>0.08?'y':'g'):'';
+    var h = '<div class="stk-bloc"><div class="stk-bloc-h"><span class="stk-bloc-tag">Bloc A</span><h3>Valuation Verdict</h3><em>EPV · RE · Reverse-DCF</em></div>'
+      + '<div class="stk-statg c3">'
+      +   statCell('EPV / share', money(epv,0), epvCls, 'Greenwald earnings power', epvTag, epvTagCls)
+      +   statCell('Residual Earnings', money(re,0), '', 'RE + continuing value', 'Cross-check', 'n')
+      +   statCell('Reverse-DCF implied g', pctS(g), gCls, isNum(wacc)?'Growth priced in at WACC '+(wacc*100).toFixed(1)+'%':'Growth priced in', null, null)
+      + '</div>'
+      + '<div class="stk-statg c3" style="margin-top:-1px">'
+      +   statCell('WACC', isNum(wacc)?(wacc*100).toFixed(1)+'%':'N/D', '', isNum(wd.rf)&&isNum(wd.erp)?'Rf '+(wd.rf*100).toFixed(1)+'% + β·ERP '+(wd.erp*100).toFixed(1)+'%':'Discount rate', null, null)
+      +   statCell('EPV @ −100bps', money(ws.minus_100bps,0), 'g', 'Lower discount rate', null, null)
+      +   statCell('EPV @ +100bps', money(ws.plus_100bps,0), 'r', 'Higher discount rate', null, null)
+      + '</div>';
+    if(isNum(cons)) h += '<div class="stk-statg c3" style="margin-top:-1px">'
+      +   statCell('Sell-side consensus', money(cons,0), '', 'Median analyst target', null, null)
+      +   statCell('Confidence low', money((A.EPV_confidence_range||{}).low,0), '', 'EPV p25', null, null)
+      +   statCell('Confidence high', money((A.EPV_confidence_range||{}).high,0), '', 'EPV p75', null, null)
+      + '</div>';
+    var verdict = isNum(up)?(up>=0.08?'a real margin of safety':up>=-0.05?'broadly fair':'demanding flawless execution'):'incomplete';
+    h += '<div class="stk-analysis">At <b>'+money(price)+'</b>, the market prices in roughly <b>'+pctS(g)+'</b> of perpetual growth'
+      + (isNum(wacc)?' against a WACC of <b>'+(wacc*100).toFixed(1)+'%</b>':'')
+      + '. Earnings-power value sits <b>'+pctS(up)+'</b> from the quote — '+verdict+'.</div>';
+    return h + '</div>';
+  }
+
+  /* ── Bloc C — DuPont ── */
+  function buildBlocC(d){
+    var C = d.bloc_C_dupont||{};
+    if(!C.available) return '';
+    var roe=C.ROE_dupont, rnoa=C.RNOA, spr=C.SPREAD, flev=C.FLEV, nbc=C.NBC;
+    var lever = (isNum(flev)&&isNum(spr))?flev*spr:null;
+    function w(v){ return isNum(v)?Math.min(100,Math.max(0,v*100)):0; }
+    var h = '<div class="stk-bloc"><div class="stk-bloc-h"><span class="stk-bloc-tag">Bloc C</span><h3>DuPont Decomposition</h3><em>ROE = RNOA + FLEV × SPREAD</em></div>'
+      + '<div class="stk-statg c4">'
+      +   statCell('ROE', pctS(roe), 'g', null, null, null)
+      +   statCell('RNOA', pctS(rnoa), 'g', null, null, null)
+      +   statCell('SPREAD', pctS(spr), isNum(spr)&&spr>=0?'g':'r', 'RNOA − NBC', null, null)
+      +   statCell('FLEV', isNum(flev)?fmt(flev,2)+'×':'N/D', '', 'Financial leverage', null, null)
+      + '</div>'
+      + '<div class="stk-dp">'
+      +   '<div class="stk-dp-row"><div class="stk-dp-l">RNOA (operations)</div><div class="stk-dp-track"><div class="stk-dp-bar g" data-w="'+w(rnoa).toFixed(0)+'"></div></div><div class="stk-dp-v">'+pctS(rnoa)+'</div></div>'
+      +   '<div class="stk-dp-row"><div class="stk-dp-l">FLEV × SPREAD</div><div class="stk-dp-track"><div class="stk-dp-bar y" data-w="'+w(lever).toFixed(0)+'"></div></div><div class="stk-dp-v">'+pctS(lever)+'</div></div>'
+      +   '<div class="stk-dp-row"><div class="stk-dp-l" style="font-weight:700;color:var(--h)">ROE (total)</div><div class="stk-dp-track"><div class="stk-dp-bar g" data-w="'+w(roe).toFixed(0)+'"></div></div><div class="stk-dp-v" style="color:var(--green)">'+pctS(roe)+'</div></div>'
+      + '</div>'
+      + '<div class="stk-analysis">Value creation is '+(isNum(spr)&&spr>0.04?'primarily':'narrowly')+' operational — RNOA of <b>'+pctS(rnoa)+'</b>'
+      + (isNum(nbc)?' against a net borrowing cost of <b>'+pctS(nbc)+'</b>':'')
+      + ' leaves a spread of <b>'+pctS(spr)+'</b>. Leverage (FLEV '+(isNum(flev)?fmt(flev,2)+'×':'N/D')+') '+(isNum(flev)&&flev<0.5?'adds little':'amplifies returns')+'.</div>';
+    return h + '</div>';
+  }
+
+  /* ── Bloc D — 10Y trends ── */
+  function seriesVals(obj){
+    if(!obj || typeof obj!=='object') return null;
+    var keys = Object.keys(obj).sort();
+    var xs=[], ys=[];
+    keys.forEach(function(k){ var v=obj[k]; if(isNum(v)){ xs.push(k); ys.push(v); } });
+    return ys.length>=2 ? {keys:xs, vals:ys} : null;
+  }
+  function trendSVG(series, color, label, isPct){
+    if(!series) return '<div class="stk-trend-nd">N/D — series unavailable</div>';
+    var v=series.vals, k=series.keys, w=600, hh=96;
+    var mn=Math.min.apply(null,v), mx=Math.max.apply(null,v), rg=(mx-mn)||1;
+    var pts=v.map(function(val,i){ return (i/(v.length-1))*w+','+(hh-((val-mn)/rg)*(hh-26)-10); });
+    var end=v[v.length-1];
+    var endLbl = isPct ? (end*100).toFixed(0)+'%' : (Math.abs(end)>=1e9?'$'+(end/1e9).toFixed(1)+'B':Math.abs(end)>=1e6?'$'+(end/1e6).toFixed(0)+'M':fmt(end,0));
+    return '<svg class="stk-trend" viewBox="0 0 '+w+' '+hh+'" preserveAspectRatio="none">'
+      + '<polygon points="0,'+hh+' '+pts.join(' ')+' '+w+','+hh+'" fill="'+color+'" fill-opacity="0.08"/>'
+      + '<path class="line" d="M'+pts.join(' L')+'" stroke="'+color+'"/>'
+      + '<text x="2" y="92" fill="var(--faint)" font-size="9" font-family="monospace">'+esc(k[0])+'</text>'
+      + '<text x="'+(w-2)+'" y="92" fill="var(--faint)" font-size="9" font-family="monospace" text-anchor="end">'+esc(k[k.length-1])+'</text>'
+      + '<text x="'+(w-2)+'" y="15" fill="'+color+'" font-size="12" font-weight="bold" font-family="monospace" text-anchor="end">'+label+' '+endLbl+'</text>'
+      + '</svg>';
+  }
+  function buildBlocD(d){
+    var D = d.bloc_D_trends||{};
+    var roic = seriesVals(D.roic_10y), gm = seriesVals(D.gross_margin_10y), rev = seriesVals(D.revenue_10y);
+    return '<div class="stk-bloc"><div class="stk-bloc-h"><span class="stk-bloc-tag">Bloc D</span><h3>10-Year Trends</h3><em>ROIC · Gross margin · Revenue</em></div>'
+      + trendSVG(roic,'var(--green)','ROIC',true)
+      + '<div style="height:14px"></div>'
+      + trendSVG(gm,'var(--gold)','GM',true)
+      + '<div style="height:14px"></div>'
+      + trendSVG(rev,'var(--orange)','REV',false)
+      + '</div>';
+  }
+
+  /* ── Bloc E — Balance-sheet health ── */
+  function healthRow(l, v, good, bench, tag){
+    var col = good===true?'var(--green)':good===false?'var(--red)':'var(--muted)';
+    var bg  = good===true?'var(--green-bg)':good===false?'var(--red-bg)':'var(--card-alt)';
+    return '<div class="stk-hrow"><div class="stk-hrow-l">'+l+'</div>'
+      + '<div class="stk-hrow-v" style="color:'+col+'">'+v+'</div>'
+      + '<div class="stk-hrow-b">'+bench+'</div>'
+      + '<span class="stk-hrow-s" style="background:'+bg+';color:'+col+'">'+tag+'</span></div>';
+  }
+  function buildBlocE(d){
+    var E = d.bloc_E_health||{}, ccc=E.ccc||{}, ret=E.retained_earnings_test||{};
+    var nd=E.net_debt_ebitda, ic=E.interest_coverage, cr=E.current_ratio, qr=E.quick_ratio,
+        de=E.de_ratio, ocf=E.ocf_ni, cv=ccc.ccc;
+    var h = '<div class="stk-bloc"><div class="stk-bloc-h"><span class="stk-bloc-tag">Bloc E</span><h3>Balance-Sheet Health</h3><em>Forensics</em></div>';
+    h += healthRow('Net Debt / EBITDA', isNum(nd)?fmt(nd,2)+'×':'N/D', isNum(nd)?nd<2.5:null, 'Benchmark &lt; 2.5×', isNum(nd)?(nd<0?'NET CASH':nd<2.5?'HEALTHY':'LEVERED'):'N/D');
+    h += healthRow('Interest Coverage', isNum(ic)?fmt(ic,1)+'×':'N/D', isNum(ic)?ic>5:null, 'EBIT / interest · &gt; 5× safe', isNum(ic)?(ic>50?'EXCEPTIONAL':ic>5?'SAFE':'TIGHT'):'N/D');
+    h += healthRow('Cash Conversion Cycle', isNum(cv)?fmt(cv,0)+' d':'N/D', isNum(cv)?cv<55:null, 'DSO + DIO − DPO', isNum(cv)?(cv<45?'EFFICIENT':cv<70?'ELEVATED':'SLOW'):'N/D');
+    h += healthRow('OCF / Net Income', isNum(ocf)?fmt(ocf,2)+'×':'N/D', isNum(ocf)?ocf>0.9:null, 'Earnings quality · &gt; 0.9', isNum(ocf)?(ocf>1?'HIGH QUALITY':'OK'):'N/D');
+    h += healthRow('Current Ratio', isNum(cr)?fmt(cr,2)+'×':'N/D', isNum(cr)?cr>1.5:null, 'Liquidity · &gt; 1.5', isNum(cr)?(cr>2?'STRONG':cr>1.5?'OK':'TIGHT'):'N/D');
+    h += healthRow('Quick Ratio', isNum(qr)?fmt(qr,2)+'×':'N/D', isNum(qr)?qr>1:null, 'Acid test · &gt; 1.0', isNum(qr)?(qr>1?'OK':'TIGHT'):'N/D');
+    h += healthRow('Debt / Equity', isNum(de)?fmt(de,2)+'×':'N/D', isNum(de)?de<1:null, 'Leverage · &lt; 1.0', isNum(de)?(de<1?'CONSERVATIVE':de<2?'MODERATE':'HIGH'):'N/D');
+    if(isNum(ret.ratio)) h += healthRow('Retained-$1 test', fmt(ret.ratio,2)+'×', ret.passes===true, (ret.window?ret.window[0]+'–'+ret.window[1]+' · ':'')+'$1 retained → market value', ret.passes===true?'PASS':'FAIL');
+    return h + '</div>';
+  }
+
+  /* ── Bloc H — Sensitivity matrix ── */
+  function buildBlocH(d){
+    var H = d.bloc_H_sensitivity||{}, M=H.matrix, gx=H.g_axis, mx=H.margin_axis;
+    if(!Array.isArray(M)||!M.length||!Array.isArray(gx)||!Array.isArray(mx)) return '';
+    var price=(d.bloc_A_verdict||{}).prix;
+    var flat=[]; M.forEach(function(row){ (row||[]).forEach(function(v){ if(isNum(v)) flat.push(v); }); });
     if(!flat.length) return '';
-    var maxAbs = 1;
-    if(isNum(prix)){
-      flat.forEach(function(v){ maxAbs = Math.max(maxAbs, Math.abs(v - prix)); });
-    }
-    function cellColor(v){
+    var base = isNum(price)?price:flat.reduce(function(a,b){return a+b;},0)/flat.length;
+    function hc(v){
       if(!isNum(v)) return 'transparent';
-      if(!isNum(prix)) return '#eee';
-      var t = Math.max(-1, Math.min(1, (v - prix) / maxAbs));      /* -1..1 */
-      var a = 0.12 + Math.abs(t) * 0.55;                            /* opacity by magnitude */
-      return t >= 0 ? 'rgba(46,125,50,'+a.toFixed(2)+')'            /* green = undervalued */
-                    : 'rgba(198,40,40,'+a.toFixed(2)+')';	         /* red = overvalued   */
+      var t=Math.max(-1,Math.min(1,(v-base)/base/0.5));
+      return t>=0?'rgba(44,122,62,'+(0.12+t*0.55).toFixed(2)+')':'rgba(160,48,32,'+(0.12+(-t)*0.55).toFixed(2)+')';
     }
-    var h = '<div class="stk-subsec"><div class="stk-subsec-title">Sensitivity Matrix &middot; Valeur intrins&egrave;que (RE)</div>'
-      + '<div class="stk-sens-axis-x" style="margin-bottom:.25rem">Croissance terminale &rarr;</div>'
-      + '<div class="stk-sens-wrap"><table class="stk-sens-tbl"><thead><tr>'
-      + '<th class="stk-sens-corner">Marge &darr; \\ g &rarr;</th>';
-    gx.forEach(function(g){ h += '<th>'+fmtPct(g,1)+'</th>'; });
+    var h = '<div class="stk-bloc"><div class="stk-bloc-h"><span class="stk-bloc-tag">Bloc H</span><h3>Sensitivity Matrix</h3><em>NOPAT margin × terminal growth</em></div>'
+      + '<div style="overflow-x:auto"><table class="stk-heat"><thead><tr><th>margin ↓ / g →</th>';
+    gx.forEach(function(g){ h += '<th>'+pctS(g,1)+'</th>'; });
     h += '</tr></thead><tbody>';
-    /* rows: top = highest margin for a natural heatmap reading */
-    for(var i = M.length - 1; i >= 0; i--){
-      h += '<tr><th>'+fmtPct(mx[i],1)+'</th>';
+    for(var i=M.length-1;i>=0;i--){
+      h += '<tr><th>'+pctS(mx[i],1)+'</th>';
       (M[i]||[]).forEach(function(v){
-        var disp = isNum(v) ? fmtPrice(v) : 'N/D';
-        h += '<td class="stk-sens-cell" style="background:'+cellColor(v)+'">'+disp+'</td>';
+        var dark = isNum(v)&&Math.abs(v-base)/base>0.25;
+        h += '<td style="background:'+hc(v)+';color:'+(dark?'#fff':'var(--h)')+'">'+(isNum(v)?money(v,0):'N/D')+'</td>';
       });
       h += '</tr>';
     }
     h += '</tbody></table></div>'
-      + '<div class="stk-sens-legend">'
-      + '<span><span class="stk-sens-sw" style="background:rgba(46,125,50,.55)"></span> valeur &gt; prix ('+fmtPrice(prix)+')</span>'
-      + '<span><span class="stk-sens-sw" style="background:rgba(198,40,40,.55)"></span> valeur &lt; prix</span>'
-      + '<span>Axe vertical : marge NOPAT (p10&ndash;p90) &middot; Axe horizontal : g terminal</span>'
-      + '</div></div>';
-    return h;
+      + '<div class="stk-analysis">Base case (centre) ≈ <b>'+money(base,0)+'</b> vs price <b>'+money(price)+'</b>. The grid spans the EPV margin (p10–p90) and a terminal-growth band — the spread shows how much of the thesis rides on terminal assumptions.</div>';
+    return h + '</div>';
   }
 
-  /* ══════════════════════════════════════════════════
-     N3 — QUALITE FONDAMENTALE
-  ══════════════════════════════════════════════════ */
-  function buildQuality(d){
-    var h = '';
-
-    /* Bloc B — Flags */
-    var flags = d.bloc_B_flags || [];
-    h += '<div class="stk-subsec"><div class="stk-subsec-title">Bloc B · Signaux d’alerte ('+flags.length+')</div>';
-    if(!flags.length){
-      h += '<p style="color:var(--green);font-size:.85rem">✓ Aucun signal détecté.</p>';
-    } else {
-      flags.forEach(function(f){
-        var sev = (f.severity||'info').toLowerCase();
-        var bc  = sev==='high'?'stk-flag-high':sev==='medium'?'stk-flag-medium':'stk-flag-info';
-        var sl  = sev==='high'?'Élevé':sev==='medium'?'Moyen':'Info';
-        h += '<div class="stk-flag-item">'
-           + '<span class="stk-flag-badge '+bc+'">'+sl+'</span>'
-           + '<div><div class="stk-flag-msg">'+esc(f.message||'')+'</div>'
-           + '<div class="stk-flag-id">'+esc(f.id||'')+'</div></div></div>';
-      });
-    }
-    h += '</div>';
-
-    /* Bloc C — DuPont */
-    var C = d.bloc_C_dupont || {};
-    if(C.available){
-      var rnoa=C.RNOA, flev=C.FLEV, spr=C.SPREAD, roe=C.ROE_dupont;
-      h += '<div class="stk-subsec"><div class="stk-subsec-title">Bloc C · DuPont avancé</div>'
-         + '<div class="stk-dupont-eq">'
-         + 'ROE = RNOA + (FLEV × SPREAD)<br>'
-         + '<span class="d-val">'+(isNum(roe)?fmtPct(roe):'?')+'</span>'
-         + ' = <span class="d-val">'+(isNum(rnoa)?fmtPct(rnoa):'?')+'</span>'
-         + ' + (<span class="d-val">'+(isNum(flev)?flev.toFixed(2):'?')+'</span>'
-         + ' × <span class="d-val">'+(isNum(spr)?fmtPct(spr):'?')+'</span>)'
-         + '</div>'
-         + '<div class="stk-dupont-grid">'
-         + dpCell('RNOA',       fmtPct(rnoa),          'Rendement net actifs opérationnels')
-         + dpCell('FLEV',       fmtNum(flev,2),         'Levier financier')
-         + dpCell('NBC',        fmtPct(C.NBC),          'Coût net d’emprunt')
-         + dpCell('SPREAD',     fmtPct(spr),            'RNOA − NBC')
-         + dpCell('ROE DuPont', fmtPct(roe),            'ROE reconstitué')
-         + dpCell('ROE Direct', fmtPct(C.ROE_direct),   'ROE calculé directement')
-         + '</div>'
-         + (C.net_cash_position?'<p style="margin-top:.5rem;font-size:.75rem;color:var(--green)">Position cash nette positive</p>':'')
-         + '</div>';
-    }
-
-    /* Bloc D — Sparklines placeholder */
-    var D = d.bloc_D_trends || {};
-    h += '<div class="stk-subsec"><div class="stk-subsec-title">Bloc D · Tendances 10 ans</div>'
-       + '<div class="stk-spark-grid" id="stk-spark-grid-inner">'
-       + sparkCardHtml('ROIC 10Y',                  'roic_10y',          D, true,  'sp-roic')
-       + sparkCardHtml('Marge brute 10Y',            'gross_margin_10y',  D, true,  'sp-gm')
-       + sparkCardHtml('FCF adj 10Y',                'fcf_adj_10y',       D, false, 'sp-fcf')
-       + sparkCardHtml('ROE 10Y',                    'roe_10y',           D, true,  'sp-roe')
-       + sparkCardHtml('Rev. propriétaire 10Y','owner_earnings_10y', D, false, 'sp-oe')
-       + sparkCardHtml("Chiffre d'affaires 10Y",'revenue_10y',       D, false, 'sp-rev')
-       + '</div></div>';
-
-    /* Bloc E — Health */
-    var E = d.bloc_E_health || {};
-    h += '<div class="stk-subsec"><div class="stk-subsec-title">Bloc E · Santé financière</div>'
-       + '<div class="stk-health-grid">';
-    var nd=E.net_debt_ebitda, ic=E.interest_coverage, cr2=E.current_ratio,
-        qr=E.quick_ratio, de=E.de_ratio, lt=E.lt_debt_payback||{},
-        ccc=E.ccc||{}, ocfni=E.ocf_ni, ret=E.retained_earnings_test||{};
-    h += hcard('Net Debt / EBITDA',  isNum(nd)?nd.toFixed(2):'N/D', '',
-               isNum(nd)?(nd<2?'green':nd<4?'yellow':'red'):'gray',
-               isNum(nd)?(nd<2?'&lt; 2 : sain':nd<4?'2–4 : attention':'&gt; 4 : risque'):'');
-    h += hcard('Couverture intérêts', isNum(ic)?ic.toFixed(1)+'×':'N/D', '',
-               isNum(ic)?(ic>6?'green':ic>3?'yellow':'red'):'gray',
-               isNum(ic)?(ic>6?'&gt; 6 : confortable':ic>3?'3–6 : correct':'&lt; 3 : fragile'):'');
-    h += hcard('Ratio courant',  isNum(cr2)?cr2.toFixed(2):'N/D', '', isNum(cr2)?(cr2>=1?'green':'red'):'gray', '');
-    h += hcard('Quick Ratio',    isNum(qr)?qr.toFixed(2):'N/D',   '', isNum(qr)?(qr>=1?'green':'yellow'):'gray', '');
-    h += hcard('Ratio D/E',      isNum(de)?de.toFixed(2):'N/D',   '', isNum(de)?(de<1?'green':de<2?'yellow':'red'):'gray', '');
-    h += hcard('Remboursement LT', isNum(lt.years)?lt.years.toFixed(1)+' ans':'N/D',
-               lt.label?'<div class="stk-hcard-note">'+esc(lt.label)+'</div>':'',
-               lt.passes===true?'green':lt.passes===false?'red':'gray', '');
-    h += hcard('CCC (jours)', isNum(ccc.ccc)?ccc.ccc.toFixed(1):'N/D',
-               '<div class="stk-hcard-note">DSO '+fmtNum(ccc.dso,0)+' · DIO '+fmtNum(ccc.dio,0)+' · DPO '+fmtNum(ccc.dpo,0)+'</div>',
-               isNum(ccc.ccc)?(ccc.ccc<30?'green':ccc.ccc<60?'yellow':'red'):'gray', '');
-    h += hcard('OCF / NI', isNum(ocfni)?ocfni.toFixed(2):'N/D', '',
-               isNum(ocfni)?(ocfni>1?'green':ocfni>0?'yellow':'red'):'gray',
-               isNum(ocfni)?(ocfni>1?'Bonne qualité résultats':'Attention accruals'):'');
-    var rp = ret.passes===true;
-    h += hcard('Test $1 bénéfices ret.', isNum(ret.ratio)?ret.ratio.toFixed(2)+'×':'N/D',
-               '<div class="stk-hcard-note">'+(ret.window?ret.window[0]+'–'+ret.window[1]:'')+'</div>'
-               +'<div class="'+(rp?'stk-pass':'stk-fail')+'">'+( rp?'✓ Réussi':'✗ Échoué')+'</div>',
-               rp?'green':'red', '');
-    h += '</div></div>';
-    return h;
-  }
-
-  function dpCell(label, val, desc){
-    return '<div class="stk-dupont-cell">'
-      + '<div class="stk-dupont-cell-lbl">'+label+'</div>'
-      + '<div class="stk-dupont-cell-val">'+val+'</div>'
-      + '<div class="stk-dupont-cell-desc">'+desc+'</div>'
-      + '</div>';
-  }
-  function sparkCardHtml(title, key, D, isPct, id){
-    var data = D[key];
-    var ok = data && typeof data === 'object' && Object.keys(data).length > 0;
-    return '<div class="stk-spark-card" id="'+id+'">'
-      + '<div class="stk-spark-title">'+title+'</div>'
-      + (ok
-          ? '<svg class="stk-spark-svg" viewBox="0 0 100 52" preserveAspectRatio="none"'
-            + ' data-spark-key="'+key+'" data-spark-pct="'+(isPct?'1':'0')+'"></svg>'
-            + '<div class="stk-spark-range" id="'+id+'-rng"></div>'
-          : '<div class="stk-spark-nd">N/D</div>')
-      + '</div>';
-  }
-  function hcard(label, val, extra, dot, note){
-    var dc = dot==='green'?'stk-dot-green':dot==='yellow'?'stk-dot-yellow':dot==='red'?'stk-dot-red':'stk-dot-gray';
-    return '<div class="stk-hcard">'
-      + '<div class="stk-hcard-dot '+dc+'"></div>'
-      + '<div class="stk-hcard-label">'+label+'</div>'
-      + '<div class="stk-hcard-val">'+val+'</div>'
-      + (note?'<div class="stk-hcard-note">'+note+'</div>':'')
-      + (extra||'')
-      + '</div>';
-  }
-
-  /* Build SVG sparklines after DOM insertion */
-  function buildSparklines(d, container){
-    var D = d.bloc_D_trends || {};
-    container.querySelectorAll('.stk-spark-svg[data-spark-key]').forEach(function(svg){
-      var key   = svg.getAttribute('data-spark-key');
-      var isPct = svg.getAttribute('data-spark-pct') === '1';
-      var data  = D[key];
-      if(!data || typeof data !== 'object') return;
-      var keys = Object.keys(data).sort();
-      var vals = [];
-      keys.forEach(function(k){ var v=data[k]; if(isNum(v)) vals.push(v); });
-      if(vals.length < 2) return;
-      var minV = Math.min.apply(null,vals), maxV = Math.max.apply(null,vals);
-      var rng = maxV - minV || 1;
-      var W=100, H=52, P=5;
-      var pts = vals.map(function(v,i){
-        return (P+(i/(vals.length-1))*(W-P*2)).toFixed(1)+','
-              +(H-P-((v-minV)/rng)*(H-P*2)).toFixed(1);
-      });
-      var first=pts[0].split(','), last=pts[pts.length-1].split(',');
-      var area = first[0]+','+(H-P)+' '+pts.join(' ')+' '+last[0]+','+(H-P);
-      svg.innerHTML = '<polygon points="'+area+'" fill="var(--h,#5a4a3a)" fill-opacity="0.10"/>'
-        + '<polyline points="'+pts.join(' ')+'" fill="none" stroke="var(--h,#5a4a3a)" stroke-width="1.8"'
-        + ' stroke-linejoin="round" stroke-linecap="round"/>';
-      var card = svg.closest('.stk-spark-card');
-      if(card){
-        var rngEl = container.querySelector('#'+card.id+'-rng');
-        if(rngEl){
-          var fv = isPct ? function(v){ return fmtPct(v,0); } : fmtB;
-          rngEl.innerHTML = '<span>'+fv(vals[0])+'</span>'
-            + '<span>'+keys[0]+'–'+keys[keys.length-1]+'</span>'
-            + '<span>'+fv(vals[vals.length-1])+'</span>';
-        }
-      }
+  /* ── Flags ── */
+  function buildFlags(d){
+    var flags = d.bloc_B_flags||[];
+    if(!flags.length) return '';
+    var h = '<div class="stk-bloc"><div class="stk-bloc-h"><span class="stk-bloc-tag">Bloc B</span><h3>Red-Flag Forensics</h3><em>'+flags.length+' signal'+(flags.length>1?'s':'')+'</em></div>';
+    flags.forEach(function(f){
+      var sev=(f.severity||'info').toLowerCase();
+      var bc=sev==='high'?'stk-flag-high':sev==='medium'?'stk-flag-med':'stk-flag-info';
+      var sl=sev==='high'?'High':sev==='medium'?'Medium':'Info';
+      h += '<div class="stk-flag"><span class="stk-flag-badge '+bc+'">'+sl+'</span>'
+        + '<div><div class="stk-flag-msg">'+esc(f.message||'')+'</div><div class="stk-flag-id">'+esc(f.id||'')+'</div></div></div>';
     });
+    return h + '</div>';
   }
 
-  /* ══════════════════════════════════════════════════
-     N4 — CONTEXTE
-  ══════════════════════════════════════════════════ */
-  function buildContext(d){
-    var h = '';
+  /* ── Composite score ── */
+  var PILLAR_LABELS = {valuation:'Valuation', balance_sheet_health:'Bal. Sheet', earnings_quality:'Earn. Quality', smart_money:'Smart Money', momentum:'Momentum'};
+  var PILLAR_ORDER = ['valuation','balance_sheet_health','earnings_quality','smart_money','momentum'];
+  function buildScore(d, meta){
+    var SCobj=d.score_composite||{}, total=SCobj.value_0_100, pil=SCobj.pillars||{}, wt=SCobj.weights||{};
+    var sig=sigOf(total);
+    var rankRows = ROWS.filter(function(r){return isNum(r.score);}).sort(function(a,b){return b.score-a.score;});
+    var rank = rankRows.map(function(r){return r.ticker;}).indexOf(meta.ticker)+1;
+    var h = '<div class="stk-bloc"><div class="stk-bloc-h"><span class="stk-bloc-tag">Score</span><h3>Composite Score</h3><em>5 weighted pillars</em></div>'
+      + '<div class="stk-pillars">';
+    PILLAR_ORDER.forEach(function(k){
+      var p=pil[k]; var c=isNum(p)?(p>=58?'var(--green)':p>=46?'var(--orange)':'var(--red)'):'var(--muted)';
+      var w=isNum(wt[k])?(wt[k]*100).toFixed(0):'—';
+      h += '<div class="stk-pil"><div class="stk-pil-l">'+(PILLAR_LABELS[k]||k)+'</div>'
+        + '<div class="stk-pil-v" style="color:'+c+'">'+(isNum(p)?fmt(p,0):'N/D')+'</div>'
+        + '<div class="stk-pil-track"><div class="stk-pil-fill" data-w="'+(isNum(p)?p:0)+'" style="background:'+c+'"></div></div>'
+        + '<div class="stk-pil-w">'+w+'%</div></div>';
+    });
+    h += '</div><div class="stk-score-final">'
+      + '<div><div class="stk-stat-l">Composite</div><div class="stk-sf-num">'+(isNum(total)?fmt(total,0):'N/D')+'</div><div class="stk-stat-s">out of 100</div></div>'
+      + '<div><div class="stk-cover-vlabel" style="color:var(--muted)">Signal</div>'
+      +   '<div style="font-size:18px;font-weight:800;letter-spacing:1px;color:'+sigCol(sig)+';margin-top:4px">'+sig+'</div>'
+      +   '<div class="stk-stat-s" style="max-width:420px;margin-top:6px">Weights are shown, never a black box (SAINHE Couche 4). Thresholds: ≥58 BUY · ≥46 WATCH · else AVOID.</div></div>'
+      + (rank>0?'<div style="margin-left:auto;text-align:right"><div class="stk-stat-l">Universe rank</div><div class="stk-sf-num" style="font-size:30px">#'+rank+'</div><div class="stk-stat-s">of '+rankRows.length+'</div></div>':'')
+      + '</div>';
+    return h + '</div>';
+  }
 
-    /* Bloc G — Smart Money */
-    var G = d.bloc_G_smart_money || {};
-    h += '<div class="stk-subsec"><div class="stk-subsec-title">Bloc G · Smart Money (insiders)</div>'
-       + '<div class="stk-sm-count">'+(isNum(G.n_insider_filings_6m)?G.n_insider_filings_6m:0)
-       + ' déclarations insiders (6 mois)</div>';
-    var recent = (G.recent||[]).slice(0,5);
-    if(recent.length){
-      h += '<table class="stk-sm-table"><thead><tr><th>Formulaire</th><th>Date</th></tr></thead><tbody>';
-      recent.forEach(function(tx){ h+='<tr><td>'+esc(tx.form||'—')+'</td><td>'+esc(tx.date||'—')+'</td></tr>'; });
-      h += '</tbody></table>';
-    } else {
-      h += '<p style="font-size:.8rem;color:var(--muted)">Aucune transaction récente disponible.</p>';
+  /* ════════════════ PORTFOLIO SIMULATOR ════════════════ */
+  var MKT_VOL = 0.16;
+  function rowOf(tk){ return ROWS.filter(function(r){return r.ticker===tk;})[0]; }
+  function muOf(r){ return (r&&isNum(r.rf)&&isNum(r.beta)&&isNum(r.erp)) ? r.rf + r.beta*r.erp : null; }
+  function sigmaOf(r){ var b=(r&&isNum(r.beta))?Math.max(0.2,Math.min(2.6,r.beta)):1; return b*MKT_VOL; }
+  var RF = (function(){ var r=ROWS.filter(function(x){return isNum(x.rf);})[0]; return r?r.rf:0.042; })();
+
+  function corrMatrix(tickers){
+    var rs=tickers.map(rowOf), n=tickers.length, M=[];
+    var defensive={'KO':1,'NESN.SW':1,'ZTS':1,'XOM':1};
+    for(var i=0;i<n;i++){ M[i]=[]; for(var j=0;j<n;j++){
+      if(i===j){ M[i][j]=1; continue; }
+      if(j<i){ M[i][j]=M[j][i]; continue; }
+      var a=rs[i], b=rs[j];
+      var sameSec=(a&&b&&a.sector===b.sector)?1:0;
+      var ba=(a&&isNum(a.beta))?a.beta:1, bb=(b&&isNum(b.beta))?b.beta:1;
+      var betaSim=1-Math.min(1,Math.abs(ba-bb)/2);
+      var rho=0.12+0.5*sameSec+0.22*betaSim;
+      if(defensive[tickers[i]]||defensive[tickers[j]]) rho*=0.5;
+      M[i][j]=Math.max(-0.1,Math.min(0.92,+rho.toFixed(2)));
+    }}
+    return M;
+  }
+  var PORT = null;
+  function defaultPort(){
+    var prefer=['NVDA','AAPL','MSFT','XOM','KO','LMT'];
+    var have=prefer.filter(function(t){return rowOf(t);});
+    if(have.length<2) have=ROWS.slice(0,Math.min(6,ROWS.length)).map(function(r){return r.ticker;});
+    var w=Math.round(100/have.length);
+    return have.map(function(t){return {tk:t,w:w};});
+  }
+  function portStats(port){
+    var ws=port.map(function(p){return p.w;}), sum=ws.reduce(function(a,b){return a+b;},0)||1;
+    var w=ws.map(function(x){return x/sum;});
+    var rs=port.map(function(p){return rowOf(p.tk);});
+    var ret=0, beta=0;
+    w.forEach(function(wi,i){ var mu=muOf(rs[i]); ret+=wi*(isNum(mu)?mu:0); beta+=wi*((rs[i]&&isNum(rs[i].beta))?rs[i].beta:1); });
+    var M=corrMatrix(port.map(function(p){return p.tk;}));
+    var varSum=0;
+    for(var i=0;i<w.length;i++) for(var j=0;j<w.length;j++) varSum+=w[i]*w[j]*sigmaOf(rs[i])*sigmaOf(rs[j])*M[i][j];
+    var vol=Math.sqrt(Math.max(0,varSum));
+    var sharpe=(ret-RF)/(vol||1);
+    return {ret:ret, beta:beta, vol:vol, sharpe:sharpe, M:M, w:w, rs:rs};
+  }
+  function renderAssets(){
+    var host=document.getElementById('stk-assets');
+    host.innerHTML = PORT.map(function(p,i){
+      var r=rowOf(p.tk), mu=muOf(r);
+      return '<div class="stk-asset">'
+        + '<div><div class="stk-asset-tk">'+esc(p.tk)+'</div><div class="stk-asset-meta">β '+((r&&isNum(r.beta))?fmt(r.beta,2):'N/D')+' · μ '+pctS(mu,0)+' · σ '+pctS(sigmaOf(r),0)+'</div></div>'
+        + '<input type="range" min="0" max="60" value="'+p.w+'" data-i="'+i+'">'
+        + '<div class="stk-asset-w" data-w="'+i+'">'+p.w+'%</div>'
+        + '<div style="grid-column:1/-1;text-align:right;margin-top:-6px"><button class="stk-asset-rm" data-i="'+i+'">remove</button></div>'
+        + '</div>';
+    }).join('');
+    host.querySelectorAll('input[type=range]').forEach(function(s){
+      s.addEventListener('input', function(){
+        PORT[+this.dataset.i].w=+this.value;
+        var lbl=host.querySelector('.stk-asset-w[data-w="'+this.dataset.i+'"]'); if(lbl) lbl.textContent=this.value+'%';
+        updateSim();
+      });
+    });
+    host.querySelectorAll('.stk-asset-rm').forEach(function(b){
+      b.addEventListener('click', function(){ if(PORT.length<=2) return; PORT.splice(+this.dataset.i,1); renderAssets(); updateSim(); });
+    });
+    var sel=document.getElementById('stk-add-sel');
+    var have={}; PORT.forEach(function(p){have[p.tk]=1;});
+    sel.innerHTML = ROWS.filter(function(r){return !have[r.ticker];}).map(function(r){
+      return '<option value="'+esc(r.ticker)+'">'+esc(r.ticker)+' · '+esc(r.name)+'</option>';
+    }).join('');
+  }
+  function renderCorr(M, tickers){
+    var host=document.getElementById('stk-corr');
+    function short(t){ return t.replace('.SW','').replace('.DE','').replace('.PA','').replace('.T',''); }
+    var html='<tr><th></th>'+tickers.map(function(t){return '<th class="rot">'+esc(short(t))+'</th>';}).join('')+'</tr>';
+    M.forEach(function(row,i){
+      html+='<tr><th>'+esc(short(tickers[i]))+'</th>'+row.map(function(v,j){
+        if(i===j) return '<td class="diag">1</td>';
+        var a=Math.abs(v);
+        var bg=v>=0?'rgba(158,122,46,'+(0.2+a*0.7).toFixed(2)+')':'rgba(44,122,62,'+(0.2+a*0.6).toFixed(2)+')';
+        return '<td style="background:'+bg+'" title="'+esc(tickers[i])+' · '+esc(tickers[j])+' = '+v+'">'+v.toFixed(2).replace('0.','.').replace('-0.','-.')+'</td>';
+      }).join('')+'</tr>';
+    });
+    host.innerHTML=html;
+  }
+  var LAST_BEST=null;
+  function renderFrontier(stats){
+    var svg=document.getElementById('stk-frontier');
+    var W=760,H=300,pad=42, rs=stats.rs, M=stats.M, n=PORT.length;
+    var pts=[], best={sh:-99}, minv={v:99};
+    for(var k=0;k<5000;k++){
+      var w=rs.map(function(){return Math.random();}); var s=w.reduce(function(a,b){return a+b;},0); w=w.map(function(x){return x/s;});
+      var ret=0; w.forEach(function(wi,i){var mu=muOf(rs[i]); ret+=wi*(isNum(mu)?mu:0);});
+      var vv=0; for(var i=0;i<n;i++) for(var j=0;j<n;j++) vv+=w[i]*w[j]*sigmaOf(rs[i])*sigmaOf(rs[j])*M[i][j];
+      var vol=Math.sqrt(Math.max(0,vv)), sh=(ret-RF)/(vol||1);
+      pts.push({ret:ret,vol:vol,sh:sh});
+      if(sh>best.sh) best={sh:sh,ret:ret,vol:vol,w:w};
+      if(vol<minv.v) minv={v:vol,ret:ret,vol:vol};
     }
-    h += '</div>';
-
-    /* Bloc I — Macro */
-    var I  = d.bloc_I_macro || {};
-    var li = I.leading_indicator || {};
-    var geo= I.geographic_exposure || {};
-    h += '<div class="stk-subsec"><div class="stk-subsec-title">Bloc I · Contexte macro &amp; exposition géographique</div>'
-       + '<div class="stk-macro-grid">'
-       + '<div class="stk-macro-card">'
-       + '<div class="stk-macro-card-title">'+esc(li.indicator||'Indicateur avancé')+'</div>'
-       + '<div class="stk-macro-card-val">'+(li.value!=null?esc(String(li.value)):'N/D')+'</div>'
-       + '<div class="stk-macro-card-note">'+esc(li.label||'')+'</div>'
-       + '</div>'
-       + '<div class="stk-macro-card">'
-       + '<div class="stk-macro-card-title">Exposition géographique</div>'
-       + '<div class="stk-macro-card-val">'+esc(geo.country||'N/D')+'</div>'
-       + '<div class="stk-macro-card-note">'
-       + (geo.us_pct&&geo.us_pct!=='N/D'?'US : '+esc(String(geo.us_pct))+'<br>':'')
-       + (geo.non_us_pct&&geo.non_us_pct!=='N/D'?'Non-US : '+esc(String(geo.non_us_pct))+'<br>':'')
-       + (geo.note?esc(geo.note):'')
-       + '</div></div>'
-       + '</div></div>';
-
-    /* WACC drill-down */
-    var wd = (d.drill_down||{}).wacc_detail||{};
-    h += '<div class="stk-subsec"><div class="stk-subsec-title">WACC · Détail de calcul</div>'
-       + '<table class="stk-wacc-drill"><thead><tr><th>Paramètre</th><th>Valeur</th></tr></thead><tbody>';
-    [
-      ['WACC',      isNum(wd.wacc)?fmtPct(wd.wacc):'N/D'],
-      ['Ke',        isNum(wd.ke)?fmtPct(wd.ke):'N/D'],
-      ['Kd',        isNum(wd.kd)?fmtPct(wd.kd):'N/D'],
-      ['Taux IS',   isNum(wd.tax_rate)?fmtPct(wd.tax_rate):'N/D'],
-      ['Beta',      isNum(wd.beta)?wd.beta.toFixed(3):'N/D'],
-      ['Rf',        isNum(wd.rf)?fmtPct(wd.rf):'N/D'],
-      ['ERP',       isNum(wd.erp)?fmtPct(wd.erp):'N/D'],
-      ['E (cap.)',  isNum(wd.E)?fmtB(wd.E):'N/D'],
-      ['D (dette)', isNum(wd.D)?fmtB(wd.D):'N/D'],
-      ['Mode',      wd.mode||'N/D'],
-    ].forEach(function(row){ h+='<tr><td>'+row[0]+'</td><td>'+row[1]+'</td></tr>'; });
-    h += '</tbody></table></div>';
-
-    /* EDGAR link */
-    var eu = (d.drill_down||{}).edgar_filings_index;
-    if(eu) h += '<a class="stk-edgar-btn" href="'+esc(eu)+'" target="_blank" rel="noopener noreferrer">↗ Dossiers EDGAR</a>';
-
-    return h;
+    var vols=pts.map(function(p){return p.vol;}), rets=pts.map(function(p){return p.ret;});
+    var vmin=Math.min.apply(null,vols.concat([stats.vol]))*0.9, vmax=Math.max.apply(null,vols)*1.05;
+    var rmin=Math.min.apply(null,rets.concat([RF]))*0.9, rmax=Math.max.apply(null,rets)*1.05;
+    var X=function(v){return pad+(v-vmin)/((vmax-vmin)||1)*(W-pad*1.5);};
+    var Y=function(r){return H-pad-(r-rmin)/((rmax-rmin)||1)*(H-pad*1.5);};
+    var shMax=Math.max.apply(null,pts.map(function(p){return p.sh;})), shMin=Math.min.apply(null,pts.map(function(p){return p.sh;}));
+    var html='';
+    html+='<line x1="'+pad+'" y1="'+(H-pad)+'" x2="'+(W-pad/2)+'" y2="'+(H-pad)+'" stroke="var(--border)" stroke-width="1"/>';
+    html+='<line x1="'+pad+'" y1="'+(pad/2)+'" x2="'+pad+'" y2="'+(H-pad)+'" stroke="var(--border)" stroke-width="1"/>';
+    html+='<text x="'+(W-pad/2)+'" y="'+(H-pad+18)+'" fill="var(--muted)" font-size="10" text-anchor="end">Volatility σ →</text>';
+    html+='<text x="'+(pad-6)+'" y="'+(pad/2+4)+'" fill="var(--muted)" font-size="10" text-anchor="end" transform="rotate(-90 '+(pad-6)+' '+(pad/2)+')">Expected return →</text>';
+    pts.forEach(function(p,i){ if(i%2) return; var t=(p.sh-shMin)/((shMax-shMin)||1);
+      var col='hsl('+(38+t*70)+' 45% '+(62-t*18)+'%)';
+      html+='<circle cx="'+X(p.vol).toFixed(1)+'" cy="'+Y(p.ret).toFixed(1)+'" r="1.6" fill="'+col+'" opacity="0.5"/>'; });
+    html+='<line x1="'+X(0.0001)+'" y1="'+Y(RF)+'" x2="'+X(best.vol)+'" y2="'+Y(best.ret)+'" stroke="var(--green)" stroke-width="1" stroke-dasharray="4 3" opacity=".7"/>';
+    html+='<circle cx="'+X(minv.vol)+'" cy="'+Y(minv.ret)+'" r="5" fill="none" stroke="var(--red)" stroke-width="2"/>';
+    html+='<circle cx="'+X(best.vol)+'" cy="'+Y(best.ret)+'" r="6" fill="none" stroke="var(--green)" stroke-width="2.5"/>';
+    html+='<circle cx="'+X(stats.vol)+'" cy="'+Y(stats.ret)+'" r="6" fill="var(--gold)" stroke="#fff" stroke-width="1.5"/>';
+    svg.innerHTML=html;
+    LAST_BEST=best;
   }
+  function updateSim(){
+    var st=portStats(PORT);
+    var rEl=document.getElementById('stk-m-ret'); rEl.textContent=pctS(st.ret); rEl.className='stk-simm-v '+(st.ret>=0?'up':'dn');
+    document.getElementById('stk-m-vol').textContent=pctS(st.vol);
+    document.getElementById('stk-m-beta').textContent=fmt(st.beta,2);
+    var shEl=document.getElementById('stk-m-sharpe'); shEl.textContent=fmt(st.sharpe,2); shEl.className='stk-simm-v '+(st.sharpe>=1?'up':st.sharpe>=0.4?'':'dn');
+    document.getElementById('stk-m-rf').textContent='rf = '+(RF*100).toFixed(1)+'%';
+    renderCorr(st.M, PORT.map(function(p){return p.tk;}));
+    renderFrontier(st);
+  }
+  (function initSim(){
+    PORT=defaultPort();
+    renderAssets(); updateSim();
+    document.getElementById('stk-add-btn').addEventListener('click', function(){
+      var tk=document.getElementById('stk-add-sel').value;
+      if(tk && !PORT.filter(function(p){return p.tk===tk;}).length){ PORT.push({tk:tk,w:10}); renderAssets(); updateSim(); }
+    });
+    document.getElementById('stk-eq-btn').addEventListener('click', function(){
+      var w=Math.round(100/PORT.length); PORT.forEach(function(p){p.w=w;}); renderAssets(); updateSim();
+    });
+    document.getElementById('stk-opt-btn').addEventListener('click', function(){
+      if(LAST_BEST && LAST_BEST.w){ PORT.forEach(function(p,i){ p.w=Math.round(LAST_BEST.w[i]*100); }); renderAssets(); updateSim(); }
+    });
+  })();
+
+  /* ════════════════ reveal-on-scroll (page-local) ════════════════ */
+  (function(){
+    if(!('IntersectionObserver' in window)){ document.querySelectorAll('.stk-reveal').forEach(function(el){el.classList.add('in');}); return; }
+    var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); },{threshold:.12});
+    document.querySelectorAll('.stk-reveal').forEach(function(el){ io.observe(el); });
+  })();
+
+  /* ════════════════ boot — open highest-scoring name ════════════════ */
+  renderSpectrum();
+  (function(){
+    var top=ROWS.filter(function(r){return isNum(r.score);}).sort(function(a,b){return b.score-a.score;})[0];
+    if(top){ SEL=top.ticker; renderSpectrum(); openDossier(SEL); }
+  })();
 
 })();
 </script>
+{% endraw %}
+{% endif %}
 
 {% include "partials/_swipe_nav.html" %}
 </body>
