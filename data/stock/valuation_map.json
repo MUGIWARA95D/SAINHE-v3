@@ -1,0 +1,145 @@
+{
+  "as_of": "2026-06-13",
+  "rows": [
+    {
+      "ticker": "NVDA",
+      "prix": 205.19,
+      "epv_per_share": 29.820407,
+      "re_per_share": 32.201809,
+      "ecart_pct": -0.8547,
+      "score": 34.0,
+      "n_flags": 1,
+      "consensus_median": 288.0
+    },
+    {
+      "ticker": "AAPL",
+      "prix": 291.13,
+      "epv_per_share": 110.99641,
+      "re_per_share": 77.518129,
+      "ecart_pct": -0.6187,
+      "score": 47.8,
+      "n_flags": 0,
+      "consensus_median": 310.0
+    },
+    {
+      "ticker": "MSFT",
+      "prix": 390.74,
+      "epv_per_share": 27.77272,
+      "re_per_share": 140.414403,
+      "ecart_pct": -0.9289,
+      "score": 42.8,
+      "n_flags": 1,
+      "consensus_median": 555.0
+    },
+    {
+      "ticker": "ISRG",
+      "prix": 411.06,
+      "epv_per_share": 61.532597,
+      "re_per_share": 68.680997,
+      "ecart_pct": -0.8503,
+      "score": 35.0,
+      "n_flags": 1,
+      "consensus_median": 574.0
+    },
+    {
+      "ticker": "ZTS",
+      "prix": 79.57,
+      "epv_per_share": "N/D",
+      "re_per_share": 77.297111,
+      "ecart_pct": "N/D",
+      "score": 50.0,
+      "n_flags": 0,
+      "consensus_median": 130.0
+    },
+    {
+      "ticker": "XOM",
+      "prix": 147.01,
+      "epv_per_share": "N/D",
+      "re_per_share": 139.577951,
+      "ecart_pct": "N/D",
+      "score": 54.0,
+      "n_flags": 0,
+      "consensus_median": 172.5
+    },
+    {
+      "ticker": "LMT",
+      "prix": 540.33,
+      "epv_per_share": 619.233897,
+      "re_per_share": 454.251192,
+      "ecart_pct": 0.146,
+      "score": 65.3,
+      "n_flags": 0,
+      "consensus_median": 614.0
+    },
+    {
+      "ticker": "TSLA",
+      "prix": 406.43,
+      "epv_per_share": 11.629552,
+      "re_per_share": 8.765256,
+      "ecart_pct": -0.9714,
+      "score": 39.0,
+      "n_flags": 2,
+      "consensus_median": 460.0
+    },
+    {
+      "ticker": "GEV",
+      "prix": 940.66,
+      "epv_per_share": 102.629145,
+      "re_per_share": 199.42504,
+      "ecart_pct": -0.8909,
+      "score": 35.0,
+      "n_flags": 0,
+      "consensus_median": 1250.0
+    },
+    {
+      "ticker": "DE",
+      "prix": 577.48,
+      "epv_per_share": "N/D",
+      "re_per_share": 209.298917,
+      "ecart_pct": "N/D",
+      "score": 54.0,
+      "n_flags": 0,
+      "consensus_median": 640.0
+    },
+    {
+      "ticker": "CTVA",
+      "prix": 76.14,
+      "epv_per_share": "N/D",
+      "re_per_share": 24.994721,
+      "ecart_pct": "N/D",
+      "score": 54.0,
+      "n_flags": 0,
+      "consensus_median": 90.0
+    },
+    {
+      "ticker": "ECL",
+      "prix": 265.41,
+      "epv_per_share": 86.89788,
+      "re_per_share": 83.031373,
+      "ecart_pct": -0.6726,
+      "score": 36.8,
+      "n_flags": 2,
+      "consensus_median": 325.0
+    },
+    {
+      "ticker": "KO",
+      "prix": 82.62,
+      "epv_per_share": 43.908396,
+      "re_per_share": 50.922854,
+      "ecart_pct": -0.4686,
+      "score": 33.8,
+      "n_flags": 1,
+      "consensus_median": 88.0
+    },
+    {
+      "ticker": "CAT",
+      "prix": 910.57,
+      "epv_per_share": 110.163097,
+      "re_per_share": 10.716262,
+      "ecart_pct": -0.879,
+      "score": 37.5,
+      "n_flags": 0,
+      "consensus_median": 957.975
+    }
+  ]
+}
