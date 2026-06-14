@@ -146,10 +146,10 @@ jobs:
           wranglerVersion: "3.99.0"
           command: pages deploy output --project-name=sainhe --branch=dev
 
-      - name: Render HTML — production (STOCK_ANALYSIS_LIVE=false)
+      - name: Render HTML — production (STOCK_ANALYSIS_LIVE=true)
         run: python render_html.py
         env:
-          STOCK_ANALYSIS_LIVE: "false"
+          STOCK_ANALYSIS_LIVE: "true"
 
       - name: Upload DB to Google Drive
         if: |
@@ -232,10 +232,10 @@ jobs:
           wranglerVersion: "3.99.0"
           command: pages deploy output --project-name=sainhe --branch=dev
 
-      - name: Render HTML — production (STOCK_ANALYSIS_LIVE=false)
+      - name: Render HTML — production (STOCK_ANALYSIS_LIVE=true)
         run: python render_html.py
         env:
-          STOCK_ANALYSIS_LIVE: "false"
+          STOCK_ANALYSIS_LIVE: "true"
 
       - name: Upload DB to Google Drive
         run: python scripts/gdrive_sync.py upload
@@ -304,10 +304,10 @@ jobs:
           wranglerVersion: "3.99.0"
           command: pages deploy output --project-name=sainhe --branch=dev
 
-      - name: Render HTML — production (STOCK_ANALYSIS_LIVE=false)
+      - name: Render HTML — production (STOCK_ANALYSIS_LIVE=true)
         run: python render_html.py
         env:
-          STOCK_ANALYSIS_LIVE: "false"
+          STOCK_ANALYSIS_LIVE: "true"
 
       - name: Upload DB to Google Drive
         run: python scripts/gdrive_sync.py upload
@@ -392,10 +392,10 @@ jobs:
           wranglerVersion: "3.99.0"
           command: pages deploy output --project-name=sainhe --branch=dev
 
-      - name: Render HTML — production (STOCK_ANALYSIS_LIVE=false)
+      - name: Render HTML — production (STOCK_ANALYSIS_LIVE=true)
         run: python render_html.py
         env:
-          STOCK_ANALYSIS_LIVE: "false"
+          STOCK_ANALYSIS_LIVE: "true"
 
       - name: Upload DB to Google Drive
         run: python scripts/gdrive_sync.py upload
