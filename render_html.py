@@ -32,6 +32,7 @@ from config import (
     SITE_NAME,
     SITE_SLOGAN,
     COLORS,
+    WATCHLIST,
 )
 import schema
 
@@ -367,10 +368,36 @@ def load_stock_valuation_map() -> dict | None:
         log.info("Stock: valuation_map.json absent (%s) — page Stock en placeholder", vmap_path)
         return None
     try:
-        return json.loads(vmap_path.read_text(encoding="utf-8"))
+        vmap = json.loads(vmap_path.read_text(encoding="utf-8"))
     except Exception as e:
         log.warning("Stock: lecture valuation_map.json échouée (%s)", e)
         return None
+    _enrich_vmap_rows(vmap)
+    return vmap
+
+
+def _enrich_vmap_rows(vmap: dict) -> None:
+    """Augment chaque row du valuation_map avec name/sector (config.WATCHLIST) et
+    beta/rf/erp (drill_down.wacc_detail du report par ticker). Ces champs alimentent
+    le node-navigator et le simulateur de portefeuille côté front, sans devoir
+    fetcher les 14 reports. Champs absents → laissés à None (front gère 'N/D')."""
+    for row in vmap.get("rows", []):
+        tk = row.get("ticker")
+        if not tk:
+            continue
+        meta = WATCHLIST.get(tk, {})
+        row.setdefault("name", meta.get("nom", tk))
+        row.setdefault("sector", meta.get("secteur", "—"))
+        rp = STOCK_DATA_SRC / f"{tk}_report.json"
+        if not rp.exists():
+            continue
+        try:
+            wd = json.loads(rp.read_text(encoding="utf-8")).get("drill_down", {}).get("wacc_detail", {})
+        except Exception:
+            continue
+        for k in ("beta", "rf", "erp"):
+            v = wd.get(k)
+            row[k] = v if isinstance(v, (int, float)) else None
 
 
 def copy_stock_data_to_output():
