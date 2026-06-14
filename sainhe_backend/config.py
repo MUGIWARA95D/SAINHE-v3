@@ -72,6 +72,9 @@ EDGAR_TICKERS = [
     "GEV", "DE", "CTVA", "ECL", "KO", "CAT",
 ]
 
+# Déposants 20-F (IFRS) — couverture partielle via ifrs-full XBRL
+ADR_TICKERS = ["ASML", "TSM", "RACE"]
+
 # Tickers de validation Phase 1 (.txt §8 / prompt)
 TEST_TICKERS = ["AAPL", "MSFT", "KO", "JPM", "XOM"]
 

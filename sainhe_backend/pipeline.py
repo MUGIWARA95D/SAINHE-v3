@@ -50,7 +50,8 @@ def run_ticker(client: EdgarClient, ticker: str) -> dict:
     cik = client.ticker_to_cik(ticker)
     facts = client.companyfacts(cik)
     subs = client.submissions(cik)
-    cd = parse_companyfacts(ticker, cik, facts)
+    forms = ("20-F",) if ticker in config.ADR_TICKERS else ("10-K",)
+    cd = parse_companyfacts(ticker, cik, facts, forms=forms)
     meta = metadata_flags(subs)
     meta["_submissions_raw"] = subs
 
@@ -87,7 +88,7 @@ if __name__ == "__main__":
         # 14 tickers US du portfolio SAINHE exploitables par EDGAR (10-K)
         args = config.EDGAR_TICKERS
     elif args == ["--portfolio-all"]:
-        # Les 31 tickers — les non-US seront sautés (log ECHEC)
+        # Les 31 tickers — ASML/TSM/RACE via 20-F, non-EDGAR sautés (log ECHEC)
         args = config.PORTFOLIO_TICKERS
     elif not args:
         args = config.EDGAR_TICKERS

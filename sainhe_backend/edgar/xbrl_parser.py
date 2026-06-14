@@ -1,7 +1,7 @@
 """Couche 2 — Parsing structuré XBRL (.txt §3 Couche 2). Zéro LLM.
 
-Extrait les tags US-GAAP du plan depuis companyfacts, en séries ANNUELLES (10-K, forme FY),
-chaque point portant : valeur, fiscal year, end date, accession (filing source).
+Extrait les tags US-GAAP (10-K) et IFRS (20-F) depuis companyfacts EDGAR, en séries
+ANNUELLES, chaque point portant : valeur, fiscal year, end date, accession (filing source).
 Tag absent → absent du dict (propagé "N/D" en aval, jamais d'imputation).
 """
 from __future__ import annotations
@@ -80,6 +80,53 @@ TAG_MAP: dict[str, list[str]] = {
     "foreign_revenue": ["RevenuesForeign", "ForeignCountryMember"],
 }
 
+# Mapping IFRS (ifrs-full namespace) pour les déposants 20-F (ASML, TSM, RACE, etc.).
+# Même noms internes que TAG_MAP → le résultat est fusionné dans le même CompanyData.
+IFRS_TAG_MAP: dict[str, list[str]] = {
+    # ---------------- INCOME STATEMENT
+    "revenue": ["Revenue", "RevenueFromContractsWithCustomers"],
+    "cogs": ["CostOfSales"],
+    "gross_profit": ["GrossProfit"],
+    "ebit": ["ProfitLossFromOperatingActivities", "OperatingProfit"],
+    "dep_amort": ["DepreciationAmortisationAndImpairmentLossReversalOfImpairmentLoss"
+                  "RecognisedInProfitOrLoss",
+                  "DepreciationAndAmortisationExpense"],
+    "interest_expense": ["FinanceCosts", "InterestExpense"],
+    "tax_expense": ["IncomeTaxExpenseContinuingOperations", "IncomeTaxExpense"],
+    "pretax_income": ["ProfitLossBeforeTax"],
+    "net_income": ["ProfitLossAttributableToOwnersOfParent", "ProfitLoss"],
+    "eps_diluted": ["DilutedEarningsLossPerShare", "BasicEarningsLossPerShare"],
+    "shares_diluted": ["WeightedAverageDilutedNumberOfOrdinarySharesOutstanding",
+                       "WeightedAverageNumberOfSharesOutstandingBasic"],
+    "shares_outstanding": ["NumberOfSharesOutstanding", "IssuedCapitalOrdinaryShares"],
+    # ---------------- BALANCE SHEET
+    "cash": ["CashAndCashEquivalents", "CashAndCashEquivalentsClassifiedAsPartOfDisposalGroup"],
+    "ar": ["TradeAndOtherCurrentReceivables", "TradeAndOtherReceivables"],
+    "inventory": ["Inventories"],
+    "current_assets": ["CurrentAssets"],
+    "total_assets": ["Assets"],
+    "ppe_net": ["PropertyPlantAndEquipment"],
+    "goodwill": ["Goodwill"],
+    "intangibles": ["IntangibleAssetsOtherThanGoodwill"],
+    "ap": ["TradeAndOtherCurrentPayables"],
+    "current_liabilities": ["CurrentLiabilities"],
+    "lt_debt": ["NoncurrentPortionOfLongtermBorrowings", "LongtermBorrowings",
+                "NoncurrentBorrowings"],
+    "total_liabilities": ["Liabilities"],
+    "equity": ["EquityAttributableToOwnersOfParent", "Equity"],
+    "retained_earnings": ["RetainedEarnings"],
+    # ---------------- CASH FLOW
+    "ocf": ["CashFlowsFromUsedInOperatingActivities"],
+    "capex": ["PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities",
+              "AcquisitionOfPropertyPlantAndEquipment"],
+    "sbc": ["ExpenseFromShareBasedPaymentTransactionsWithEmployees", "ShareBasedCompensation"],
+    "buybacks": ["RepurchaseOfTreasuryShares", "PaymentsForRepurchaseOfOrdinaryShares"],
+    "dividends_paid": ["DividendsPaidClassifiedAsFinancingActivities", "DividendsPaid"],
+    # ---------------- ITEMS TRANSITOIRES
+    "goodwill_impairment": ["ImpairmentLossRecognisedInProfitOrLossGoodwill"],
+    "restructuring": ["RestructuringCosts"],
+}
+
 
 @dataclass
 class DataPoint:
@@ -117,24 +164,64 @@ class CompanyData:
         return {y: s[y].value for y in sorted(s)[-n:]}
 
 
-def parse_companyfacts(ticker: str, cik: int, facts_json: dict) -> CompanyData:
+def _extract_series(node: dict, forms: frozenset[str]) -> dict[int, "DataPoint"]:
+    """Extrait une série annuelle depuis un node companyfacts {units:{...:[...]}}"""
+    units = node.get("units", {})
+    unit_key = next((u for u in ("USD", "USD/shares", "shares", "pure") if u in units),
+                    next(iter(units), None))
+    if not unit_key:
+        return {}
+    per_tag: dict[int, DataPoint] = {}
+    for item in units[unit_key]:
+        if item.get("form") not in forms:
+            continue
+        val, end = item.get("val"), item.get("end")
+        if val is None or not end:
+            continue
+        start = item.get("start")
+        if start:  # flux : ne garder que les périodes ~annuelles
+            try:
+                months = (int(end[:4]) * 12 + int(end[5:7])) - \
+                         (int(start[:4]) * 12 + int(start[5:7]))
+            except (ValueError, IndexError):
+                continue
+            if not (11 <= months <= 13):
+                continue
+        try:
+            period_year = int(end[:4])
+        except ValueError:
+            continue
+        accn = item.get("accn", "")
+        dp = DataPoint(value=float(val), fy=period_year, end=end,
+                       accn=accn, form=item.get("form", ""))
+        cur = per_tag.get(period_year)
+        if cur is None or accn >= cur.accn:
+            per_tag[period_year] = dp
+    return per_tag
+
+
+def parse_companyfacts(
+    ticker: str,
+    cik: int,
+    facts_json: dict,
+    forms: tuple[str, ...] = ("10-K",),
+) -> "CompanyData":
     """Construit les séries annuelles depuis le JSON companyfacts EDGAR.
 
-    Règles (corrigées) :
-      - Une série est indexée par l'ANNÉE DE LA PÉRIODE (end[:4]), jamais par le
-        champ `fy` du datapoint — ce dernier est l'exercice DU DÉPÔT 10-K, pas la
-        période de la donnée (un 10-K FY2025 contient aussi les comparatifs 2024/2023).
-      - Flux (start→end) : on ne garde que les durées ~annuelles (11-13 mois) pour
-        écarter trimestres et cumuls partiels. Stocks de bilan (sans `start`) : instant.
-      - Restatement : à période égale, le dépôt le plus récent (accn max) gagne.
-      - Changement de tag US-GAAP dans le temps (ex. `Revenues` →
-        `RevenueFromContractWithCustomerExcludingAssessedTax`) : le tag préféré
-        couvre ses années, les tags suivants ne COMBLENT que les années manquantes.
-        (Avant : `break` au 1er tag non vide → séries figées à l'ancien tag.)
+    Règles :
+      - Indexée par l'ANNÉE DE LA PÉRIODE (end[:4]), jamais par item["fy"].
+      - Flux (start→end) : durées ~annuelles (11-13 mois) seulement.
+      - Restatement : à période égale, accn max gagne.
+      - Tag migration : tags candidats MERGENT, pas break au premier.
+      - forms=("20-F",) : cherche aussi dans ifrs-full (IFRS_TAG_MAP).
     """
     cd = CompanyData(ticker=ticker, cik=cik)
-    gaap = facts_json.get("facts", {}).get("us-gaap", {})
-    dei = facts_json.get("facts", {}).get("dei", {})
+    facts = facts_json.get("facts", {})
+    gaap = facts.get("us-gaap", {})
+    dei = facts.get("dei", {})
+    ifrs = facts.get("ifrs-full", {})
+
+    allowed = frozenset(forms)
 
     for internal_name, candidates in TAG_MAP.items():
         merged: dict[int, DataPoint] = {}
@@ -142,42 +229,16 @@ def parse_companyfacts(ticker: str, cik: int, facts_json: dict) -> CompanyData:
             node = gaap.get(tag) or dei.get(tag)
             if not node:
                 continue
-            units = node.get("units", {})
-            # USD pour les montants, shares/pure pour le reste — on prend la 1re unité dispo
-            unit_key = next((u for u in ("USD", "USD/shares", "shares", "pure") if u in units),
-                            next(iter(units), None))
-            if not unit_key:
-                continue
-            per_tag: dict[int, DataPoint] = {}
-            for item in units[unit_key]:
-                if item.get("form") != "10-K":
-                    continue
-                val, end = item.get("val"), item.get("end")
-                if val is None or not end:
-                    continue
-                start = item.get("start")
-                if start:  # flux : ne garder que les périodes ~annuelles
-                    try:
-                        months = (int(end[:4]) * 12 + int(end[5:7])) - \
-                                 (int(start[:4]) * 12 + int(start[5:7]))
-                    except (ValueError, IndexError):
-                        continue
-                    if not (11 <= months <= 13):
-                        continue
-                try:
-                    period_year = int(end[:4])
-                except ValueError:
-                    continue
-                accn = item.get("accn", "")
-                dp = DataPoint(value=float(val), fy=period_year, end=end,
-                               accn=accn, form="10-K")
-                # à période égale, le dépôt le plus récent (accn max) écrase = restatement
-                cur = per_tag.get(period_year)
-                if cur is None or accn >= cur.accn:
-                    per_tag[period_year] = dp
-            # le tag préféré garde ses années ; les suivants comblent les trous seulement
-            for y, dp in per_tag.items():
+            for y, dp in _extract_series(node, allowed).items():
                 merged.setdefault(y, dp)
+        # Pour les déposants 20-F : compléter avec IFRS quand le tag GAAP est absent
+        if ifrs and "20-F" in allowed:
+            for tag in IFRS_TAG_MAP.get(internal_name, []):
+                node = ifrs.get(tag)
+                if not node:
+                    continue
+                for y, dp in _extract_series(node, allowed).items():
+                    merged.setdefault(y, dp)
         if merged:
             cd.series[internal_name] = merged
     return cd
