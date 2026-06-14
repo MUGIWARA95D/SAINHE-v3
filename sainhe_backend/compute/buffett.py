@@ -1,6 +1,6 @@
 """QUALITÉ DU BUSINESS — CADRE BUFFETT (.txt, métriques vérifiées uniquement).
 Sources primaires : lettres Berkshire 1983-84 ($1 test), 1986 (Owner Earnings).
-Sources secondaires labelées : LT Debt Payback (Mary Buffett & Clark), ROE consistency.
+Sources secondaires labellisées : LT Debt Payback (Mary Buffett & Clark), ROE consistency.
 """
 from __future__ import annotations
 import config

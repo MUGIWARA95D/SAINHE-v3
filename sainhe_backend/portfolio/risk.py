@@ -58,10 +58,12 @@ def value_at_risk(prices: pd.DataFrame, weights: dict[str, float],
     var_hist = float(np.quantile(rets, alpha))
     mu, sigma = float(np.mean(rets)), float(np.std(rets))
     var_param = float(mu + sigma * stats.norm.ppf(alpha))
+    # Gap relatif : plus la VaR historique est "pire" (plus négative) que la paramétrique,
+    # plus la distribution a des fat tails (la loi normale sous-estime les queues)
     gap = (var_hist - var_param) / abs(var_param) if var_param else 0.0
     return {"historical": var_hist, "parametric": var_param,
             "gap_pct": float(gap),
-            "fat_tails": gap < -0.10,
+            "fat_tails": gap < -0.10,  # VaR hist >10% pire que param → queues épaisses
             "message": ("Fat tails détectées : la distribution n'est pas normale, "
                         "la VaR paramétrique sous-estime les pertes extrêmes") if gap < -0.10
                         else None}
@@ -83,7 +85,9 @@ def currency_decomposition(local_returns: pd.DataFrame, fx_returns: pd.DataFrame
                             weights: dict[str, float],
                             ticker_currency: dict[str, str],
                             reference_currency: str) -> dict:
-    """Décomposition vol locale vs FX (.txt point 31 — Problème 2 du plan)."""
+    """Décomposition vol locale vs FX (.txt point 31 — Problème 2 du plan).
+    User EUR avec 60% S&P : vraie vol ≠ vol(SPY), c'est vol(SPY) + vol(USDEUR) + 2·cov.
+    """
     cols = [t for t in weights if t in local_returns.columns]
     w = np.array([weights[t] for t in cols])
     w = w / w.sum()
@@ -108,5 +112,6 @@ def currency_decomposition(local_returns: pd.DataFrame, fx_returns: pd.DataFrame
         "vol_fx": float(fx_var ** 0.5),
         "vol_total": float(total_var ** 0.5),
         "fx_contribution_pct": (fx_var / total_var) if total_var else 0.0,
-        "note": "vol(total) = vol(local) ⊕ vol(FX) + covariance",
+        "note": "vol(total) = vol(local) ⊕ vol(FX) + covariance — user EUR/HKD verra "
+                 "souvent 20-40% de risque venir du FX",
     }

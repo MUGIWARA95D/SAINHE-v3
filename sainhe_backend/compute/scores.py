@@ -154,7 +154,7 @@ def all_flags(cd: CompanyData, edgar_meta: dict, market_cap: float | None) -> li
     # SBC (.txt)
     sbc_pct = m.get("sbc_pct_fcf")
     add("sbc_15pct_fcf", bool(sbc_pct and sbc_pct > config.SBC_FCF_FLAG), "medium",
-        f"SBC = {sbc_pct:.0%} du FCF brut (>15%) : FCF brut significativement surestiمé"
+        f"SBC = {sbc_pct:.0%} du FCF brut (>15%) : FCF brut significativement surestimé"
         if sbc_pct else "", {"sbc_pct_fcf": sbc_pct})
 
     # Lease-heavy ASC 842 (.txt)
