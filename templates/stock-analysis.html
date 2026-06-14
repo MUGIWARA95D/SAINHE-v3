@@ -5,7 +5,7 @@
 
 {% include "partials/_intro.html" %}
 
-<!-- ═══ WATERMARK ══════════════════════════════════ -->
+<!-- ═══ WATERMARK ═══════════════════════════════════════════════ -->
 <svg id="wm" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <line x1="26" y1="149" x2="114" y2="149" stroke="currentColor" stroke-width="1.5"/>
   <line x1="26" y1="153" x2="114" y2="153" stroke="currentColor" stroke-width="1" opacity=".55"/>
@@ -42,16 +42,104 @@
 
 <main id="main">
 
-  {% if not stock_analysis_live %}
+  {% if not stock_analysis_live or not stock_vmap %}
   <div class="sec-band sec-choc">
     <div class="shell-placeholder" style="padding:4rem 1rem;text-align:center">
       <p style="font-family:var(--serif);font-size:1.1rem;color:rgba(245,232,208,.55);margin-bottom:.6rem">Coming soon</p>
       <p style="font-size:.85rem;color:rgba(245,232,208,.3);letter-spacing:.5px;text-transform:uppercase">Work in progress</p>
     </div>
   </div>
+  {% else %}
+
+  <!-- ═══ NIVEAU 1 — VALUATION MAP ══════════════════════════════════════════ -->
+  <style>
+  /* Stock Analysis — Niveau 1 table (réutilise le langage visuel du dashboard) */
+  #stk-vmap{display:flex;flex-direction:column}
+  #stk-vmap .card-h{flex-shrink:0}
+  #stk-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  #stk-table{width:100%;border-collapse:collapse;font-size:12px}
+  #stk-table th{text-align:right;padding:8px 12px;color:var(--muted);font-weight:500;
+    font-size:10px;text-transform:uppercase;letter-spacing:.5px;
+    border-bottom:1px solid var(--border);white-space:nowrap}
+  #stk-table th:first-child{text-align:left}
+  #stk-table td{padding:9px 12px;border-bottom:1px solid var(--border-lt);
+    vertical-align:middle;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  #stk-table td:first-child{text-align:left}
+  #stk-table tr:hover td{background:var(--hover)}
+  .stk-tk{font-weight:700;color:var(--h);font-size:13px;letter-spacing:.3px}
+  .stk-gap-pos{color:var(--green);font-weight:600}   /* sous-évalué (EPV > prix) */
+  .stk-gap-neg{color:var(--red);font-weight:600}     /* sur-évalué */
+  .stk-na{color:var(--faint)}
+  .stk-score{display:inline-block;min-width:34px;text-align:center;padding:2px 8px;border-radius:12px;
+    font-weight:700;font-size:11px}
+  .stk-score-hi{background:var(--green-bg);color:var(--green)}
+  .stk-score-mid{background:var(--yellow-bg);color:var(--yellow)}
+  .stk-score-lo{background:var(--red-bg);color:var(--red)}
+  .stk-flags{font-weight:600}
+  .stk-flags-0{color:var(--muted)}
+  .stk-flags-n{color:var(--orange)}
+  .stk-foot{padding:10px 14px;font-size:10px;color:var(--faint);
+    border-top:1px solid var(--border-lt);letter-spacing:.2px}
+  </style>
+
+  <div class="sec-band sec-creme">
+    <div class="section-lbl" id="nav-valuation-map">
+      <h2>Valuation Map</h2><em>Intrinsic value vs price — SAINHE portfolio</em>
+    </div>
+
+    <div class="card" id="stk-vmap">
+      <div class="card-h">
+        <span class="card-t">Niveau 1 · Verdict</span>
+        <span class="badge badge-gold">EDGAR + yfinance</span>
+      </div>
+      <div id="stk-table-wrap">
+        <table id="stk-table">
+          <thead>
+            <tr>
+              <th>Ticker</th>
+              <th>Price</th>
+              <th>EPV / sh</th>
+              <th>RE / sh</th>
+              <th>Gap %</th>
+              <th>Consensus</th>
+              <th>Score</th>
+              <th>Flags</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for r in stock_vmap.rows %}
+            <tr>
+              <td><span class="stk-tk">{{ r.ticker }}</span></td>
+              <td>{% if r.prix not in (None, "N/D") %}{{ "%.2f"|format(r.prix) }}{% else %}<span class="stk-na">N/D</span>{% endif %}</td>
+              <td>{% if r.epv_per_share not in (None, "N/D") %}{{ "%.2f"|format(r.epv_per_share) }}{% else %}<span class="stk-na">N/D</span>{% endif %}</td>
+              <td>{% if r.re_per_share not in (None, "N/D") %}{{ "%.2f"|format(r.re_per_share) }}{% else %}<span class="stk-na">N/D</span>{% endif %}</td>
+              <td>
+                {% if r.ecart_pct not in (None, "N/D") %}
+                  <span class="{{ 'stk-gap-pos' if r.ecart_pct > 0 else 'stk-gap-neg' }}">{{ "%+.1f"|format(r.ecart_pct * 100) }}%</span>
+                {% else %}<span class="stk-na">N/D</span>{% endif %}
+              </td>
+              <td>{% if r.consensus_median not in (None, "N/D") %}{{ "%.0f"|format(r.consensus_median) }}{% else %}<span class="stk-na">N/D</span>{% endif %}</td>
+              <td>
+                {% if r.score not in (None, "N/D") %}
+                  <span class="stk-score {{ 'stk-score-hi' if r.score >= 55 else ('stk-score-mid' if r.score >= 40 else 'stk-score-lo') }}">{{ "%.0f"|format(r.score) }}</span>
+                {% else %}<span class="stk-na">N/D</span>{% endif %}
+              </td>
+              <td><span class="stk-flags {{ 'stk-flags-0' if (r.n_flags or 0) == 0 else 'stk-flags-n' }}">{{ r.n_flags or 0 }}</span></td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="stk-foot">
+        EPV = Earnings Power Value (Greenwald) · RE = Residual Earnings · Gap = (EPV − Price)/Price ·
+        Score 0–100 · Flags = red-flag count · as of {{ stock_vmap.as_of }} ·
+        zero-LLM, zero-forecast — SEC EDGAR + yfinance
+      </div>
+    </div>
+  </div>
   {% endif %}
 
-  <!-- ═══ PIPELINE STRIP ══════════════════════════════════════ -->
+  <!-- ═══ PIPELINE STRIP ════════════════════════════════════════════════════════════ -->
   <div class="pipeline">
     <span>SAINHE pipeline</span>
     <span class="pl-dot"></span>
@@ -66,9 +154,9 @@
 {% include "partials/_footer.html" %}
 {% include "partials/_anim.html" %}
 
-<!-- ═══ SHARED JS HELPERS ══════════════════════════════════ -->
+<!-- ═══ SHARED JS HELPERS ══════════════════════════════════════════════ -->
 <script>
-/* ── Theme (pill) ────────────────────────────────── */
+/* ── Theme (pill) ────────────────────────────────────────────────── */
 const _H=document.documentElement, _TB=document.getElementById("thm");
 const _SUN=_TB?_TB.querySelector(".tp-sun"):null;
 const _MOON=_TB?_TB.querySelector(".tp-moon"):null;
@@ -81,7 +169,7 @@ function setTheme(t){
 try{setTheme(localStorage.getItem("sainhe_theme")||"light");}catch(e){setTheme("light");}
 if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dark"?"light":"dark");});
 
-/* ── Scroll progress ─────────────────────────────── */
+/* ── Scroll progress ─────────────────────────────────────────────── */
 (function(){
   const prog=document.getElementById("scroll-prog");
   if(!prog) return;
@@ -92,7 +180,7 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
   },{passive:true});
 })();
 
-/* ── Watermark scroll ────────────────────────────── */
+/* ── Watermark scroll ──────────────────────────────────────────────── */
 (function(){
   const wm=document.getElementById("wm");
   if(!wm) return;
@@ -105,7 +193,7 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
   },{passive:true});
 })();
 
-/* ── Dropdowns ───────────────────────────────────── */
+/* ── Dropdowns ─────────────────────────────────────────────────────── */
 (function(){
   var closeTimers = {};
   function openDd(dd){
@@ -139,7 +227,7 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
   });
 })();
 
-/* ── CI toggle ───────────────────────────────────── */
+/* ── CI toggle ─────────────────────────────────────────────────────── */
 (function(){
   var btn=document.getElementById('ci-tgl');
   if(!btn) return;
@@ -150,7 +238,7 @@ if(_TB) _TB.addEventListener("click",function(){setTheme(_H.dataset.theme==="dar
   });
 })();
 
-/* ── CI tooltip (floating, event-delegated) ──────── */
+/* ── CI tooltip (floating, event-delegated) ─────────────────────────────────────────────────── */
 (function(){
   if(document.getElementById('ci-tip')) return;
   var tip=document.createElement('div');
