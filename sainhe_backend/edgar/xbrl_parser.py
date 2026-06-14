@@ -28,7 +28,8 @@ TAG_MAP: dict[str, list[str]] = {
                       "ExtraordinaryItemsNoncontrollingInterest",
                       "IncomeLossFromContinuingOperationsBeforeIncomeTaxes"
                       "MinorityInterestAndIncomeLossFromEquityMethodInvestments"],
-    "net_income": ["NetIncomeLoss"],
+    "net_income": ["NetIncomeLoss", "ProfitLoss",
+                   "NetIncomeLossAvailableToCommonStockholdersBasic"],
     "eps_diluted": ["EarningsPerShareDiluted"],
     "shares_diluted": ["WeightedAverageNumberOfDilutedSharesOutstanding"],
     "shares_outstanding": ["CommonStockSharesOutstanding", "EntityCommonStockSharesOutstanding"],
@@ -119,14 +120,24 @@ class CompanyData:
 def parse_companyfacts(ticker: str, cik: int, facts_json: dict) -> CompanyData:
     """Construit les séries annuelles depuis le JSON companyfacts EDGAR.
 
-    Règle : on retient les points avec form 10-K et fp == 'FY' (annuels),
-    une valeur par fiscal year (la plus récemment filée gagne — gère les restatements).
+    Règles (corrigées) :
+      - Une série est indexée par l'ANNÉE DE LA PÉRIODE (end[:4]), jamais par le
+        champ `fy` du datapoint — ce dernier est l'exercice DU DÉPÔT 10-K, pas la
+        période de la donnée (un 10-K FY2025 contient aussi les comparatifs 2024/2023).
+      - Flux (start→end) : on ne garde que les durées ~annuelles (11-13 mois) pour
+        écarter trimestres et cumuls partiels. Stocks de bilan (sans `start`) : instant.
+      - Restatement : à période égale, le dépôt le plus récent (accn max) gagne.
+      - Changement de tag US-GAAP dans le temps (ex. `Revenues` →
+        `RevenueFromContractWithCustomerExcludingAssessedTax`) : le tag préféré
+        couvre ses années, les tags suivants ne COMBLENT que les années manquantes.
+        (Avant : `break` au 1er tag non vide → séries figées à l'ancien tag.)
     """
     cd = CompanyData(ticker=ticker, cik=cik)
     gaap = facts_json.get("facts", {}).get("us-gaap", {})
     dei = facts_json.get("facts", {}).get("dei", {})
 
     for internal_name, candidates in TAG_MAP.items():
+        merged: dict[int, DataPoint] = {}
         for tag in candidates:
             node = gaap.get(tag) or dei.get(tag)
             if not node:
@@ -137,33 +148,36 @@ def parse_companyfacts(ticker: str, cik: int, facts_json: dict) -> CompanyData:
                             next(iter(units), None))
             if not unit_key:
                 continue
-            picked: dict[int, DataPoint] = {}
+            per_tag: dict[int, DataPoint] = {}
             for item in units[unit_key]:
                 if item.get("form") != "10-K":
                     continue
-                if item.get("fp") not in (None, "FY"):
+                val, end = item.get("val"), item.get("end")
+                if val is None or not end:
                     continue
-                fy = item.get("fy")
-                val = item.get("val")
-                if fy is None or val is None:
-                    continue
-                # durée annuelle pour les flux : start→end ≈ 1 an ; les stocks n'ont pas de start
-                start, end = item.get("start"), item.get("end")
-                if start and end:
+                start = item.get("start")
+                if start:  # flux : ne garder que les périodes ~annuelles
                     try:
-                        y0, y1 = int(start[:4]), int(end[:4])
-                        if (y1 - y0) > 1 or (y1 - y0) == 0 and start[5:7] == end[5:7]:
-                            pass  # garde : certains émetteurs taguent des cumuls multi-année
-                        if (y1 - y0) not in (0, 1):
-                            continue
-                    except ValueError:
-                        pass
-                dp = DataPoint(value=float(val), fy=int(fy), end=end or "",
-                               accn=item.get("accn", ""), form="10-K")
-                # le filing le plus récent (accn max ~ chronologique) écrase = restatement pris en compte
-                if fy not in picked or dp.accn >= picked[fy].accn:
-                    picked[fy] = dp
-            if picked:
-                cd.series[internal_name] = picked
-                break  # premier tag candidat trouvé suffit
+                        months = (int(end[:4]) * 12 + int(end[5:7])) - \
+                                 (int(start[:4]) * 12 + int(start[5:7]))
+                    except (ValueError, IndexError):
+                        continue
+                    if not (11 <= months <= 13):
+                        continue
+                try:
+                    period_year = int(end[:4])
+                except ValueError:
+                    continue
+                accn = item.get("accn", "")
+                dp = DataPoint(value=float(val), fy=period_year, end=end,
+                               accn=accn, form="10-K")
+                # à période égale, le dépôt le plus récent (accn max) écrase = restatement
+                cur = per_tag.get(period_year)
+                if cur is None or accn >= cur.accn:
+                    per_tag[period_year] = dp
+            # le tag préféré garde ses années ; les suivants comblent les trous seulement
+            for y, dp in per_tag.items():
+                merged.setdefault(y, dp)
+        if merged:
+            cd.series[internal_name] = merged
     return cd

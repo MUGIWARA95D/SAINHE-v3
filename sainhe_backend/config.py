@@ -35,6 +35,13 @@ EDGAR_TICKER_MAP_URL     = "https://www.sec.gov/files/company_tickers.json"
 CACHE_DB_PATH = os.path.join(os.path.dirname(__file__), "cache", "edgar_cache.sqlite")
 OUTPUT_DIR    = os.path.join(os.path.dirname(__file__), "..", "output", "data", "stock")
 
+# TTL du cache EDGAR (jours). Les fondamentaux ne bougent qu'au dépôt d'un 10-K (annuel)
+# ou 10-Q (trimestriel) → inutile de re-fetcher la SEC plus de ~4×/an. 90 j couvre le
+# cycle trimestriel tout en évitant le matraquage de data.sec.gov.
+EDGAR_CACHE_DAYS_COMPANYFACTS = 90
+EDGAR_CACHE_DAYS_SUBMISSIONS  = 90
+EDGAR_CACHE_DAYS_TICKER_MAP   = 30
+
 # ════════════════════════════════════════════════════════════════
 #  PORTFOLIO SAINHE — 31 tickers exacts du dashboard (box_06_portfolio)
 # ════════════════════════════════════════════════════════════════

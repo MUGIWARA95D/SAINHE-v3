@@ -63,7 +63,8 @@ class EdgarClient:
 
     # ------------------------------------------------------------------ API publique
     def ticker_to_cik(self, ticker: str) -> int:
-        data = self._get_json(config.EDGAR_TICKER_MAP_URL, "ticker_map", max_age_days=30)
+        data = self._get_json(config.EDGAR_TICKER_MAP_URL, "ticker_map",
+                              max_age_days=config.EDGAR_CACHE_DAYS_TICKER_MAP)
         t = ticker.upper()
         for entry in data.values():
             if entry["ticker"].upper() == t:
@@ -72,8 +73,10 @@ class EdgarClient:
 
     def submissions(self, cik: int) -> dict:
         url = config.EDGAR_BASE_SUBMISSIONS.format(cik=cik)
-        return self._get_json(url, f"submissions:{cik}", max_age_days=7)
+        return self._get_json(url, f"submissions:{cik}",
+                              max_age_days=config.EDGAR_CACHE_DAYS_SUBMISSIONS)
 
     def companyfacts(self, cik: int) -> dict:
         url = config.EDGAR_BASE_COMPANYFACTS.format(cik=cik)
-        return self._get_json(url, f"companyfacts:{cik}", max_age_days=30)
+        return self._get_json(url, f"companyfacts:{cik}",
+                              max_age_days=config.EDGAR_CACHE_DAYS_COMPANYFACTS)
