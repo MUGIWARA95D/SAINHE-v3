@@ -70,6 +70,30 @@ h1,h2,h3,h4{font-family:var(--serif);color:var(--h);font-weight:400}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
+/* ═══════════════════ AMBIENT ATMOSPHERE ═══════════════════ */
+/* Drifting warm light mesh + film grain — the "éclairage" layer. */
+/* Sits behind body content; opaque section bands cover it, so it    */
+/* glows through the gutters, the hero, and translucent surfaces.    */
+.bg-mesh{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
+.bg-mesh i{position:absolute;border-radius:50%;filter:blur(72px);opacity:.5;mix-blend-mode:multiply}
+[data-theme="dark"] .bg-mesh i{mix-blend-mode:screen;opacity:.26}
+.bg-mesh i:nth-child(1){width:46vw;height:46vw;left:-8vw;top:-6vw;
+  background:radial-gradient(circle,#E8D9A8,transparent 70%);animation:drift1 26s ease-in-out infinite}
+.bg-mesh i:nth-child(2){width:40vw;height:40vw;right:-6vw;top:8vh;
+  background:radial-gradient(circle,#E4C98E,transparent 70%);animation:drift2 32s ease-in-out infinite}
+.bg-mesh i:nth-child(3){width:50vw;height:50vw;left:18vw;bottom:-14vw;
+  background:radial-gradient(circle,#EFE3C2,transparent 70%);animation:drift3 38s ease-in-out infinite}
+[data-theme="dark"] .bg-mesh i:nth-child(1){background:radial-gradient(circle,#5A4A28,transparent 70%)}
+[data-theme="dark"] .bg-mesh i:nth-child(2){background:radial-gradient(circle,#4A3A1E,transparent 70%)}
+[data-theme="dark"] .bg-mesh i:nth-child(3){background:radial-gradient(circle,#3A3220,transparent 70%)}
+@keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(6vw,5vh) scale(1.12)}}
+@keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-5vw,7vh) scale(1.08)}}
+@keyframes drift3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(4vw,-6vh) scale(1.15)}}
+.bg-grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+[data-theme="dark"] .bg-grain{opacity:.05}
+@media(prefers-reduced-motion:reduce){.bg-mesh i{animation:none!important}}
+
 /* ═══════════════════ HEADER ═══════════════════ */
 /* Floating pill — page content scrolls underneath it */
 #hdr{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:100;
@@ -203,7 +227,9 @@ body{padding-top:84px}
   /* anchor jumps land below the fixed pill header instead of behind it */
   scroll-margin-top:96px}
 @media(max-width:700px){.card{scroll-margin-top:78px}}
-.card:hover{box-shadow:var(--shadow-md)}
+.card:hover{box-shadow:var(--shadow-md),0 0 0 1px var(--gold-border),0 14px 44px -18px rgba(158,122,46,.30);
+  border-color:var(--gold-border)}
+[data-theme="dark"] .card:hover{box-shadow:var(--shadow-md),0 0 0 1px var(--gold-border),0 14px 44px -16px rgba(0,0,0,.6)}
 .card-h{display:flex;align-items:center;justify-content:space-between;
   padding:22px 28px;border-bottom:1px solid var(--border-lt)}
 .card-t{font-family:var(--serif);font-size:15px;color:var(--h);letter-spacing:.1px}
