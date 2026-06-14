@@ -1,4 +1,4 @@
-<!-- ═══ SCROLL-IN ANIMATIONS — sober fade-up + slight blur ═══════════════════ -->
+<!-- ═══ SCROLL-IN ANIMATIONS — sober fade-up + slight blur ═══════════════════════ -->
 <!-- Targets every dashboard box (.card) and every page section (.sec-band).   -->
 <!-- Respects prefers-reduced-motion. GPU-only (opacity/transform/filter).     -->
 <style>
@@ -48,4 +48,38 @@ window._sainheInitAnim = function(){
 };
 
 window._sainheInitAnim();
+
+/* ═══ COUNT-UP — animate any [data-count] number into view ═════════════════════ */
+/* data-count="42.5" [data-dec="1"] [data-prefix="$"] [data-suffix="%"].         */
+/* Respects prefers-reduced-motion (snaps to final value).                       */
+window._sainheCountObserver = null;
+window._sainheInitCountUp = function(){
+  if(window._sainheCountObserver){ window._sainheCountObserver.disconnect(); }
+  if(!('IntersectionObserver' in window)) return;
+  var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function run(el){
+    var target = parseFloat(el.getAttribute('data-count'));
+    if(!isFinite(target)){ return; }
+    var dec = parseInt(el.getAttribute('data-dec') || '0', 10);
+    var pre = el.getAttribute('data-prefix') || '';
+    var suf = el.getAttribute('data-suffix') || '';
+    var fmt = function(v){ return pre + v.toLocaleString('en',{minimumFractionDigits:dec,maximumFractionDigits:dec}) + suf; };
+    if(reduce){ el.textContent = fmt(target); return; }
+    var dur = 1100, t0 = performance.now();
+    (function step(t){
+      var p = Math.min((t - t0) / dur, 1), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(target * e);
+      if(p < 1) requestAnimationFrame(step);
+    })(performance.now());
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      run(e.target); io.unobserve(e.target);
+    });
+  }, {threshold: 0.4});
+  window._sainheCountObserver = io;
+  document.querySelectorAll('[data-count]').forEach(function(el){ io.observe(el); });
+};
+window._sainheInitCountUp();
 </script>
