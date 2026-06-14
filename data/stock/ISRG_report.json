@@ -1,0 +1,65 @@
+{
+  "ticker": "ISRG",
+  "cik": 1035267,
+  "as_of": "2026-06-13",
+  "fiscal_year": 2025,
+  "bloc_A_verdict": {
+    "prix": 411.06,
+    "EPV": {"epv_ev": 22317872885.75135, "epv_equity": 22317872885.75135, "epv_per_share": 61.532597,
+      "inputs": {"ebit_adj": 2945500000.0, "tax": 0.131304, "wacc": 0.11465, "net_debt": 0.0}},
+    "EPV_confidence_range": {"low": 21.018668, "high": 34.309166, "fcf_p25": 581550000.0, "fcf_p75": 949275000.0},
+    "EPV_wacc_sensitivity": {"minus_100bps": 67.412444, "central": 61.532597, "plus_100bps": 56.596167},
+    "RE_valuation": {"re_value_equity": 24910597470.562584, "re_value_per_share": 68.680997,
+      "inputs": {"B0": 17824000000.0, "RE": 812478400.0, "ke": 0.11465, "g": 0.0}},
+    "consensus": {"available": true, "target_mean": 565.0786, "target_median": 574.0, "target_high": 750.0, "target_low": 366.0, "n_analysts": 29, "warning_few_analysts": false, "dispersion": 0.679551},
+    "reverse_dcf": {"implied_g": 0.102065, "flag_unrealistic": false, "inputs": {"ev": 149091462000.0, "fcf_adj": 1702500000.0, "wacc": 0.11465}},
+    "SGR": {"sgr": "N/D", "rr": "N/D", "note": "inputs manquants"},
+    "flag_growth_unfinanceable": false
+  },
+  "bloc_B_flags": [{"id": "sbc_15pct_fcf", "severity": "medium", "message": "SBC = 32% du FCF brut (>15%) : FCF brut significativement surestimé", "details": {"sbc_pct_fcf": 0.316457}}],
+  "bloc_C_dupont": {"available": true, "fy": 2025, "RNOA": 0.213108, "FLEV": -0.332972, "NBC": -0.0, "SPREAD": 0.213108, "leverage_gain": -0.070959, "ROE_dupont": 0.142149, "ROE_direct": 0.160233, "coherence_gap": -0.0181, "net_cash_position": true},
+  "bloc_D_trends": {
+    "roic_10y": {},
+    "rnoa_10y": {"2021": 0.2149, "2022": 0.1887, "2023": 0.2005, "2024": 0.1641, "2025": 0.2131},
+    "gross_margin_10y": {"2018": 0.703, "2019": 0.7013, "2020": 0.674, "2021": 0.6841, "2022": 0.6744, "2023": 0.6639, "2024": 0.6746, "2025": 0.66},
+    "fcf_adj_10y": {"2016": 811400000.0, "2017": 744100000.0, "2018": 721000000.0, "2019": 836800000.0, "2020": 747900000.0, "2021": 1286700000.0, "2022": 445200000.0, "2023": 156800000.0, "2024": 627000000.0, "2025": 1702500000.0},
+    "roe_10y": {"2016": 0.0353, "2017": -0.0082, "2018": 0.0438, "2019": 0.0433, "2020": 0.0375, "2021": 0.032, "2022": 0.1198, "2023": 0.1351, "2024": 0.1413, "2025": 0.1602},
+    "owner_earnings_10y": {},
+    "revenue_10y": {"2018": 1046500000.0, "2019": 1277700000.0, "2020": 1329100000.0, "2021": 1550700000.0, "2022": 6222200000.0, "2023": 7124100000.0, "2024": 8352100000.0, "2025": 10064700000.0}
+  },
+  "bloc_E_health": {
+    "net_debt_ebitda": "N/D", "interest_coverage": "N/D",
+    "lt_debt_payback": {"years": "N/D", "passes": "N/D", "label": "source secondaire"},
+    "current_ratio": 4.874639, "quick_ratio": 3.957482, "de_ratio": "N/D",
+    "ccc": {"dso": 55.388089, "dio": 196.236559, "dpo": 27.206493, "ccc": 224.418156},
+    "ocf_ni": 1.061099, "accruals_pct_rev": -0.017338,
+    "retained_earnings_test": {"ratio": 19.887431, "retained_5y": 8679500000.0, "delta_mcap": 172612955218.50586, "passes": true, "window": [2020, 2025]}
+  },
+  "bloc_F_peers": {"note": "rempli par peer_batch.build_peer_blocks() sur l'univers complet"},
+  "bloc_G_smart_money": {
+    "n_insider_filings_6m": 65,
+    "recent": [{"form": "4", "date": "2026-06-12"}, {"form": "4", "date": "2026-06-10"}, {"form": "4", "date": "2026-06-10"}, {"form": "4", "date": "2026-06-10"}, {"form": "4", "date": "2026-06-02"}, {"form": "4", "date": "2026-05-22"}, {"form": "4", "date": "2026-05-20"}, {"form": "4", "date": "2026-05-11"}, {"form": "4", "date": "2026-05-01"}, {"form": "4", "date": "2026-04-30"}, {"form": "4", "date": "2026-04-30"}, {"form": "4", "date": "2026-04-30"}, {"form": "4", "date": "2026-04-30"}, {"form": "4", "date": "2026-04-30"}, {"form": "4", "date": "2026-04-30"}, {"form": "4", "date": "2026-04-30"}, {"form": "4", "date": "2026-04-30"}, {"form": "4", "date": "2026-04-30"}, {"form": "4", "date": "2026-04-29"}, {"form": "4", "date": "2026-03-11"}],
+    "note": "détail buy/sell = Phase 6 (parsing Form 4 XML)"
+  },
+  "bloc_H_sensitivity": {
+    "margin_axis": [0.2049, 0.2157, 0.2459, 0.4181, 1.4013],
+    "g_axis": [0.01, 0.015, 0.02, 0.025, 0.03],
+    "matrix": [[49.61, 49.63, 49.65, 49.67, 49.69], [52.39, 52.5, 52.62, 52.75, 52.9], [60.15, 60.52, 60.93, 61.38, 61.89], [104.42, 106.27, 108.32, 110.6, 113.14], [357.11, 367.44, 378.86, 391.55, 405.74]]
+  },
+  "bloc_I_macro": {
+    "leading_indicator": {"indicator": "PMI Manufacturing", "value": "N/D", "label": "contexte macro — indicateur avancé, pas une prédiction"},
+    "geographic_exposure": {"us_pct": "N/D", "non_us_pct": "N/D", "source": "yfinance country (HQ)", "country": "United States", "note": "HQ US ; ventilation revenus géographiques non disponible sans parsing dimensionnel XBRL (Phase 6) — voir 10-K Item 1"}
+  },
+  "drill_down": {
+    "wacc_detail": {"wacc": 0.11465, "ke": 0.11465, "kd": "N/D", "tax_rate": 0.131304, "E": 149091462000.0, "D": 0, "rf": 0.042, "erp": 0.05, "beta": 1.453, "mode": "complet"},
+    "adjustments": {"fy": 2025, "ni_brut": 2856000000.0, "ni_adj": 2856000000.0, "ebit_brut": 2945500000.0, "ebit_adj": 2945500000.0, "adjustments": [], "gap_pct": 0.0, "gap_flag": false},
+    "reformulation": {"OA": 14523800000.0, "FA": 5934900000.0, "OO": 2517000000.0, "FO": 0.0, "NOA": 12006800000.0, "NFO": -5934900000.0, "equity_check": 117700000.0},
+    "edgar_filings_index": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001035267&type=10-K&dateb=&owner=include&count=40"
+  },
+  "score_composite": {
+    "value_0_100": 35.0,
+    "pillars": {"valuation": 0, "balance_sheet_health": 50, "earnings_quality": 50, "smart_money": 50, "momentum": 50},
+    "weights": {"valuation": 0.3, "balance_sheet_health": 0.25, "earnings_quality": 0.2, "smart_money": 0.15, "momentum": 0.1},
+    "note": "pondérations modifiables par l'utilisateur (.txt Couche 4)"
+  }
+}
